@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { randomUUID } from "crypto";
 import path from "path";
+import { supabase } from "./supabase";
 import type {
   ArchiveStore,
   ArchiveVisibility,
@@ -10,6 +11,7 @@ import type {
 } from "./types";
 
 const storePath = path.join(process.cwd(), "data", "life-archive.json");
+const useSupabase = process.env.USE_SUPABASE === "true";
 
 export const memoryTypes: MemoryType[] = [
   "song",
@@ -195,8 +197,8 @@ function slugify(value: string) {
   return slug || "archive";
 }
 
-function uniqueSlug(baseSlug: string, archives: LifeArchive[]) {
-  const existing = new Set(archives.map((archive) => archive.slug));
+function uniqueSlug(baseSlug: string, existingArchives: Array<{ slug: string }>) {
+  const existing = new Set(existingArchives.map((archive) => archive.slug));
 
   if (!existing.has(baseSlug)) {
     return baseSlug;
@@ -240,16 +242,79 @@ export function isMemoryType(value: string): value is MemoryType {
 }
 
 export async function getFeaturedArchives() {
+  if (useSupabase) {
+    const { data, error } = await supabase
+      .from("archives")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return data.map((row: any) => ({
+      slug: row.slug,
+      archiveName: row.archive_name,
+      personName: row.person_name,
+      bio: row.bio,
+      profilePhotoUrl: row.profile_photo_url,
+      visibility: row.visibility as ArchiveVisibility,
+      memorialMode: row.memorial_mode,
+      createdAt: row.created_at.slice(0, 10)
+    }));
+  }
+
   const store = await readStore();
   return store.archives;
 }
 
 export async function getArchiveBySlug(slug: string) {
+  if (useSupabase) {
+    const { data, error } = await supabase
+      .from("archives")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return null;
+
+    return {
+      slug: data.slug,
+      archiveName: data.archive_name,
+      personName: data.person_name,
+      bio: data.bio,
+      profilePhotoUrl: data.profile_photo_url,
+      visibility: data.visibility as ArchiveVisibility,
+      memorialMode: data.memorial_mode,
+      createdAt: data.created_at.slice(0, 10)
+    };
+  }
+
   const store = await readStore();
   return store.archives.find((archive) => archive.slug === slug) ?? null;
 }
 
 export async function getMemoriesByArchiveSlug(slug: string) {
+  if (useSupabase) {
+    const { data, error } = await supabase
+      .from("memories")
+      .select("*, archives!inner(slug)")
+      .eq("archives.slug", slug)
+      .order("memory_date", { ascending: false });
+
+    if (error) throw error;
+
+    return data.map((row: any) => ({
+      id: row.id,
+      archiveSlug: slug,
+      title: row.title,
+      type: row.type as MemoryType,
+      content: row.content,
+      mediaUrl: row.media_url,
+      date: row.memory_date,
+      tags: row.tags
+    }));
+  }
+
   const store = await readStore();
 
   return store.memories
@@ -269,8 +334,51 @@ export async function getRandomMemory(slug: string) {
 }
 
 export async function createArchive(input: CreateArchiveInput) {
+  if (useSupabase) {
+    const { data: existingArchives } = await supabase
+      .from("archives")
+      .select("slug");
+    
+    const slug = uniqueSlug(
+      slugify(input.personName),
+      (existingArchives || []).map((a: any) => ({ slug: a.slug }))
+    );
+
+    const { data, error } = await supabase
+      .from("archives")
+      .insert({
+        slug,
+        archive_name: input.archiveName,
+        person_name: input.personName,
+        bio: input.bio,
+        profile_photo_url: input.profilePhotoUrl || defaultProfilePhotoUrl,
+        visibility: input.visibility,
+        memorial_mode: input.memorialMode,
+        is_demo: false,
+        owner_id: "00000000-0000-0000-0000-000000000000" // Placeholder
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return {
+      slug: data.slug,
+      archiveName: data.archive_name,
+      personName: data.person_name,
+      bio: data.bio,
+      profilePhotoUrl: data.profile_photo_url,
+      visibility: data.visibility as ArchiveVisibility,
+      memorialMode: data.memorial_mode,
+      createdAt: data.created_at.slice(0, 10)
+    };
+  }
+
   const store = await readStore();
-  const slug = uniqueSlug(slugify(input.personName), store.archives);
+  const slug = uniqueSlug(
+    slugify(input.personName),
+    store.archives.map((a) => ({ slug: a.slug }))
+  );
   const now = new Date().toISOString().slice(0, 10);
 
   const archive: LifeArchive = {
@@ -291,6 +399,46 @@ export async function createArchive(input: CreateArchiveInput) {
 }
 
 export async function createMemory(input: CreateMemoryInput) {
+  if (useSupabase) {
+    const { data: archive, error: archiveError } = await supabase
+      .from("archives")
+      .select("id")
+      .eq("slug", input.archiveSlug)
+      .single();
+
+    if (archiveError || !archive) {
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from("memories")
+      .insert({
+        archive_id: archive.id,
+        title: input.title,
+        type: input.type,
+        content: input.content,
+        media_url: input.mediaUrl,
+        memory_date: input.date || new Date().toISOString().slice(0, 10),
+        tags: input.tags,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return {
+      id: data.id,
+      archiveSlug: input.archiveSlug,
+      title: data.title,
+      type: data.type as MemoryType,
+      content: data.content,
+      mediaUrl: data.media_url,
+      date: data.memory_date,
+      tags: data.tags
+    };
+  }
+
   const store = await readStore();
   const archiveExists = store.archives.some(
     (archive) => archive.slug === input.archiveSlug
