@@ -1,0 +1,116 @@
+{
+  "archives": [
+    {
+      "slug": "maya-rivera",
+      "archiveName": "Maya Rivera's Life Archive",
+      "personName": "Maya Rivera",
+      "bio": "Teacher, gardener, Sunday dinner host, and the steady voice everyone called when life felt too loud.",
+      "profilePhotoUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80",
+      "visibility": "public",
+      "memorialMode": false,
+      "createdAt": "2026-06-01"
+    },
+    {
+      "slug": "dustin-sigley",
+      "archiveName": "Founders Archive",
+      "personName": "Dustin Sigley",
+      "bio": "Founder seed archive for Life Archive, built to show how a person's ideas, lessons, and memories can live together in one simple place.",
+      "profilePhotoUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80",
+      "visibility": "public",
+      "memorialMode": false,
+      "createdAt": "2026-06-20"
+    }
+  ],
+  "memories": [
+    {
+      "id": "m-001",
+      "archiveSlug": "maya-rivera",
+      "title": "The kitchen table rule",
+      "type": "lesson",
+      "content": "Maya always said the best conversations happen after the plates are cleared, when no one is rushing to be anywhere else.",
+      "date": "2021-11-24",
+      "tags": [
+        "family",
+        "lesson",
+        "home"
+      ]
+    },
+    {
+      "id": "m-002",
+      "archiveSlug": "maya-rivera",
+      "title": "Summer roses",
+      "type": "photo",
+      "content": "A favorite photo from the first summer the rose bushes finally climbed over the back fence.",
+      "mediaUrl": "https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=1200&q=80",
+      "date": "2019-07-12",
+      "tags": [
+        "garden",
+        "summer"
+      ]
+    },
+    {
+      "id": "m-003",
+      "archiveSlug": "maya-rivera",
+      "title": "A letter for the first hard year",
+      "type": "journal",
+      "content": "If you are reading this during a hard season, make the next right choice and let tomorrow get its own turn.",
+      "date": "2024-01-02",
+      "tags": [
+        "future",
+        "journal"
+      ]
+    },
+    {
+      "id": "m-004",
+      "archiveSlug": "maya-rivera",
+      "title": "Her Sunday playlist",
+      "type": "song",
+      "content": "The songs that played while Maya cooked on Sunday mornings, before anyone else arrived.",
+      "mediaUrl": "https://open.spotify.com/",
+      "date": "2020-03-08",
+      "tags": [
+        "music",
+        "sunday"
+      ]
+    },
+    {
+      "id": "dustin-001",
+      "archiveSlug": "dustin-sigley",
+      "title": "The first version",
+      "type": "journal",
+      "content": "The Life Archive started with a simple belief: people should not need a perfect biography to preserve what mattered. A few memories, lessons, songs, and notes can become a doorway back into a life.",
+      "date": "2026-06-20",
+      "tags": [
+        "founder",
+        "journal",
+        "beginning"
+      ]
+    },
+    {
+      "id": "dustin-002",
+      "archiveSlug": "dustin-sigley",
+      "title": "Preserve stories before they disappear",
+      "type": "lesson",
+      "content": "Do not wait for the perfect time to ask for the story. Save the voice note, write the sentence down, collect the photo, and keep the detail while it is still close.",
+      "date": "2026-06-20",
+      "tags": [
+        "lesson",
+        "stories",
+        "legacy"
+      ]
+    },
+    {
+      "id": "dustin-003",
+      "archiveSlug": "dustin-sigley",
+      "title": "A song for the first scan",
+      "type": "song",
+      "content": "A placeholder song memory for the founder demo. This shows how a QR scan can surface music alongside written memories.",
+      "mediaUrl": "https://open.spotify.com/",
+      "date": "2026-06-20",
+      "tags": [
+        "song",
+        "demo"
+      ]
+    }
+  ]
+}
