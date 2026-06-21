@@ -59,5 +59,5 @@ export async function createArchiveAction(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath(`/archive/${archive.slug}`);
-  redirect(`/archive/${archive.slug}`);
+  redirect(`/archive/${archive.slug}?created=1`);
 }

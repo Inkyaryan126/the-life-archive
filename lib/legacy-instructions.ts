@@ -9,8 +9,8 @@ export const legacyInstructionAccessLevelLabels: Record<
   LegacyInstructionAccessLevel,
   string
 > = {
-  owner_only: "Private draft",
-  released: "Released"
+  owner_only: "Only me",
+  released: "Publicly shared"
 };
 
 export function isLegacyInstructionAccessLevel(

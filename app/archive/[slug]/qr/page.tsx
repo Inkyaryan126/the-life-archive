@@ -56,6 +56,11 @@ export default async function QRPage({ params }: QRPageProps) {
           <p className="mt-5 leading-7 text-archive-ink/72">
             Scan to reveal a random memory.
           </p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-archive-ink/60">
+            {archive.visibility === "public"
+              ? "Anyone who scans this code can view the archive. Public archives may also appear on The Life Archive homepage."
+              : "Only the archive owner and authorized members can open this private archive after signing in."}
+          </p>
         </header>
 
         <section className="no-print grid gap-6 lg:grid-cols-[360px_1fr]">
@@ -72,20 +77,20 @@ export default async function QRPage({ params }: QRPageProps) {
 
           <div className="rounded-lg border border-archive-ink/10 bg-white/82 p-6 shadow-soft">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-clay">
-              Shareable URL
+              Share this link
             </p>
             <p className="mt-3 break-all rounded-md bg-archive-linen px-4 py-3 text-sm leading-6 text-archive-ink/74">
               {randomMemoryUrl}
             </p>
             <div className="mt-6 grid gap-3 text-sm leading-6 text-archive-ink/70">
               <p>
-                Archive name:{" "}
+                Archive:{" "}
                 <span className="font-semibold text-archive-ink">
                   {archive.archiveName}
                 </span>
               </p>
               <p>
-                Person name:{" "}
+                Preserving:{" "}
                 <span className="font-semibold text-archive-ink">
                   {archive.personName}
                 </span>
@@ -97,7 +102,7 @@ export default async function QRPage({ params }: QRPageProps) {
 
         <section className="qr-print-card mt-10 rounded-lg border border-archive-ink/10 bg-white p-8 text-center shadow-soft">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-clay">
-            Life Archive
+            The Life Archive
           </p>
           <h2 className="mt-3 font-serif text-4xl text-archive-ink">
             {archive.personName}

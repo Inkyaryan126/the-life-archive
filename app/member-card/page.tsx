@@ -8,12 +8,14 @@ import {
   svgToDataUri
 } from "@/lib/qr";
 import { getAccountContext } from "@/lib/account";
+import { SuccessMessage } from "@/components/SuccessMessage";
 
 export const dynamic = "force-dynamic";
 
 type MemberCardPageProps = {
   searchParams?: {
     confirmation?: string;
+    welcome?: string;
   };
 };
 
@@ -67,20 +69,26 @@ export default async function MemberCardPage({
             </Link>
           ) : null}
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-            Official Member
+            Member Card
           </span>
         </div>
       </div>
 
       <section className="no-print relative mx-auto max-w-3xl pb-10 pt-14 text-center sm:pt-20">
+        {searchParams?.welcome === "new" ? (
+          <SuccessMessage
+            eyebrow="Welcome to The Life Archive"
+            message="Your account is ready. Create an archive when you are ready to preserve the first story."
+          />
+        ) : null}
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-          Membership begins here
+          Keep their story within reach
         </p>
         <h1 className="mt-5 font-serif text-4xl leading-tight sm:text-6xl">
-          Welcome to The Life Archive.
+          Carry what matters with you.
         </h1>
         <p className="mt-4 font-serif text-xl italic text-archive-champagne sm:text-2xl">
-          You are now part of something that matters.
+          A simple card can lead loved ones back to a lifetime of memories.
         </p>
         <p className="mx-auto mt-7 max-w-2xl text-sm leading-7 text-archive-ivory/68 sm:text-base sm:leading-8">
           This card is intended to be printed and kept in your wallet. If
@@ -110,31 +118,38 @@ export default async function MemberCardPage({
           continueHref={continueHref}
           continueLabel={continueLabel}
         />
+        {account.defaultArchive ? (
+          <p className="mx-auto mt-5 max-w-xl text-center text-sm leading-6 text-archive-ivory/60">
+            {account.defaultArchive.visibility === "public"
+              ? "This card opens a public archive that anyone can view. Public archives may also appear on The Life Archive homepage."
+              : "This card opens a private archive. Only you and authorized members can view it after signing in."}
+          </p>
+        ) : null}
       </div>
 
       <aside className="no-print relative mx-auto mt-16 max-w-4xl rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-6 text-center sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-          The card collection
+          Keep the story close
         </p>
         <h2 className="mt-3 font-serif text-2xl sm:text-3xl">
-          Made to carry. Built to endure.
+          Made to carry. Ready to share.
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/60">
-          Premium physical cards, engraved metal editions, and memorial
-          keychains are planned for a future collection.
+          Print this card, keep it in a wallet, or share the archive link with
+          the people who should always be able to find it.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2 text-xs uppercase tracking-[0.15em] text-archive-champagne/75">
           <span className="rounded-full border border-archive-gold/20 px-4 py-2">
-            Premium cards
+            Wallet card
           </span>
           <span className="rounded-full border border-archive-gold/20 px-4 py-2">
-            Metal editions
+            Archive QR
           </span>
           <span className="rounded-full border border-archive-gold/20 px-4 py-2">
-            Engraved cards
+            Shareable link
           </span>
           <span className="rounded-full border border-archive-gold/20 px-4 py-2">
-            Memorial keychains
+            A story kept close
           </span>
         </div>
       </aside>

@@ -33,7 +33,7 @@ values
     'dustin-sigley',
     'Founders Archive',
     'Dustin Sigley',
-    'Founder seed archive for Life Archive, built to show how a person''s ideas, lessons, and memories can live together in one simple place.',
+    'Founder of The Life Archive, preserving the ideas, lessons, and moments that shaped the journey.',
     'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80',
     'public',
     false,
@@ -136,10 +136,10 @@ with seeded_memories (
       'dustin-sigley',
       'A song for the first scan',
       'song',
-      'A placeholder song memory for the founder demo. This shows how a QR scan can surface music alongside written memories.',
+      'A song connected to the earliest days of The Life Archive and the belief that music can bring a moment back.',
       'https://open.spotify.com/',
       date '2026-06-20',
-      array['song', 'demo']::text[],
+      array['song', 'beginning']::text[],
       '2026-06-20T00:00:00Z'::timestamptz,
       '2026-06-20T00:00:00Z'::timestamptz
     )

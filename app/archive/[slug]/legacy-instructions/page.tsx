@@ -7,6 +7,7 @@ import {
   legacyInstructionAccessLevels
 } from "@/lib/legacy-instructions";
 import { saveLegacyInstructionsAction } from "./actions";
+import { SuccessMessage } from "@/components/SuccessMessage";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,7 @@ type LegacyInstructionsPageProps = {
   };
   searchParams?: {
     error?: string;
+    success?: string;
   };
 };
 
@@ -26,6 +28,7 @@ function LegacyInstructionsEditor({
   body,
   accessLevel,
   error
+  ,success
 }: {
   slug: string;
   archiveName: string;
@@ -33,6 +36,7 @@ function LegacyInstructionsEditor({
   body?: string;
   accessLevel?: "owner_only" | "released";
   error?: string;
+  success?: string;
 }) {
   return (
     <form
@@ -43,6 +47,17 @@ function LegacyInstructionsEditor({
         <p className="mb-5 rounded-xl border border-archive-gold/25 bg-archive-gold/10 px-4 py-3 text-sm leading-6 text-archive-champagne">
           {error}
         </p>
+      ) : null}
+      {success === "released" ? (
+        <SuccessMessage
+          eyebrow="Legacy notes shared"
+          message="These notes are now publicly readable by anyone with the direct link."
+        />
+      ) : success === "saved" ? (
+        <SuccessMessage
+          eyebrow="Legacy notes preserved"
+          message="Your private notes are saved and ready whenever you return."
+        />
       ) : null}
 
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -66,15 +81,15 @@ function LegacyInstructionsEditor({
       </div>
 
       <p className="mt-6 max-w-3xl text-sm leading-7 text-archive-ivory/68 sm:text-base">
-        This is a separate document from memories. Keep it for directions,
-        wishes, and other notes that should stay private until you choose to
-        release them.
+        Keep final wishes, practical details, and personal messages here,
+        separate from the memories in this archive. They remain private until
+        you choose to make them visible.
       </p>
 
       <div className="mt-8 grid gap-6">
         <label className="grid gap-2">
           <span className="text-sm font-semibold text-archive-ivory">
-            Access level
+            Who can read this?
           </span>
           <select
             name="accessLevel"
@@ -112,7 +127,8 @@ function LegacyInstructionsEditor({
           Save Instructions
         </button>
         <p className="text-sm leading-6 text-archive-ivory/58">
-          Released instructions become publicly readable.
+          Choosing &ldquo;Publicly shared&rdquo; makes these notes readable by
+          anyone with the direct link, even when the archive is private.
         </p>
       </div>
     </form>
@@ -139,7 +155,7 @@ function LegacyInstructionsReadOnly({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-            Released Legacy Instructions
+            Shared Legacy Notes
           </p>
           <h1 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl">
             {archiveName}
@@ -154,7 +170,7 @@ function LegacyInstructionsReadOnly({
       </div>
 
       <p className="mt-6 max-w-3xl text-sm leading-7 text-archive-ivory/68 sm:text-base">
-        This document was explicitly released by the archive owner.
+        The archive owner chose to share these notes as part of the archive.
       </p>
 
       <article className="mt-8 whitespace-pre-wrap rounded-2xl border border-archive-gold/15 bg-archive-ivory px-5 py-5 text-archive-obsidian shadow-inner">
@@ -231,6 +247,7 @@ export default async function LegacyInstructionsPage({
               body={legacyInstruction?.body}
               accessLevel={legacyInstruction?.accessLevel}
               error={searchParams?.error}
+              success={searchParams?.success}
             />
           ) : legacyInstruction ? (
             <LegacyInstructionsReadOnly

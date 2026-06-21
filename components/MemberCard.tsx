@@ -30,7 +30,7 @@ export function MemberCard({
               </p>
             </div>
             <h2 className="mt-4 font-serif text-3xl leading-none sm:text-4xl">
-              Official Member
+              Member Card
             </h2>
             <p className="mt-2 font-serif text-sm italic text-archive-champagne sm:text-base">
               Every life. Preserved.

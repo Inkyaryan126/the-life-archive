@@ -10,6 +10,7 @@ import {
 import {
   legacyInstructionAccessLevelLabels
 } from "@/lib/legacy-instructions";
+import { SuccessMessage } from "@/components/SuccessMessage";
 
 export const dynamic = "force-dynamic";
 
@@ -79,14 +80,16 @@ function ArchiveDashboardCard({
         </div>
         {isDefault ? (
           <span className="rounded-full border border-archive-gold/40 bg-archive-gold/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-archive-champagne">
-            Default
+            Member card archive
           </span>
         ) : null}
       </div>
 
       <div className="mt-5 flex flex-wrap gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em]">
         <span className="rounded-full border border-archive-gold/20 px-3 py-1.5 text-archive-ivory/68">
-          {archive.visibility === "public" ? "Public" : "Private"}
+          {archive.visibility === "public"
+            ? "Public · visible to everyone"
+            : "Private · authorized people only"}
         </span>
         <span className="rounded-full border border-archive-gold/20 px-3 py-1.5 text-archive-ivory/68">
           {archive.memorialMode ? "Memorial" : "Living archive"}
@@ -144,10 +147,10 @@ function LegacyInstructionsCard({
       : "Saved"
     : "Not started";
   const description = !hasInstructions
-    ? "Write a private legacy instruction document for this archive."
+    ? "Keep final wishes, practical details, and personal messages together."
     : accessLevel === "released"
-      ? "Released publicly. Keep it current when your wishes change."
-      : "Saved privately. Open it anytime to finish the draft.";
+      ? "Publicly shared. Review it whenever your wishes change."
+      : "Only you can read these notes. Return whenever you are ready.";
   const ctaLabel = hasInstructions
     ? "Open Legacy Instructions"
     : "Write Legacy Instructions";
@@ -160,11 +163,11 @@ function LegacyInstructionsCard({
             Legacy Instructions
           </p>
           <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
-            Prepare the instructions that should outlast the archive.
+            Preserve the guidance that matters most.
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/62 sm:text-base">
-            Keep a private document for final wishes, practical notes, and
-            anything the right person should know later.
+            Keep final wishes, practical details, and personal messages in one
+            thoughtful place.
           </p>
         </div>
         <span className="rounded-full border border-archive-gold/25 bg-archive-gold/10 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-archive-champagne">
@@ -199,7 +202,13 @@ function LegacyInstructionsCard({
   );
 }
 
-export default async function DashboardPage() {
+type DashboardPageProps = {
+  searchParams?: {
+    welcome?: string;
+  };
+};
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const account = await getAccountContext();
 
   if (!account.user) {
@@ -242,6 +251,12 @@ export default async function DashboardPage() {
       </nav>
 
       <div className="relative mx-auto max-w-6xl pb-20 pt-12 sm:pt-16">
+        {searchParams?.welcome === "back" ? (
+          <SuccessMessage
+            eyebrow="Welcome back"
+            message="Your archives are here, ready for the next memory."
+          />
+        ) : null}
         <header className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
             Your archive home
@@ -259,13 +274,13 @@ export default async function DashboardPage() {
           <div className="grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-                Account status
+                Membership details
               </p>
               <p className="mt-3 break-all text-sm font-semibold">{user.email}</p>
             </div>
             <dl className="grid gap-3 text-sm sm:min-w-72">
               <div className="flex items-center justify-between gap-6">
-                <dt className="text-archive-obsidian/60">Email</dt>
+                <dt className="text-archive-obsidian/60">Account email</dt>
                 <dd className="font-semibold">
                   {user.emailConfirmed ? "Confirmed" : "Pending"}
                 </dd>
@@ -316,8 +331,7 @@ export default async function DashboardPage() {
 
           {account.archiveLookupFailed ? (
             <p className="mt-6 rounded-xl border border-archive-gold/25 bg-archive-gold/10 px-4 py-3 text-sm leading-6 text-archive-champagne">
-              Your archives could not be loaded. Refresh before creating a new
-              archive.
+              We couldn&apos;t open your archives. Refresh the page and try again.
             </p>
           ) : archives.length > 0 ? (
             <div className="mt-6 grid gap-5 xl:grid-cols-2">
@@ -334,7 +348,7 @@ export default async function DashboardPage() {
               <DashboardAction
                 href="/create"
                 label="Create My Archive"
-                description="Create your first archive before adding memories or printing its QR card."
+                description="Create a home for the memories, stories, and legacy you want to preserve."
                 primary
               />
               <DashboardAction
@@ -355,7 +369,7 @@ export default async function DashboardPage() {
               <div>
                 <h2 className="font-serif text-2xl">Your Member Card</h2>
                 <p className="mt-2 text-sm leading-6 text-archive-ivory/58">
-                  The card currently connects to your default archive.
+                  When scanned, your member card opens this archive.
                 </p>
               </div>
               <Link

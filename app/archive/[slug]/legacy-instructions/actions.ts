@@ -48,5 +48,6 @@ export async function saveLegacyInstructionsAction(
   revalidatePath("/dashboard");
   revalidatePath(`/archive/${slug}`);
   revalidatePath(`/archive/${slug}/legacy-instructions`);
-  redirect(`/archive/${slug}/legacy-instructions`);
+  const result = accessLevel === "released" ? "released" : "saved";
+  redirect(`/archive/${slug}/legacy-instructions?success=${result}`);
 }

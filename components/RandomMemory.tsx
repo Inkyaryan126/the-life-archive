@@ -4,10 +4,15 @@ import type { Memory } from "@/lib/types";
 
 type RandomMemoryProps = {
   archiveSlug: string;
+  canAddMemory: boolean;
   memory: Memory | null;
 };
 
-export function RandomMemory({ archiveSlug, memory }: RandomMemoryProps) {
+export function RandomMemory({
+  archiveSlug,
+  canAddMemory,
+  memory
+}: RandomMemoryProps) {
   if (!memory) {
     return (
       <section className="rounded-lg border border-archive-ink/10 bg-white/82 p-6 shadow-soft">
@@ -18,12 +23,18 @@ export function RandomMemory({ archiveSlug, memory }: RandomMemoryProps) {
           Add a story, song, photo, voice note, or lesson so each scan has
           something meaningful to reveal.
         </p>
-        <Link
-          href={`/archive/${archiveSlug}/add-memory`}
-          className="mt-5 inline-flex rounded-full bg-archive-clay px-5 py-3 text-sm font-semibold text-white"
-        >
-          Add Memory
-        </Link>
+        {canAddMemory ? (
+          <Link
+            href={`/archive/${archiveSlug}/add-memory`}
+            className="mt-5 inline-flex rounded-full bg-archive-clay px-5 py-3 text-sm font-semibold text-white"
+          >
+            Add Memory
+          </Link>
+        ) : (
+          <p className="mt-5 text-sm font-semibold text-archive-sage">
+            The archive keeper will add the first memory when it is ready.
+          </p>
+        )}
       </section>
     );
   }

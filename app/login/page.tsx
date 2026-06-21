@@ -12,10 +12,17 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
     <main className="min-h-screen px-5 py-12 sm:px-8">
       <div className="mx-auto max-w-sm">
         <Link href="/" className="mb-8 block text-center text-lg font-semibold text-archive-ink">
-          Life Archive
+          The Life Archive
         </Link>
         <form className="rounded-lg border border-archive-ink/10 bg-white/82 p-6 shadow-soft grid gap-5">
-          <h1 className="font-serif text-2xl text-archive-ink">Sign in or sign up</h1>
+          <div>
+            <h1 className="font-serif text-2xl text-archive-ink">
+              Continue your archive
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-archive-ink/68">
+              Sign in to return to your archives, or create an account to begin.
+            </p>
+          </div>
           {searchParams?.error ? (
             <p className="rounded-md border border-archive-clay/20 bg-archive-clay/10 px-4 py-3 text-sm font-semibold text-archive-clay">
               {searchParams.error}

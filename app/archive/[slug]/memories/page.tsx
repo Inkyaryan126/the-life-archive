@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MemoryCard } from "@/components/MemoryCard";
+import { SuccessMessage } from "@/components/SuccessMessage";
+import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 
 export const dynamic = "force-dynamic";
@@ -9,16 +11,23 @@ type MemoriesPageProps = {
   params: {
     slug: string;
   };
+  searchParams?: {
+    created?: string;
+  };
 };
 
-export default async function MemoriesPage({ params }: MemoriesPageProps) {
-  const archive = await getArchiveBySlug(params.slug);
+export default async function MemoriesPage({ params, searchParams }: MemoriesPageProps) {
+  const [archive, account] = await Promise.all([
+    getArchiveBySlug(params.slug),
+    getAccountContext()
+  ]);
 
   if (!archive) {
     notFound();
   }
 
   const memories = await getMemoriesByArchiveSlug(params.slug);
+  const isOwner = account.archives.some((item) => item.slug === archive.slug);
 
   return (
     <main className="min-h-screen px-5 py-6 sm:px-8">
@@ -30,12 +39,14 @@ export default async function MemoriesPage({ params }: MemoriesPageProps) {
           >
             Back to archive
           </Link>
-          <Link
-            href={`/archive/${archive.slug}/add-memory`}
-            className="rounded-full bg-archive-ink px-4 py-2 text-sm font-semibold text-white"
-          >
-            Add Memory
-          </Link>
+          {isOwner ? (
+            <Link
+              href={`/archive/${archive.slug}/add-memory`}
+              className="rounded-full bg-archive-ink px-4 py-2 text-sm font-semibold text-white"
+            >
+              Add Memory
+            </Link>
+          ) : null}
         </nav>
 
         <header className="py-12">
@@ -46,6 +57,13 @@ export default async function MemoriesPage({ params }: MemoriesPageProps) {
             {archive.personName}
           </h1>
         </header>
+
+        {searchParams?.created === "1" ? (
+          <SuccessMessage
+            eyebrow="Memory preserved"
+            message="This memory is now part of the archive and ready to be revisited."
+          />
+        ) : null}
 
         {memories.length > 0 ? (
           <section className="grid gap-5 md:grid-cols-2">
@@ -62,12 +80,14 @@ export default async function MemoriesPage({ params }: MemoriesPageProps) {
               Start with one story, photo, song, voice note, or lesson. The
               archive will grow from there.
             </p>
-            <Link
-              href={`/archive/${archive.slug}/add-memory`}
-              className="mt-5 inline-flex rounded-full bg-archive-clay px-5 py-3 text-sm font-semibold text-white"
-            >
-              Add Memory
-            </Link>
+            {isOwner ? (
+              <Link
+                href={`/archive/${archive.slug}/add-memory`}
+                className="mt-5 inline-flex rounded-full bg-archive-clay px-5 py-3 text-sm font-semibold text-white"
+              >
+                Add Memory
+              </Link>
+            ) : null}
           </section>
         )}
       </div>

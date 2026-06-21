@@ -88,7 +88,7 @@ export default async function AddMemoryPage({
 
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-archive-ink">
-                Content text
+                Memory
               </span>
               <textarea
                 name="content"
@@ -100,12 +100,12 @@ export default async function AddMemoryPage({
 
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-archive-ink">
-                Media URL
+                Photo, video, song, or voice-note link
               </span>
               <input
                 name="mediaUrl"
                 type="url"
-                placeholder="https://..."
+                placeholder="Paste a link to the media"
                 className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
               />
             </label>
@@ -143,7 +143,7 @@ export default async function AddMemoryPage({
               Save Memory
             </button>
             <p className="text-sm leading-6 text-archive-ink/60">
-              Saved locally to this archive.
+              This memory will become part of their story.
             </p>
           </div>
         </form>

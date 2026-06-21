@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { QRPreview } from "@/components/QRPreview";
+import { SuccessMessage } from "@/components/SuccessMessage";
 import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 
@@ -11,9 +12,12 @@ type ArchivePageProps = {
   params: {
     slug: string;
   };
+  searchParams?: {
+    created?: string;
+  };
 };
 
-export default async function ArchivePage({ params }: ArchivePageProps) {
+export default async function ArchivePage({ params, searchParams }: ArchivePageProps) {
   const [archive, account] = await Promise.all([
     getArchiveBySlug(params.slug),
     getAccountContext()
@@ -24,13 +28,14 @@ export default async function ArchivePage({ params }: ArchivePageProps) {
   }
 
   const memories = await getMemoriesByArchiveSlug(params.slug);
+  const isOwner = account.archives.some((item) => item.slug === archive.slug);
 
   return (
     <main className="min-h-screen px-5 py-6 sm:px-8">
       <div className="mx-auto max-w-6xl">
         <nav className="flex items-center justify-between">
           <Link href="/" className="text-lg font-semibold text-archive-ink">
-            Life Archive
+            The Life Archive
           </Link>
           <div className="flex items-center gap-3 sm:gap-4">
             {account.user ? (
@@ -53,7 +58,7 @@ export default async function ArchivePage({ params }: ArchivePageProps) {
               href={`/archive/${archive.slug}/qr`}
               className="text-sm font-semibold text-archive-sage underline-offset-4 hover:underline"
             >
-              QR preview
+              Share Archive
             </Link>
           </div>
         </nav>
@@ -73,7 +78,9 @@ export default async function ArchivePage({ params }: ArchivePageProps) {
               <div className="absolute bottom-0 p-6 text-white sm:p-8">
                 <div className="flex flex-wrap gap-2">
                   <span className="rounded-full bg-white/18 px-3 py-1 text-xs font-semibold uppercase tracking-wide backdrop-blur">
-                    {archive.visibility}
+                    {archive.visibility === "public"
+                      ? "Public · visible to everyone"
+                      : "Private · authorized people only"}
                   </span>
                   {archive.memorialMode ? (
                     <span className="rounded-full bg-white/18 px-3 py-1 text-xs font-semibold uppercase tracking-wide backdrop-blur">
@@ -87,15 +94,26 @@ export default async function ArchivePage({ params }: ArchivePageProps) {
               </div>
             </div>
             <div className="p-6 sm:p-8">
+              {searchParams?.created === "1" ? (
+                <SuccessMessage
+                  eyebrow="Archive created"
+                  message="The first chapter is ready. Add a memory whenever you are ready to begin the story."
+                />
+              ) : null}
               <p className="max-w-3xl text-lg leading-8 text-archive-ink/74">
                 {archive.bio}
+              </p>
+              <p className="mt-4 max-w-3xl text-sm leading-6 text-archive-ink/60">
+                {archive.visibility === "public"
+                  ? "This is a public archive. Anyone can view it, and it may appear on The Life Archive homepage."
+                  : "This is a private archive. Only the archive owner and authorized members can view it."}
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link
                   href={`/archive/${archive.slug}/random`}
                   className="rounded-full bg-archive-clay px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-archive-ink"
                 >
-                  View Random Memory
+                  Reveal a Memory
                 </Link>
                 <Link
                   href={`/archive/${archive.slug}/memories`}
@@ -103,29 +121,33 @@ export default async function ArchivePage({ params }: ArchivePageProps) {
                 >
                   Browse Memories
                 </Link>
-                <Link
-                  href={`/archive/${archive.slug}/add-memory`}
-                  className="rounded-full border border-archive-ink/15 bg-white px-5 py-3 text-sm font-semibold text-archive-ink transition hover:bg-archive-linen"
-                >
-                  Add Memory
-                </Link>
+                {isOwner ? (
+                  <Link
+                    href={`/archive/${archive.slug}/add-memory`}
+                    className="rounded-full border border-archive-ink/15 bg-white px-5 py-3 text-sm font-semibold text-archive-ink transition hover:bg-archive-linen"
+                  >
+                    Add Memory
+                  </Link>
+                ) : null}
                 <Link
                   href={`/archive/${archive.slug}/qr`}
                   className="rounded-full border border-archive-ink/15 bg-white px-5 py-3 text-sm font-semibold text-archive-ink transition hover:bg-archive-linen"
                 >
                   QR Card
                 </Link>
-                <Link
-                  href={`/archive/${archive.slug}/legacy-instructions`}
-                  className="rounded-full border border-archive-ink/15 bg-white px-5 py-3 text-sm font-semibold text-archive-ink transition hover:bg-archive-linen"
-                >
-                  Legacy Instructions
-                </Link>
+                {isOwner ? (
+                  <Link
+                    href={`/archive/${archive.slug}/legacy-instructions`}
+                    className="rounded-full border border-archive-ink/15 bg-white px-5 py-3 text-sm font-semibold text-archive-ink transition hover:bg-archive-linen"
+                  >
+                    Legacy Notes
+                  </Link>
+                ) : null}
               </div>
               {memories.length === 0 ? (
                 <div className="mt-7 rounded-md border border-archive-ink/10 bg-archive-paper px-4 py-3 text-sm leading-6 text-archive-ink/68">
-                  This archive is ready. Add the first memory to make the random
-                  QR experience meaningful.
+                  This archive is ready for its first story. Add a memory to
+                  begin bringing it to life.
                 </div>
               ) : null}
             </div>

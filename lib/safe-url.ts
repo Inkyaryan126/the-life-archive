@@ -24,7 +24,10 @@ function validateAllowedHttpsUrl(
   try {
     parsedUrl = new URL(trimmedValue);
   } catch {
-    return { ok: false, message: `${fieldName} must be a valid HTTPS URL.` };
+    return {
+      ok: false,
+      message: `That ${fieldName.toLowerCase()} doesn't look complete. Check it and try again.`
+    };
   }
 
   const hostname = parsedUrl.hostname.toLowerCase();
@@ -38,7 +41,7 @@ function validateAllowedHttpsUrl(
   ) {
     return {
       ok: false,
-      message: `${fieldName} must use an approved secure media host.`
+      message: `Please use a supported link for the ${fieldName.toLowerCase()}.`
     };
   }
 
@@ -49,7 +52,7 @@ export function validateProfilePhotoUrl(value: string) {
   return validateAllowedHttpsUrl(
     value,
     PROFILE_PHOTO_HOSTS,
-    "Profile photo URL"
+    "profile photo link"
   );
 }
 
@@ -57,6 +60,6 @@ export function validateMemoryMediaUrl(value: string) {
   return validateAllowedHttpsUrl(
     value,
     MEMORY_MEDIA_HOSTS,
-    "Media URL"
+    "media link"
   );
 }

@@ -77,7 +77,7 @@ const seedArchives: LifeArchive[] = [
     slug: "dustin-sigley",
     archiveName: "Founders Archive",
     personName: "Dustin Sigley",
-    bio: "Founder seed archive for Life Archive, built to show how a person's ideas, lessons, and memories can live together in one simple place.",
+    bio: "Founder of The Life Archive, preserving the ideas, lessons, and moments that shaped the journey.",
     profilePhotoUrl:
       "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80",
     visibility: "public",
@@ -157,10 +157,10 @@ const seedMemories: Memory[] = [
     title: "A song for the first scan",
     type: "song",
     content:
-      "A placeholder song memory for the founder demo. This shows how a QR scan can surface music alongside written memories.",
+      "A song connected to the earliest days of The Life Archive and the belief that music can bring a moment back.",
     mediaUrl: "https://open.spotify.com/",
     date: "2026-06-20",
-    tags: ["song", "demo"]
+    tags: ["song", "beginning"]
   }
 ];
 

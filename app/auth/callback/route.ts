@@ -19,6 +19,6 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.redirect(
-    `${origin}/login?error=${encodeURIComponent("Could not authenticate user")}`
+    `${origin}/login?error=${encodeURIComponent("We couldn't confirm your account. Please try signing in again.")}`
   );
 }

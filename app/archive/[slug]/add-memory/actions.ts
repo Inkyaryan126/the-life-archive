@@ -66,5 +66,5 @@ export async function addMemoryAction(slug: string, formData: FormData) {
   revalidatePath(`/archive/${slug}`);
   revalidatePath(`/archive/${slug}/memories`);
   revalidatePath(`/archive/${slug}/random`);
-  redirect(`/archive/${slug}/memories`);
+  redirect(`/archive/${slug}/memories?created=1`);
 }

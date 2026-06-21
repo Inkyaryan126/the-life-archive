@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RandomMemory } from "@/components/RandomMemory";
+import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getRandomMemory } from "@/lib/archive-data";
 
 export const dynamic = "force-dynamic";
@@ -14,20 +15,24 @@ type RandomMemoryPageProps = {
 export default async function RandomMemoryPage({
   params
 }: RandomMemoryPageProps) {
-  const archive = await getArchiveBySlug(params.slug);
+  const [archive, account] = await Promise.all([
+    getArchiveBySlug(params.slug),
+    getAccountContext()
+  ]);
 
   if (!archive) {
     notFound();
   }
 
   const memory = await getRandomMemory(params.slug);
+  const canAddMemory = account.archives.some((item) => item.slug === archive.slug);
 
   return (
     <main className="min-h-screen px-5 py-6 sm:px-8">
       <div className="mx-auto max-w-3xl">
         <nav className="flex items-center justify-between">
           <Link href="/" className="text-lg font-semibold text-archive-ink">
-            Life Archive
+            The Life Archive
           </Link>
           <Link
             href={`/archive/${archive.slug}`}
@@ -46,7 +51,11 @@ export default async function RandomMemoryPage({
           </h1>
         </header>
 
-        <RandomMemory archiveSlug={archive.slug} memory={memory} />
+        <RandomMemory
+          archiveSlug={archive.slug}
+          canAddMemory={canAddMemory}
+          memory={memory}
+        />
       </div>
     </main>
   );

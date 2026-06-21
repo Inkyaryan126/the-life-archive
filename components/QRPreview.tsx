@@ -31,7 +31,7 @@ export async function QRPreview({ archiveSlug, label }: QRPreviewProps) {
         className="mx-auto rounded-md bg-white p-3 ring-1 ring-archive-ink/10"
       />
       <p className="mt-5 text-sm font-semibold text-archive-ink">
-        QR destination
+        Where this QR code leads
       </p>
       <p className="mt-2 break-all rounded-md bg-archive-linen px-3 py-2 text-sm text-archive-ink/72">
         {target}

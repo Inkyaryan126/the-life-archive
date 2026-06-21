@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getAccountContext } from "@/lib/account";
 import { createArchiveAction } from "./actions";
 import {
   archiveRelationshipLabels,
@@ -11,15 +12,18 @@ type CreateArchivePageProps = {
   };
 };
 
-export default function CreateArchivePage({
+export default async function CreateArchivePage({
   searchParams
 }: CreateArchivePageProps) {
+  const account = await getAccountContext();
+  const signInRequired = account.isConfigured && !account.user;
+
   return (
     <main className="min-h-screen px-5 py-6 sm:px-8">
       <div className="mx-auto max-w-3xl">
         <nav className="flex items-center justify-between">
           <Link href="/" className="text-lg font-semibold text-archive-ink">
-            Life Archive
+            The Life Archive
           </Link>
           <Link
             href="/archive/maya-rivera"
@@ -37,15 +41,36 @@ export default function CreateArchivePage({
             Start with the person at the center.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-archive-ink/72">
-            Create a local archive now. Supabase can replace the JSON store
-            when the product is ready for accounts and cloud sync.
+            A lifetime deserves more than a headstone. Create a living archive
+            of memories, stories, photos, lessons, and legacy to preserve and
+            share for generations.
           </p>
         </section>
 
-        <form
-          action={createArchiveAction}
-          className="rounded-lg border border-archive-ink/10 bg-white/82 p-5 shadow-soft sm:p-7"
-        >
+        {signInRequired ? (
+          <section className="rounded-lg border border-archive-ink/10 bg-white/82 p-7 text-center shadow-soft sm:p-10">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-clay">
+              Your story starts here
+            </p>
+            <h2 className="mt-3 font-serif text-3xl text-archive-ink">
+              Sign in to create an archive.
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl leading-7 text-archive-ink/70">
+              Your account keeps your archives together and gives you a place to
+              return as the story grows.
+            </p>
+            <Link
+              href="/login"
+              className="mt-6 inline-flex rounded-full bg-archive-clay px-6 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-archive-ink"
+            >
+              Sign In or Create an Account
+            </Link>
+          </section>
+        ) : (
+          <form
+            action={createArchiveAction}
+            className="rounded-lg border border-archive-ink/10 bg-white/82 p-5 shadow-soft sm:p-7"
+          >
           {searchParams?.error ? (
             <p className="mb-5 rounded-md border border-archive-clay/20 bg-archive-clay/10 px-4 py-3 text-sm font-semibold text-archive-clay">
               {searchParams.error}
@@ -109,12 +134,12 @@ export default function CreateArchivePage({
 
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-archive-ink">
-                Profile photo URL
+                Profile photo link
               </span>
               <input
                 name="profilePhotoUrl"
                 type="url"
-                placeholder="https://..."
+                placeholder="Paste a link from Unsplash"
                 className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
               />
             </label>
@@ -128,18 +153,22 @@ export default function CreateArchivePage({
                 defaultValue="private"
                 className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
               >
-                <option value="private">Private</option>
-                <option value="public">Public</option>
+                <option value="private">
+                  Private - only you and authorized members can view
+                </option>
+                <option value="public">
+                  Public - anyone can view; may appear on the homepage
+                </option>
               </select>
             </label>
 
             <label className="flex items-center justify-between gap-4 rounded-md border border-archive-ink/10 bg-archive-paper px-4 py-3">
               <span>
                 <span className="block text-sm font-semibold text-archive-ink">
-                  Memorial mode
+                  Remembrance language
                 </span>
                 <span className="mt-1 block text-sm leading-6 text-archive-ink/64">
-                  Adjust wording and presentation for remembrance pages.
+                  Use remembrance-focused wording throughout this archive.
                 </span>
               </span>
               <input
@@ -158,10 +187,11 @@ export default function CreateArchivePage({
               Create Archive
             </button>
             <p className="text-sm leading-6 text-archive-ink/60">
-              Saved locally to a JSON file for this MVP.
+              Next, you&apos;ll enter the archive and add its first memory.
             </p>
           </div>
-        </form>
+          </form>
+        )}
       </div>
     </main>
   );

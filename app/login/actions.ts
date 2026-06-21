@@ -12,10 +12,12 @@ export async function loginAction(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/login?error=${encodeURIComponent("We couldn't sign you in. Check your email and password, then try again.")}`
+    );
   }
 
-  redirect("/dashboard");
+  redirect("/dashboard?welcome=back");
 }
 
 export async function signupAction(formData: FormData) {
@@ -33,11 +35,13 @@ export async function signupAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/login?error=${encodeURIComponent("We couldn't create your account. Check your details and try again.")}`
+    );
   }
 
   if (data.session) {
-    redirect(memberCardPath);
+    redirect(`${memberCardPath}?welcome=new`);
   }
 
   redirect(`${memberCardPath}?confirmation=pending`);
