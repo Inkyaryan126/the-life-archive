@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RandomMemory } from "@/components/RandomMemory";
+import { AccessPrompt } from "@/components/AccessPrompt";
 import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getRandomMemory } from "@/lib/archive-data";
 
@@ -21,6 +22,20 @@ export default async function RandomMemoryPage({
   ]);
 
   if (!archive) {
+    if (account.isConfigured && !account.user) {
+      const returnPath = `/archive/${params.slug}/random`;
+
+      return (
+        <AccessPrompt
+          eyebrow="Private archive"
+          title="Sign in to reveal this memory."
+          message="This archive is private. Only the archive owner and authorized members can view its memories."
+          primaryHref={`/login?next=${encodeURIComponent(returnPath)}`}
+          primaryLabel="Sign In"
+        />
+      );
+    }
+
     notFound();
   }
 

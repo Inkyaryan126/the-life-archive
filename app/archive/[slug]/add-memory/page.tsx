@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AccessPrompt } from "@/components/AccessPrompt";
+import { canCurrentUserAddMemory, getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, memoryTypes } from "@/lib/archive-data";
 import { prettifyType } from "@/lib/format";
 import { addMemoryAction } from "./actions";
@@ -19,10 +21,59 @@ export default async function AddMemoryPage({
   params,
   searchParams
 }: AddMemoryPageProps) {
-  const archive = await getArchiveBySlug(params.slug);
+  const [archive, account] = await Promise.all([
+    getArchiveBySlug(params.slug),
+    getAccountContext()
+  ]);
 
   if (!archive) {
+    if (account.isConfigured && !account.user) {
+      const returnPath = `/archive/${params.slug}/add-memory`;
+
+      return (
+        <AccessPrompt
+          eyebrow="Private archive"
+          title="Sign in to add a memory."
+          message="This archive is private. Sign in with an authorized account to continue."
+          primaryHref={`/login?next=${encodeURIComponent(returnPath)}`}
+          primaryLabel="Sign In"
+        />
+      );
+    }
+
     notFound();
+  }
+
+  const canAddMemory = await canCurrentUserAddMemory(archive.slug, account);
+
+  if (!account.user) {
+    const returnPath = `/archive/${archive.slug}/add-memory`;
+
+    return (
+      <AccessPrompt
+        eyebrow="Archive contribution"
+        title="Sign in to add a memory."
+        message="Only the archive owner and authorized editors can add to this story."
+        primaryHref={`/login?next=${encodeURIComponent(returnPath)}`}
+        primaryLabel="Sign In"
+        secondaryHref={`/archive/${archive.slug}`}
+        secondaryLabel="Back to Archive"
+      />
+    );
+  }
+
+  if (!canAddMemory) {
+    return (
+      <AccessPrompt
+        eyebrow="Archive access"
+        title="This archive is not open for contributions."
+        message="Only the archive owner and authorized editors can add memories. You can still return to the archive and revisit its story."
+        primaryHref={`/archive/${archive.slug}`}
+        primaryLabel="Back to Archive"
+        secondaryHref="/dashboard"
+        secondaryLabel="Visit My Archives"
+      />
+    );
   }
 
   const saveMemory = addMemoryAction.bind(null, archive.slug);
@@ -100,14 +151,18 @@ export default async function AddMemoryPage({
 
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-archive-ink">
-                Photo, video, song, or voice-note link
+                Unsplash photo or Spotify song link
               </span>
               <input
                 name="mediaUrl"
                 type="url"
-                placeholder="Paste a link to the media"
+                placeholder="Paste an Unsplash or Spotify link"
                 className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
               />
+              <span className="text-sm leading-6 text-archive-ink/58">
+                Links currently support photos from Unsplash and songs from
+                Spotify.
+              </span>
             </label>
 
             <div className="grid gap-5 sm:grid-cols-2">

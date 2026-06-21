@@ -11,7 +11,8 @@ export type UrlValidationResult =
 function validateAllowedHttpsUrl(
   value: string,
   allowedHosts: Set<string>,
-  fieldName: string
+  fieldName: string,
+  unsupportedMessage: string
 ): UrlValidationResult {
   const trimmedValue = value.trim();
 
@@ -41,7 +42,7 @@ function validateAllowedHttpsUrl(
   ) {
     return {
       ok: false,
-      message: `Please use a supported link for the ${fieldName.toLowerCase()}.`
+      message: unsupportedMessage
     };
   }
 
@@ -52,7 +53,8 @@ export function validateProfilePhotoUrl(value: string) {
   return validateAllowedHttpsUrl(
     value,
     PROFILE_PHOTO_HOSTS,
-    "profile photo link"
+    "profile photo link",
+    "Please use an Unsplash image link for the profile photo."
   );
 }
 
@@ -60,6 +62,7 @@ export function validateMemoryMediaUrl(value: string) {
   return validateAllowedHttpsUrl(
     value,
     MEMORY_MEDIA_HOSTS,
-    "media link"
+    "media link",
+    "Please use an Unsplash image link or Spotify song link."
   );
 }

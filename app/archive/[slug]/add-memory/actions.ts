@@ -40,7 +40,10 @@ export async function addMemoryAction(slug: string, formData: FormData) {
   }
 
   if (!content && !mediaUrl) {
-    redirectWithError(slug, "Add text content or a media URL.");
+    redirectWithError(
+      slug,
+      "Add a written memory, an Unsplash photo link, or a Spotify song link."
+    );
   }
 
   const mediaUrlValidation = validateMemoryMediaUrl(mediaUrl);

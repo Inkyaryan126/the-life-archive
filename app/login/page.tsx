@@ -4,6 +4,7 @@ import { loginAction, signupAction } from "./actions";
 type LoginPageProps = {
   searchParams?: {
     error?: string;
+    next?: string;
   };
 };
 
@@ -15,6 +16,9 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
           The Life Archive
         </Link>
         <form className="rounded-lg border border-archive-ink/10 bg-white/82 p-6 shadow-soft grid gap-5">
+          {searchParams?.next ? (
+            <input type="hidden" name="next" value={searchParams.next} />
+          ) : null}
           <div>
             <h1 className="font-serif text-2xl text-archive-ink">
               Continue your archive

@@ -99,3 +99,36 @@ export async function getAccountContext(): Promise<AccountContext> {
     archiveLookupFailed: Boolean(archiveError)
   };
 }
+
+export async function canCurrentUserAddMemory(
+  archiveSlug: string,
+  account: AccountContext
+) {
+  if (!account.user) {
+    return false;
+  }
+
+  if (account.archives.some((archive) => archive.slug === archiveSlug)) {
+    return true;
+  }
+
+  const supabase = createClient();
+  const { data: archive } = await supabase
+    .from("archives")
+    .select("id")
+    .eq("slug", archiveSlug)
+    .maybeSingle();
+
+  if (!archive) {
+    return false;
+  }
+
+  const { data: membership } = await supabase
+    .from("archive_members")
+    .select("role")
+    .eq("archive_id", archive.id)
+    .eq("user_id", account.user.id)
+    .maybeSingle();
+
+  return membership?.role === "editor";
+}

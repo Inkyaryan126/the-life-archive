@@ -9,6 +9,7 @@ import {
 } from "@/lib/qr";
 import { getAccountContext } from "@/lib/account";
 import { SuccessMessage } from "@/components/SuccessMessage";
+import { AccessPrompt } from "@/components/AccessPrompt";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,29 @@ export default async function MemberCardPage({
 }: MemberCardPageProps) {
   const account = await getAccountContext();
   const { user } = account;
+
+  if (!user) {
+    const confirmationPending = searchParams?.confirmation === "pending";
+
+    return (
+      <AccessPrompt
+        eyebrow={confirmationPending ? "Check your email" : "Member Card"}
+        title={
+          confirmationPending
+            ? "Confirm your account to continue."
+            : "Sign in to view your Member Card."
+        }
+        message={
+          confirmationPending
+            ? "We sent you a confirmation link. After confirming your account, sign in to create an archive and prepare your card."
+            : "Your Member Card is created from your real membership and archive details. Sign in or create an account to continue."
+        }
+        primaryHref="/login?next=%2Fmember-card"
+        primaryLabel={confirmationPending ? "Return to Sign In" : "Sign In or Create an Account"}
+      />
+    );
+  }
+
   const archiveSlug = account.defaultArchive?.slug ?? null;
 
   const requestHeaders = headers();
@@ -35,17 +59,11 @@ export default async function MemberCardPage({
   const hasArchive = Boolean(archivePath);
   const qrPath = archivePath || "/create";
   const qrSvg = await generateQrSvg(`${siteUrl}${qrPath}`);
-  const memberSince = String(
-    user?.createdAt
-      ? new Date(user.createdAt).getFullYear()
-      : new Date().getFullYear()
-  );
-  const continueHref = archivePath || (user ? "/create" : "/login");
+  const memberSince = String(new Date(user.createdAt).getFullYear());
+  const continueHref = archivePath || "/create";
   const continueLabel = archivePath
     ? "Continue to My Archive"
-    : user
-      ? "Create My Archive"
-      : "Sign In to View Card";
+    : "Create My Archive";
   const confirmationPending = searchParams?.confirmation === "pending";
 
   return (

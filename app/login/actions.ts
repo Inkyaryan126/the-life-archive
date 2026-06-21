@@ -4,20 +4,36 @@ import { createClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/qr";
 import { redirect } from "next/navigation";
 
+function getSafeNextPath(value: FormDataEntryValue | null, fallback: string) {
+  return typeof value === "string" &&
+    value.startsWith("/") &&
+    !value.startsWith("//")
+    ? value
+    : fallback;
+}
+
+function getLoginErrorPath(message: string, nextPath: string) {
+  return `/login?error=${encodeURIComponent(message)}&next=${encodeURIComponent(nextPath)}`;
+}
+
 export async function loginAction(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const nextPath = getSafeNextPath(formData.get("next"), "/dashboard?welcome=back");
   const supabase = createClient();
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     redirect(
-      `/login?error=${encodeURIComponent("We couldn't sign you in. Check your email and password, then try again.")}`
+      getLoginErrorPath(
+        "We couldn't sign you in. Check your email and password, then try again.",
+        nextPath
+      )
     );
   }
 
-  redirect("/dashboard?welcome=back");
+  redirect(nextPath);
 }
 
 export async function signupAction(formData: FormData) {
@@ -25,23 +41,27 @@ export async function signupAction(formData: FormData) {
   const password = formData.get("password") as string;
   const supabase = createClient();
   const memberCardPath = "/member-card";
+  const nextPath = getSafeNextPath(formData.get("next"), memberCardPath);
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(memberCardPath)}`
+      emailRedirectTo: `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(nextPath)}`
     }
   });
 
   if (error) {
     redirect(
-      `/login?error=${encodeURIComponent("We couldn't create your account. Check your details and try again.")}`
+      getLoginErrorPath(
+        "We couldn't create your account. Check your details and try again.",
+        nextPath
+      )
     );
   }
 
   if (data.session) {
-    redirect(`${memberCardPath}?welcome=new`);
+    redirect(nextPath === memberCardPath ? `${memberCardPath}?welcome=new` : nextPath);
   }
 
   redirect(`${memberCardPath}?confirmation=pending`);
