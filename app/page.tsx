@@ -1,22 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArchiveCard } from "@/components/ArchiveCard";
+import { getAccountContext } from "@/lib/account";
 import { getFeaturedArchives } from "@/lib/archive-data";
-import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const archives = await getFeaturedArchives();
-  const hasSupabaseConfig = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-  const supabase = hasSupabaseConfig ? createClient() : null;
-  const { data: userData } = supabase
-    ? await supabase.auth.getUser()
-    : { data: { user: null } };
-  const isSignedIn = Boolean(userData.user);
+  const [archives, account] = await Promise.all([
+    getFeaturedArchives(),
+    getAccountContext()
+  ]);
+  const isSignedIn = Boolean(account.user);
+  const primaryHref = account.archive
+    ? `/archive/${account.archive.slug}`
+    : "/create";
+  const primaryLabel = account.archive ? "My Archive" : "Create an Archive";
 
   return (
     <main>
@@ -36,18 +35,26 @@ export default async function HomePage() {
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             {isSignedIn ? (
-              <Link
-                href="/member-card"
-                className="rounded-full border border-archive-gold/60 bg-archive-obsidian/70 px-3 py-2 text-xs font-semibold text-archive-champagne backdrop-blur transition hover:border-archive-gold hover:bg-archive-obsidian sm:px-4 sm:text-sm"
-              >
-                Member Card
-              </Link>
+              <>
+                <Link
+                  href="/dashboard"
+                  className="rounded-full border border-archive-gold/60 bg-archive-obsidian/70 px-3 py-2 text-xs font-semibold text-archive-champagne backdrop-blur transition hover:border-archive-gold hover:bg-archive-obsidian sm:px-4 sm:text-sm"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/member-card"
+                  className="hidden text-sm font-semibold text-white underline-offset-4 hover:underline sm:inline-flex"
+                >
+                  Member Card
+                </Link>
+              </>
             ) : null}
             <Link
-              href="/create"
+              href={primaryHref}
               className="rounded-full bg-white/92 px-3 py-2 text-xs font-semibold text-archive-ink shadow-soft transition hover:bg-white sm:px-4 sm:text-sm"
             >
-              Create an Archive
+              {primaryLabel}
             </Link>
           </div>
         </nav>
@@ -70,10 +77,10 @@ export default async function HomePage() {
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/create"
+                href={primaryHref}
                 className="rounded-full bg-archive-clay px-6 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-archive-ink"
               >
-                Create an Archive
+                {primaryLabel}
               </Link>
               <Link
                 href="/archive/maya-rivera"

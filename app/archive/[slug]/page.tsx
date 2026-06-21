@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { QRPreview } from "@/components/QRPreview";
+import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,10 @@ type ArchivePageProps = {
 };
 
 export default async function ArchivePage({ params }: ArchivePageProps) {
-  const archive = await getArchiveBySlug(params.slug);
+  const [archive, account] = await Promise.all([
+    getArchiveBySlug(params.slug),
+    getAccountContext()
+  ]);
 
   if (!archive) {
     notFound();
@@ -28,12 +32,30 @@ export default async function ArchivePage({ params }: ArchivePageProps) {
           <Link href="/" className="text-lg font-semibold text-archive-ink">
             Life Archive
           </Link>
-          <Link
-            href={`/archive/${archive.slug}/qr`}
-            className="text-sm font-semibold text-archive-sage underline-offset-4 hover:underline"
-          >
-            QR preview
-          </Link>
+          <div className="flex items-center gap-3 sm:gap-4">
+            {account.user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="text-sm font-semibold text-archive-sage underline-offset-4 hover:underline"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/member-card"
+                  className="hidden text-sm font-semibold text-archive-sage underline-offset-4 hover:underline sm:inline-flex"
+                >
+                  Member Card
+                </Link>
+              </>
+            ) : null}
+            <Link
+              href={`/archive/${archive.slug}/qr`}
+              className="text-sm font-semibold text-archive-sage underline-offset-4 hover:underline"
+            >
+              QR preview
+            </Link>
+          </div>
         </nav>
 
         <section className="grid gap-8 py-12 lg:grid-cols-[1fr_360px] lg:items-start">

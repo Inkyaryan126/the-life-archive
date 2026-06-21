@@ -7,7 +7,7 @@ import {
   getRequestSiteUrl,
   svgToDataUri
 } from "@/lib/qr";
-import { createClient } from "@/lib/supabase/server";
+import { getAccountContext } from "@/lib/account";
 
 export const dynamic = "force-dynamic";
 
@@ -20,29 +20,9 @@ type MemberCardPageProps = {
 export default async function MemberCardPage({
   searchParams
 }: MemberCardPageProps) {
-  const hasSupabaseConfig = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-  const supabase = hasSupabaseConfig ? createClient() : null;
-  const { data: userData } = supabase
-    ? await supabase.auth.getUser()
-    : { data: { user: null } };
-  const user = userData.user;
-
-  let archiveSlug: string | null = null;
-
-  if (supabase && user) {
-    const { data: archive } = await supabase
-      .from("archives")
-      .select("slug")
-      .eq("owner_id", user.id)
-      .order("created_at", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-
-    archiveSlug = archive?.slug ?? null;
-  }
+  const account = await getAccountContext();
+  const { user } = account;
+  const archiveSlug = account.archive?.slug ?? null;
 
   const requestHeaders = headers();
   const siteUrl = getRequestSiteUrl(
@@ -54,8 +34,8 @@ export default async function MemberCardPage({
   const qrPath = archivePath || "/create";
   const qrSvg = await generateQrSvg(`${siteUrl}${qrPath}`);
   const memberSince = String(
-    user?.created_at
-      ? new Date(user.created_at).getFullYear()
+    user?.createdAt
+      ? new Date(user.createdAt).getFullYear()
       : new Date().getFullYear()
   );
   const continueHref = archivePath || (user ? "/create" : "/login");
@@ -77,9 +57,19 @@ export default async function MemberCardPage({
         >
           The Life Archive
         </Link>
-        <span className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-          Official Member
-        </span>
+        <div className="flex items-center gap-4">
+          {user ? (
+            <Link
+              href="/dashboard"
+              className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
+            >
+              Dashboard
+            </Link>
+          ) : null}
+          <span className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+            Official Member
+          </span>
+        </div>
       </div>
 
       <section className="no-print relative mx-auto max-w-3xl pb-10 pt-14 text-center sm:pt-20">
