@@ -20,6 +20,11 @@ body {
   color: #27231f;
 }
 
+::selection {
+  background: #c6a15b;
+  color: #0d0d0e;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -47,5 +52,88 @@ select {
     max-width: 5in;
     padding: 0.35in;
     page-break-inside: avoid;
+  }
+
+  .member-card-page {
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+
+  .member-card-page > :not(.member-card-print-shell) {
+    display: none !important;
+  }
+
+  .member-card-print-shell {
+    display: block !important;
+    margin: 0 auto !important;
+    max-width: none !important;
+    width: 3.375in !important;
+  }
+
+  .member-card-print-area {
+    display: grid !important;
+    gap: 0.3in !important;
+    margin: 0 auto !important;
+    width: 3.375in !important;
+  }
+
+  .member-card-face {
+    border-radius: 0.12in !important;
+    box-shadow: none !important;
+    height: 2.125in !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    print-color-adjust: exact;
+    width: 3.375in !important;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .member-card-front {
+    padding: 0.22in !important;
+  }
+
+  .member-card-back {
+    padding: 0.16in !important;
+  }
+
+  .member-card-back-layout {
+    gap: 0.12in !important;
+    grid-template-columns: minmax(0, 1fr) 0.78in !important;
+  }
+
+  .member-card-back-title {
+    font-size: 10pt !important;
+    line-height: 1 !important;
+  }
+
+  .member-card-back-rule {
+    margin-top: 0.05in !important;
+  }
+
+  .member-card-back-copy {
+    font-size: 5.8pt !important;
+    line-height: 1.22 !important;
+    margin-top: 0.07in !important;
+  }
+
+  .member-card-back-copy > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0.04in !important;
+  }
+
+  .member-card-qr-label {
+    font-size: 4.7pt !important;
+    margin-bottom: 0.04in !important;
+  }
+
+  .member-card-qr-image {
+    height: 0.7in !important;
+    width: 0.7in !important;
+  }
+
+  .member-card-back-footer {
+    font-size: 5.5pt !important;
+    line-height: 1 !important;
+    margin-top: 0.04in !important;
+    padding-top: 0.04in !important;
   }
 }

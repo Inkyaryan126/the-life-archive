@@ -2,11 +2,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArchiveCard } from "@/components/ArchiveCard";
 import { getFeaturedArchives } from "@/lib/archive-data";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const archives = await getFeaturedArchives();
+  const hasSupabaseConfig = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+  const supabase = hasSupabaseConfig ? createClient() : null;
+  const { data: userData } = supabase
+    ? await supabase.auth.getUser()
+    : { data: { user: null } };
+  const isSignedIn = Boolean(userData.user);
 
   return (
     <main>
@@ -24,12 +34,22 @@ export default async function HomePage() {
           <Link href="/" className="text-lg font-semibold text-white">
             Life Archive
           </Link>
-          <Link
-            href="/create"
-            className="rounded-full bg-white/92 px-4 py-2 text-sm font-semibold text-archive-ink shadow-soft transition hover:bg-white"
-          >
-            Create an Archive
-          </Link>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {isSignedIn ? (
+              <Link
+                href="/member-card"
+                className="rounded-full border border-archive-gold/60 bg-archive-obsidian/70 px-3 py-2 text-xs font-semibold text-archive-champagne backdrop-blur transition hover:border-archive-gold hover:bg-archive-obsidian sm:px-4 sm:text-sm"
+              >
+                Member Card
+              </Link>
+            ) : null}
+            <Link
+              href="/create"
+              className="rounded-full bg-white/92 px-3 py-2 text-xs font-semibold text-archive-ink shadow-soft transition hover:bg-white sm:px-4 sm:text-sm"
+            >
+              Create an Archive
+            </Link>
+          </div>
         </nav>
 
         <div className="relative z-10 mx-auto flex min-h-[72vh] max-w-6xl items-end pb-12 pt-24">
