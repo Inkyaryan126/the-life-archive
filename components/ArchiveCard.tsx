@@ -24,7 +24,9 @@ export function ArchiveCard({ archive }: ArchiveCardProps) {
             {archive.personName}
           </h3>
           <span className="rounded-full bg-archive-mist px-3 py-1 text-xs font-semibold uppercase tracking-wide text-archive-sage">
-            Public · discoverable
+            {archive.visibility === "public"
+              ? "Public · discoverable"
+              : "Private · authorized access"}
           </span>
         </div>
         <p className="mt-3 line-clamp-3 leading-7 text-archive-ink/70">
