@@ -2,9 +2,18 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import { randomUUID } from "crypto";
 import path from "path";
 import { createClient } from "./supabase/server";
+import {
+  validateMemoryMediaUrl,
+  validateProfilePhotoUrl
+} from "./safe-url";
+import {
+  normalizeArchiveRelationshipToOwner,
+  isArchiveRelationshipToOwner
+} from "./archive-relationships";
 import type {
   ArchiveStore,
   ArchiveVisibility,
+  ArchiveRelationshipToOwner,
   LifeArchive,
   Memory,
   MemoryType
@@ -12,6 +21,14 @@ import type {
 
 const storePath = path.join(process.cwd(), "data", "life-archive.json");
 const useSupabase = process.env.USE_SUPABASE === "true";
+const requiresSupabase =
+  process.env.NODE_ENV === "production" || Boolean(process.env.VERCEL);
+
+if (requiresSupabase && !useSupabase) {
+  throw new Error(
+    "Production configuration error: USE_SUPABASE must be true. Local JSON storage is disabled in production and on Vercel."
+  );
+}
 
 export const memoryTypes: MemoryType[] = [
   "song",
@@ -25,6 +42,18 @@ export const memoryTypes: MemoryType[] = [
 const defaultProfilePhotoUrl =
   "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=900&q=80";
 
+function getSafeProfilePhotoUrl(value?: string | null) {
+  const validation = validateProfilePhotoUrl(value || "");
+  return validation.ok && validation.value
+    ? validation.value
+    : defaultProfilePhotoUrl;
+}
+
+function getSafeMemoryMediaUrl(value?: string | null) {
+  const validation = validateMemoryMediaUrl(value || "");
+  return validation.ok && validation.value ? validation.value : undefined;
+}
+
 const seedArchives: LifeArchive[] = [
   {
     slug: "maya-rivera",
@@ -35,6 +64,7 @@ const seedArchives: LifeArchive[] = [
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80",
     visibility: "public",
     memorialMode: false,
+    relationshipToOwner: "other",
     createdAt: "2026-06-01"
   },
   {
@@ -46,6 +76,7 @@ const seedArchives: LifeArchive[] = [
       "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80",
     visibility: "public",
     memorialMode: false,
+    relationshipToOwner: "self",
     createdAt: "2026-06-20"
   }
 ];
@@ -139,6 +170,7 @@ type CreateArchiveInput = {
   profilePhotoUrl?: string;
   visibility: ArchiveVisibility;
   memorialMode: boolean;
+  relationshipToOwner: ArchiveRelationshipToOwner;
 };
 
 type CreateMemoryInput = {
@@ -256,15 +288,24 @@ export async function getFeaturedArchives() {
       archiveName: row.archive_name,
       personName: row.person_name,
       bio: row.bio,
-      profilePhotoUrl: row.profile_photo_url,
+      profilePhotoUrl: getSafeProfilePhotoUrl(row.profile_photo_url),
       visibility: row.visibility as ArchiveVisibility,
       memorialMode: row.memorial_mode,
+      relationshipToOwner: normalizeArchiveRelationshipToOwner(
+        row.relationship_to_owner
+      ),
       createdAt: row.created_at.slice(0, 10)
     }));
   }
 
   const store = await readStore();
-  return store.archives;
+  return store.archives.map((archive) => ({
+    ...archive,
+    profilePhotoUrl: getSafeProfilePhotoUrl(archive.profilePhotoUrl),
+    relationshipToOwner: normalizeArchiveRelationshipToOwner(
+      archive.relationshipToOwner
+    )
+  }));
 }
 
 export async function getArchiveBySlug(slug: string) {
@@ -284,15 +325,27 @@ export async function getArchiveBySlug(slug: string) {
       archiveName: data.archive_name,
       personName: data.person_name,
       bio: data.bio,
-      profilePhotoUrl: data.profile_photo_url,
+      profilePhotoUrl: getSafeProfilePhotoUrl(data.profile_photo_url),
       visibility: data.visibility as ArchiveVisibility,
       memorialMode: data.memorial_mode,
+      relationshipToOwner: normalizeArchiveRelationshipToOwner(
+        data.relationship_to_owner
+      ),
       createdAt: data.created_at.slice(0, 10)
     };
   }
 
   const store = await readStore();
-  return store.archives.find((archive) => archive.slug === slug) ?? null;
+  const archive = store.archives.find((item) => item.slug === slug);
+  return archive
+    ? {
+        ...archive,
+        profilePhotoUrl: getSafeProfilePhotoUrl(archive.profilePhotoUrl),
+        relationshipToOwner: normalizeArchiveRelationshipToOwner(
+          archive.relationshipToOwner
+        )
+      }
+    : null;
 }
 
 export async function getMemoriesByArchiveSlug(slug: string) {
@@ -312,7 +365,7 @@ export async function getMemoriesByArchiveSlug(slug: string) {
       title: row.title,
       type: row.type as MemoryType,
       content: row.content,
-      mediaUrl: row.media_url,
+      mediaUrl: getSafeMemoryMediaUrl(row.media_url),
       date: row.memory_date,
       tags: row.tags
     }));
@@ -322,6 +375,10 @@ export async function getMemoriesByArchiveSlug(slug: string) {
 
   return store.memories
     .filter((memory) => memory.archiveSlug === slug)
+    .map((memory) => ({
+      ...memory,
+      mediaUrl: getSafeMemoryMediaUrl(memory.mediaUrl)
+    }))
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
@@ -337,6 +394,22 @@ export async function getRandomMemory(slug: string) {
 }
 
 export async function createArchive(input: CreateArchiveInput) {
+  const profilePhotoValidation = validateProfilePhotoUrl(
+    input.profilePhotoUrl || ""
+  );
+
+  if (!profilePhotoValidation.ok) {
+    throw new Error(profilePhotoValidation.message);
+  }
+
+  const profilePhotoUrl =
+    profilePhotoValidation.value || defaultProfilePhotoUrl;
+  const relationshipToOwner = isArchiveRelationshipToOwner(
+    input.relationshipToOwner
+  )
+    ? input.relationshipToOwner
+    : "other";
+
   if (useSupabase) {
     const supabase = createClient();
     const {
@@ -364,9 +437,10 @@ export async function createArchive(input: CreateArchiveInput) {
         archive_name: input.archiveName,
         person_name: input.personName,
         bio: input.bio,
-        profile_photo_url: input.profilePhotoUrl || defaultProfilePhotoUrl,
+        profile_photo_url: profilePhotoUrl,
         visibility: input.visibility,
         memorial_mode: input.memorialMode,
+        relationship_to_owner: relationshipToOwner,
         is_demo: false,
         owner_id: user.id
       })
@@ -383,6 +457,9 @@ export async function createArchive(input: CreateArchiveInput) {
       profilePhotoUrl: data.profile_photo_url,
       visibility: data.visibility as ArchiveVisibility,
       memorialMode: data.memorial_mode,
+      relationshipToOwner: normalizeArchiveRelationshipToOwner(
+        data.relationship_to_owner
+      ),
       createdAt: data.created_at.slice(0, 10)
     };
   }
@@ -399,9 +476,10 @@ export async function createArchive(input: CreateArchiveInput) {
     archiveName: input.archiveName,
     personName: input.personName,
     bio: input.bio,
-    profilePhotoUrl: input.profilePhotoUrl || defaultProfilePhotoUrl,
+    profilePhotoUrl,
     visibility: input.visibility,
     memorialMode: input.memorialMode,
+    relationshipToOwner,
     createdAt: now
   };
 
@@ -412,6 +490,14 @@ export async function createArchive(input: CreateArchiveInput) {
 }
 
 export async function createMemory(input: CreateMemoryInput) {
+  const mediaUrlValidation = validateMemoryMediaUrl(input.mediaUrl || "");
+
+  if (!mediaUrlValidation.ok) {
+    throw new Error(mediaUrlValidation.message);
+  }
+
+  const mediaUrl = mediaUrlValidation.value;
+
   if (useSupabase) {
     const supabase = createClient();
     const {
@@ -440,7 +526,7 @@ export async function createMemory(input: CreateMemoryInput) {
         title: input.title,
         type: input.type,
         content: input.content,
-        media_url: input.mediaUrl,
+        media_url: mediaUrl || null,
         memory_date: input.date || new Date().toISOString().slice(0, 10),
         tags: input.tags,
         created_at: new Date().toISOString(),
@@ -478,7 +564,7 @@ export async function createMemory(input: CreateMemoryInput) {
     title: input.title,
     type: input.type,
     content: input.content,
-    mediaUrl: input.mediaUrl || undefined,
+    mediaUrl: mediaUrl || undefined,
     date: input.date || new Date().toISOString().slice(0, 10),
     tags: input.tags
   };

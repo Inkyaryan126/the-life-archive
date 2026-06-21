@@ -1,7 +1,9 @@
 import "server-only";
 
 import type { ArchiveVisibility } from "@/lib/types";
+import type { ArchiveRelationshipToOwner } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
+import { normalizeArchiveRelationshipToOwner } from "@/lib/archive-relationships";
 
 export type AccountArchive = {
   slug: string;
@@ -9,7 +11,7 @@ export type AccountArchive = {
   personName: string;
   visibility: ArchiveVisibility;
   memorialMode: boolean;
-  relationshipToOwner?: string;
+  relationshipToOwner: ArchiveRelationshipToOwner;
   createdAt: string;
 };
 
@@ -73,10 +75,9 @@ export async function getAccountContext(): Promise<AccountContext> {
     personName: archive.person_name,
     visibility: archive.visibility as ArchiveVisibility,
     memorialMode: archive.memorial_mode,
-    relationshipToOwner:
-      typeof archive.relationship_to_owner === "string"
-        ? archive.relationship_to_owner
-        : undefined,
+    relationshipToOwner: normalizeArchiveRelationshipToOwner(
+      archive.relationship_to_owner
+    ),
     createdAt: archive.created_at
   }));
   const defaultArchive =

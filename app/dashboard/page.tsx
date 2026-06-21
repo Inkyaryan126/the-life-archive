@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { signOutAction } from "@/app/login/actions";
 import type { AccountArchive } from "@/lib/account";
 import { getAccountContext } from "@/lib/account";
+import { getArchiveRelationshipLabel } from "@/lib/archive-relationships";
 
 export const dynamic = "force-dynamic";
 
@@ -55,9 +56,9 @@ function ArchiveDashboardCard({
   archive,
   isDefault
 }: ArchiveDashboardCardProps) {
-  const relationshipLabel = archive.relationshipToOwner
-    ?.replace(/_/g, " ")
-    .replace(/\b\w/g, (character) => character.toUpperCase());
+  const relationshipLabel = getArchiveRelationshipLabel(
+    archive.relationshipToOwner
+  );
 
   return (
     <article className="rounded-2xl border border-archive-gold/25 bg-white/[0.045] p-5 shadow-luxury sm:p-6">
@@ -79,7 +80,7 @@ function ArchiveDashboardCard({
 
       <div className="mt-5 flex flex-wrap gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em]">
         <span className="rounded-full border border-archive-gold/20 px-3 py-1.5 text-archive-ivory/68">
-          {archive.visibility}
+          {archive.visibility === "public" ? "Public" : "Private"}
         </span>
         <span className="rounded-full border border-archive-gold/20 px-3 py-1.5 text-archive-ivory/68">
           {archive.memorialMode ? "Memorial" : "Living archive"}

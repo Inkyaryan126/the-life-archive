@@ -10,6 +10,7 @@ insert into public.archives (
   profile_photo_url,
   visibility,
   memorial_mode,
+  relationship_to_owner,
   is_demo,
   created_at,
   updated_at
@@ -23,6 +24,7 @@ values
     'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80',
     'public',
     false,
+    'other',
     true,
     '2026-06-01T00:00:00Z',
     '2026-06-01T00:00:00Z'
@@ -35,6 +37,7 @@ values
     'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80',
     'public',
     false,
+    'self',
     true,
     '2026-06-20T00:00:00Z',
     '2026-06-20T00:00:00Z'
@@ -47,6 +50,7 @@ set
   profile_photo_url = excluded.profile_photo_url,
   visibility = excluded.visibility,
   memorial_mode = excluded.memorial_mode,
+  relationship_to_owner = excluded.relationship_to_owner,
   is_demo = excluded.is_demo,
   updated_at = excluded.updated_at;
 

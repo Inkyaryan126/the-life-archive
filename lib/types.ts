@@ -1,5 +1,17 @@
 export type ArchiveVisibility = "private" | "public";
 
+export type ArchiveRelationshipToOwner =
+  | "self"
+  | "parent"
+  | "child"
+  | "partner"
+  | "sibling"
+  | "grandparent"
+  | "grandchild"
+  | "friend"
+  | "mentor"
+  | "other";
+
 export type MemoryType =
   | "journal"
   | "photo"
@@ -16,6 +28,7 @@ export type LifeArchive = {
   profilePhotoUrl: string;
   visibility: ArchiveVisibility;
   memorialMode: boolean;
+  relationshipToOwner: ArchiveRelationshipToOwner;
   createdAt: string;
 };
 

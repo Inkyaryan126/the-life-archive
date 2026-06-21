@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createMemory, isMemoryType } from "@/lib/archive-data";
+import { validateMemoryMediaUrl } from "@/lib/safe-url";
 
 function readString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -42,12 +43,18 @@ export async function addMemoryAction(slug: string, formData: FormData) {
     redirectWithError(slug, "Add text content or a media URL.");
   }
 
+  const mediaUrlValidation = validateMemoryMediaUrl(mediaUrl);
+
+  if (!mediaUrlValidation.ok) {
+    redirectWithError(slug, mediaUrlValidation.message);
+  }
+
   const memory = await createMemory({
     archiveSlug: slug,
     title,
     type,
     content,
-    mediaUrl,
+    mediaUrl: mediaUrlValidation.value,
     date,
     tags
   });

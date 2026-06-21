@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { createArchiveAction } from "./actions";
+import {
+  archiveRelationshipLabels,
+  archiveRelationships
+} from "@/lib/archive-relationships";
 
 type CreateArchivePageProps = {
   searchParams?: {
@@ -70,6 +74,24 @@ export default function CreateArchivePage({
                 placeholder="Maya Rivera"
                 className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
               />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-sm font-semibold text-archive-ink">
+                Who is this archive for?
+              </span>
+              <select
+                name="relationshipToOwner"
+                required
+                defaultValue="other"
+                className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
+              >
+                {archiveRelationships.map((value) => (
+                  <option key={value} value={value}>
+                    {archiveRelationshipLabels[value]}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label className="grid gap-2">
