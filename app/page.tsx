@@ -12,10 +12,8 @@ export default async function HomePage() {
     getAccountContext()
   ]);
   const isSignedIn = Boolean(account.user);
-  const primaryHref = account.archive
-    ? `/archive/${account.archive.slug}`
-    : "/create";
-  const primaryLabel = account.archive ? "My Archive" : "Create an Archive";
+  const primaryHref = isSignedIn ? "/dashboard" : "/create";
+  const primaryLabel = isSignedIn ? "Dashboard" : "Create an Archive";
 
   return (
     <main>
@@ -35,20 +33,12 @@ export default async function HomePage() {
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             {isSignedIn ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className="rounded-full border border-archive-gold/60 bg-archive-obsidian/70 px-3 py-2 text-xs font-semibold text-archive-champagne backdrop-blur transition hover:border-archive-gold hover:bg-archive-obsidian sm:px-4 sm:text-sm"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/member-card"
-                  className="hidden text-sm font-semibold text-white underline-offset-4 hover:underline sm:inline-flex"
-                >
-                  Member Card
-                </Link>
-              </>
+              <Link
+                href="/member-card"
+                className="hidden text-sm font-semibold text-white underline-offset-4 hover:underline sm:inline-flex"
+              >
+                Member Card
+              </Link>
             ) : null}
             <Link
               href={primaryHref}

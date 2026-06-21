@@ -8,6 +8,9 @@ export type AccountArchive = {
   archiveName: string;
   personName: string;
   visibility: ArchiveVisibility;
+  memorialMode: boolean;
+  relationshipToOwner?: string;
+  createdAt: string;
 };
 
 export type AccountContext = {
@@ -18,6 +21,9 @@ export type AccountContext = {
     createdAt: string;
     emailConfirmed: boolean;
   } | null;
+  archives: AccountArchive[];
+  defaultArchive: AccountArchive | null;
+  // Temporary compatibility alias for consumers that still expect one archive.
   archive: AccountArchive | null;
   archiveLookupFailed: boolean;
 };
@@ -32,6 +38,8 @@ export async function getAccountContext(): Promise<AccountContext> {
     return {
       isConfigured: false,
       user: null,
+      archives: [],
+      defaultArchive: null,
       archive: null,
       archiveLookupFailed: false
     };
@@ -46,18 +54,35 @@ export async function getAccountContext(): Promise<AccountContext> {
     return {
       isConfigured: true,
       user: null,
+      archives: [],
+      defaultArchive: null,
       archive: null,
       archiveLookupFailed: false
     };
   }
 
-  const { data: archive, error: archiveError } = await supabase
+  const { data: archiveRows, error: archiveError } = await supabase
     .from("archives")
-    .select("slug, archive_name, person_name, visibility")
+    .select("*")
     .eq("owner_id", user.id)
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+    .order("created_at", { ascending: true });
+
+  const archives: AccountArchive[] = (archiveRows ?? []).map((archive) => ({
+    slug: archive.slug,
+    archiveName: archive.archive_name,
+    personName: archive.person_name,
+    visibility: archive.visibility as ArchiveVisibility,
+    memorialMode: archive.memorial_mode,
+    relationshipToOwner:
+      typeof archive.relationship_to_owner === "string"
+        ? archive.relationship_to_owner
+        : undefined,
+    createdAt: archive.created_at
+  }));
+  const defaultArchive =
+    archives.find((archive) => archive.relationshipToOwner === "self") ??
+    archives[0] ??
+    null;
 
   return {
     isConfigured: true,
@@ -67,14 +92,9 @@ export async function getAccountContext(): Promise<AccountContext> {
       createdAt: user.created_at,
       emailConfirmed: Boolean(user.email_confirmed_at)
     },
-    archive: archive
-      ? {
-          slug: archive.slug,
-          archiveName: archive.archive_name,
-          personName: archive.person_name,
-          visibility: archive.visibility as ArchiveVisibility
-        }
-      : null,
+    archives,
+    defaultArchive,
+    archive: defaultArchive,
     archiveLookupFailed: Boolean(archiveError)
   };
 }

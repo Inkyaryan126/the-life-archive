@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getAccountContext } from "@/lib/account";
 import { signOutAction } from "@/app/login/actions";
+import type { AccountArchive } from "@/lib/account";
+import { getAccountContext } from "@/lib/account";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,75 @@ function DashboardAction({
   );
 }
 
+type ArchiveDashboardCardProps = {
+  archive: AccountArchive;
+  isDefault: boolean;
+};
+
+function ArchiveDashboardCard({
+  archive,
+  isDefault
+}: ArchiveDashboardCardProps) {
+  const relationshipLabel = archive.relationshipToOwner
+    ?.replace(/_/g, " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+
+  return (
+    <article className="rounded-2xl border border-archive-gold/25 bg-white/[0.045] p-5 shadow-luxury sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
+            {archive.personName}
+          </p>
+          <h3 className="mt-3 font-serif text-2xl leading-tight sm:text-3xl">
+            {archive.archiveName}
+          </h3>
+        </div>
+        {isDefault ? (
+          <span className="rounded-full border border-archive-gold/40 bg-archive-gold/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-archive-champagne">
+            Default
+          </span>
+        ) : null}
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em]">
+        <span className="rounded-full border border-archive-gold/20 px-3 py-1.5 text-archive-ivory/68">
+          {archive.visibility}
+        </span>
+        <span className="rounded-full border border-archive-gold/20 px-3 py-1.5 text-archive-ivory/68">
+          {archive.memorialMode ? "Memorial" : "Living archive"}
+        </span>
+        {relationshipLabel ? (
+          <span className="rounded-full border border-archive-gold/20 px-3 py-1.5 text-archive-ivory/68">
+            {relationshipLabel}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="mt-6 grid gap-2 border-t border-archive-gold/15 pt-5 sm:grid-cols-3">
+        <Link
+          href={`/archive/${archive.slug}`}
+          className="rounded-full bg-archive-gold px-4 py-2.5 text-center text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+        >
+          Open Archive
+        </Link>
+        <Link
+          href={`/archive/${archive.slug}/add-memory`}
+          className="rounded-full border border-archive-gold/35 px-4 py-2.5 text-center text-sm font-semibold transition hover:border-archive-gold hover:bg-white/5"
+        >
+          Add Memory
+        </Link>
+        <Link
+          href={`/archive/${archive.slug}/qr`}
+          className="rounded-full border border-archive-gold/35 px-4 py-2.5 text-center text-sm font-semibold transition hover:border-archive-gold hover:bg-white/5"
+        >
+          Print QR Card
+        </Link>
+      </div>
+    </article>
+  );
+}
+
 export default async function DashboardPage() {
   const account = await getAccountContext();
 
@@ -52,7 +122,7 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const { archive, user } = account;
+  const { archives, defaultArchive, user } = account;
   const memberSince = new Intl.DateTimeFormat("en", {
     month: "long",
     year: "numeric"
@@ -98,142 +168,108 @@ export default async function DashboardPage() {
           </p>
         </header>
 
-        <section className="mt-10 grid gap-4 lg:grid-cols-[1fr_0.62fr]">
-          <div className="rounded-2xl border border-archive-gold/25 bg-white/[0.045] p-6 shadow-luxury sm:p-8">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-                  Archive status
-                </p>
-                <h2 className="mt-3 font-serif text-3xl">
-                  {archive ? archive.archiveName : "Ready to begin"}
-                </h2>
-              </div>
-              <span className="rounded-full border border-archive-gold/30 bg-archive-gold/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-archive-champagne">
-                {archive ? "Active" : "Not created"}
-              </span>
+        <section className="mt-10 rounded-2xl border border-archive-gold/20 bg-archive-ivory p-6 text-archive-obsidian sm:p-8">
+          <div className="grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                Account status
+              </p>
+              <p className="mt-3 break-all text-sm font-semibold">{user.email}</p>
             </div>
-
-            {account.archiveLookupFailed ? (
-              <p className="mt-5 rounded-xl border border-archive-gold/25 bg-archive-gold/10 px-4 py-3 text-sm leading-6 text-archive-champagne">
-                Archive status could not be loaded. Refresh before creating a
-                new archive.
-              </p>
-            ) : archive ? (
-              <dl className="mt-7 grid gap-5 border-t border-archive-gold/15 pt-6 sm:grid-cols-2">
-                <div>
-                  <dt className="text-xs uppercase tracking-[0.16em] text-archive-ivory/42">
-                    Person
-                  </dt>
-                  <dd className="mt-2 text-sm font-semibold">
-                    {archive.personName}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs uppercase tracking-[0.16em] text-archive-ivory/42">
-                    Visibility
-                  </dt>
-                  <dd className="mt-2 text-sm font-semibold capitalize">
-                    {archive.visibility}
-                  </dd>
-                </div>
-              </dl>
-            ) : (
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-archive-ivory/58">
-                Create your first archive to unlock memory entry and printable
-                archive QR tools.
-              </p>
-            )}
-          </div>
-
-          <aside className="rounded-2xl border border-archive-gold/20 bg-archive-ivory p-6 text-archive-obsidian sm:p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-              Account status
-            </p>
-            <p className="mt-4 break-all text-sm font-semibold">{user.email}</p>
-            <dl className="mt-6 grid gap-5 border-t border-archive-gold/30 pt-5">
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-sm text-archive-obsidian/60">Email</dt>
-                <dd className="text-sm font-semibold">
+            <dl className="grid gap-3 text-sm sm:min-w-72">
+              <div className="flex items-center justify-between gap-6">
+                <dt className="text-archive-obsidian/60">Email</dt>
+                <dd className="font-semibold">
                   {user.emailConfirmed ? "Confirmed" : "Pending"}
                 </dd>
               </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-sm text-archive-obsidian/60">
-                  Member since
-                </dt>
-                <dd className="text-sm font-semibold">{memberSince}</dd>
+              <div className="flex items-center justify-between gap-6">
+                <dt className="text-archive-obsidian/60">Member since</dt>
+                <dd className="font-semibold">{memberSince}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-6">
+                <dt className="text-archive-obsidian/60">Archives</dt>
+                <dd className="font-semibold">{archives.length}</dd>
               </div>
             </dl>
-          </aside>
+          </div>
         </section>
 
         <section className="mt-12">
-          <div className="flex items-end justify-between gap-4">
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-                Quick actions
+                Your Archives
               </p>
-              <h2 className="mt-2 font-serif text-3xl">What would you like to do?</h2>
+              <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+                {archives.length > 0
+                  ? `${archives.length} ${archives.length === 1 ? "archive" : "archives"}`
+                  : "Your first archive starts here"}
+              </h2>
             </div>
+            {archives.length > 0 && !account.archiveLookupFailed ? (
+              <Link
+                href="/create"
+                className="rounded-full border border-archive-gold/45 px-5 py-2.5 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:bg-white/5"
+              >
+                Create Another Archive
+              </Link>
+            ) : null}
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {archive ? (
-              <>
-                <DashboardAction
-                  href={`/archive/${archive.slug}`}
-                  label="My Archive"
-                  description="Open your archive and browse what you have preserved."
-                  primary
+          {account.archiveLookupFailed ? (
+            <p className="mt-6 rounded-xl border border-archive-gold/25 bg-archive-gold/10 px-4 py-3 text-sm leading-6 text-archive-champagne">
+              Your archives could not be loaded. Refresh before creating a new
+              archive.
+            </p>
+          ) : archives.length > 0 ? (
+            <div className="mt-6 grid gap-5 xl:grid-cols-2">
+              {archives.map((archive) => (
+                <ArchiveDashboardCard
+                  key={archive.slug}
+                  archive={archive}
+                  isDefault={archive.slug === defaultArchive?.slug}
                 />
-                <DashboardAction
-                  href={`/archive/${archive.slug}/add-memory`}
-                  label="Add Memory"
-                  description="Preserve a story, lesson, song, photo, or voice note."
-                />
-                <DashboardAction
-                  href="/member-card"
-                  label="Member Card"
-                  description="Return to your wallet card and print another copy."
-                />
-                <DashboardAction
-                  href={`/archive/${archive.slug}/qr`}
-                  label="Print QR Card"
-                  description="Print the QR card that opens your archive experience."
-                />
-              </>
-            ) : account.archiveLookupFailed ? (
+              ))}
+            </div>
+          ) : (
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <DashboardAction
+                href="/create"
+                label="Create My Archive"
+                description="Create your first archive before adding memories or printing its QR card."
+                primary
+              />
               <DashboardAction
                 href="/member-card"
                 label="Member Card"
                 description="View or print your official Life Archive member card."
-                primary
               />
-            ) : (
-              <>
-                <DashboardAction
-                  href="/create"
-                  label="Create My Archive"
-                  description="Create your archive before adding memories or printing its QR card."
-                  primary
-                />
-                <DashboardAction
-                  href="/member-card"
-                  label="Member Card"
-                  description="View or print your official Life Archive member card."
-                />
-              </>
-            )}
-          </div>
-
-          {!archive && !account.archiveLookupFailed ? (
-            <p className="mt-5 text-sm leading-6 text-archive-ivory/48">
-              Add Memory and Print QR Card will appear here after your archive
-              is created.
-            </p>
-          ) : null}
+            </div>
+          )}
         </section>
+
+        {archives.length > 0 ? (
+          <section className="mt-12 rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+              Membership
+            </p>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-5">
+              <div>
+                <h2 className="font-serif text-2xl">Your Member Card</h2>
+                <p className="mt-2 text-sm leading-6 text-archive-ivory/58">
+                  The card currently connects to your default archive.
+                </p>
+              </div>
+              <Link
+                href="/member-card"
+                className="rounded-full bg-archive-gold px-5 py-2.5 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+              >
+                View Member Card
+              </Link>
+            </div>
+          </section>
+        ) : null}
       </div>
     </main>
   );

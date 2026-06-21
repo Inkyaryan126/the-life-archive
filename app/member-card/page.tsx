@@ -22,7 +22,7 @@ export default async function MemberCardPage({
 }: MemberCardPageProps) {
   const account = await getAccountContext();
   const { user } = account;
-  const archiveSlug = account.archive?.slug ?? null;
+  const archiveSlug = account.defaultArchive?.slug ?? null;
 
   const requestHeaders = headers();
   const siteUrl = getRequestSiteUrl(
