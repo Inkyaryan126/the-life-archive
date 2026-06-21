@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { randomUUID } from "crypto";
 import path from "path";
-import { supabase } from "./supabase";
+import { createClient } from "./supabase/server";
 import type {
   ArchiveStore,
   ArchiveVisibility,
@@ -243,6 +243,7 @@ export function isMemoryType(value: string): value is MemoryType {
 
 export async function getFeaturedArchives() {
   if (useSupabase) {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from("archives")
       .select("*")
@@ -268,6 +269,7 @@ export async function getFeaturedArchives() {
 
 export async function getArchiveBySlug(slug: string) {
   if (useSupabase) {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from("archives")
       .select("*")
@@ -295,6 +297,7 @@ export async function getArchiveBySlug(slug: string) {
 
 export async function getMemoriesByArchiveSlug(slug: string) {
   if (useSupabase) {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from("memories")
       .select("*, archives!inner(slug)")
@@ -335,6 +338,16 @@ export async function getRandomMemory(slug: string) {
 
 export async function createArchive(input: CreateArchiveInput) {
   if (useSupabase) {
+    const supabase = createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error("Authentication required to create an archive");
+    }
+
     const { data: existingArchives } = await supabase
       .from("archives")
       .select("slug");
@@ -355,7 +368,7 @@ export async function createArchive(input: CreateArchiveInput) {
         visibility: input.visibility,
         memorial_mode: input.memorialMode,
         is_demo: false,
-        owner_id: "00000000-0000-0000-0000-000000000000" // Placeholder
+        owner_id: user.id
       })
       .select()
       .single();
@@ -400,6 +413,16 @@ export async function createArchive(input: CreateArchiveInput) {
 
 export async function createMemory(input: CreateMemoryInput) {
   if (useSupabase) {
+    const supabase = createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error("Authentication required to create a memory");
+    }
+
     const { data: archive, error: archiveError } = await supabase
       .from("archives")
       .select("id")
@@ -420,7 +443,8 @@ export async function createMemory(input: CreateMemoryInput) {
         media_url: input.mediaUrl,
         memory_date: input.date || new Date().toISOString().slice(0, 10),
         tags: input.tags,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        created_by: user.id
       })
       .select()
       .single();
