@@ -12,6 +12,8 @@ export type ArchiveRelationshipToOwner =
   | "mentor"
   | "other";
 
+export type LegacyInstructionAccessLevel = "owner_only" | "released";
+
 export type MemoryType =
   | "journal"
   | "photo"
@@ -32,6 +34,17 @@ export type LifeArchive = {
   createdAt: string;
 };
 
+export type LegacyInstruction = {
+  archiveSlug: string;
+  archiveName: string;
+  personName: string;
+  body: string;
+  accessLevel: LegacyInstructionAccessLevel;
+  releasedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type Memory = {
   id: string;
   archiveSlug: string;
@@ -46,4 +59,5 @@ export type Memory = {
 export type ArchiveStore = {
   archives: LifeArchive[];
   memories: Memory[];
+  legacyInstructions: LegacyInstruction[];
 };

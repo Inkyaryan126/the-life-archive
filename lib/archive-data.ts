@@ -10,11 +10,17 @@ import {
   normalizeArchiveRelationshipToOwner,
   isArchiveRelationshipToOwner
 } from "./archive-relationships";
+import {
+  isLegacyInstructionAccessLevel,
+  normalizeLegacyInstructionAccessLevel
+} from "./legacy-instructions";
 import type {
   ArchiveStore,
   ArchiveVisibility,
   ArchiveRelationshipToOwner,
   LifeArchive,
+  LegacyInstruction,
+  LegacyInstructionAccessLevel,
   Memory,
   MemoryType
 } from "./types";
@@ -160,7 +166,8 @@ const seedMemories: Memory[] = [
 
 const seedStore: ArchiveStore = {
   archives: seedArchives,
-  memories: seedMemories
+  memories: seedMemories,
+  legacyInstructions: []
 };
 
 type CreateArchiveInput = {
@@ -181,6 +188,12 @@ type CreateMemoryInput = {
   mediaUrl?: string;
   date?: string;
   tags: string[];
+};
+
+type SaveLegacyInstructionInput = {
+  archiveSlug: string;
+  body: string;
+  accessLevel: LegacyInstructionAccessLevel;
 };
 
 async function ensureStore() {
@@ -251,6 +264,15 @@ function mergeSeedData(store: ArchiveStore) {
   let changed = false;
   const archiveSlugs = new Set(store.archives.map((archive) => archive.slug));
   const memoryIds = new Set(store.memories.map((memory) => memory.id));
+
+  if (!Array.isArray(store.legacyInstructions)) {
+    store.legacyInstructions = [];
+    changed = true;
+  }
+
+  const legacyInstructionSlugs = new Set(
+    store.legacyInstructions.map((instruction) => instruction.archiveSlug)
+  );
 
   for (const archive of seedArchives) {
     if (!archiveSlugs.has(archive.slug)) {
@@ -391,6 +413,203 @@ export async function getRandomMemory(slug: string) {
 
   const index = Math.floor(Math.random() * archiveMemories.length);
   return archiveMemories[index];
+}
+
+function mapLegacyInstruction(
+  instruction: LegacyInstruction,
+  overrides?: Partial<LegacyInstruction>
+) {
+  return {
+    ...instruction,
+    ...overrides,
+    accessLevel: normalizeLegacyInstructionAccessLevel(
+      overrides?.accessLevel ?? instruction.accessLevel
+    )
+  };
+}
+
+export async function getLegacyInstructionByArchiveSlug(slug: string, isOwner?: boolean) {
+  if (useSupabase) {
+    const supabase = createClient();
+    const { data, error } = await supabase.rpc(
+      "get_legacy_instruction_by_archive_slug",
+      {
+        archive_slug: slug
+      }
+    );
+
+    if (error) throw error;
+
+    const row = Array.isArray(data) ? data[0] : data;
+
+    if (!row) {
+      return null;
+    }
+
+    return mapLegacyInstruction({
+      archiveSlug: row.archive_slug,
+      archiveName: row.archive_name,
+      personName: row.person_name,
+      body: row.body,
+      accessLevel: normalizeLegacyInstructionAccessLevel(row.access_level),
+      releasedAt: row.released_at,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    });
+  }
+
+  const store = await readStore();
+  const instruction = store.legacyInstructions.find(
+    (item) => item.archiveSlug === slug
+  );
+
+  if (!instruction) {
+    return null;
+  }
+
+  const archive = store.archives.find((item) => item.slug === slug);
+
+  if (!archive) {
+    return null;
+  }
+
+  if (instruction.accessLevel !== "released" && !isOwner) {
+    return null;
+  }
+
+  return mapLegacyInstruction(instruction, {
+    archiveName: archive.archiveName,
+    personName: archive.personName
+  });
+}
+
+export async function saveLegacyInstruction(
+  input: SaveLegacyInstructionInput
+) {
+  if (!isLegacyInstructionAccessLevel(input.accessLevel)) {
+    throw new Error("Invalid legacy instruction access level.");
+  }
+
+  const trimmedBody = input.body.trim();
+
+  if (!trimmedBody) {
+    throw new Error("Legacy instructions cannot be empty.");
+  }
+
+  if (useSupabase) {
+    const supabase = createClient();
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error("Authentication required to save legacy instructions");
+    }
+
+    const { data: archive, error: archiveError } = await supabase
+      .from("archives")
+      .select("id, slug, archive_name, person_name, owner_id")
+      .eq("slug", input.archiveSlug)
+      .maybeSingle();
+
+    if (archiveError || !archive) {
+      throw new Error("Archive not found");
+    }
+
+    if (archive.owner_id !== user.id) {
+      throw new Error("You do not have permission to edit these instructions.");
+    }
+
+    const releasedAt =
+      input.accessLevel === "released"
+        ? new Date().toISOString()
+        : null;
+
+    const { data: existing } = await supabase
+      .from("legacy_instructions")
+      .select("id")
+      .eq("archive_id", archive.id)
+      .maybeSingle();
+
+    const payload = {
+      archive_id: archive.id,
+      body: trimmedBody,
+      access_level: input.accessLevel,
+      released_at: releasedAt,
+      created_by: user.id
+    };
+
+    const result = existing
+      ? await supabase
+          .from("legacy_instructions")
+          .update(payload)
+          .eq("id", existing.id)
+          .select("body, access_level, released_at, created_at, updated_at")
+          .single()
+      : await supabase
+          .from("legacy_instructions")
+          .insert(payload)
+          .select("body, access_level, released_at, created_at, updated_at")
+          .single();
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    return mapLegacyInstruction({
+      archiveSlug: archive.slug,
+      archiveName: archive.archive_name,
+      personName: archive.person_name,
+      body: result.data.body,
+      accessLevel: normalizeLegacyInstructionAccessLevel(
+        result.data.access_level
+      ),
+      releasedAt: result.data.released_at,
+      createdAt: result.data.created_at,
+      updatedAt: result.data.updated_at
+    });
+  }
+
+  const store = await readStore();
+  const archive = store.archives.find(
+    (item) => item.slug === input.archiveSlug
+  );
+
+  if (!archive) {
+    throw new Error("Archive not found");
+  }
+
+  const releasedAt =
+    input.accessLevel === "released"
+      ? new Date().toISOString()
+      : null;
+  const existingIndex = store.legacyInstructions.findIndex(
+    (item) => item.archiveSlug === input.archiveSlug
+  );
+  const now = new Date().toISOString();
+  const nextInstruction: LegacyInstruction = {
+    archiveSlug: archive.slug,
+    archiveName: archive.archiveName,
+    personName: archive.personName,
+    body: trimmedBody,
+    accessLevel: input.accessLevel,
+    releasedAt,
+    createdAt:
+      existingIndex >= 0
+        ? store.legacyInstructions[existingIndex].createdAt
+        : now,
+    updatedAt: now
+  };
+
+  if (existingIndex >= 0) {
+    store.legacyInstructions[existingIndex] = nextInstruction;
+  } else {
+    store.legacyInstructions.unshift(nextInstruction);
+  }
+
+  await writeStore(store);
+  return nextInstruction;
 }
 
 export async function createArchive(input: CreateArchiveInput) {

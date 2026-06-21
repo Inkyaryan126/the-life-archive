@@ -15,12 +15,14 @@ SUPABASE_SERVICE_ROLE_KEY=server-only-service-role-key
 
 Do not expose `SUPABASE_SERVICE_ROLE_KEY` to the browser. It should only be used in trusted server-side scripts or admin-only maintenance tasks.
 
-## Migration File
+## Migration Files
 
-Run this SQL first:
+Run these SQL files in order:
 
 ```text
 supabase/migrations/20260620130000_create_life_archive_foundation.sql
+supabase/migrations/20260621113000_add_relationship_to_owner_to_archives.sql
+supabase/migrations/20260621124500_add_legacy_instructions.sql
 ```
 
 It creates:
@@ -37,7 +39,7 @@ It creates:
 
 ## Seed File
 
-Run this SQL after the migration:
+Run this SQL after both migrations:
 
 ```text
 supabase/seed.sql
@@ -74,11 +76,27 @@ supabase/migrations/20260620130000_create_life_archive_foundation.sql
 7. Paste the full contents of:
 
 ```text
-supabase/seed.sql
+supabase/migrations/20260621113000_add_relationship_to_owner_to_archives.sql
 ```
 
 8. Run it.
-9. In **Table Editor**, confirm that `archives` contains `maya-rivera` and `dustin-sigley`.
+9. Create another new query.
+10. Paste the full contents of:
+
+```text
+supabase/migrations/20260621124500_add_legacy_instructions.sql
+```
+
+11. Run it.
+12. Create another new query.
+13. Paste the full contents of:
+
+```text
+supabase/seed.sql
+```
+
+14. Run it.
+15. In **Table Editor**, confirm that `archives` contains `maya-rivera` and `dustin-sigley`.
 
 ## How To Run With Supabase CLI Later
 

@@ -115,6 +115,12 @@ export default async function ArchivePage({ params }: ArchivePageProps) {
                 >
                   QR Card
                 </Link>
+                <Link
+                  href={`/archive/${archive.slug}/legacy-instructions`}
+                  className="rounded-full border border-archive-ink/15 bg-white px-5 py-3 text-sm font-semibold text-archive-ink transition hover:bg-archive-linen"
+                >
+                  Legacy Instructions
+                </Link>
               </div>
               {memories.length === 0 ? (
                 <div className="mt-7 rounded-md border border-archive-ink/10 bg-archive-paper px-4 py-3 text-sm leading-6 text-archive-ink/68">

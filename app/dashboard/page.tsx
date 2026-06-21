@@ -4,6 +4,12 @@ import { signOutAction } from "@/app/login/actions";
 import type { AccountArchive } from "@/lib/account";
 import { getAccountContext } from "@/lib/account";
 import { getArchiveRelationshipLabel } from "@/lib/archive-relationships";
+import {
+  getLegacyInstructionByArchiveSlug
+} from "@/lib/archive-data";
+import {
+  legacyInstructionAccessLevelLabels
+} from "@/lib/legacy-instructions";
 
 export const dynamic = "force-dynamic";
 
@@ -116,6 +122,83 @@ function ArchiveDashboardCard({
   );
 }
 
+type LegacyInstructionsCardProps = {
+  archiveSlug: string;
+  archiveName: string;
+  personName: string;
+  body?: string | null;
+  accessLevel?: "owner_only" | "released" | null;
+};
+
+function LegacyInstructionsCard({
+  archiveSlug,
+  archiveName,
+  personName,
+  body,
+  accessLevel
+}: LegacyInstructionsCardProps) {
+  const hasInstructions = Boolean(body);
+  const label = hasInstructions
+    ? accessLevel
+      ? legacyInstructionAccessLevelLabels[accessLevel]
+      : "Saved"
+    : "Not started";
+  const description = !hasInstructions
+    ? "Write a private legacy instruction document for this archive."
+    : accessLevel === "released"
+      ? "Released publicly. Keep it current when your wishes change."
+      : "Saved privately. Open it anytime to finish the draft.";
+  const ctaLabel = hasInstructions
+    ? "Open Legacy Instructions"
+    : "Write Legacy Instructions";
+
+  return (
+    <section className="mt-10 rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-6 sm:p-8">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+            Legacy Instructions
+          </p>
+          <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+            Prepare the instructions that should outlast the archive.
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/62 sm:text-base">
+            Keep a private document for final wishes, practical notes, and
+            anything the right person should know later.
+          </p>
+        </div>
+        <span className="rounded-full border border-archive-gold/25 bg-archive-gold/10 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-archive-champagne">
+          {label}
+        </span>
+      </div>
+
+      <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div className="rounded-xl border border-archive-gold/15 bg-archive-ivory px-5 py-4 text-archive-obsidian">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+            {archiveName}
+          </p>
+          <p className="mt-2 text-lg font-semibold">{personName}</p>
+          <p className="mt-3 text-sm leading-7 text-archive-obsidian/70">
+            {description}
+          </p>
+          {body ? (
+            <p className="mt-4 line-clamp-3 whitespace-pre-wrap text-sm leading-7 text-archive-obsidian/80">
+              {body}
+            </p>
+          ) : null}
+        </div>
+
+        <Link
+          href={`/archive/${archiveSlug}/legacy-instructions`}
+          className="rounded-full bg-archive-gold px-5 py-3 text-center text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+        >
+          {ctaLabel}
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 export default async function DashboardPage() {
   const account = await getAccountContext();
 
@@ -124,6 +207,9 @@ export default async function DashboardPage() {
   }
 
   const { archives, defaultArchive, user } = account;
+  const legacyInstruction = defaultArchive
+    ? await getLegacyInstructionByArchiveSlug(defaultArchive.slug, true)
+    : null;
   const memberSince = new Intl.DateTimeFormat("en", {
     month: "long",
     year: "numeric"
@@ -195,6 +281,16 @@ export default async function DashboardPage() {
             </dl>
           </div>
         </section>
+
+        {defaultArchive ? (
+          <LegacyInstructionsCard
+            archiveSlug={defaultArchive.slug}
+            archiveName={defaultArchive.archiveName}
+            personName={defaultArchive.personName}
+            body={legacyInstruction?.body}
+            accessLevel={legacyInstruction?.accessLevel ?? null}
+          />
+        ) : null}
 
         <section className="mt-12">
           <div className="flex flex-wrap items-end justify-between gap-4">
