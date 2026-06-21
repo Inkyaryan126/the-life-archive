@@ -1,6 +1,6 @@
--- Public read-only demo data for Life Archive.
--- Demo archives intentionally have owner_id = null and is_demo = true.
--- RLS prevents normal authenticated users from updating/deleting demo archives.
+-- Protected public example archives for The Life Archive.
+-- Example archives intentionally have owner_id = null and is_demo = true.
+-- RLS prevents normal authenticated users from updating or deleting them.
 
 insert into public.archives (
   slug,
@@ -31,10 +31,10 @@ values
   ),
   (
     'dustin-sigley',
-    'Founders Archive',
+    'Dustin Sigley''s Life Archive',
     'Dustin Sigley',
-    'Founder of The Life Archive, preserving the ideas, lessons, and moments that shaped the journey.',
-    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80',
+    'Dustin Sigley is the founder of The Life Archive, built from the belief that a person deserves to leave behind more than a name, a date, and a few scattered memories. His archive preserves the ideas, lessons, music, and moments that shaped the beginning of the project.',
+    '/images/dustin-sigley.png',
     'public',
     false,
     'self',

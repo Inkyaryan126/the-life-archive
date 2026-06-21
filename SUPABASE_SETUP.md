@@ -45,12 +45,12 @@ Run this SQL after both migrations:
 supabase/seed.sql
 ```
 
-It creates public read-only demo archives for:
+It creates protected public example archives for:
 
 - Maya Rivera
 - Dustin Sigley
 
-Demo archives use:
+Protected example archives use:
 
 ```sql
 owner_id = null
@@ -58,7 +58,7 @@ is_demo = true
 visibility = 'public'
 ```
 
-Normal authenticated users cannot update or delete demo archives through the provided RLS policies.
+Normal authenticated users cannot update or delete protected example archives through the provided RLS policies.
 
 ## How To Run In Supabase Dashboard
 

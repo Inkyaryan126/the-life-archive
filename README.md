@@ -36,7 +36,7 @@ Open:
 http://localhost:3000
 ```
 
-Useful demo routes:
+Public example routes:
 
 ```text
 /archive/maya-rivera
@@ -61,7 +61,9 @@ The MVP stores archives and memories in:
 data/life-archive.json
 ```
 
-This is intentionally simple for the MVP and founder demo. On Vercel, file writes inside the deployment are not durable long-term storage. The seeded demo archives will work, but user-created archives should move to Supabase or another database before real public use.
+The included example archives are protected reference profiles. Visitors can
+explore them through the public routes above, but regular accounts cannot edit
+or delete them.
 
 ## Vercel Deployment Notes
 

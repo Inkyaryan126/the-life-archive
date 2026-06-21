@@ -13,10 +13,10 @@
     },
     {
       "slug": "dustin-sigley",
-      "archiveName": "Founders Archive",
+      "archiveName": "Dustin Sigley's Life Archive",
       "personName": "Dustin Sigley",
-      "bio": "Founder of The Life Archive, preserving the ideas, lessons, and moments that shaped the journey.",
-      "profilePhotoUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80",
+      "bio": "Dustin Sigley is the founder of The Life Archive, built from the belief that a person deserves to leave behind more than a name, a date, and a few scattered memories. His archive preserves the ideas, lessons, music, and moments that shaped the beginning of the project.",
+      "profilePhotoUrl": "/images/dustin-sigley.png",
       "visibility": "public",
       "memorialMode": false,
       "relationshipToOwner": "self",

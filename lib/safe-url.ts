@@ -1,4 +1,5 @@
 const PROFILE_PHOTO_HOSTS = new Set(["images.unsplash.com"]);
+const PROFILE_PHOTO_PATHS = new Set(["/images/dustin-sigley.png"]);
 const MEMORY_MEDIA_HOSTS = new Set([
   "images.unsplash.com",
   "open.spotify.com"
@@ -50,8 +51,14 @@ function validateAllowedHttpsUrl(
 }
 
 export function validateProfilePhotoUrl(value: string) {
+  const trimmedValue = value.trim();
+
+  if (PROFILE_PHOTO_PATHS.has(trimmedValue)) {
+    return { ok: true as const, value: trimmedValue };
+  }
+
   return validateAllowedHttpsUrl(
-    value,
+    trimmedValue,
     PROFILE_PHOTO_HOSTS,
     "profile photo link",
     "Please use an Unsplash image link for the profile photo."
