@@ -56,7 +56,7 @@ const defaultProfilePhotoUrl =
   "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=900&q=80";
 
 const archiveSeedIds = {
-  mayaRivera: "9e1b0e95-1d3b-4e91-9c42-5b8bf6c8d501",
+  sariRae: "9e1b0e95-1d3b-4e91-9c42-5b8bf6c8d501",
   dustinSigley: "f7d2eb3c-2c6c-4c11-b7f2-90c2d6c1c5be"
 } as const;
 
@@ -149,13 +149,12 @@ async function mapMemoryRowWithResolvedMedia(
 
 const seedArchives: LifeArchive[] = [
   {
-    id: archiveSeedIds.mayaRivera,
-    slug: "maya-rivera",
-    archiveName: "Maya Rivera's Life Archive",
-    personName: "Maya Rivera",
-    bio: "Teacher, gardener, Sunday dinner host, and the steady voice everyone called when life felt too loud.",
-    profilePhotoUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80",
+    id: archiveSeedIds.sariRae,
+    slug: "sari-rae",
+    archiveName: "Sari Rae's Life Archive",
+    personName: "Sari Rae",
+    bio: "Sari Rae is a devoted mother whose life centers on family, care, and the small moments that become lasting memories. With a background in cosmetology and a gift for making people feel their best, her archive holds the stories, lessons, and moments that reflect a warm, grounded life well lived.",
+    profilePhotoUrl: "/images/sari-rae.png",
     visibility: "public",
     memorialMode: false,
     relationshipToOwner: "other",
@@ -178,43 +177,42 @@ const seedArchives: LifeArchive[] = [
 const seedMemories: Memory[] = [
   {
     id: "m-001",
-    archiveSlug: "maya-rivera",
+    archiveSlug: "sari-rae",
     title: "The kitchen table rule",
     type: "lesson",
     content:
-      "Maya always said the best conversations happen after the plates are cleared, when no one is rushing to be anywhere else.",
+      "Sari always said the best conversations happen after the dishes are cleared, when nobody is in a hurry and the family can just be together.",
     date: "2021-11-24",
     tags: ["family", "lesson", "home"]
   },
   {
     id: "m-002",
-    archiveSlug: "maya-rivera",
-    title: "Summer roses",
+    archiveSlug: "sari-rae",
+    title: "A day at the salon",
     type: "photo",
     content:
-      "A favorite photo from the first summer the rose bushes finally climbed over the back fence.",
-    mediaUrl:
-      "https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=1200&q=80",
+      "A moment from the salon, where Sari helped someone leave feeling a little lighter and a little more confident.",
+    mediaUrl: "/images/sari-rae.png",
     date: "2019-07-12",
-    tags: ["garden", "summer"]
+    tags: ["cosmetology", "family"]
   },
   {
     id: "m-003",
-    archiveSlug: "maya-rivera",
+    archiveSlug: "sari-rae",
     title: "A letter for the first hard year",
     type: "journal",
     content:
-      "If you are reading this during a hard season, make the next right choice and let tomorrow get its own turn.",
+      "If you are reading this during a hard season, remember that love is often built in the ordinary things: a meal, a ride home, a calm voice, and showing up again tomorrow.",
     date: "2024-01-02",
     tags: ["future", "journal"]
   },
   {
     id: "m-004",
-    archiveSlug: "maya-rivera",
+    archiveSlug: "sari-rae",
     title: "Her Sunday playlist",
     type: "song",
     content:
-      "The songs that played while Maya cooked on Sunday mornings, before anyone else arrived.",
+      "The songs that played while Sari cooked on Sunday mornings and the family drifted in one by one.",
     mediaUrl: "https://open.spotify.com/",
     date: "2020-03-08",
     tags: ["music", "sunday"]

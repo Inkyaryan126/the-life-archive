@@ -19,11 +19,11 @@ insert into public.archives (
 values
   (
     '9e1b0e95-1d3b-4e91-9c42-5b8bf6c8d501',
-    'maya-rivera',
-    'Maya Rivera''s Life Archive',
-    'Maya Rivera',
-    'Teacher, gardener, Sunday dinner host, and the steady voice everyone called when life felt too loud.',
-    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80',
+    'sari-rae',
+    'Sari Rae''s Life Archive',
+    'Sari Rae',
+    'Sari Rae is a devoted mother whose life centers on family, care, and the small moments that become lasting memories. With a background in cosmetology and a gift for making people feel their best, her archive holds the stories, lessons, and moments that reflect a warm, grounded life well lived.',
+    '/images/sari-rae.png',
     'public',
     false,
     'other',
@@ -70,10 +70,10 @@ with seeded_memories (
 ) as (
   values
     (
-      'maya-rivera',
+      'sari-rae',
       'The kitchen table rule',
       'lesson',
-      'Maya always said the best conversations happen after the plates are cleared, when no one is rushing to be anywhere else.',
+      'Sari always said the best conversations happen after the dishes are cleared, when nobody is in a hurry and the family can just be together.',
       null,
       date '2021-11-24',
       array['family', 'lesson', 'home']::text[],
@@ -81,21 +81,21 @@ with seeded_memories (
       '2021-11-24T00:00:00Z'::timestamptz
     ),
     (
-      'maya-rivera',
-      'Summer roses',
+      'sari-rae',
+      'A day at the salon',
       'photo',
-      'A favorite photo from the first summer the rose bushes finally climbed over the back fence.',
-      'https://images.unsplash.com/photo-1468327768560-75b778cbb551?auto=format&fit=crop&w=1200&q=80',
+      'A moment from the salon, where Sari helped someone leave feeling a little lighter and a little more confident.',
+      '/images/sari-rae.png',
       date '2019-07-12',
-      array['garden', 'summer']::text[],
+      array['cosmetology', 'family']::text[],
       '2019-07-12T00:00:00Z'::timestamptz,
       '2019-07-12T00:00:00Z'::timestamptz
     ),
     (
-      'maya-rivera',
+      'sari-rae',
       'A letter for the first hard year',
       'journal',
-      'If you are reading this during a hard season, make the next right choice and let tomorrow get its own turn.',
+      'If you are reading this during a hard season, remember that love is often built in the ordinary things: a meal, a ride home, a calm voice, and showing up again tomorrow.',
       null,
       date '2024-01-02',
       array['future', 'journal']::text[],
@@ -103,10 +103,10 @@ with seeded_memories (
       '2024-01-02T00:00:00Z'::timestamptz
     ),
     (
-      'maya-rivera',
+      'sari-rae',
       'Her Sunday playlist',
       'song',
-      'The songs that played while Maya cooked on Sunday mornings, before anyone else arrived.',
+      'The songs that played while Sari cooked on Sunday mornings and the family drifted in one by one.',
       'https://open.spotify.com/',
       date '2020-03-08',
       array['music', 'sunday']::text[],

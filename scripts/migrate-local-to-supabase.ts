@@ -16,8 +16,8 @@ async function migrate() {
   const rawData = await readFile(dataPath, "utf8");
   const { archives, memories } = JSON.parse(rawData);
 
-  // Filter out seeds (maya-rivera, dustin-sigley)
-  const seedSlugs = new Set(["maya-rivera", "dustin-sigley"]);
+  // Filter out seeds (sari-rae, dustin-sigley)
+  const seedSlugs = new Set(["sari-rae", "dustin-sigley"]);
   const archivesToMigrate = archives.filter(
     (a: any) => !seedSlugs.has(a.slug)
   );

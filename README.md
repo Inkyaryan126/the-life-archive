@@ -39,7 +39,7 @@ http://localhost:3000
 Public example routes:
 
 ```text
-/archive/maya-rivera
+/archive/sari-rae
 /archive/dustin-sigley
 /archive/dustin-sigley/qr
 /archive/dustin-sigley/random
@@ -89,6 +89,7 @@ www.thelifearchive.vip
 
 ```text
 https://thelifearchive.vip
+https://thelifearchive.vip/archive/sari-rae
 https://thelifearchive.vip/archive/dustin-sigley/qr
 https://thelifearchive.vip/archive/dustin-sigley/random
 ```

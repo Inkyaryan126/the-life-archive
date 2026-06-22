@@ -54,7 +54,7 @@ supabase/seed.sql
 
 It creates protected public example archives for:
 
-- Maya Rivera
+- Sari Rae
 - Dustin Sigley
 
 Protected example archives use:
@@ -119,7 +119,7 @@ supabase/seed.sql
 ```
 
 20. Run it.
-21. In **Table Editor**, confirm that `archives` contains `maya-rivera` and `dustin-sigley`.
+21. In **Table Editor**, confirm that `archives` contains `sari-rae` and `dustin-sigley`.
 
 ## How To Run With Supabase CLI Later
 

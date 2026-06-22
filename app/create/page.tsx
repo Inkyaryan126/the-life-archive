@@ -26,7 +26,7 @@ export default async function CreateArchivePage({
             The Life Archive Home
           </Link>
           <Link
-            href="/archive/maya-rivera"
+            href="/archive/sari-rae"
             className="text-sm font-semibold text-archive-sage underline-offset-4 hover:underline"
           >
             Example archive
@@ -104,7 +104,7 @@ export default async function CreateArchivePage({
                 <input
                   name="archiveName"
                   required
-                  placeholder="Maya Rivera&apos;s Life Archive"
+                  placeholder="Sari Rae&apos;s Life Archive"
                   className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
                 />
               </label>
@@ -116,7 +116,7 @@ export default async function CreateArchivePage({
                 <input
                   name="personName"
                   required
-                  placeholder="Maya Rivera"
+                  placeholder="Sari Rae"
                   className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
                 />
               </label>

@@ -73,7 +73,7 @@ export default async function HomePage() {
                 {primaryLabel}
               </Link>
               <Link
-                href="/archive/maya-rivera"
+                href="/archive/sari-rae"
                 className="rounded-full border border-white/70 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
               >
                 View Example
