@@ -59,12 +59,18 @@ export default async function MemberCardPage({
   const hasArchive = Boolean(archivePath);
   const qrPath = archivePath || "/create";
   const qrSvg = await generateQrSvg(`${siteUrl}${qrPath}`);
-  const memberSince = String(new Date(user.createdAt).getFullYear());
   const continueHref = archivePath || "/create";
   const continueLabel = archivePath
     ? "Continue to My Archive"
     : "Create My Archive";
   const confirmationPending = searchParams?.confirmation === "pending";
+  const isNewMember =
+    searchParams?.welcome === "new" || searchParams?.welcome === "confirmed";
+  const emailName = user.email
+    .split("@")[0]
+    .replace(/[._-]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  const memberName = account.defaultArchive?.personName ?? emailName;
 
   return (
     <main className="member-card-page min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
@@ -93,26 +99,29 @@ export default async function MemberCardPage({
       </div>
 
       <section className="no-print relative mx-auto max-w-3xl pb-10 pt-14 text-center sm:pt-20">
-        {searchParams?.welcome === "new" ? (
+        {isNewMember ? (
           <SuccessMessage
-            eyebrow="Welcome to The Life Archive"
-            message="Your account is ready. Create an archive when you are ready to preserve the first story."
+            eyebrow="Your membership begins here"
+            message="Your place in The Life Archive is confirmed. This card is the first promise that your story can remain within reach."
           />
         ) : null}
         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-          Keep their story within reach
+          {isNewMember ? "This card carries a promise" : "Keep their story within reach"}
         </p>
         <h1 className="mt-5 font-serif text-4xl leading-tight sm:text-6xl">
-          Carry what matters with you.
+          {isNewMember
+            ? "A life should leave behind more than a name and two dates."
+            : "Carry what matters with you."}
         </h1>
         <p className="mt-4 font-serif text-xl italic text-archive-champagne sm:text-2xl">
-          A simple card can lead loved ones back to a lifetime of memories.
+          {isNewMember
+            ? "Your stories, voice, lessons, and love deserve a way home."
+            : "A simple card can lead loved ones back to a lifetime of memories."}
         </p>
         <p className="mx-auto mt-7 max-w-2xl text-sm leading-7 text-archive-ivory/68 sm:text-base sm:leading-8">
-          This card is intended to be printed and kept in your wallet. If
-          something ever happens to you before you&apos;ve shared your archive with
-          loved ones, this card can help them find the memories, stories, and
-          legacy you chose to preserve.
+          {isNewMember
+            ? "Once you create your archive, this card becomes a path back to what you chose to preserve. Print it. Carry it. Keep it where someone you love can find it. Years from now, one scan may open the door to the memories that still sound and feel like you."
+            : "This card is intended to be printed and kept in your wallet. If something ever happens to you before you&apos;ve shared your archive with loved ones, this card can help them find the memories, stories, and legacy you chose to preserve."}
         </p>
 
         {confirmationPending ? (
@@ -126,7 +135,7 @@ export default async function MemberCardPage({
       <div className="member-card-print-shell relative mx-auto max-w-[34rem]">
         <MemberCard
           hasArchive={hasArchive}
-          memberSince={memberSince}
+          memberName={memberName}
           qrSrc={svgToDataUri(qrSvg)}
         />
       </div>

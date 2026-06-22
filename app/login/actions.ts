@@ -42,12 +42,13 @@ export async function signupAction(formData: FormData) {
   const supabase = createClient();
   const memberCardPath = "/member-card";
   const nextPath = getSafeNextPath(formData.get("next"), memberCardPath);
+  const confirmationPath = `${memberCardPath}?welcome=confirmed`;
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(nextPath)}`
+      emailRedirectTo: `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(confirmationPath)}`
     }
   });
 
@@ -61,7 +62,7 @@ export async function signupAction(formData: FormData) {
   }
 
   if (data.session) {
-    redirect(nextPath === memberCardPath ? `${memberCardPath}?welcome=new` : nextPath);
+    redirect(`${memberCardPath}?welcome=new`);
   }
 
   redirect(`${memberCardPath}?confirmation=pending`);

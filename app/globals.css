@@ -88,52 +88,8 @@ select {
     -webkit-print-color-adjust: exact;
   }
 
-  .member-card-front {
-    padding: 0.22in !important;
-  }
-
-  .member-card-back {
-    padding: 0.16in !important;
-  }
-
-  .member-card-back-layout {
-    gap: 0.12in !important;
-    grid-template-columns: minmax(0, 1fr) 0.78in !important;
-  }
-
-  .member-card-back-title {
-    font-size: 10pt !important;
-    line-height: 1 !important;
-  }
-
-  .member-card-back-rule {
-    margin-top: 0.05in !important;
-  }
-
-  .member-card-back-copy {
-    font-size: 5.8pt !important;
-    line-height: 1.22 !important;
-    margin-top: 0.07in !important;
-  }
-
-  .member-card-back-copy > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 0.04in !important;
-  }
-
-  .member-card-qr-label {
-    font-size: 4.7pt !important;
-    margin-bottom: 0.04in !important;
-  }
-
-  .member-card-qr-image {
-    height: 0.7in !important;
-    width: 0.7in !important;
-  }
-
-  .member-card-back-footer {
-    font-size: 5.5pt !important;
-    line-height: 1 !important;
-    margin-top: 0.04in !important;
-    padding-top: 0.04in !important;
+  .member-card-qr-overlay {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }
