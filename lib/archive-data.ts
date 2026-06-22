@@ -433,7 +433,7 @@ export async function getLegacyInstructionByArchiveSlug(slug: string, isOwner?: 
     const { data, error } = await supabase.rpc(
       "get_legacy_instruction_by_archive_slug",
       {
-        archive_slug: slug
+        target_slug: slug
       }
     );
 
