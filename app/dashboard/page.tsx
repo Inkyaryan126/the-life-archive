@@ -217,7 +217,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   const { archives, defaultArchive, user } = account;
   const legacyInstruction = defaultArchive
-    ? await getLegacyInstructionByArchiveSlug(defaultArchive.slug, true)
+    ? await getLegacyInstructionByArchiveSlug(defaultArchive.slug, true).catch(
+        () => null
+      )
     : null;
   const memberSince = new Intl.DateTimeFormat("en", {
     month: "long",
@@ -306,6 +308,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             accessLevel={legacyInstruction?.accessLevel ?? null}
           />
         ) : null}
+
+        <section className="mt-12 rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-5 sm:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+            What is an Archive?
+          </p>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-archive-ivory/68 sm:text-base sm:leading-8">
+            An archive is a collection of memories centered around one person.
+            You can create an archive for yourself or for someone you love.
+            Each archive can hold photos, videos, stories, voice recordings,
+            life lessons, and other meaningful memories that can be preserved
+            and shared for future generations.
+          </p>
+        </section>
 
         <section className="mt-12">
           <div className="flex flex-wrap items-end justify-between gap-4">

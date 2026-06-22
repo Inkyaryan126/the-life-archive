@@ -38,12 +38,31 @@ export default async function CreateArchivePage({
             Create archive
           </p>
           <h1 className="mt-3 font-serif text-4xl leading-tight text-archive-ink sm:text-5xl">
-            Start with the person at the center.
+            Create an Archive for Yourself or Another Loved One
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-archive-ink/72">
-            A lifetime deserves more than a headstone. Create a living archive
-            of memories, stories, photos, lessons, and legacy to preserve and
-            share for generations.
+            An archive is a digital collection of someone&apos;s life story.
+            It can be your story. It can be your mother&apos;s story. It can be a
+            grandparent, spouse, child, friend, veteran, mentor, or someone
+            who is no longer here to tell their story themselves. Each archive
+            can contain photos, videos, voice recordings, journal entries, life
+            lessons, favorite songs, and personal memories. When complete, the
+            archive can be shared through a private link, QR card, memorial
+            keychain, funeral keepsake, or family collection so future
+            generations can continue discovering that person&apos;s story.
+          </p>
+        </section>
+
+        <section className="rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-5 text-archive-ivory shadow-luxury sm:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+            What is an Archive?
+          </p>
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-archive-ivory/72 sm:text-base sm:leading-8">
+            An archive is a collection of memories centered around one person.
+            You can create an archive for yourself or for someone you love.
+            Each archive can hold photos, videos, stories, voice recordings,
+            life lessons, and other meaningful memories that can be preserved
+            and shared for future generations.
           </p>
         </section>
 
@@ -71,125 +90,125 @@ export default async function CreateArchivePage({
             action={createArchiveAction}
             className="rounded-lg border border-archive-ink/10 bg-white/82 p-5 shadow-soft sm:p-7"
           >
-          {searchParams?.error ? (
-            <p className="mb-5 rounded-md border border-archive-clay/20 bg-archive-clay/10 px-4 py-3 text-sm font-semibold text-archive-clay">
-              {searchParams.error}
-            </p>
-          ) : null}
-          <div className="grid gap-5">
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-archive-ink">
-                Archive name
-              </span>
-              <input
-                name="archiveName"
-                required
-                placeholder="Maya Rivera's Life Archive"
-                className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
-              />
-            </label>
+            {searchParams?.error ? (
+              <p className="mb-5 rounded-md border border-archive-clay/20 bg-archive-clay/10 px-4 py-3 text-sm font-semibold text-archive-clay">
+                {searchParams.error}
+              </p>
+            ) : null}
+            <div className="grid gap-5">
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-archive-ink">
+                  Archive name
+                </span>
+                <input
+                  name="archiveName"
+                  required
+                  placeholder="Maya Rivera&apos;s Life Archive"
+                  className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
+                />
+              </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-archive-ink">
-                Person name
-              </span>
-              <input
-                name="personName"
-                required
-                placeholder="Maya Rivera"
-                className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
-              />
-            </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-archive-ink">
+                  Person name
+                </span>
+                <input
+                  name="personName"
+                  required
+                  placeholder="Maya Rivera"
+                  className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
+                />
+              </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-archive-ink">
-                Who is this archive for?
-              </span>
-              <select
-                name="relationshipToOwner"
-                required
-                defaultValue="other"
-                className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
-              >
-                {archiveRelationships.map((value) => (
-                  <option key={value} value={value}>
-                    {archiveRelationshipLabels[value]}
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-archive-ink">
+                  Who is this archive for?
+                </span>
+                <select
+                  name="relationshipToOwner"
+                  required
+                  defaultValue="other"
+                  className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
+                >
+                  {archiveRelationships.map((value) => (
+                    <option key={value} value={value}>
+                      {archiveRelationshipLabels[value]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-archive-ink">
+                  Short bio
+                </span>
+                <textarea
+                  name="bio"
+                  required
+                  rows={5}
+                  placeholder="A few warm sentences about their life, personality, and legacy."
+                  className="resize-y rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
+                />
+              </label>
+
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-archive-ink">
+                  Profile photo link
+                </span>
+                <input
+                  name="profilePhotoUrl"
+                  type="url"
+                  placeholder="Paste a link from Unsplash"
+                  className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
+                />
+              </label>
+
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-archive-ink">
+                  Visibility
+                </span>
+                <select
+                  name="visibility"
+                  defaultValue="private"
+                  className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
+                >
+                  <option value="private">
+                    Private - only you and authorized members can view
                   </option>
-                ))}
-              </select>
-            </label>
+                  <option value="public">
+                    Public - anyone can view; may appear on the homepage
+                  </option>
+                </select>
+              </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-archive-ink">
-                Short bio
-              </span>
-              <textarea
-                name="bio"
-                required
-                rows={5}
-                placeholder="A few warm sentences about their life, personality, and legacy."
-                className="resize-y rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
-              />
-            </label>
+              <label className="flex items-center justify-between gap-4 rounded-md border border-archive-ink/10 bg-archive-paper px-4 py-3">
+                <span>
+                  <span className="block text-sm font-semibold text-archive-ink">
+                    Remembrance language
+                  </span>
+                  <span className="mt-1 block text-sm leading-6 text-archive-ink/64">
+                    Use remembrance-focused wording throughout this archive.
+                  </span>
+                </span>
+                <input
+                  name="memorialMode"
+                  type="checkbox"
+                  className="size-5 accent-archive-clay"
+                />
+              </label>
+            </div>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-archive-ink">
-                Profile photo link
-              </span>
-              <input
-                name="profilePhotoUrl"
-                type="url"
-                placeholder="Paste a link from Unsplash"
-                className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
-              />
-            </label>
-
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-archive-ink">
-                Visibility
-              </span>
-              <select
-                name="visibility"
-                defaultValue="private"
-                className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <button
+                type="submit"
+                className="rounded-full bg-archive-clay px-6 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-archive-ink"
               >
-                <option value="private">
-                  Private - only you and authorized members can view
-                </option>
-                <option value="public">
-                  Public - anyone can view; may appear on the homepage
-                </option>
-              </select>
-            </label>
-
-            <label className="flex items-center justify-between gap-4 rounded-md border border-archive-ink/10 bg-archive-paper px-4 py-3">
-              <span>
-                <span className="block text-sm font-semibold text-archive-ink">
-                  Remembrance language
-                </span>
-                <span className="mt-1 block text-sm leading-6 text-archive-ink/64">
-                  Use remembrance-focused wording throughout this archive.
-                </span>
-              </span>
-              <input
-                name="memorialMode"
-                type="checkbox"
-                className="size-5 accent-archive-clay"
-              />
-            </label>
-          </div>
-
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            <button
-              type="submit"
-              className="rounded-full bg-archive-clay px-6 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-archive-ink"
-            >
-              Create Archive
-            </button>
-            <p className="text-sm leading-6 text-archive-ink/60">
-              Next, you&apos;ll enter the archive and add its first memory.
-            </p>
-          </div>
+                Create an Archive
+              </button>
+              <p className="text-sm leading-6 text-archive-ink/60">
+                Next, you&apos;ll enter the archive and add its first memory.
+              </p>
+            </div>
           </form>
         )}
       </div>
