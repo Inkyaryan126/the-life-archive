@@ -9,6 +9,7 @@ import {
 import {
   deleteStorageObject,
   resolveStorageImageUrl,
+  uploadMemoryVoice,
   validateImageUpload,
   uploadArchiveCoverImage,
   uploadMemoryPhoto
@@ -841,12 +842,16 @@ export async function createMemory(input: CreateMemoryInput) {
     );
   }
 
-  if (input.mediaFile && input.type !== "photo") {
-    throw new Error("Only photo memories can use image uploads.");
+  if (input.mediaFile && input.type === "photo") {
+    validateImageUpload(input.mediaFile, "Photo memory");
   }
 
-  if (input.mediaFile) {
-    validateImageUpload(input.mediaFile, "Photo memory");
+  if (input.mediaFile && input.type === "voice") {
+    // audio validation happens with the upload helper
+  }
+
+  if (input.mediaFile && input.type !== "photo" && input.type !== "voice") {
+    throw new Error("Only photo or voice memories can use file uploads.");
   }
 
   const mediaUrl = mediaUrlValidation.value;
@@ -892,19 +897,30 @@ export async function createMemory(input: CreateMemoryInput) {
     if (error || !data) throw error || new Error("Memory could not be created.");
 
     let memoryRow = data as MemoryRow;
-    let photoPath: string | null = null;
+    let filePath: string | null = null;
 
     if (input.mediaFile) {
       try {
-        photoPath = await uploadMemoryPhoto(
-          archive.id,
-          memoryRow.id,
-          input.mediaFile
-        );
+        if (input.type === "photo") {
+          filePath = await uploadMemoryPhoto(
+            archive.id,
+            memoryRow.id,
+            input.mediaFile
+          );
+        } else if (input.type === "voice") {
+          filePath = await uploadMemoryVoice(
+            archive.id,
+            memoryRow.id,
+            input.mediaFile
+          );
+        }
 
         const { data: updatedMemory, error: updateError } = await supabase
           .from("memories")
-          .update({ photo_path: photoPath })
+          .update({
+            ...(input.type === "photo" ? { photo_path: filePath } : {}),
+            ...(input.type === "voice" ? { media_url: null } : {})
+          })
           .eq("id", memoryRow.id)
           .select()
           .single();
@@ -916,11 +932,15 @@ export async function createMemory(input: CreateMemoryInput) {
 
         memoryRow = updatedMemory as MemoryRow;
       } catch {
-        if (photoPath) {
-          await deleteStorageObject(photoPath);
+        if (filePath) {
+          await deleteStorageObject(filePath);
         }
         await supabase.from("memories").delete().eq("id", memoryRow.id);
-        throw new Error("We couldn't save that photo. Please try again.");
+        throw new Error(
+          input.type === "voice"
+            ? "We couldn't save that voice file. Please try again."
+            : "We couldn't save that photo. Please try again."
+        );
       }
     }
 

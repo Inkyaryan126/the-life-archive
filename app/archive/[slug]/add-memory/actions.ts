@@ -48,7 +48,7 @@ export async function addMemoryAction(slug: string, formData: FormData) {
   if (!content && !mediaUrl && !mediaFile) {
     redirectWithError(
       slug,
-      "Add a written memory, a photo upload, an Unsplash photo link, or a Spotify song link."
+      "Add a written memory, a photo upload, a voice upload, an Unsplash photo link, a hosted voice link, or a Spotify song link."
     );
   }
 

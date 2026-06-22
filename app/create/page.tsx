@@ -53,11 +53,11 @@ export default async function CreateArchivePage({
           </p>
         </section>
 
-        <section className="rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-5 text-archive-ivory shadow-luxury sm:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+        <section className="rounded-2xl border border-archive-ink/10 bg-white/82 p-5 shadow-soft sm:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-clay">
             What is an Archive?
           </p>
-          <p className="mt-3 max-w-4xl text-sm leading-7 text-archive-ivory/72 sm:text-base sm:leading-8">
+          <p className="mt-3 max-w-4xl text-sm leading-7 text-archive-ink/72 sm:text-base sm:leading-8">
             An archive is a collection of memories centered around one person.
             You can create an archive for yourself or for someone you love.
             Each archive can hold photos, videos, stories, voice recordings,
