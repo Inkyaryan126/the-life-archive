@@ -88,6 +88,7 @@ export default async function CreateArchivePage({
         ) : (
           <form
             action={createArchiveAction}
+            encType="multipart/form-data"
             className="rounded-lg border border-archive-ink/10 bg-white/82 p-5 shadow-soft sm:p-7"
           >
             {searchParams?.error ? (
@@ -151,17 +152,37 @@ export default async function CreateArchivePage({
                 />
               </label>
 
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold text-archive-ink">
-                  Profile photo link
-                </span>
-                <input
-                  name="profilePhotoUrl"
-                  type="url"
-                  placeholder="Paste a link from Unsplash"
-                  className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
-                />
-              </label>
+              <div className="grid gap-3 rounded-md border border-archive-ink/10 bg-archive-paper px-4 py-4">
+                <p className="text-sm font-semibold text-archive-ink">
+                  Profile photo
+                </p>
+                <label className="grid gap-2">
+                  <span className="text-sm font-medium text-archive-ink/78">
+                    Upload a photo
+                  </span>
+                  <input
+                    name="profilePhotoFile"
+                    type="file"
+                    accept="image/*"
+                    className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 text-sm outline-none ring-archive-clay/30 transition file:mr-4 file:rounded-full file:border-0 file:bg-archive-clay file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white focus:ring-4"
+                  />
+                </label>
+                <label className="grid gap-2">
+                  <span className="text-sm font-medium text-archive-ink/78">
+                    Or paste a photo link
+                  </span>
+                  <input
+                    name="profilePhotoUrl"
+                    type="url"
+                    placeholder="Paste an Unsplash photo link"
+                    className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
+                  />
+                </label>
+                <p className="text-sm leading-6 text-archive-ink/58">
+                  Uploads are stored privately. A photo link still works as a
+                  fallback.
+                </p>
+              </div>
 
               <label className="grid gap-2">
                 <span className="text-sm font-semibold text-archive-ink">

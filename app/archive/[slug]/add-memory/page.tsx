@@ -101,6 +101,7 @@ export default async function AddMemoryPage({
 
         <form
           action={saveMemory}
+          encType="multipart/form-data"
           className="rounded-lg border border-archive-ink/10 bg-white/82 p-5 shadow-soft sm:p-7"
         >
           {searchParams?.error ? (
@@ -149,21 +150,37 @@ export default async function AddMemoryPage({
               />
             </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-archive-ink">
-                Unsplash photo or Spotify song link
-              </span>
-              <input
-                name="mediaUrl"
-                type="url"
-                placeholder="Paste an Unsplash or Spotify link"
-                className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
-              />
+            <div className="grid gap-3 rounded-md border border-archive-ink/10 bg-archive-paper px-4 py-4">
+              <p className="text-sm font-semibold text-archive-ink">
+                Photo or song media
+              </p>
+              <label className="grid gap-2">
+                <span className="text-sm font-medium text-archive-ink/78">
+                  Upload a photo
+                </span>
+                <input
+                  name="mediaFile"
+                  type="file"
+                  accept="image/*"
+                  className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 text-sm outline-none ring-archive-clay/30 transition file:mr-4 file:rounded-full file:border-0 file:bg-archive-clay file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white focus:ring-4"
+                />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-medium text-archive-ink/78">
+                  Or paste a photo or Spotify link
+                </span>
+                <input
+                  name="mediaUrl"
+                  type="url"
+                  placeholder="Paste an Unsplash photo link or Spotify song link"
+                  className="rounded-md border border-archive-ink/15 bg-white px-4 py-3 outline-none ring-archive-clay/30 transition focus:ring-4"
+                />
+              </label>
               <span className="text-sm leading-6 text-archive-ink/58">
-                Links currently support photos from Unsplash and songs from
-                Spotify.
+                Photo memories can use an uploaded image or a photo link.
+                Songs still use Spotify links.
               </span>
-            </label>
+            </div>
 
             <div className="grid gap-5 sm:grid-cols-2">
               <label className="grid gap-2">

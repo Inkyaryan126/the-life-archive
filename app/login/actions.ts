@@ -16,6 +16,24 @@ function getLoginErrorPath(message: string, nextPath: string) {
   return `/login?error=${encodeURIComponent(message)}&next=${encodeURIComponent(nextPath)}`;
 }
 
+function getSignupErrorMessage(error: { message?: string } | null | undefined) {
+  const message = (error?.message || "").toLowerCase();
+
+  if (message.includes("already registered") || message.includes("already been registered")) {
+    return "That email already has an account. Sign in instead, or use a different email to create a new archive.";
+  }
+
+  if (message.includes("password")) {
+    return "Your password needs to be at least 6 characters long.";
+  }
+
+  if (message.includes("email")) {
+    return "That email address looks incomplete. Check it and try again.";
+  }
+
+  return "We couldn't create your account. Check your details and try again.";
+}
+
 export async function loginAction(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -55,7 +73,7 @@ export async function signupAction(formData: FormData) {
   if (error) {
     redirect(
       getLoginErrorPath(
-        "We couldn't create your account. Check your details and try again.",
+        getSignupErrorMessage(error),
         nextPath
       )
     );

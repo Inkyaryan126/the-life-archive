@@ -3,6 +3,7 @@
 -- RLS prevents normal authenticated users from updating or deleting them.
 
 insert into public.archives (
+  id,
   slug,
   archive_name,
   person_name,
@@ -17,6 +18,7 @@ insert into public.archives (
 )
 values
   (
+    '9e1b0e95-1d3b-4e91-9c42-5b8bf6c8d501',
     'maya-rivera',
     'Maya Rivera''s Life Archive',
     'Maya Rivera',
@@ -30,6 +32,7 @@ values
     '2026-06-01T00:00:00Z'
   ),
   (
+    'f7d2eb3c-2c6c-4c11-b7f2-90c2d6c1c5be',
     'dustin-sigley',
     'Dustin Sigley''s Life Archive',
     'Dustin Sigley',

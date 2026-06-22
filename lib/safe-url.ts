@@ -1,5 +1,8 @@
 const PROFILE_PHOTO_HOSTS = new Set(["images.unsplash.com"]);
-const PROFILE_PHOTO_PATHS = new Set(["/images/dustin-sigley.png"]);
+const PROFILE_PHOTO_PATHS = new Set([
+  "/images/dustin-sigley.png",
+  "/images/dustin-sigley.jpg"
+]);
 const MEMORY_MEDIA_HOSTS = new Set([
   "images.unsplash.com",
   "open.spotify.com"

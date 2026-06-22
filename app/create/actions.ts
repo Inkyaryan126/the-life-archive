@@ -12,6 +12,11 @@ function readRequiredString(formData: FormData, key: string) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function readOptionalFile(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return value instanceof File && value.size > 0 ? value : null;
+}
+
 function redirectWithError(message: string): never {
   redirect(`/create?error=${encodeURIComponent(message)}`);
 }
@@ -21,6 +26,7 @@ export async function createArchiveAction(formData: FormData) {
   const personName = readRequiredString(formData, "personName");
   const bio = readRequiredString(formData, "bio");
   const profilePhotoUrl = readRequiredString(formData, "profilePhotoUrl");
+  const profilePhotoFile = readOptionalFile(formData, "profilePhotoFile");
   const visibilityValue = readRequiredString(formData, "visibility");
   const relationshipToOwnerValue = readRequiredString(
     formData,
@@ -47,15 +53,30 @@ export async function createArchiveAction(formData: FormData) {
     redirectWithError(profilePhotoValidation.message);
   }
 
-  const archive = await createArchive({
-    archiveName,
-    personName,
-    bio,
-    profilePhotoUrl: profilePhotoValidation.value,
-    visibility,
-    memorialMode: formData.get("memorialMode") === "on",
-    relationshipToOwner: relationshipToOwnerValue
-  });
+  let archive: Awaited<ReturnType<typeof createArchive>> | null = null;
+
+  try {
+    archive = await createArchive({
+      archiveName,
+      personName,
+      bio,
+      profilePhotoUrl: profilePhotoValidation.value,
+      profilePhotoFile,
+      visibility,
+      memorialMode: formData.get("memorialMode") === "on",
+      relationshipToOwner: relationshipToOwnerValue
+    });
+  } catch (error) {
+    redirectWithError(
+      error instanceof Error
+        ? error.message
+        : "We couldn't create that archive. Please try again."
+    );
+  }
+
+  if (!archive) {
+    redirectWithError("We couldn't create that archive. Please try again.");
+  }
 
   revalidatePath("/");
   revalidatePath(`/archive/${archive.slug}`);

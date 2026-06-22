@@ -7,6 +7,13 @@ import {
   validateProfilePhotoUrl
 } from "./safe-url";
 import {
+  deleteStorageObject,
+  resolveStorageImageUrl,
+  validateImageUpload,
+  uploadArchiveCoverImage,
+  uploadMemoryPhoto
+} from "./storage-media";
+import {
   normalizeArchiveRelationshipToOwner,
   isArchiveRelationshipToOwner
 } from "./archive-relationships";
@@ -48,6 +55,11 @@ export const memoryTypes: MemoryType[] = [
 const defaultProfilePhotoUrl =
   "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=900&q=80";
 
+const archiveSeedIds = {
+  mayaRivera: "9e1b0e95-1d3b-4e91-9c42-5b8bf6c8d501",
+  dustinSigley: "f7d2eb3c-2c6c-4c11-b7f2-90c2d6c1c5be"
+} as const;
+
 function getSafeProfilePhotoUrl(value?: string | null) {
   const validation = validateProfilePhotoUrl(value || "");
   return validation.ok && validation.value
@@ -60,8 +72,84 @@ function getSafeMemoryMediaUrl(value?: string | null) {
   return validation.ok && validation.value ? validation.value : undefined;
 }
 
+type ArchiveRow = {
+  id: string;
+  slug: string;
+  archive_name: string;
+  person_name: string;
+  bio: string;
+  profile_photo_url: string | null;
+  profile_photo_path: string | null;
+  visibility: ArchiveVisibility;
+  memorial_mode: boolean;
+  relationship_to_owner: ArchiveRelationshipToOwner;
+  created_at: string;
+};
+
+type MemoryRow = {
+  id: string;
+  archive_id: string;
+  title: string;
+  type: MemoryType;
+  content: string;
+  media_url: string | null;
+  photo_path: string | null;
+  memory_date: string;
+  tags: string[];
+};
+
+function mapArchiveRow(row: ArchiveRow): LifeArchive {
+  return {
+    id: row.id,
+    slug: row.slug,
+    archiveName: row.archive_name,
+    personName: row.person_name,
+    bio: row.bio,
+    profilePhotoUrl: getSafeProfilePhotoUrl(row.profile_photo_url),
+    profilePhotoPath: row.profile_photo_path,
+    visibility: row.visibility as ArchiveVisibility,
+    memorialMode: row.memorial_mode,
+    relationshipToOwner: normalizeArchiveRelationshipToOwner(
+      row.relationship_to_owner
+    ),
+    createdAt: row.created_at.slice(0, 10)
+  };
+}
+
+async function mapArchiveRowWithResolvedPhoto(row: ArchiveRow) {
+  const archive = mapArchiveRow(row);
+  return {
+    ...archive,
+    profilePhotoUrl: await resolveStorageImageUrl(
+      row.profile_photo_path,
+      archive.profilePhotoUrl
+    )
+  };
+}
+
+async function mapMemoryRowWithResolvedMedia(
+  row: MemoryRow,
+  archiveSlug: string
+) {
+  return {
+    id: row.id,
+    archiveSlug,
+    title: row.title,
+    type: row.type as MemoryType,
+    content: row.content,
+    mediaUrl: await resolveStorageImageUrl(
+      row.photo_path,
+      getSafeMemoryMediaUrl(row.media_url)
+    ),
+    photoPath: row.photo_path,
+    date: row.memory_date,
+    tags: row.tags
+  };
+}
+
 const seedArchives: LifeArchive[] = [
   {
+    id: archiveSeedIds.mayaRivera,
     slug: "maya-rivera",
     archiveName: "Maya Rivera's Life Archive",
     personName: "Maya Rivera",
@@ -74,6 +162,7 @@ const seedArchives: LifeArchive[] = [
     createdAt: "2026-06-01"
   },
   {
+    id: archiveSeedIds.dustinSigley,
     slug: "dustin-sigley",
     archiveName: "Dustin Sigley's Life Archive",
     personName: "Dustin Sigley",
@@ -174,6 +263,7 @@ type CreateArchiveInput = {
   personName: string;
   bio: string;
   profilePhotoUrl?: string;
+  profilePhotoFile?: File | null;
   visibility: ArchiveVisibility;
   memorialMode: boolean;
   relationshipToOwner: ArchiveRelationshipToOwner;
@@ -185,6 +275,7 @@ type CreateMemoryInput = {
   type: MemoryType;
   content: string;
   mediaUrl?: string;
+  mediaFile?: File | null;
   date?: string;
   tags: string[];
 };
@@ -273,6 +364,13 @@ function mergeSeedData(store: ArchiveStore) {
     store.legacyInstructions.map((instruction) => instruction.archiveSlug)
   );
 
+  for (const archive of store.archives) {
+    if (!archive.id) {
+      archive.id = randomUUID();
+      changed = true;
+    }
+  }
+
   for (const archive of seedArchives) {
     if (!archiveSlugs.has(archive.slug)) {
       store.archives.push(archive);
@@ -304,29 +402,24 @@ export async function getFeaturedArchives() {
 
     if (error) throw error;
 
-    return data.map((row: any) => ({
-      slug: row.slug,
-      archiveName: row.archive_name,
-      personName: row.person_name,
-      bio: row.bio,
-      profilePhotoUrl: getSafeProfilePhotoUrl(row.profile_photo_url),
-      visibility: row.visibility as ArchiveVisibility,
-      memorialMode: row.memorial_mode,
-      relationshipToOwner: normalizeArchiveRelationshipToOwner(
-        row.relationship_to_owner
-      ),
-      createdAt: row.created_at.slice(0, 10)
-    }));
+    return Promise.all(
+      data.map((row: ArchiveRow) => mapArchiveRowWithResolvedPhoto(row))
+    );
   }
 
   const store = await readStore();
-  return store.archives.map((archive) => ({
-    ...archive,
-    profilePhotoUrl: getSafeProfilePhotoUrl(archive.profilePhotoUrl),
-    relationshipToOwner: normalizeArchiveRelationshipToOwner(
-      archive.relationshipToOwner
-    )
-  }));
+  return Promise.all(
+    store.archives.map(async (archive) => ({
+      ...archive,
+      profilePhotoUrl: await resolveStorageImageUrl(
+        archive.profilePhotoPath,
+        getSafeProfilePhotoUrl(archive.profilePhotoUrl)
+      ),
+      relationshipToOwner: normalizeArchiveRelationshipToOwner(
+        archive.relationshipToOwner
+      )
+    }))
+  );
 }
 
 export async function getArchiveBySlug(slug: string) {
@@ -341,19 +434,7 @@ export async function getArchiveBySlug(slug: string) {
     if (error) throw error;
     if (!data) return null;
 
-    return {
-      slug: data.slug,
-      archiveName: data.archive_name,
-      personName: data.person_name,
-      bio: data.bio,
-      profilePhotoUrl: getSafeProfilePhotoUrl(data.profile_photo_url),
-      visibility: data.visibility as ArchiveVisibility,
-      memorialMode: data.memorial_mode,
-      relationshipToOwner: normalizeArchiveRelationshipToOwner(
-        data.relationship_to_owner
-      ),
-      createdAt: data.created_at.slice(0, 10)
-    };
+    return mapArchiveRowWithResolvedPhoto(data as ArchiveRow);
   }
 
   const store = await readStore();
@@ -361,7 +442,10 @@ export async function getArchiveBySlug(slug: string) {
   return archive
     ? {
         ...archive,
-        profilePhotoUrl: getSafeProfilePhotoUrl(archive.profilePhotoUrl),
+        profilePhotoUrl: await resolveStorageImageUrl(
+          archive.profilePhotoPath,
+          getSafeProfilePhotoUrl(archive.profilePhotoUrl)
+        ),
         relationshipToOwner: normalizeArchiveRelationshipToOwner(
           archive.relationshipToOwner
         )
@@ -380,27 +464,27 @@ export async function getMemoriesByArchiveSlug(slug: string) {
 
     if (error) throw error;
 
-    return data.map((row: any) => ({
-      id: row.id,
-      archiveSlug: slug,
-      title: row.title,
-      type: row.type as MemoryType,
-      content: row.content,
-      mediaUrl: getSafeMemoryMediaUrl(row.media_url),
-      date: row.memory_date,
-      tags: row.tags
-    }));
+    return Promise.all(
+      data.map(async (row: MemoryRow) =>
+        mapMemoryRowWithResolvedMedia(row, slug)
+      )
+    );
   }
 
   const store = await readStore();
 
-  return store.memories
-    .filter((memory) => memory.archiveSlug === slug)
-    .map((memory) => ({
-      ...memory,
-      mediaUrl: getSafeMemoryMediaUrl(memory.mediaUrl)
-    }))
-    .sort((a, b) => b.date.localeCompare(a.date));
+  return Promise.all(
+    store.memories
+      .filter((memory) => memory.archiveSlug === slug)
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .map(async (memory) => ({
+        ...memory,
+        mediaUrl: await resolveStorageImageUrl(
+          memory.photoPath,
+          getSafeMemoryMediaUrl(memory.mediaUrl)
+        )
+      }))
+  );
 }
 
 export async function getRandomMemory(slug: string) {
@@ -620,6 +704,16 @@ export async function createArchive(input: CreateArchiveInput) {
     throw new Error(profilePhotoValidation.message);
   }
 
+  if (input.profilePhotoFile && !useSupabase) {
+    throw new Error(
+      "Photo uploads are not available until Supabase Storage is configured. Paste a photo link instead."
+    );
+  }
+
+  if (input.profilePhotoFile) {
+    validateImageUpload(input.profilePhotoFile, "Profile photo");
+  }
+
   const profilePhotoUrl =
     profilePhotoValidation.value || defaultProfilePhotoUrl;
   const relationshipToOwner = isArchiveRelationshipToOwner(
@@ -642,7 +736,7 @@ export async function createArchive(input: CreateArchiveInput) {
     const { data: existingArchives } = await supabase
       .from("archives")
       .select("slug");
-    
+
     const slug = uniqueSlug(
       slugify(input.personName),
       (existingArchives || []).map((a: any) => ({ slug: a.slug }))
@@ -656,6 +750,7 @@ export async function createArchive(input: CreateArchiveInput) {
         person_name: input.personName,
         bio: input.bio,
         profile_photo_url: profilePhotoUrl,
+        profile_photo_path: null,
         visibility: input.visibility,
         memorial_mode: input.memorialMode,
         relationship_to_owner: relationshipToOwner,
@@ -665,20 +760,46 @@ export async function createArchive(input: CreateArchiveInput) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error || !data) throw error || new Error("Archive could not be created.");
+
+    let archiveRow = data as ArchiveRow;
+    let profilePhotoPath: string | null = null;
+
+    if (input.profilePhotoFile) {
+      try {
+        profilePhotoPath = await uploadArchiveCoverImage(
+          archiveRow.id,
+          input.profilePhotoFile
+        );
+
+        const { data: updatedArchive, error: updateError } = await supabase
+          .from("archives")
+          .update({ profile_photo_path: profilePhotoPath })
+          .eq("id", archiveRow.id)
+          .select()
+          .single();
+
+        if (updateError || !updatedArchive) {
+          await supabase.from("archives").delete().eq("id", archiveRow.id);
+          throw updateError || new Error("Archive could not be created.");
+        }
+
+        archiveRow = updatedArchive as ArchiveRow;
+      } catch {
+        if (profilePhotoPath) {
+          await deleteStorageObject(profilePhotoPath);
+        }
+        await supabase.from("archives").delete().eq("id", archiveRow.id);
+        throw new Error("We couldn't save the profile photo. Please try again.");
+      }
+    }
 
     return {
-      slug: data.slug,
-      archiveName: data.archive_name,
-      personName: data.person_name,
-      bio: data.bio,
-      profilePhotoUrl: data.profile_photo_url,
-      visibility: data.visibility as ArchiveVisibility,
-      memorialMode: data.memorial_mode,
-      relationshipToOwner: normalizeArchiveRelationshipToOwner(
-        data.relationship_to_owner
-      ),
-      createdAt: data.created_at.slice(0, 10)
+      ...mapArchiveRow(archiveRow),
+      profilePhotoUrl: await resolveStorageImageUrl(
+        archiveRow.profile_photo_path,
+        getSafeProfilePhotoUrl(archiveRow.profile_photo_url)
+      )
     };
   }
 
@@ -690,11 +811,13 @@ export async function createArchive(input: CreateArchiveInput) {
   const now = new Date().toISOString().slice(0, 10);
 
   const archive: LifeArchive = {
+    id: randomUUID(),
     slug,
     archiveName: input.archiveName,
     personName: input.personName,
     bio: input.bio,
     profilePhotoUrl,
+    profilePhotoPath: null,
     visibility: input.visibility,
     memorialMode: input.memorialMode,
     relationshipToOwner,
@@ -712,6 +835,20 @@ export async function createMemory(input: CreateMemoryInput) {
 
   if (!mediaUrlValidation.ok) {
     throw new Error(mediaUrlValidation.message);
+  }
+
+  if (input.mediaFile && !useSupabase) {
+    throw new Error(
+      "Photo uploads are not available until Supabase Storage is configured. Paste a photo link instead."
+    );
+  }
+
+  if (input.mediaFile && input.type !== "photo") {
+    throw new Error("Only photo memories can use image uploads.");
+  }
+
+  if (input.mediaFile) {
+    validateImageUpload(input.mediaFile, "Photo memory");
   }
 
   const mediaUrl = mediaUrlValidation.value;
@@ -745,6 +882,7 @@ export async function createMemory(input: CreateMemoryInput) {
         type: input.type,
         content: input.content,
         media_url: mediaUrl || null,
+        photo_path: null,
         memory_date: input.date || new Date().toISOString().slice(0, 10),
         tags: input.tags,
         created_at: new Date().toISOString(),
@@ -753,17 +891,54 @@ export async function createMemory(input: CreateMemoryInput) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error || !data) throw error || new Error("Memory could not be created.");
+
+    let memoryRow = data as MemoryRow;
+    let photoPath: string | null = null;
+
+    if (input.mediaFile) {
+      try {
+        photoPath = await uploadMemoryPhoto(
+          archive.id,
+          memoryRow.id,
+          input.mediaFile
+        );
+
+        const { data: updatedMemory, error: updateError } = await supabase
+          .from("memories")
+          .update({ photo_path: photoPath })
+          .eq("id", memoryRow.id)
+          .select()
+          .single();
+
+        if (updateError || !updatedMemory) {
+          await supabase.from("memories").delete().eq("id", memoryRow.id);
+          throw updateError || new Error("Memory could not be created.");
+        }
+
+        memoryRow = updatedMemory as MemoryRow;
+      } catch {
+        if (photoPath) {
+          await deleteStorageObject(photoPath);
+        }
+        await supabase.from("memories").delete().eq("id", memoryRow.id);
+        throw new Error("We couldn't save that photo. Please try again.");
+      }
+    }
 
     return {
-      id: data.id,
+      id: memoryRow.id,
       archiveSlug: input.archiveSlug,
-      title: data.title,
-      type: data.type as MemoryType,
-      content: data.content,
-      mediaUrl: data.media_url,
-      date: data.memory_date,
-      tags: data.tags
+      title: memoryRow.title,
+      type: memoryRow.type as MemoryType,
+      content: memoryRow.content,
+      mediaUrl: await resolveStorageImageUrl(
+        memoryRow.photo_path,
+        getSafeMemoryMediaUrl(memoryRow.media_url)
+      ),
+      photoPath: memoryRow.photo_path,
+      date: memoryRow.memory_date,
+      tags: memoryRow.tags
     };
   }
 
@@ -783,6 +958,7 @@ export async function createMemory(input: CreateMemoryInput) {
     type: input.type,
     content: input.content,
     mediaUrl: mediaUrl || undefined,
+    photoPath: null,
     date: input.date || new Date().toISOString().slice(0, 10),
     tags: input.tags
   };

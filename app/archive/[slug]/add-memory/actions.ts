@@ -10,6 +10,11 @@ function readString(formData: FormData, key: string) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function readOptionalFile(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return value instanceof File && value.size > 0 ? value : null;
+}
+
 function redirectWithError(slug: string, message: string): never {
   redirect(
     `/archive/${slug}/add-memory?error=${encodeURIComponent(message)}`
@@ -28,6 +33,7 @@ export async function addMemoryAction(slug: string, formData: FormData) {
   const type = readString(formData, "type");
   const content = readString(formData, "content");
   const mediaUrl = readString(formData, "mediaUrl");
+  const mediaFile = readOptionalFile(formData, "mediaFile");
   const date = readString(formData, "date");
   const tags = parseTags(readString(formData, "tags"));
 
@@ -39,10 +45,10 @@ export async function addMemoryAction(slug: string, formData: FormData) {
     redirectWithError(slug, "Memory type is required.");
   }
 
-  if (!content && !mediaUrl) {
+  if (!content && !mediaUrl && !mediaFile) {
     redirectWithError(
       slug,
-      "Add a written memory, an Unsplash photo link, or a Spotify song link."
+      "Add a written memory, a photo upload, an Unsplash photo link, or a Spotify song link."
     );
   }
 
@@ -52,15 +58,27 @@ export async function addMemoryAction(slug: string, formData: FormData) {
     redirectWithError(slug, mediaUrlValidation.message);
   }
 
-  const memory = await createMemory({
-    archiveSlug: slug,
-    title,
-    type,
-    content,
-    mediaUrl: mediaUrlValidation.value,
-    date,
-    tags
-  });
+  let memory: Awaited<ReturnType<typeof createMemory>> | null = null;
+
+  try {
+    memory = await createMemory({
+      archiveSlug: slug,
+      title,
+      type,
+      content,
+      mediaUrl: mediaUrlValidation.value,
+      mediaFile,
+      date,
+      tags
+    });
+  } catch (error) {
+    redirectWithError(
+      slug,
+      error instanceof Error
+        ? error.message
+        : "We couldn't save that memory. Please try again."
+    );
+  }
 
   if (!memory) {
     redirectWithError(slug, "Archive was not found.");

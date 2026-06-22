@@ -23,11 +23,13 @@ export type MemoryType =
   | "lesson";
 
 export type LifeArchive = {
+  id: string;
   slug: string;
   archiveName: string;
   personName: string;
   bio: string;
   profilePhotoUrl: string;
+  profilePhotoPath?: string | null;
   visibility: ArchiveVisibility;
   memorialMode: boolean;
   relationshipToOwner: ArchiveRelationshipToOwner;
@@ -52,6 +54,7 @@ export type Memory = {
   type: MemoryType;
   content: string;
   mediaUrl?: string;
+  photoPath?: string | null;
   date: string;
   tags: string[];
 };
