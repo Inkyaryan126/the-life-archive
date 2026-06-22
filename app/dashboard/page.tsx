@@ -1,205 +1,326 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SuccessMessage } from "@/components/SuccessMessage";
 import { signOutAction } from "@/app/login/actions";
-import type { AccountArchive } from "@/lib/account";
-import { getAccountContext } from "@/lib/account";
+import { getAccountContext, type AccountArchive } from "@/lib/account";
 import { getArchiveRelationshipLabel } from "@/lib/archive-relationships";
 import {
-  getLegacyInstructionByArchiveSlug
+  getArchiveBySlug,
+  getLegacyInstructionByArchiveSlug,
+  getMemoriesByArchiveSlug
 } from "@/lib/archive-data";
-import {
-  legacyInstructionAccessLevelLabels
-} from "@/lib/legacy-instructions";
-import { SuccessMessage } from "@/components/SuccessMessage";
+import { legacyInstructionAccessLevelLabels } from "@/lib/legacy-instructions";
+import { formatMemoryDate } from "@/lib/format";
+import type { Memory, MemoryType } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+
+type ArchiveOverview = {
+  archive: AccountArchive;
+  archiveDetails: NonNullable<Awaited<ReturnType<typeof getArchiveBySlug>>> | null;
+  memories: Memory[];
+  loadFailed: boolean;
+};
+
+type MemoryWithArchive = Memory & {
+  archiveName: string;
+  archiveSlug: string;
+};
 
 type DashboardActionProps = {
   description: string;
   href: string;
   label: string;
-  primary?: boolean;
 };
 
-function DashboardAction({
-  description,
-  href,
-  label,
-  primary = false
-}: DashboardActionProps) {
+type DashboardArchiveCardProps = {
+  archive: AccountArchive;
+  memoryCount: number;
+  latestMemory?: MemoryWithArchive | null;
+  isDefault: boolean;
+};
+
+type MemoryBreakdownCardProps = {
+  label: string;
+  count: number;
+};
+
+const memoryBreakdownOrder: Array<{
+  type: MemoryType;
+  label: string;
+}> = [
+  { type: "photo", label: "Photos" },
+  { type: "video", label: "Videos" },
+  { type: "voice", label: "Voice Recordings" },
+  { type: "journal", label: "Journal Entries" },
+  { type: "lesson", label: "Lessons" },
+  { type: "song", label: "Songs" }
+];
+
+function formatTimestamp(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  }).format(new Date(value));
+}
+
+function getArchiveInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
+function MemoryBreakdownCard({ label, count }: MemoryBreakdownCardProps) {
+  return (
+    <article className="rounded-2xl border border-archive-gold/18 bg-white/[0.04] p-5 shadow-luxury">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
+        {label}
+      </p>
+      <p className="mt-4 font-serif text-4xl leading-none text-archive-ivory">
+        {count.toString().padStart(2, "0")}
+      </p>
+    </article>
+  );
+}
+
+function DashboardAction({ description, href, label }: DashboardActionProps) {
   return (
     <Link
       href={href}
-      className={`group rounded-2xl border p-5 transition sm:p-6 ${
-        primary
-          ? "border-archive-gold/60 bg-archive-gold text-archive-obsidian shadow-luxury hover:bg-archive-champagne"
-          : "border-archive-gold/25 bg-white/[0.045] text-archive-ivory hover:border-archive-gold/60 hover:bg-white/[0.075]"
-      }`}
+      className="group rounded-2xl border border-archive-gold/22 bg-white/[0.04] p-5 transition hover:border-archive-gold/55 hover:bg-white/[0.065] sm:p-6"
     >
-      <span className="font-serif text-2xl">{label}</span>
-      <span
-        className={`mt-2 block text-sm leading-6 ${
-          primary ? "text-archive-obsidian/70" : "text-archive-ivory/58"
-        }`}
-      >
+      <p className="font-serif text-2xl leading-tight text-archive-ivory">
+        {label}
+      </p>
+      <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
         {description}
-      </span>
-      <span
-        aria-hidden="true"
-        className="mt-5 block text-sm font-semibold transition-transform group-hover:translate-x-1"
-      >
+      </p>
+      <span className="mt-5 inline-flex text-sm font-semibold text-archive-champagne transition group-hover:translate-x-1">
         Continue →
       </span>
     </Link>
   );
 }
 
-type ArchiveDashboardCardProps = {
-  archive: AccountArchive;
-  isDefault: boolean;
-};
-
-function ArchiveDashboardCard({
+function DashboardArchiveCard({
   archive,
+  memoryCount,
+  latestMemory,
   isDefault
-}: ArchiveDashboardCardProps) {
+}: DashboardArchiveCardProps) {
   const relationshipLabel = getArchiveRelationshipLabel(
     archive.relationshipToOwner
   );
 
   return (
-    <article className="rounded-2xl border border-archive-gold/25 bg-white/[0.045] p-5 shadow-luxury sm:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <article className="rounded-3xl border border-archive-gold/18 bg-white/[0.04] p-5 shadow-luxury sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
             {archive.personName}
           </p>
-          <h3 className="mt-3 font-serif text-2xl leading-tight sm:text-3xl">
+          <h3 className="mt-2 font-serif text-2xl leading-tight text-archive-ivory sm:text-[2rem]">
             {archive.archiveName}
           </h3>
         </div>
         {isDefault ? (
-          <span className="rounded-full border border-archive-gold/40 bg-archive-gold/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-archive-champagne">
-            Member card archive
+          <span className="rounded-full border border-archive-gold/28 bg-archive-gold/10 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-archive-champagne">
+            Primary archive
           </span>
         ) : null}
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em]">
-        <span className="rounded-full border border-archive-gold/20 px-3 py-1.5 text-archive-ivory/68">
+      <div className="mt-5 flex flex-wrap gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em]">
+        <span className="rounded-full border border-archive-gold/18 px-3 py-1.5 text-archive-ivory/66">
           {archive.visibility === "public"
-            ? "Public · visible to everyone"
+            ? "Public · discoverable"
             : "Private · authorized people only"}
         </span>
-        <span className="rounded-full border border-archive-gold/20 px-3 py-1.5 text-archive-ivory/68">
+        <span className="rounded-full border border-archive-gold/18 px-3 py-1.5 text-archive-ivory/66">
           {archive.memorialMode ? "Memorial" : "Living archive"}
         </span>
-        {relationshipLabel ? (
-          <span className="rounded-full border border-archive-gold/20 px-3 py-1.5 text-archive-ivory/68">
-            {relationshipLabel}
-          </span>
+        <span className="rounded-full border border-archive-gold/18 px-3 py-1.5 text-archive-ivory/66">
+          {relationshipLabel}
+        </span>
+      </div>
+
+      <div className="mt-6 grid gap-4 border-t border-archive-gold/12 pt-5 sm:grid-cols-[1fr_auto] sm:items-end">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+            Memories
+          </p>
+          <p className="mt-2 font-serif text-3xl text-archive-ivory">
+            {memoryCount.toString().padStart(2, "0")}
+          </p>
+          <p className="mt-1 text-sm leading-6 text-archive-ivory/58">
+            Created {formatTimestamp(archive.createdAt)}
+          </p>
+        </div>
+        {latestMemory ? (
+          <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/35 px-4 py-3">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-archive-gold">
+              Most recent memory
+            </p>
+            <p className="mt-2 text-sm font-semibold text-archive-ivory">
+              {latestMemory.title}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-archive-ivory/58">
+              {latestMemory.archiveName} · {formatMemoryDate(latestMemory.date)}
+            </p>
+          </div>
         ) : null}
       </div>
 
-      <div className="mt-6 grid gap-2 border-t border-archive-gold/15 pt-5 sm:grid-cols-3">
+      <div className="mt-6 flex flex-wrap gap-3">
         <Link
           href={`/archive/${archive.slug}`}
-          className="rounded-full bg-archive-gold px-4 py-2.5 text-center text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+          className="rounded-full bg-archive-gold px-4 py-2.5 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
         >
-          Open Archive
+          Open archive
         </Link>
         <Link
           href={`/archive/${archive.slug}/add-memory`}
-          className="rounded-full border border-archive-gold/35 px-4 py-2.5 text-center text-sm font-semibold transition hover:border-archive-gold hover:bg-white/5"
+          className="rounded-full border border-archive-gold/32 px-4 py-2.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.06]"
         >
-          Add Memory
+          Add memory
         </Link>
         <Link
           href={`/archive/${archive.slug}/qr`}
-          className="rounded-full border border-archive-gold/35 px-4 py-2.5 text-center text-sm font-semibold transition hover:border-archive-gold hover:bg-white/5"
+          className="rounded-full border border-archive-gold/32 px-4 py-2.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.06]"
         >
-          Print QR Card
+          QR card
         </Link>
       </div>
     </article>
   );
 }
 
-type LegacyInstructionsCardProps = {
-  archiveSlug: string;
-  archiveName: string;
-  personName: string;
-  body?: string | null;
-  accessLevel?: "owner_only" | "released" | null;
-};
-
-function LegacyInstructionsCard({
-  archiveSlug,
-  archiveName,
-  personName,
-  body,
-  accessLevel
-}: LegacyInstructionsCardProps) {
-  const hasInstructions = Boolean(body);
-  const label = hasInstructions
-    ? accessLevel
-      ? legacyInstructionAccessLevelLabels[accessLevel]
-      : "Saved"
-    : "Not started";
-  const description = !hasInstructions
-    ? "Keep final wishes, practical details, and personal messages together."
-    : accessLevel === "released"
-      ? "Publicly shared. Review it whenever your wishes change."
-      : "Only you can read these notes. Return whenever you are ready.";
-  const ctaLabel = hasInstructions
-    ? "Open Legacy Instructions"
-    : "Write Legacy Instructions";
+function MemoryPreviewCard({ memory }: { memory: MemoryWithArchive }) {
+  const isImage = memory.type === "photo" && memory.mediaUrl;
+  const typeLabel =
+    memory.type === "voice"
+      ? "Voice recording"
+      : memory.type === "song"
+        ? "Song"
+        : memory.type === "lesson"
+          ? "Lesson"
+          : memory.type === "journal"
+            ? "Journal entry"
+            : memory.type === "video"
+              ? "Video"
+              : "Photo";
 
   return (
-    <section className="mt-10 rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-6 sm:p-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-            Legacy Instructions
-          </p>
-          <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
-            Preserve the guidance that matters most.
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/62 sm:text-base">
-            Keep final wishes, practical details, and personal messages in one
-            thoughtful place.
-          </p>
+    <article className="overflow-hidden rounded-3xl border border-archive-gold/16 bg-white/[0.04] shadow-luxury">
+      {isImage ? (
+        <div className="relative aspect-[16/10]">
+          <Image
+            src={memory.mediaUrl as string}
+            alt={memory.title}
+            fill
+            className="object-cover"
+            sizes="(min-width: 1024px) 26rem, 100vw"
+          />
         </div>
-        <span className="rounded-full border border-archive-gold/25 bg-archive-gold/10 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-archive-champagne">
-          {label}
-        </span>
-      </div>
-
-      <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
-        <div className="rounded-xl border border-archive-gold/15 bg-archive-ivory px-5 py-4 text-archive-obsidian">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
-            {archiveName}
-          </p>
-          <p className="mt-2 text-lg font-semibold">{personName}</p>
-          <p className="mt-3 text-sm leading-7 text-archive-obsidian/70">
-            {description}
-          </p>
-          {body ? (
-            <p className="mt-4 line-clamp-3 whitespace-pre-wrap text-sm leading-7 text-archive-obsidian/80">
-              {body}
+      ) : (
+        <div className="flex aspect-[16/10] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(198,161,91,0.14))] p-5">
+          <div className="max-w-full">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-archive-gold">
+              {typeLabel}
             </p>
-          ) : null}
+            <p className="mt-3 text-lg font-semibold text-archive-ivory">
+              {memory.title}
+            </p>
+          </div>
         </div>
-
-        <Link
-          href={`/archive/${archiveSlug}/legacy-instructions`}
-          className="rounded-full bg-archive-gold px-5 py-3 text-center text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
-        >
-          {ctaLabel}
-        </Link>
+      )}
+      <div className="p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+            {typeLabel}
+          </p>
+          <p className="text-xs text-archive-ivory/58">
+            {formatMemoryDate(memory.date)}
+          </p>
+        </div>
+        <h3 className="mt-3 font-serif text-2xl leading-tight text-archive-ivory">
+          {memory.title}
+        </h3>
+        <p className="mt-2 text-sm leading-7 text-archive-ivory/64">
+          {memory.content}
+        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-archive-ivory/48">
+            {memory.archiveName}
+          </p>
+          <Link
+            href={`/archive/${memory.archiveSlug}`}
+            className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
+          >
+            Open archive
+          </Link>
+        </div>
       </div>
-    </section>
+    </article>
   );
+}
+
+function ActivityCard({
+  date,
+  title,
+  detail
+}: {
+  date: string;
+  title: string;
+  detail: string;
+}) {
+  return (
+    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.035] p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+        {formatTimestamp(date)}
+      </p>
+      <h3 className="mt-2 font-serif text-xl text-archive-ivory">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-archive-ivory/60">{detail}</p>
+    </article>
+  );
+}
+
+async function loadArchiveOverviews(
+  archives: AccountArchive[]
+): Promise<ArchiveOverview[]> {
+  const settled = await Promise.allSettled(
+    archives.map(async (archive) => {
+      const [archiveDetails, memories] = await Promise.all([
+        getArchiveBySlug(archive.slug),
+        getMemoriesByArchiveSlug(archive.slug)
+      ]);
+
+      return {
+        archive,
+        archiveDetails,
+        memories,
+        loadFailed: false
+      };
+    })
+  );
+
+  return settled.map((result, index) => {
+    if (result.status === "fulfilled") {
+      return result.value;
+    }
+
+    return {
+      archive: archives[index],
+      archiveDetails: null,
+      memories: [],
+      loadFailed: true
+    };
+  });
 }
 
 type DashboardPageProps = {
@@ -208,7 +329,9 @@ type DashboardPageProps = {
   };
 };
 
-export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+export default async function DashboardPage({
+  searchParams
+}: DashboardPageProps) {
   const account = await getAccountContext();
 
   if (!account.user) {
@@ -216,21 +339,125 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   }
 
   const { archives, defaultArchive, user } = account;
+  const archiveOverviews = archives.length > 0 ? await loadArchiveOverviews(archives) : [];
+  const selectedOverview =
+    archiveOverviews.find((item) => item.archive.slug === defaultArchive?.slug) ??
+    null;
+  const selectedArchive = selectedOverview?.archiveDetails ?? null;
+  const archiveLoadFailed = archiveOverviews.some((item) => item.loadFailed);
   const legacyInstruction = defaultArchive
     ? await getLegacyInstructionByArchiveSlug(defaultArchive.slug, true).catch(
         () => null
       )
     : null;
+
+  const allMemories: MemoryWithArchive[] = archiveOverviews.flatMap((overview) =>
+    overview.memories.map((memory) => ({
+      ...memory,
+      archiveName: overview.archiveDetails?.personName ?? overview.archive.personName,
+      archiveSlug: overview.archive.slug
+    }))
+  );
+  const totalMemories = allMemories.length;
+  const memoryCounts = memoryBreakdownOrder.reduce<Record<MemoryType, number>>(
+    (counts, { type }) => {
+      counts[type] = allMemories.filter((memory) => memory.type === type).length;
+      return counts;
+    },
+    {
+      photo: 0,
+      video: 0,
+      voice: 0,
+      journal: 0,
+      lesson: 0,
+      song: 0
+    }
+  );
+  const recentMemories = [...allMemories]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 4);
+
+  const memberActivity = [
+    {
+      date: user.createdAt,
+      title: "Account created",
+      detail: user.emailConfirmed
+        ? "The account is confirmed and ready for archive access."
+        : "The account is waiting on email confirmation before it can be fully used."
+    },
+    ...archives.map((archive) => ({
+      date: archive.createdAt,
+      title:
+        archive.slug === defaultArchive?.slug
+          ? `Primary archive created: ${archive.archiveName}`
+          : `Archive created: ${archive.archiveName}`,
+      detail: `${archive.visibility === "public" ? "Public archive" : "Private archive"} · ${getArchiveRelationshipLabel(archive.relationshipToOwner)}`
+    }))
+  ]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 4);
+
   const memberSince = new Intl.DateTimeFormat("en", {
     month: "long",
     year: "numeric"
   }).format(new Date(user.createdAt));
+  const archiveCreatedLabel = selectedArchive
+    ? formatTimestamp(selectedArchive.createdAt)
+    : null;
+  const archiveMemories = selectedOverview?.memories.length ?? 0;
+  const archivePhoto = selectedArchive?.profilePhotoUrl ?? null;
+  const archiveTitle =
+    selectedArchive?.archiveName ?? defaultArchive?.archiveName ?? "Your archive";
+  const archivePerson =
+    selectedArchive?.personName ?? defaultArchive?.personName ?? "Your story";
+  const archiveBio =
+    selectedArchive?.bio ??
+    "This archive keeps together the memories, stories, and lessons that matter most.";
+  const archiveVisibility = defaultArchive
+    ? defaultArchive.visibility === "public"
+      ? "Public · discoverable"
+      : "Private · authorized people only"
+    : null;
+  const legacyInstructionLabel = legacyInstruction
+    ? legacyInstructionAccessLevelLabels[legacyInstruction.accessLevel]
+    : "Not started";
+  const legacyInstructionSummary = legacyInstruction
+    ? legacyInstruction.accessLevel === "released"
+      ? "Publicly shared. Review it whenever your wishes change."
+      : "Only you can read these notes. Return whenever you are ready."
+    : "Keep final wishes, practical details, and personal messages in one thoughtful place.";
+
+  const hasArchives = archives.length > 0;
+  const quickActions = defaultArchive
+    ? [
+        {
+          href: `/archive/${defaultArchive.slug}/add-memory`,
+          label: "Add Memory",
+          description: "Add a photo, voice note, lesson, or story to this archive."
+        },
+        {
+          href: `/archive/${defaultArchive.slug}`,
+          label: "Invite Member",
+          description: "Open the archive and share its story with someone close."
+        },
+        {
+          href: "/member-card",
+          label: "Generate Member Card",
+          description: "Print the wallet card that keeps this archive within reach."
+        },
+        {
+          href: `/archive/${defaultArchive.slug}/qr`,
+          label: "Generate QR Card",
+          description: "Create a QR card for funerals, reunions, and family gatherings."
+        }
+      ]
+    : [];
 
   return (
     <main className="min-h-screen bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.16),transparent_30rem),radial-gradient(circle_at_bottom_right,rgba(198,161,91,0.07),transparent_36rem)]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.16),transparent_30rem),radial-gradient(circle_at_bottom_right,rgba(198,161,91,0.08),transparent_34rem)]" />
 
-      <nav className="relative mx-auto flex max-w-6xl items-center justify-between border-b border-archive-gold/20 pb-5">
+      <nav className="relative mx-auto flex max-w-7xl items-center justify-between border-b border-archive-gold/20 pb-5">
         <Link href="/" className="font-serif text-lg tracking-wide">
           The Life Archive Home
         </Link>
@@ -252,149 +479,397 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </div>
       </nav>
 
-      <div className="relative mx-auto max-w-6xl pb-20 pt-12 sm:pt-16">
+      <div className="relative mx-auto max-w-7xl pb-20 pt-10 sm:pt-14">
         {searchParams?.welcome === "back" ? (
           <SuccessMessage
             eyebrow="Welcome back"
-            message="Your archives are here, ready for the next memory."
+            message="Your archives are ready whenever you are."
           />
         ) : null}
+
         <header className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-            Your archive home
+            Legacy overview
           </p>
           <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-6xl">
-            Welcome back.
+            Keep the family story in one place.
           </h1>
-          <p className="mt-4 text-base leading-7 text-archive-ivory/62 sm:text-lg">
-            Keep the stories that matter close, and make sure the people you
-            love can find them when they need them.
+          <p className="mt-4 text-base leading-7 text-archive-ivory/64 sm:text-lg sm:leading-8">
+            See the archive you are preserving, the memories already inside it,
+            and the next steps that help loved ones find what you chose to keep.
           </p>
         </header>
 
-        <section className="mt-10 rounded-2xl border border-archive-gold/20 bg-archive-ivory p-6 text-archive-obsidian sm:p-8">
-          <div className="grid gap-6 sm:grid-cols-[1fr_auto] sm:items-center">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-                Membership details
-              </p>
-              <p className="mt-3 break-all text-sm font-semibold">{user.email}</p>
-            </div>
-            <dl className="grid gap-3 text-sm sm:min-w-72">
-              <div className="flex items-center justify-between gap-6">
-                <dt className="text-archive-obsidian/60">Account email</dt>
-                <dd className="font-semibold">
-                  {user.emailConfirmed ? "Confirmed" : "Pending"}
-                </dd>
-              </div>
-              <div className="flex items-center justify-between gap-6">
-                <dt className="text-archive-obsidian/60">Member since</dt>
-                <dd className="font-semibold">{memberSince}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-6">
-                <dt className="text-archive-obsidian/60">Archives</dt>
-                <dd className="font-semibold">{archives.length}</dd>
-              </div>
-            </dl>
-          </div>
-        </section>
-
-        {defaultArchive ? (
-          <LegacyInstructionsCard
-            archiveSlug={defaultArchive.slug}
-            archiveName={defaultArchive.archiveName}
-            personName={defaultArchive.personName}
-            body={legacyInstruction?.body}
-            accessLevel={legacyInstruction?.accessLevel ?? null}
-          />
-        ) : null}
-
-        <section className="mt-12 rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-5 sm:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-            What is an Archive?
-          </p>
-          <p className="mt-3 max-w-4xl text-sm leading-7 text-archive-ivory/68 sm:text-base sm:leading-8">
-            An archive is a collection of memories centered around one person.
-            You can create an archive for yourself or for someone you love.
-            Each archive can hold photos, videos, stories, voice recordings,
-            life lessons, and other meaningful memories that can be preserved
-            and shared for future generations.
-          </p>
-        </section>
-
-        <section className="mt-12">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-                Your Archives
-              </p>
-              <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
-                {archives.length > 0
-                  ? `${archives.length} ${archives.length === 1 ? "archive" : "archives"}`
-                  : "Your first archive starts here"}
-              </h2>
-            </div>
-            {archives.length > 0 && !account.archiveLookupFailed ? (
-              <Link
-                href="/create"
-                className="rounded-full border border-archive-gold/45 px-5 py-2.5 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:bg-white/5"
-              >
-                Create Another Archive
-              </Link>
-            ) : null}
-          </div>
-
-          {account.archiveLookupFailed ? (
-            <p className="mt-6 rounded-xl border border-archive-gold/25 bg-archive-gold/10 px-4 py-3 text-sm leading-6 text-archive-champagne">
-              We couldn&apos;t open your archives. Refresh the page and try again.
-            </p>
-          ) : archives.length > 0 ? (
-            <div className="mt-6 grid gap-5 xl:grid-cols-2">
-              {archives.map((archive) => (
-                <ArchiveDashboardCard
-                  key={archive.slug}
-                  archive={archive}
-                  isDefault={archive.slug === defaultArchive?.slug}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <DashboardAction
-                href="/create"
-                label="Create My Archive"
-                description="Create a home for the memories, stories, and legacy you want to preserve."
-                primary
-              />
-              <DashboardAction
-                href="/member-card"
-                label="Member Card"
-                description="View or print your official Life Archive member card."
-              />
-            </div>
-          )}
-        </section>
-
-        {archives.length > 0 ? (
-          <section className="mt-12 rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-6 sm:p-8">
+        <section className="mt-10 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-              Membership
+              Archive summary
             </p>
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-5">
-              <div>
-                <h2 className="font-serif text-2xl">Your Member Card</h2>
-                <p className="mt-2 text-sm leading-6 text-archive-ivory/58">
-                  When scanned, your member card opens this archive.
+            <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+              <div className="max-w-2xl">
+                <h2 className="font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
+                  {hasArchives
+                    ? "Build a home for the memories that matter most."
+                    : "Create the archive that begins the story."}
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/62 sm:text-base sm:leading-8">
+                  {hasArchives
+                    ? "Your dashboard gathers the archive, the memories inside it, and the ways family can return to it later."
+                    : "Start with one archive for yourself or for someone you love. Then add the stories, photos, and legacy details that belong to them."}
                 </p>
               </div>
-              <Link
-                href="/member-card"
-                className="rounded-full bg-archive-gold px-5 py-2.5 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
-              >
-                View Member Card
-              </Link>
             </div>
-          </section>
+
+            {hasArchives ? (
+              <>
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  {quickActions.map((action) => (
+                    <DashboardAction key={action.label} {...action} />
+                  ))}
+                </div>
+
+                <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="rounded-2xl border border-archive-gold/18 bg-archive-ivory px-5 py-4 text-archive-obsidian">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                      Total archives
+                    </p>
+                    <p className="mt-3 font-serif text-3xl">{archives.length}</p>
+                  </div>
+                  <div className="rounded-2xl border border-archive-gold/18 bg-archive-ivory px-5 py-4 text-archive-obsidian">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                      Total memories
+                    </p>
+                    <p className="mt-3 font-serif text-3xl">{totalMemories}</p>
+                  </div>
+                  <div className="rounded-2xl border border-archive-gold/18 bg-archive-ivory px-5 py-4 text-archive-obsidian">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                      Member since
+                    </p>
+                    <p className="mt-3 font-serif text-2xl leading-tight">
+                      {memberSince}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-archive-gold/18 bg-archive-ivory px-5 py-4 text-archive-obsidian">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                      Email status
+                    </p>
+                    <p className="mt-3 font-serif text-2xl leading-tight">
+                      {user.emailConfirmed ? "Confirmed" : "Pending"}
+                    </p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="mt-8">
+                <DashboardAction
+                  href="/create"
+                  label="Create an Archive"
+                  description="Build the place where a life can be remembered, shared, and carried forward."
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="overflow-hidden rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] shadow-luxury">
+            {hasArchives && selectedArchive ? (
+              <>
+                <div className="relative aspect-[4/3]">
+                  {archivePhoto ? (
+                    <Image
+                      src={archivePhoto}
+                      alt={selectedArchive.personName}
+                      fill
+                      priority
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 38rem, 100vw"
+                    />
+                  ) : (
+                    <div className="flex h-full items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(198,161,91,0.18))] p-8">
+                      <div className="rounded-3xl border border-white/12 bg-black/20 px-5 py-4 text-archive-ivory">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
+                          {getArchiveInitials(selectedArchive.personName)}
+                        </p>
+                        <p className="mt-2 font-serif text-3xl">
+                          {selectedArchive.personName}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-archive-obsidian/80 via-archive-obsidian/20 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+                    <div className="flex flex-wrap items-end justify-between gap-4">
+                      <div className="max-w-2xl">
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                          Selected archive
+                        </p>
+                        <h2 className="mt-2 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
+                          {archiveTitle}
+                        </h2>
+                        <p className="mt-2 text-sm uppercase tracking-[0.16em] text-archive-ivory/55">
+                          {archivePerson}
+                        </p>
+                      </div>
+                      {archiveVisibility ? (
+                        <span className="rounded-full border border-white/18 bg-black/24 px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-archive-gold">
+                          {archiveVisibility}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-5 p-6 sm:p-8">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/50 px-5 py-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                        Memories inside
+                      </p>
+                      <p className="mt-2 font-serif text-3xl text-archive-ivory">
+                        {archiveMemories}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/50 px-5 py-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                        Created
+                      </p>
+                      <p className="mt-2 font-serif text-2xl text-archive-ivory">
+                        {archiveCreatedLabel}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-sm leading-7 text-archive-ivory/62">
+                    {archiveBio}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="flex h-full min-h-[28rem] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(198,161,91,0.18))] p-6 sm:p-8">
+                <div className="max-w-xl">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                    No archive yet
+                  </p>
+                  <h2 className="mt-2 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
+                    Create the archive that will hold the story.
+                  </h2>
+                  <p className="mt-3 text-sm leading-7 text-archive-ivory/62">
+                    A single archive can hold photos, memories, lessons, voice
+                    notes, and the details a family will need later.
+                  </p>
+                  <div className="mt-5">
+                    <Link
+                      href="/create"
+                      className="inline-flex rounded-full bg-archive-gold px-5 py-3 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+                    >
+                      Create an Archive
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {hasArchives ? (
+          <>
+            <section className="mt-10">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                    Memory breakdown
+                  </p>
+                  <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+                    What this archive holds
+                  </h2>
+                </div>
+                <p className="max-w-xl text-sm leading-6 text-archive-ivory/58">
+                  A quick look at the kinds of memories preserved across your
+                  archives.
+                </p>
+              </div>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {memoryBreakdownOrder.map(({ type, label }) => (
+                  <MemoryBreakdownCard
+                    key={type}
+                    label={label}
+                    count={memoryCounts[type]}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-12">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                    Recent memories
+                  </p>
+                  <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+                    The latest pieces of the story
+                  </h2>
+                </div>
+                <Link
+                  href={`/archive/${defaultArchive?.slug ?? archives[0].slug}`}
+                  className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
+                >
+                  Open the archive →
+                </Link>
+              </div>
+
+              {recentMemories.length > 0 ? (
+                <div className="mt-6 grid gap-5 lg:grid-cols-2">
+                  {recentMemories.map((memory) => (
+                    <MemoryPreviewCard key={memory.id} memory={memory} />
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-6 rounded-3xl border border-archive-gold/16 bg-white/[0.035] p-6 text-sm leading-7 text-archive-ivory/62">
+                  No memories yet. Add the first photo, lesson, voice note, or
+                  journal entry when you are ready.
+                </div>
+              )}
+            </section>
+
+            {defaultArchive ? (
+              <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="max-w-2xl">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                      Legacy instructions
+                    </p>
+                    <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+                      Keep the guidance that matters most.
+                    </h2>
+                    <p className="mt-3 text-sm leading-7 text-archive-ivory/62 sm:text-base sm:leading-8">
+                      Final wishes, practical details, and personal messages
+                      belong in one thoughtful place.
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-archive-gold/28 bg-archive-gold/10 px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-archive-champagne">
+                    {legacyInstructionLabel}
+                  </span>
+                </div>
+
+                <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
+                  <div className="rounded-2xl border border-archive-gold/14 bg-archive-ivory px-5 py-4 text-archive-obsidian">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                      {defaultArchive.archiveName}
+                    </p>
+                    <p className="mt-2 text-lg font-semibold">
+                      {defaultArchive.personName}
+                    </p>
+                    <p className="mt-3 text-sm leading-7 text-archive-obsidian/72">
+                      {legacyInstructionSummary}
+                    </p>
+                    {legacyInstruction ? (
+                      <p className="mt-4 line-clamp-3 whitespace-pre-wrap text-sm leading-7 text-archive-obsidian/84">
+                        {legacyInstruction.body}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <Link
+                    href={`/archive/${defaultArchive.slug}/legacy-instructions`}
+                    className="rounded-full bg-archive-gold px-5 py-3 text-center text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+                  >
+                    {legacyInstruction
+                      ? "Open Legacy Instructions"
+                      : "Write Legacy Instructions"}
+                  </Link>
+                </div>
+              </section>
+            ) : null}
+
+            <section className="mt-12">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                    Recent member activity
+                  </p>
+                  <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+                    Real account and archive milestones
+                  </h2>
+                </div>
+                <p className="max-w-xl text-sm leading-6 text-archive-ivory/58">
+                  This timeline is built only from live account and archive
+                  records.
+                </p>
+              </div>
+              <div className="mt-6 grid gap-4 lg:grid-cols-2">
+                {memberActivity.map((item) => (
+                  <ActivityCard
+                    key={`${item.title}-${item.date}`}
+                    date={item.date}
+                    title={item.title}
+                    detail={item.detail}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                    Your archives
+                  </p>
+                  <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+                    Each archive you are preserving
+                  </h2>
+                </div>
+                <Link
+                  href="/create"
+                  className="rounded-full border border-archive-gold/35 px-5 py-2.5 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:bg-white/5"
+                >
+                  Create another archive
+                </Link>
+              </div>
+
+              {account.archiveLookupFailed ? (
+                <p className="mt-6 rounded-2xl border border-archive-gold/20 bg-archive-gold/10 px-4 py-3 text-sm leading-6 text-archive-champagne">
+                  We could not load every archive detail right now. The page is
+                  still ready, and your saved archives remain available.
+                </p>
+              ) : archiveLoadFailed ? (
+                <p className="mt-6 rounded-2xl border border-archive-gold/20 bg-archive-gold/10 px-4 py-3 text-sm leading-6 text-archive-champagne">
+                  We could not load every memory record right now, but the
+                  dashboard is still open. Refresh if you want to try again.
+                </p>
+              ) : null}
+
+              <div className="mt-6 grid gap-5 xl:grid-cols-2">
+                {archives.map((archive) => {
+                  const overview = archiveOverviews.find(
+                    (item) => item.archive.slug === archive.slug
+                  );
+                  const latestMemory = overview?.memories.length
+                    ? overview.memories
+                        .slice()
+                        .sort((a, b) => b.date.localeCompare(a.date))[0]
+                    : null;
+
+                  return (
+                    <DashboardArchiveCard
+                      key={archive.slug}
+                      archive={archive}
+                      memoryCount={overview?.memories.length ?? 0}
+                      latestMemory={
+                        latestMemory
+                          ? {
+                              ...latestMemory,
+                              archiveName:
+                                overview?.archiveDetails?.personName ??
+                                archive.personName,
+                              archiveSlug: archive.slug
+                            }
+                          : null
+                      }
+                      isDefault={archive.slug === defaultArchive?.slug}
+                    />
+                  );
+                })}
+              </div>
+            </section>
+          </>
         ) : null}
       </div>
     </main>
