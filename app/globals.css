@@ -77,6 +77,11 @@ select {
     width: 3.375in !important;
   }
 
+  html[data-member-card-print-side="front"] .member-card-back,
+  html[data-member-card-print-side="back"] .member-card-front {
+    display: none !important;
+  }
+
   .member-card-face {
     border-radius: 0.12in !important;
     box-shadow: none !important;

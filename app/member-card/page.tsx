@@ -145,6 +145,11 @@ export default async function MemberCardPage({
           continueHref={continueHref}
           continueLabel={continueLabel}
         />
+        <p className="mx-auto mt-4 max-w-2xl text-center text-xs leading-6 text-archive-ivory/55">
+          If you want to print the card on both sides of one piece of paper,
+          use Front Only and Back Only separately so you can match the two
+          faces in your printer.
+        </p>
         {account.defaultArchive ? (
           <p className="mx-auto mt-5 max-w-xl text-center text-sm leading-6 text-archive-ivory/60">
             {account.defaultArchive.visibility === "public"
