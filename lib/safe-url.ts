@@ -1,12 +1,14 @@
 const PROFILE_PHOTO_HOSTS = new Set(["images.unsplash.com"]);
 const PROFILE_PHOTO_PATHS = new Set([
   "/images/dustin-sigley.png",
-  "/images/dustin-sigley.jpg"
+  "/images/dustin-sigley.jpg",
+  "/images/sari-rae.png"
 ]);
 const MEMORY_MEDIA_HOSTS = new Set([
   "images.unsplash.com",
   "open.spotify.com"
 ]);
+const MEMORY_MEDIA_PATHS = new Set(["/images/sari-rae.png"]);
 
 export type UrlValidationResult =
   | { ok: true; value: string }
@@ -69,8 +71,14 @@ export function validateProfilePhotoUrl(value: string) {
 }
 
 export function validateMemoryMediaUrl(value: string) {
+  const trimmedValue = value.trim();
+
+  if (MEMORY_MEDIA_PATHS.has(trimmedValue)) {
+    return { ok: true as const, value: trimmedValue };
+  }
+
   return validateAllowedHttpsUrl(
-    value,
+    trimmedValue,
     MEMORY_MEDIA_HOSTS,
     "media link",
     "Please use an Unsplash image link or Spotify song link."
