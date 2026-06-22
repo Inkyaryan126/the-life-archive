@@ -19,15 +19,25 @@ function getLoginErrorPath(message: string, nextPath: string) {
 function getSignupErrorMessage(error: { message?: string } | null | undefined) {
   const message = (error?.message || "").toLowerCase();
 
-  if (message.includes("already registered") || message.includes("already been registered")) {
+  if (
+    message.includes("already registered") ||
+    message.includes("already been registered")
+  ) {
     return "That email already has an account. Sign in instead, or use a different email to create a new archive.";
+  }
+
+  if (message.includes("rate limit exceeded") || message.includes("too many requests")) {
+    return "That address was just used recently. Please wait a little while before trying again.";
   }
 
   if (message.includes("password")) {
     return "Your password needs to be at least 6 characters long.";
   }
 
-  if (message.includes("email")) {
+  if (
+    (message.includes("invalid") || message.includes("must be")) &&
+    message.includes("email")
+  ) {
     return "That email address looks incomplete. Check it and try again.";
   }
 

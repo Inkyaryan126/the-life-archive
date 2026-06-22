@@ -29,7 +29,7 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-archive-ink/45 via-archive-ink/18 to-archive-paper" />
         <nav className="relative z-10 mx-auto flex max-w-6xl items-center justify-between">
           <Link href="/" className="text-lg font-semibold text-white">
-            The Life Archive
+            The Life Archive Home
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             {isSignedIn ? (

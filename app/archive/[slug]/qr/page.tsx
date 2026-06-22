@@ -102,7 +102,7 @@ export default async function QRPage({ params }: QRPageProps) {
 
         <section className="qr-print-card mt-10 rounded-lg border border-archive-ink/10 bg-white p-8 text-center shadow-soft">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-clay">
-            The Life Archive
+            The Life Archive Home
           </p>
           <h2 className="mt-3 font-serif text-4xl text-archive-ink">
             {archive.personName}

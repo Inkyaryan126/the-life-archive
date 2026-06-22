@@ -232,7 +232,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
       <nav className="relative mx-auto flex max-w-6xl items-center justify-between border-b border-archive-gold/20 pb-5">
         <Link href="/" className="font-serif text-lg tracking-wide">
-          The Life Archive
+          The Life Archive Home
         </Link>
         <div className="flex items-center gap-3">
           <Link

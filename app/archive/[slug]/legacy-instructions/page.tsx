@@ -228,7 +228,7 @@ export default async function LegacyInstructionsPage({
       <div className="relative mx-auto max-w-5xl">
         <nav className="flex items-center justify-between border-b border-archive-gold/20 pb-5">
           <Link href="/" className="font-serif text-lg tracking-wide">
-            The Life Archive
+            The Life Archive Home
           </Link>
           <Link
             href={isOwner ? "/dashboard" : "/"}

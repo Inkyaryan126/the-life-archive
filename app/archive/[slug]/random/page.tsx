@@ -47,7 +47,7 @@ export default async function RandomMemoryPage({
       <div className="mx-auto max-w-3xl">
         <nav className="flex items-center justify-between">
           <Link href="/" className="text-lg font-semibold text-archive-ink">
-            The Life Archive
+            The Life Archive Home
           </Link>
           <Link
             href={`/archive/${archive.slug}`}

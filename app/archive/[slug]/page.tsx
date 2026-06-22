@@ -35,7 +35,7 @@ export default async function ArchivePage({ params, searchParams }: ArchivePageP
       <div className="mx-auto max-w-6xl">
         <nav className="flex items-center justify-between">
           <Link href="/" className="text-lg font-semibold text-archive-ink">
-            The Life Archive
+            The Life Archive Home
           </Link>
           <div className="flex items-center gap-3 sm:gap-4">
             {account.user ? (

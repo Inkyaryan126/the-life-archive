@@ -81,7 +81,7 @@ export default async function MemberCardPage({
           href="/"
           className="font-serif text-lg tracking-wide text-archive-ivory"
         >
-          The Life Archive
+          The Life Archive Home
         </Link>
         <div className="flex items-center gap-4">
           {user ? (

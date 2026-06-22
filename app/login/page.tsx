@@ -13,7 +13,7 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
     <main className="min-h-screen px-5 py-12 sm:px-8">
       <div className="mx-auto max-w-sm">
         <Link href="/" className="mb-8 block text-center text-lg font-semibold text-archive-ink">
-          The Life Archive
+          The Life Archive Home
         </Link>
         <form className="rounded-lg border border-archive-ink/10 bg-white/82 p-6 shadow-soft grid gap-5">
           {searchParams?.next ? (
