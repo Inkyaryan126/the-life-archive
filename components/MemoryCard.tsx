@@ -9,6 +9,7 @@ type MemoryCardProps = {
 
 export function MemoryCard({ memory }: MemoryCardProps) {
   const photoUrl = memory.type === "photo" ? memory.mediaUrl : undefined;
+  const voiceUrl = memory.type === "voice" ? memory.mediaUrl : undefined;
 
   return (
     <article className="rounded-lg border border-archive-ink/10 bg-white/82 p-4 shadow-soft">
@@ -18,9 +19,18 @@ export function MemoryCard({ memory }: MemoryCardProps) {
             src={photoUrl}
             alt={memory.title}
             fill
-            className="object-cover"
-            sizes="(min-width: 768px) 420px, 100vw"
-          />
+          className="object-cover"
+          sizes="(min-width: 768px) 420px, 100vw"
+        />
+      </div>
+      ) : voiceUrl ? (
+        <div className="mb-4 rounded-md border border-archive-ink/10 bg-archive-linen p-4">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-archive-clay">
+            Voice note
+          </p>
+          <audio controls preload="none" className="w-full" src={voiceUrl}>
+            Your browser does not support the audio element.
+          </audio>
         </div>
       ) : null}
       <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-archive-clay">
@@ -32,7 +42,7 @@ export function MemoryCard({ memory }: MemoryCardProps) {
         {memory.title}
       </h3>
       <p className="mt-3 leading-7 text-archive-ink/72">{memory.content}</p>
-      {memory.mediaUrl && !photoUrl ? (
+      {memory.mediaUrl && !photoUrl && !voiceUrl ? (
         <Link
           href={memory.mediaUrl}
           className="mt-4 inline-flex text-sm font-semibold text-archive-sage underline-offset-4 hover:underline"

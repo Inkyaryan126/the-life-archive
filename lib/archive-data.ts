@@ -918,7 +918,9 @@ export async function createMemory(input: CreateMemoryInput) {
         const { data: updatedMemory, error: updateError } = await supabase
           .from("memories")
           .update({
-            ...(input.type === "photo" ? { photo_path: filePath } : {}),
+            ...(input.type === "photo" || input.type === "voice"
+              ? { photo_path: filePath }
+              : {}),
             ...(input.type === "voice" ? { media_url: null } : {})
           })
           .eq("id", memoryRow.id)
