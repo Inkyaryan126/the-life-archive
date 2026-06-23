@@ -139,8 +139,8 @@ export default async function ArchivePage({
             <div className="p-6 sm:p-8">
               {searchParams?.created === "1" ? (
                 <SuccessMessage
-                  eyebrow="Archive created"
-                  message="The first chapter is ready. Add a memory whenever you are ready to begin the story."
+                  eyebrow="Their story has begun"
+                  message="The first chapter is ready. Add a chapter whenever you are ready to begin the story."
                 />
               ) : null}
               <p className="max-w-3xl text-lg leading-8 text-archive-ivory/74">

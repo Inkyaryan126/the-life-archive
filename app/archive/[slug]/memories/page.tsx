@@ -89,8 +89,8 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
 
         {searchParams?.created === "1" ? (
           <SuccessMessage
-            eyebrow="Memory preserved"
-            message="This memory is now part of the archive and ready to be revisited."
+            eyebrow="Another chapter has been preserved"
+            message="This memory is now part of the story and ready to be revisited."
           />
         ) : null}
 

@@ -229,10 +229,10 @@ export default async function CreateArchivePage({
                 type="submit"
                 className="rounded-full bg-archive-gold px-6 py-3 text-sm font-semibold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
               >
-                Create an Archive
+                Begin Their Story
               </button>
               <p className="text-sm leading-6 text-archive-ivory/60">
-                Next, you&apos;ll enter the archive and add its first memory.
+                Next, you&apos;ll enter their story and add its first chapter.
               </p>
             </div>
           </form>

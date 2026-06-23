@@ -97,10 +97,10 @@ export default async function AddMemoryPage({
 
         <header className="pb-12">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
-            Add memory
+            Add a chapter
           </p>
           <h1 className="mt-3 font-serif text-4xl leading-tight text-archive-ivory">
-            Add something that should be remembered.
+            Preserve something that should be remembered.
           </h1>
         </header>
 
@@ -129,7 +129,7 @@ export default async function AddMemoryPage({
 
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-archive-ivory">
-                Type
+                Chapter Type
               </span>
               <select
                 name="type"
@@ -145,7 +145,7 @@ export default async function AddMemoryPage({
 
             <label className="grid gap-2">
               <span className="text-sm font-semibold text-archive-ivory">
-                Memory
+                The Chapter Story
               </span>
               <textarea
                 name="content"
@@ -157,7 +157,7 @@ export default async function AddMemoryPage({
 
             <div className="grid gap-4 rounded-lg border border-archive-gold/10 bg-white/[0.02] px-4 py-4">
               <p className="text-sm font-semibold text-archive-ivory">
-                Memory media
+                Chapter media
               </p>
               <label className="grid gap-2">
                 <span className="text-sm font-medium text-archive-ivory/78">
@@ -218,10 +218,10 @@ export default async function AddMemoryPage({
               type="submit"
               className="rounded-full bg-archive-gold px-6 py-3 text-sm font-semibold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
             >
-              Save Memory
+              Preserve Chapter
             </button>
             <p className="text-sm leading-6 text-archive-ivory/60">
-              This memory will become part of their story.
+              This chapter will become part of their story.
             </p>
           </div>
         </form>
