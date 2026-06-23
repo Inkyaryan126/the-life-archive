@@ -75,23 +75,23 @@ export default async function ArchivePage({
     <main className="relative min-h-screen overflow-hidden px-5 py-6 text-archive-ivory sm:px-8">
       <DesignBackdrop />
 
-      <div className="relative mx-auto max-w-6xl">
-        <nav className="flex items-center justify-between">
+      <div className="relative z-10 mx-auto max-w-6xl">
+        <nav className="flex items-center justify-between pb-10">
           <Link href="/">
             <SiteLogo width={160} height={40} />
           </Link>
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-4">
             {account.user ? (
               <>
                 <Link
                   href="/dashboard"
-                  className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
+                  className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/member-card"
-                  className="hidden text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline sm:inline-flex"
+                  className="hidden text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:inline-flex"
                 >
                   Member Card
                 </Link>
@@ -99,7 +99,7 @@ export default async function ArchivePage({
             ) : null}
             <Link
               href={`/archive/${archive.slug}/qr`}
-              className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
+              className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
             >
               Share Archive
             </Link>

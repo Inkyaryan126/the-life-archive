@@ -517,14 +517,14 @@ export default async function DashboardPage({
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
       <DesignBackdrop />
 
-      <nav className="relative mx-auto flex max-w-7xl items-center justify-between border-b border-archive-gold/20 pb-5">
-        <Link href="/">
+      <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between border-b border-archive-gold/20 pb-5">
+        <Link href="/" className="block">
           <SiteLogo width={160} height={40} />
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <Link
             href="/member-card"
-            className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
+            className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
           >
             Member Card
           </Link>
