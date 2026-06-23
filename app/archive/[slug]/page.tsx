@@ -101,7 +101,7 @@ export default async function ArchivePage({
               href={`/archive/${archive.slug}/qr`}
               className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
             >
-              Share Archive
+              Share Their Story
             </Link>
           </div>
         </nav>
@@ -148,8 +148,8 @@ export default async function ArchivePage({
               </p>
               <p className="mt-4 max-w-3xl text-sm leading-6 text-archive-ivory/60">
                 {archive.visibility === "public"
-                  ? "This is a public archive. Anyone can view it, and it may appear on The Life Archive homepage."
-                  : "This is a private archive. Only the archive owner and authorized members can view it."}
+                  ? "This is a public space. Anyone can view it, and it may appear on The Life Archive homepage."
+                  : "This is a private space. Only the story owners and authorized family can view it."}
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link
@@ -162,21 +162,21 @@ export default async function ArchivePage({
                   href={`/archive/${archive.slug}/memories`}
                   className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
                 >
-                  Browse Memories
+                  Browse Memory Chapters
                 </Link>
                 {isOwner ? (
                   <Link
                     href={`/archive/${archive.slug}/add-memory`}
                     className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
                   >
-                    Add Memory
+                    Add a Chapter
                   </Link>
                 ) : null}
                 <Link
                   href={`/archive/${archive.slug}/qr`}
                   className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
                 >
-                  QR Card
+                  Share Their Story
                 </Link>
                 {isOwner ? (
                   <Link
@@ -189,7 +189,7 @@ export default async function ArchivePage({
               </div>
               {memories.length === 0 ? (
                 <div className="mt-7 rounded-md border border-archive-gold/18 bg-archive-obsidian/40 px-4 py-3 text-sm leading-6 text-archive-ivory/68">
-                  This archive is ready for its first story. Add a memory to
+                  Their story is ready for its first chapter. Add a chapter to
                   begin bringing it to life.
                 </div>
               ) : null}
@@ -199,13 +199,13 @@ export default async function ArchivePage({
           <aside className="grid gap-4">
             <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
-                Archive
+                Preserved
               </p>
               <p className="mt-3 text-3xl font-semibold text-archive-ivory">
                 {memories.length}
               </p>
               <p className="mt-1 text-sm text-archive-ivory/64">
-                memories saved
+                chapters recorded
               </p>
             </div>
             <QRPreview archiveSlug={archive.slug} />
@@ -216,14 +216,14 @@ export default async function ArchivePage({
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-                Chapters
+                Memory Chapters
               </p>
               <h2 className="mt-2 font-serif text-3xl text-archive-ivory sm:text-4xl">
-                Enter the story by chapter
+                Explore their story by chapter
               </h2>
             </div>
             <p className="max-w-xl text-sm leading-6 text-archive-ivory/58">
-              Each button opens a filtered view of the memories in this archive.
+              Each button opens a beautifully preserved section of this story.
             </p>
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
