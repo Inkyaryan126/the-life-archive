@@ -2,6 +2,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { MemberCard } from "@/components/MemberCard";
 import { MemberCardActions } from "@/components/MemberCardActions";
+import { DesignBackdrop } from "@/components/SiteDesign";
 import {
   generateQrSvg,
   getRequestSiteUrl,
@@ -73,8 +74,8 @@ export default async function MemberCardPage({
   const memberName = account.defaultArchive?.personName ?? emailName;
 
   return (
-    <main className="member-card-page min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.16),transparent_30rem),radial-gradient(circle_at_bottom_right,rgba(198,161,91,0.08),transparent_34rem)]" />
+    <main className="member-card-page relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
+      <DesignBackdrop />
 
       <div className="no-print relative mx-auto flex max-w-6xl items-center justify-between border-b border-archive-gold/20 pb-5">
         <Link

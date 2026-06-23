@@ -2,6 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SuccessMessage } from "@/components/SuccessMessage";
+import {
+  DesignBackdrop,
+  DesignImageButtonLink
+} from "@/components/SiteDesign";
 import { signOutAction } from "@/app/login/actions";
 import { getAccountContext, type AccountArchive } from "@/lib/account";
 import { getArchiveRelationshipLabel } from "@/lib/archive-relationships";
@@ -56,6 +60,50 @@ const memoryBreakdownOrder: Array<{
   { type: "journal", label: "Journal Entries" },
   { type: "lesson", label: "Lessons" },
   { type: "song", label: "Songs" }
+];
+
+const chapterButtonOrder: Array<{
+  type: MemoryType;
+  label: string;
+  hrefSuffix: string;
+  image: string;
+}> = [
+  {
+    type: "photo",
+    label: "Photos",
+    hrefSuffix: "photo",
+    image: "/images/site-design/photos-button.jpg"
+  },
+  {
+    type: "video",
+    label: "Videos",
+    hrefSuffix: "video",
+    image: "/images/site-design/videos-button.jpg"
+  },
+  {
+    type: "voice",
+    label: "Voice Notes",
+    hrefSuffix: "voice",
+    image: "/images/site-design/voicenotes-button.jpg"
+  },
+  {
+    type: "journal",
+    label: "Journals",
+    hrefSuffix: "journal",
+    image: "/images/site-design/journals-button.jpg"
+  },
+  {
+    type: "lesson",
+    label: "Life Lessons",
+    hrefSuffix: "lesson",
+    image: "/images/site-design/lifelessons-button.jpg"
+  },
+  {
+    type: "song",
+    label: "Songs",
+    hrefSuffix: "song",
+    image: "/images/site-design/songs-button.jpg"
+  }
 ];
 
 function formatTimestamp(value: string) {
@@ -449,13 +497,24 @@ export default async function DashboardPage({
           href: `/archive/${defaultArchive.slug}/qr`,
           label: "Generate QR Card",
           description: "Create a QR card for funerals, reunions, and family gatherings."
+        },
+        {
+          href: `/archive/${defaultArchive.slug}/qr`,
+          label: "Share Archive",
+          description: "Open the sharing tools for this archive."
         }
       ]
     : [];
+  const chapterButtons = defaultArchive
+    ? chapterButtonOrder.map((button) => ({
+        ...button,
+        href: `/archive/${defaultArchive.slug}/memories?type=${button.hrefSuffix}`
+      }))
+    : [];
 
   return (
-    <main className="min-h-screen bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.16),transparent_30rem),radial-gradient(circle_at_bottom_right,rgba(198,161,91,0.08),transparent_34rem)]" />
+    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
+      <DesignBackdrop />
 
       <nav className="relative mx-auto flex max-w-7xl items-center justify-between border-b border-archive-gold/20 pb-5">
         <Link href="/" className="font-serif text-lg tracking-wide">
@@ -522,12 +581,6 @@ export default async function DashboardPage({
 
             {hasArchives ? (
               <>
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  {quickActions.map((action) => (
-                    <DashboardAction key={action.label} {...action} />
-                  ))}
-                </div>
-
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <div className="rounded-2xl border border-archive-gold/18 bg-archive-ivory px-5 py-4 text-archive-obsidian">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
@@ -671,6 +724,124 @@ export default async function DashboardPage({
 
         {hasArchives ? (
           <>
+            <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury sm:p-6">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="max-w-2xl">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+                    Chapters
+                  </p>
+                  <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+                    Browse the life in chapters
+                  </h2>
+                </div>
+                <p className="max-w-xl text-sm leading-6 text-archive-ivory/58">
+                  Choose a chapter to enter one part of the story.
+                </p>
+              </div>
+              <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+                {chapterButtons.map((button) => (
+                  <DesignImageButtonLink
+                    key={button.type}
+                    href={button.href}
+                    label={button.label}
+                    className="mx-auto w-full max-w-[19rem]"
+                    images={[
+                      {
+                        src: button.image,
+                        alt: `${button.label} chapter`,
+                        width: 476,
+                        height: 417,
+                        className: "block"
+                      }
+                    ]}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury sm:p-6">
+              <Image
+                src="/images/site-design/quickactions-banner.jpg"
+                alt="Quick actions"
+                width={1070}
+                height={82}
+                priority={false}
+                className="h-auto w-full"
+              />
+              <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+                {quickActions.map((action) => {
+                  const image =
+                    action.label === "Add Memory"
+                      ? {
+                          desktop: "/images/site-design/addmemory-button.jpg",
+                          tablet: "/images/site-design/addmemory-smallbutton.jpg",
+                          mobile: "/images/site-design/addmemory-tinybutton.jpg"
+                        }
+                      : action.label === "Invite Member"
+                        ? {
+                            desktop: "/images/site-design/invitemember-button.jpg",
+                            tablet: "/images/site-design/invitemember-smallbutton.jpg",
+                            mobile: "/images/site-design/invitemember-tinybutton.jpg"
+                          }
+                        : action.label === "Generate Member Card"
+                          ? {
+                              desktop: "/images/site-design/membercard-button.jpg",
+                              tablet: "/images/site-design/membercard-smallbutton.jpg",
+                              mobile: "/images/site-design/membercard-tinybutton.jpg"
+                            }
+                        : action.label === "Generate QR Card"
+                          ? {
+                              desktop: "/images/site-design/qrcard-button.jpg",
+                              tablet: "/images/site-design/qrcard-smallbutton.jpg",
+                              mobile: "/images/site-design/qrcard-tinybutton.jpg"
+                            }
+                          : {
+                                desktop: "/images/site-design/sharearchive-tinybutton.jpg",
+                                tablet: "/images/site-design/sharearchive-tinybutton.jpg",
+                                mobile: "/images/site-design/sharearchive-tinybutton.jpg"
+                              };
+
+                  return (
+                    <DesignImageButtonLink
+                      key={action.label}
+                      href={action.href}
+                      label={action.label}
+                      className="mx-auto w-full max-w-[19rem]"
+                      images={[
+                        {
+                          src: image.mobile,
+                          alt: `${action.label} button`,
+                          width:
+                            action.label === "Share Archive" ? 170 : 170,
+                          height:
+                            action.label === "Share Archive" ? 214 : 214,
+                          className: "block md:hidden"
+                        },
+                        {
+                          src: image.tablet,
+                          alt: `${action.label} button`,
+                          width:
+                            action.label === "Share Archive" ? 170 : 366,
+                          height:
+                            action.label === "Share Archive" ? 214 : 136,
+                          className: "hidden md:block xl:hidden"
+                        },
+                        {
+                          src: image.desktop,
+                          alt: `${action.label} button`,
+                          width:
+                            action.label === "Share Archive" ? 170 : 365,
+                          height:
+                            action.label === "Share Archive" ? 214 : 488,
+                          className: "hidden xl:block"
+                        }
+                      ]}
+                    />
+                  );
+                })}
+              </div>
+            </section>
+
             <section className="mt-10">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
