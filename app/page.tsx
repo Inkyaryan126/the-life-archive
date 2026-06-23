@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DesignBackdrop, DesignImageButtonLink } from "@/components/SiteDesign";
+import { DesignBackdrop, DesignImageButtonLink, SiteLogo } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
 
 export const dynamic = "force-dynamic";
@@ -25,8 +25,8 @@ export default async function HomePage() {
       
       <div className="relative z-10 flex min-h-screen flex-col">
         <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-6 sm:px-8">
-          <Link href="/" className="font-serif text-2xl tracking-wide">
-            The Life Archive
+          <Link href="/">
+            <SiteLogo width={160} height={40} />
           </Link>
           <div className="flex items-center gap-4">
             {isSignedIn && (

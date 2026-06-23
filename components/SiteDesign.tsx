@@ -26,6 +26,18 @@ function imageClassName(base: string, className?: string) {
   return className ? `${base} ${className}` : base;
 }
 
+export function SiteLogo({ className, width = 200, height = 50 }: { className?: string, width?: number, height?: number }) {
+  return <Image src="/images/site-design/tree-logo.png" alt="The Life Archive" width={width} height={height} className={className} />;
+}
+
+export function TreeBookLogo({ className, width = 60, height = 60 }: { className?: string, width?: number, height?: number }) {
+  return <Image src="/images/site-design/treebook-logo.png" alt="Treebook" width={width} height={height} className={className} />;
+}
+
+export function Monogram({ className, width = 40, height = 40 }: { className?: string, width?: number, height?: number }) {
+  return <Image src="/images/site-design/monogram.png" alt="Monogram" width={width} height={height} className={className} />;
+}
+
 export function DesignBackdrop({ className }: DesignBackdropProps) {
   return (
     <div
@@ -41,9 +53,9 @@ export function DesignBackdrop({ className }: DesignBackdropProps) {
         fill
         priority
         sizes="100vw"
-        className="object-cover object-center opacity-40"
+        className="object-cover object-center opacity-60"
       />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.24),transparent_34rem),radial-gradient(circle_at_bottom_right,rgba(198,161,91,0.1),transparent_32rem),linear-gradient(180deg,rgba(7,7,8,0.14),rgba(7,7,8,0.86))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.2),transparent_40rem),radial-gradient(circle_at_bottom_right,rgba(198,161,91,0.08),transparent_40rem),linear-gradient(180deg,rgba(7,7,8,0.1),rgba(7,7,8,0.7))]" />
     </div>
   );
 }

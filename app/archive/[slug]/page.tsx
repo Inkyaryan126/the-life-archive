@@ -5,7 +5,8 @@ import { QRPreview } from "@/components/QRPreview";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import {
   DesignBackdrop,
-  DesignImageButtonLink
+  DesignImageButtonLink,
+  SiteLogo
 } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
@@ -76,8 +77,8 @@ export default async function ArchivePage({
 
       <div className="relative mx-auto max-w-6xl">
         <nav className="flex items-center justify-between">
-          <Link href="/" className="text-lg font-semibold text-archive-ivory">
-            The Life Archive Home
+          <Link href="/">
+            <SiteLogo width={160} height={40} />
           </Link>
           <div className="flex items-center gap-3 sm:gap-4">
             {account.user ? (

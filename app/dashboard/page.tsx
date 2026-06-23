@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import {
   DesignBackdrop,
-  DesignImageButtonLink
+  DesignImageButtonLink,
+  SiteLogo
 } from "@/components/SiteDesign";
 import { signOutAction } from "@/app/login/actions";
 import { getAccountContext, type AccountArchive } from "@/lib/account";
@@ -517,8 +518,8 @@ export default async function DashboardPage({
       <DesignBackdrop />
 
       <nav className="relative mx-auto flex max-w-7xl items-center justify-between border-b border-archive-gold/20 pb-5">
-        <Link href="/" className="font-serif text-lg tracking-wide">
-          The Life Archive Home
+        <Link href="/">
+          <SiteLogo width={160} height={40} />
         </Link>
         <div className="flex items-center gap-3">
           <Link
