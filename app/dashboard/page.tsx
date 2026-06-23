@@ -574,7 +574,7 @@ export default async function DashboardPage({
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/62 sm:text-base sm:leading-8">
                   {hasArchives
-                    ? "Your dashboard gathers the archive, the memories inside it, and the ways family can return to it later."
+                    ? "Your My Archives gathers the archive, the memories inside it, and the ways family can return to it later."
                     : "Start with one archive for yourself or for someone you love. Then add the stories, photos, and legacy details that belong to them."}
                 </p>
               </div>

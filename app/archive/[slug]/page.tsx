@@ -87,7 +87,7 @@ export default async function ArchivePage({
                   href="/dashboard"
                   className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
                 >
-                  Dashboard
+                  My Archives
                 </Link>
                 <Link
                   href="/member-card"
