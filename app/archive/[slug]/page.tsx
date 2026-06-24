@@ -9,7 +9,8 @@ import {
   SiteLogo
 } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
-import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
+import { getArchiveBySlug, getMemoriesByArchiveSlug, getVisitorMessages } from "@/lib/archive-data";
+import { Guestbook } from "@/components/Guestbook";
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +69,10 @@ export default async function ArchivePage({
     notFound();
   }
 
-  const memories = await getMemoriesByArchiveSlug(params.slug);
+  const [memories, visitorMessages] = await Promise.all([
+    getMemoriesByArchiveSlug(params.slug),
+    getVisitorMessages(params.slug)
+  ]);
   const isOwner = account.archives.some((item) => item.slug === archive.slug);
 
   return (
@@ -165,12 +169,20 @@ export default async function ArchivePage({
                   Browse Memory Chapters
                 </Link>
                 {isOwner ? (
-                  <Link
-                    href={`/archive/${archive.slug}/add-memory`}
-                    className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
-                  >
-                    Add a Chapter
-                  </Link>
+                  <>
+                    <Link
+                      href={`/archive/${archive.slug}/add-memory`}
+                      className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                    >
+                      Add a Chapter
+                    </Link>
+                    <Link
+                      href={`/archive/${archive.slug}/edit`}
+                      className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-gold transition hover:border-archive-gold hover:bg-white/[0.08]"
+                    >
+                      Edit Keepsake
+                    </Link>
+                  </>
                 ) : null}
                 <Link
                   href={`/archive/${archive.slug}/qr`}
@@ -246,6 +258,13 @@ export default async function ArchivePage({
             ))}
           </div>
         </section>
+
+        {/* Guestbook Section */}
+        <Guestbook
+          archiveSlug={archive.slug}
+          initialMessages={visitorMessages}
+          isOwner={isOwner}
+        />
       </div>
     </main>
   );

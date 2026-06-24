@@ -1,0 +1,989 @@
+diff --git a/.gitignore b/.gitignore
+index ced7e27..2b5c7cd 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -10,3 +10,4 @@ dist
+ .env
+ .vercel
+ .env*
++.aider*
+diff --git a/app/archive/[slug]/memories/page.tsx b/app/archive/[slug]/memories/page.tsx
+index f65f277..d4403e7 100644
+--- a/app/archive/[slug]/memories/page.tsx
++++ b/app/archive/[slug]/memories/page.tsx
+@@ -2,6 +2,7 @@ import Link from "next/link";
+ import { notFound } from "next/navigation";
+ import { MemoryCard } from "@/components/MemoryCard";
+ import { SuccessMessage } from "@/components/SuccessMessage";
++import { EmptyState } from "@/components/EmptyState";
+ import { getAccountContext } from "@/lib/account";
+ import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
+ import type { MemoryType } from "@/lib/types";
+@@ -101,24 +102,25 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
+             ))}
+           </section>
+         ) : (
+-          <section className="rounded-lg border border-archive-ink/10 bg-white/82 p-6 shadow-soft">
+-            <h2 className="font-serif text-3xl text-archive-ink">
+-              {selectedType ? `No ${prettifyType(selectedType)} memories yet` : "No memories yet"}
+-            </h2>
+-            <p className="mt-3 leading-7 text-archive-ink/72">
+-              {selectedType
+-                ? `This chapter does not have any ${memoryTypeLabels[selectedType].toLowerCase()} yet.`
+-                : "Start with one story, photo, song, voice note, or lesson. The archive will grow from there."}
+-            </p>
+-            {isOwner ? (
+-              <Link
+-                href={`/archive/${archive.slug}/add-memory`}
+-                className="mt-5 inline-flex rounded-full bg-archive-clay px-5 py-3 text-sm font-semibold text-white"
+-              >
+-                Add Memory
+-              </Link>
+-            ) : null}
+-          </section>
++          <EmptyState
++            eyebrow={selectedType ? `Preserving ${memoryTypeLabels[selectedType]}` : "Their story is waiting"}
++            title={selectedType ? `Their ${memoryTypeLabels[selectedType].toLowerCase()} chapter is waiting.` : "Their story is waiting for its next chapter."}
++            message={
++              selectedType
++                ? `This section is ready for its first entry. Add a ${selectedType} memory to preserve it for the future.`
++                : "Start with one story, photo, song, voice note, or lesson. The archive will grow from there."
++            }
++            action={
++              isOwner ? (
++                <Link
++                  href={`/archive/${archive.slug}/add-memory${selectedType ? `?type=${selectedType}` : ""}`}
++                  className="inline-flex rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
++                >
++                  Add a Chapter
++                </Link>
++              ) : null
++            }
++          />
+         )}
+       </div>
+     </main>
+diff --git a/app/archive/[slug]/page.tsx b/app/archive/[slug]/page.tsx
+index 751379f..541cda3 100644
+--- a/app/archive/[slug]/page.tsx
++++ b/app/archive/[slug]/page.tsx
+@@ -3,6 +3,7 @@ import Link from "next/link";
+ import { notFound } from "next/navigation";
+ import { QRPreview } from "@/components/QRPreview";
+ import { SuccessMessage } from "@/components/SuccessMessage";
++import { EmptyState } from "@/components/EmptyState";
+ import {
+   DesignBackdrop,
+   DesignImageButtonLink,
+@@ -188,9 +189,22 @@ export default async function ArchivePage({
+                 ) : null}
+               </div>
+               {memories.length === 0 ? (
+-                <div className="mt-7 rounded-md border border-archive-gold/18 bg-archive-obsidian/40 px-4 py-3 text-sm leading-6 text-archive-ivory/68">
+-                  Their story is ready for its first chapter. Add a chapter to
+-                  begin bringing it to life.
++                <div className="mt-8">
++                  <EmptyState
++                    eyebrow="Their story is waiting"
++                    title="Their story is waiting for its next chapter."
++                    message="Their story is ready for its first chapter. Add a photo, song, voice note, or lesson to begin bringing it to life."
++                    action={
++                      isOwner ? (
++                        <Link
++                          href={`/archive/${archive.slug}/add-memory`}
++                          className="inline-flex rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
++                        >
++                          Add a Chapter
++                        </Link>
++                      ) : null
++                    }
++                  />
+                 </div>
+               ) : null}
+             </div>
+diff --git a/app/dashboard/page.tsx b/app/dashboard/page.tsx
+index 2b46dd1..abc8448 100644
+--- a/app/dashboard/page.tsx
++++ b/app/dashboard/page.tsx
+@@ -2,6 +2,7 @@ import Image from "next/image";
+ import Link from "next/link";
+ import { redirect } from "next/navigation";
+ import { SuccessMessage } from "@/components/SuccessMessage";
++import { EmptyState } from "@/components/EmptyState";
+ import {
+   DesignBackdrop,
+   DesignImageButtonLink,
+@@ -697,27 +698,20 @@ export default async function DashboardPage({
+                 </div>
+               </>
+             ) : (
+-              <div className="flex h-full min-h-[28rem] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(198,161,91,0.18))] p-6 sm:p-8">
+-                <div className="max-w-xl">
+-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+-                    No archive yet
+-                  </p>
+-                  <h2 className="mt-2 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
+-                    Create the archive that will hold the story.
+-                  </h2>
+-                  <p className="mt-3 text-sm leading-7 text-archive-ivory/62">
+-                    A single archive can hold photos, memories, lessons, voice
+-                    notes, and the details a family will need later.
+-                  </p>
+-                  <div className="mt-5">
++              <div className="flex h-full min-h-[28rem] items-center justify-center p-6 sm:p-8">
++                <EmptyState
++                  eyebrow="A new beginning"
++                  title="Every legacy begins with a single story."
++                  message="Create the archive that will hold the stories, photos, lessons, and memories of a lifetime."
++                  action={
+                     <Link
+                       href="/create"
+-                      className="inline-flex rounded-full bg-archive-gold px-5 py-3 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
++                      className="inline-flex rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+                     >
+                       Create an Archive
+                     </Link>
+-                  </div>
+-                </div>
++                  }
++                />
+               </div>
+             )}
+           </div>
+@@ -894,9 +888,20 @@ export default async function DashboardPage({
+                   ))}
+                 </div>
+               ) : (
+-                <div className="mt-6 rounded-3xl border border-archive-gold/16 bg-white/[0.035] p-6 text-sm leading-7 text-archive-ivory/62">
+-                  No memories yet. Add the first photo, lesson, voice note, or
+-                  journal entry when you are ready.
++                <div className="mt-6">
++                  <EmptyState
++                    eyebrow="Their story is waiting"
++                    title="Their story is waiting for its next chapter."
++                    message="Start with one story, photo, song, voice note, or lesson. The archive will grow from there."
++                    action={
++                      <Link
++                        href={`/archive/${defaultArchive?.slug ?? archives[0].slug}/add-memory`}
++                        className="inline-flex rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
++                      >
++                        Add a Chapter
++                      </Link>
++                    }
++                  />
+                 </div>
+               )}
+             </section>
+diff --git a/app/error.tsx b/app/error.tsx
+index abfd603..5a22b71 100644
+--- a/app/error.tsx
++++ b/app/error.tsx
+@@ -10,11 +10,10 @@ export default function ErrorPage({ reset }: { reset: () => void }) {
+       <section className="relative z-10 mx-auto max-w-2xl text-center">
+         <SiteLogo width={200} height={50} className="mx-auto" />
+         <h1 className="mt-10 font-serif text-4xl leading-tight text-archive-ivory sm:text-6xl">
+-          We could not open this part of the story.
++          The story could not be opened.
+         </h1>
+         <p className="mx-auto mt-5 max-w-xl leading-8 text-archive-ivory/68">
+-          Nothing you intended to preserve has been forgotten. Please try again,
+-          or return to a familiar place.
++          Please try again in a moment.
+         </p>
+         <div className="mt-8 flex flex-wrap justify-center gap-3">
+           <button
+diff --git a/app/global-error.tsx b/app/global-error.tsx
+index ceaaea1..7e94fa4 100644
+--- a/app/global-error.tsx
++++ b/app/global-error.tsx
+@@ -1,25 +1,25 @@
+ "use client";
+ 
++import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
++
+ export default function GlobalErrorPage({ reset }: { reset: () => void }) {
+   return (
+     <html lang="en">
+-      <body>
+-        <main className="flex min-h-screen items-center bg-[#171612] px-5 py-16 text-[#f7f0df]">
+-          <section className="mx-auto max-w-2xl text-center">
+-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#c6a15b]">
+-              The Life Archive
+-            </p>
+-            <h1 className="mt-5 font-serif text-4xl leading-tight sm:text-6xl">
+-              We need a moment to gather the story.
++      <body className="font-sans antialiased">
++        <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-16 text-archive-ivory sm:px-8 flex items-center justify-center">
++          <DesignBackdrop />
++          <section className="relative z-10 mx-auto max-w-2xl text-center">
++            <SiteLogo width={200} height={50} className="mx-auto" />
++            <h1 className="mt-10 font-serif text-4xl leading-tight text-archive-ivory sm:text-6xl">
++              The story could not be opened.
+             </h1>
+-            <p className="mx-auto mt-5 max-w-xl leading-8 text-[#f7f0df]/70">
+-              Please try once more. The memories and legacy you came to preserve
+-              still matter.
++            <p className="mx-auto mt-5 max-w-xl leading-8 text-archive-ivory/68">
++              Please try again in a moment.
+             </p>
+             <button
+               type="button"
+               onClick={reset}
+-              className="mt-8 rounded-full bg-[#c6a15b] px-6 py-3 text-sm font-bold text-[#171612]"
++              className="mt-8 rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+             >
+               Try Again
+             </button>
+diff --git a/app/member-card/page.tsx b/app/member-card/page.tsx
+index 8024444..fb27136 100644
+--- a/app/member-card/page.tsx
++++ b/app/member-card/page.tsx
+@@ -32,16 +32,16 @@ export default async function MemberCardPage({
+ 
+     return (
+       <AccessPrompt
+-        eyebrow={confirmationPending ? "Check your email" : "Member Card"}
++        eyebrow={confirmationPending ? "Check your email" : "Storykeeper Card"}
+         title={
+           confirmationPending
+             ? "Confirm your account to continue."
+-            : "Sign in to view your Member Card."
++            : "Sign in to view your Storykeeper Card."
+         }
+         message={
+           confirmationPending
+             ? "We sent you a confirmation link. After confirming your account, sign in to create an archive and prepare your card."
+-            : "Your Member Card is created from your real membership and archive details. Sign in or create an account to continue."
++            : "Your Storykeeper Card is created from your real archive details. Sign in or create an account to continue."
+         }
+         primaryHref="/login?next=%2Fmember-card"
+         primaryLabel={confirmationPending ? "Return to Sign In" : "Sign In or Create an Account"}
+@@ -74,9 +74,10 @@ export default async function MemberCardPage({
+   const memberName = account.defaultArchive?.personName ?? emailName;
+ 
+   return (
+-    <main className="member-card-page relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
++    <main className="member-card-page relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8 sm:pb-20">
+       <DesignBackdrop />
+ 
++      {/* Header Nav */}
+       <div className="no-print relative mx-auto flex max-w-6xl items-center justify-between border-b border-archive-gold/20 pb-5">
+         <Link
+           href="/"
+@@ -94,35 +95,31 @@ export default async function MemberCardPage({
+             </Link>
+           ) : null}
+           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+-            Member Card
++            Storykeeper Card
+           </span>
+         </div>
+       </div>
+ 
+-      <section className="no-print relative mx-auto max-w-3xl pb-10 pt-14 text-center sm:pt-20">
++      {/* Hero Section */}
++      <section className="no-print relative mx-auto max-w-3xl pb-10 pt-14 text-center sm:pt-16">
+         {isNewMember ? (
+           <SuccessMessage
+-            eyebrow="Your membership begins here"
+-            message="Your place in The Life Archive is confirmed. This card is the first promise that your story can remain within reach."
++            eyebrow="An heirloom is prepared"
++            message="Your place in The Life Archive is confirmed. This Storykeeper Card is a tangible connection back to what you choose to preserve."
+           />
+         ) : null}
++
+         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
+-          {isNewMember ? "This card carries a promise" : "Keep their story within reach"}
++          THE STORYKEEPER CARD
+         </p>
+-        <h1 className="mt-5 font-serif text-4xl leading-tight sm:text-6xl">
+-          {isNewMember
+-            ? "A life should leave behind more than a name and two dates."
+-            : "Carry what matters with you."}
++        <h1 className="mt-5 font-serif text-4xl leading-tight sm:text-6xl text-archive-ivory">
++          Carry Their Story With You
+         </h1>
+         <p className="mt-4 font-serif text-xl italic text-archive-champagne sm:text-2xl">
+-          {isNewMember
+-            ? "Your stories, voice, lessons, and love deserve a way home."
+-            : "A simple card can lead loved ones back to a lifetime of memories."}
++          A physical key that leads loved ones back to a lifetime of memories.
+         </p>
+         <p className="mx-auto mt-7 max-w-2xl text-sm leading-7 text-archive-ivory/68 sm:text-base sm:leading-8">
+-          {isNewMember
+-            ? "Once you create your archive, this card becomes a path back to what you chose to preserve. Print it. Carry it. Keep it where someone you love can find it. Years from now, one scan may open the door to the memories that still sound and feel like you."
+-            : "This card is intended to be printed and kept in your wallet. If something ever happens to you before you&apos;ve shared your archive with loved ones, this card can help them find the memories, stories, and legacy you chose to preserve."}
++          This is not a membership card. It is a Storykeeper Card—a tangible promise that a life will leave behind more than a name and two dates. Print it, carry it, or keep it safe. Years from now, a single scan will unlock the stories, voices, lessons, and memories that belong to those you love.
+         </p>
+ 
+         {confirmationPending ? (
+@@ -133,6 +130,7 @@ export default async function MemberCardPage({
+         ) : null}
+       </section>
+ 
++      {/* Printable Card Area */}
+       <div className="member-card-print-shell relative mx-auto max-w-[34rem]">
+         <MemberCard
+           hasArchive={hasArchive}
+@@ -141,7 +139,8 @@ export default async function MemberCardPage({
+         />
+       </div>
+ 
+-      <div className="relative mx-auto mt-10 max-w-3xl">
++      {/* Actions and Print Help */}
++      <div className="no-print relative mx-auto mt-10 max-w-3xl">
+         <MemberCardActions
+           continueHref={continueHref}
+           continueLabel={continueLabel}
+@@ -160,7 +159,86 @@ export default async function MemberCardPage({
+         ) : null}
+       </div>
+ 
+-      <aside className="no-print relative mx-auto mt-16 max-w-4xl rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-6 text-center sm:p-8">
++      {/* Explanation Section */}
++      <section className="no-print relative mx-auto mt-24 max-w-5xl border-t border-archive-gold/20 pt-16">
++        <div className="grid gap-8 md:grid-cols-[1fr_320px] items-start">
++          <div>
++            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
++              Why it exists
++            </p>
++            <h2 className="mt-3 font-serif text-3xl sm:text-4xl text-archive-ivory">
++              A Tangible Key to a Digital Sanctuary
++            </h2>
++            <p className="mt-5 text-sm leading-7 text-archive-ivory/70 sm:text-base sm:leading-8">
++              In a world where memories are often scattered across fleeting digital feeds, The Life Archive provides a permanent, quiet sanctuary. The Storykeeper Card acts as the physical threshold. It is designed to be held, kept, and passed down—ensuring that the digital legacy is never lost or forgotten in the attic of the internet.
++            </p>
++          </div>
++          <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury">
++            <h3 className="font-serif text-lg text-archive-gold mb-4">How It Works</h3>
++            <ul className="grid gap-4 text-xs text-archive-ivory/70">
++              <li>
++                <strong className="block text-archive-ivory mb-1">1. Print the Card</strong>
++                Print on premium heavy-stock paper or cardstock.
++              </li>
++              <li>
++                <strong className="block text-archive-ivory mb-1">2. Place It Thoughtfully</strong>
++                Keep it in a wallet, safe, glovebox, or family album.
++              </li>
++              <li>
++                <strong className="block text-archive-ivory mb-1">3. Scan to Return</strong>
++                Anyone close to you can scan the secure QR code to immediately reveal the archive or a random memory.
++              </li>
++            </ul>
++          </div>
++        </div>
++      </section>
++
++      {/* Use Cases Section */}
++      <section className="no-print relative mx-auto mt-20 max-w-5xl pb-16">
++        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold mb-4">
++          Heirloom Scenarios
++        </p>
++        <h2 className="font-serif text-3xl sm:text-4xl text-archive-ivory mb-8">
++          Where the Card Belongs
++        </h2>
++        <div className="grid gap-6 sm:grid-cols-2">
++          <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.02] p-6 transition hover:border-archive-gold/30 hover:bg-white/[0.04]">
++            <h3 className="font-serif text-xl text-archive-champagne mb-2">
++              Everyday Carrying
++            </h3>
++            <p className="text-sm leading-6 text-archive-ivory/60">
++              Keep the story in your pocket. A daily reminder of the legacy you carry, and a quick way to share memories with friends and family wherever you are.
++            </p>
++          </div>
++          <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.02] p-6 transition hover:border-archive-gold/30 hover:bg-white/[0.04]">
++            <h3 className="font-serif text-xl text-archive-champagne mb-2">
++              Sacred Safekeeping
++            </h3>
++            <p className="text-sm leading-6 text-archive-ivory/60">
++              Place it alongside your family&apos;s most cherished heirlooms—marriage certificates, old photographs, and historical treasures—as a permanent guide for future generations.
++            </p>
++          </div>
++          <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.02] p-6 transition hover:border-archive-gold/30 hover:bg-white/[0.04]">
++            <h3 className="font-serif text-xl text-archive-champagne mb-2">
++              Memorial Services &amp; Tributes
++            </h3>
++            <p className="text-sm leading-6 text-archive-ivory/60">
++              Provide copies of the card to attendees at memorial gatherings or celebrations of life. It gives everyone a direct path to contribute chapters or listen to voice notes.
++            </p>
++          </div>
++          <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.02] p-6 transition hover:border-archive-gold/30 hover:bg-white/[0.04]">
++            <h3 className="font-serif text-xl text-archive-champagne mb-2">
++              Legacy Contingency Planning
++            </h3>
++            <p className="text-sm leading-6 text-archive-ivory/60">
++              Store a copy in a glovebox, safe deposit box, or with estate documents. If something happens, your loved ones can immediately find the life lessons, wishes, and guidance you preserved.
++            </p>
++          </div>
++        </div>
++      </section>
++
++      {/* Existing Footer Details (elevated) */}
++      <aside className="no-print relative mx-auto mt-8 max-w-4xl rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-6 text-center sm:p-8">
+         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+           Keep the story close
+         </p>
+diff --git a/app/not-found.tsx b/app/not-found.tsx
+index c172081..3ea6544 100644
+--- a/app/not-found.tsx
++++ b/app/not-found.tsx
+@@ -8,11 +8,10 @@ export default function NotFoundPage() {
+       <section className="relative z-10 mx-auto max-w-2xl text-center">
+         <SiteLogo width={200} height={50} className="mx-auto" />
+         <h1 className="mt-10 font-serif text-4xl leading-tight text-archive-ivory sm:text-6xl">
+-          This page could not be found.
++          This chapter could not be found.
+         </h1>
+         <p className="mx-auto mt-5 max-w-xl leading-8 text-archive-ivory/68">
+-          The story may have moved, or the link may no longer be available. The
+-          memories entrusted to an archive remain worthy of care.
++          Some stories are lost. This one may have been moved or removed.
+         </p>
+         <div className="mt-8 flex flex-wrap justify-center gap-3">
+           <Link
+diff --git a/app/page.tsx b/app/page.tsx
+index 9c47034..920ab87 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -97,6 +97,82 @@ export default async function HomePage() {
+             ))}
+           </div>
+         </section>
++
++        {/* Editorial Legacy Footer */}
++        <footer className="relative z-10 border-t border-archive-gold/20 bg-archive-obsidian/40 backdrop-blur-md mt-auto py-16 text-xs text-archive-ivory/60">
++          <div className="mx-auto max-w-7xl px-5 sm:px-8 grid gap-8 md:grid-cols-4">
++            <div>
++              <SiteLogo width={120} height={30} className="mb-4 opacity-80" />
++              <p className="leading-6 max-w-xs text-[11px]">
++                The Life Archive is a quiet, permanent digital sanctuary helping you intentionally decide what survives you. Preserve your voice, identity, and life lessons for generations to come.
++              </p>
++            </div>
++            <div>
++              <h4 className="text-archive-gold font-semibold uppercase tracking-wider mb-4">Legacy Hub</h4>
++              <ul className="grid gap-3">
++                <li>
++                  <Link href="/build-your-legacy" className="hover:text-archive-champagne hover:underline transition">
++                    Build Your Legacy
++                  </Link>
++                </li>
++                <li>
++                  <Link href="/preserve-their-voice" className="hover:text-archive-champagne hover:underline transition">
++                    Preserve Their Voice
++                  </Link>
++                </li>
++                <li>
++                  <Link href="/storykeeper-products" className="hover:text-archive-champagne hover:underline transition">
++                    Storykeeper Products
++                  </Link>
++                </li>
++                <li>
++                  <Link href="/help-for-families" className="hover:text-archive-champagne hover:underline transition">
++                    Help for Families (After Loss)
++                  </Link>
++                </li>
++              </ul>
++            </div>
++            <div>
++              <h4 className="text-archive-gold font-semibold uppercase tracking-wider mb-4">Partner Ecosystem</h4>
++              <ul className="grid gap-3">
++                <li>
++                  <Link href="/partners/funeral-homes" className="hover:text-archive-champagne hover:underline transition">
++                    Funeral Homes
++                  </Link>
++                </li>
++                <li>
++                  <Link href="/partners/cemeteries" className="hover:text-archive-champagne hover:underline transition">
++                    Cemeteries &amp; Parks
++                  </Link>
++                </li>
++                <li>
++                  <Link href="/partners/monuments" className="hover:text-archive-champagne hover:underline transition">
++                    Monument Builders
++                  </Link>
++                </li>
++                <li>
++                  <Link href="/partners/hospice" className="hover:text-archive-champagne hover:underline transition">
++                    Hospice Care Providers
++                  </Link>
++                </li>
++                <li>
++                  <Link href="/partners/estate-planners" className="hover:text-archive-champagne hover:underline transition">
++                    Estate Planners
++                  </Link>
++                </li>
++              </ul>
++            </div>
++            <div>
++              <h4 className="text-archive-gold font-semibold uppercase tracking-wider mb-4 font-serif italic">Every Legacy Begins...</h4>
++              <p className="leading-5 max-w-xs text-[11px] mb-4">
++                &ldquo;What story deserves to be remembered? What mistake taught you the most? What do you hope they remember when you are gone?&rdquo;
++              </p>
++              <p className="text-[10px] text-archive-gold/60">
++                © 2026 The Life Archive. All rights preserved.
++              </p>
++            </div>
++          </div>
++        </footer>
+       </div>
+     </main>
+   );
+diff --git a/components/RandomMemory.tsx b/components/RandomMemory.tsx
+index 23bb159..4e5cdcc 100644
+--- a/components/RandomMemory.tsx
++++ b/components/RandomMemory.tsx
+@@ -1,5 +1,6 @@
+ import Link from "next/link";
+ import { MemoryCard } from "@/components/MemoryCard";
++import { EmptyState } from "./EmptyState";
+ import type { Memory } from "@/lib/types";
+ 
+ type RandomMemoryProps = {
+@@ -15,27 +16,25 @@ export function RandomMemory({
+ }: RandomMemoryProps) {
+   if (!memory) {
+     return (
+-      <section className="rounded-lg border border-archive-ink/10 bg-white/82 p-6 shadow-soft">
+-        <h2 className="font-serif text-3xl text-archive-ink">
+-          This archive is ready for its first memory
+-        </h2>
+-        <p className="mt-3 leading-7 text-archive-ink/72">
+-          Add a story, song, photo, voice note, or lesson so each scan has
+-          something meaningful to reveal.
+-        </p>
+-        {canAddMemory ? (
+-          <Link
+-            href={`/archive/${archiveSlug}/add-memory`}
+-            className="mt-5 inline-flex rounded-full bg-archive-clay px-5 py-3 text-sm font-semibold text-white"
+-          >
+-            Add Memory
+-          </Link>
+-        ) : (
+-          <p className="mt-5 text-sm font-semibold text-archive-sage">
+-            The archive keeper will add the first memory when it is ready.
+-          </p>
+-        )}
+-      </section>
++      <EmptyState
++        eyebrow="Their story is waiting"
++        title="This archive is ready for its first memory"
++        message="Add a story, song, photo, voice note, or lesson so each scan has something meaningful to reveal."
++        action={
++          canAddMemory ? (
++            <Link
++              href={`/archive/${archiveSlug}/add-memory`}
++              className="inline-flex rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
++            >
++              Add Memory
++            </Link>
++          ) : (
++            <p className="text-sm font-semibold text-archive-gold/80 italic">
++              The archive keeper will add the first memory when it is ready.
++            </p>
++          )
++        }
++      />
+     );
+   }
+ 
+diff --git a/lib/archive-data.ts b/lib/archive-data.ts
+index bd2cbc0..8de4ef4 100644
+--- a/lib/archive-data.ts
++++ b/lib/archive-data.ts
+@@ -1,7 +1,9 @@
+ import { mkdir, readFile, writeFile } from "fs/promises";
+-import { randomUUID } from "crypto";
++import { randomBytes, randomUUID } from "crypto";
+ import path from "path";
++import { cookies } from "next/headers";
+ import { createClient } from "./supabase/server";
++import { createAdminClient } from "./supabase/admin";
+ import {
+   validateMemoryMediaUrl,
+   validateProfilePhotoUrl
+@@ -148,6 +150,42 @@ async function mapMemoryRowWithResolvedMedia(
+   };
+ }
+ 
++export async function verifyAccessLink(archiveSlug: string, token?: string | null): Promise<boolean> {
++  if (!token) return false;
++
++  try {
++    const admin = createAdminClient();
++    const { data: archive } = await admin
++      .from("archives")
++      .select("id")
++      .eq("slug", archiveSlug)
++      .maybeSingle();
++
++    if (!archive) return false;
++
++    const { data: link } = await admin
++      .from("access_links")
++      .select("id, expires_at, is_active")
++      .eq("archive_id", (archive as any).id)
++      .eq("token", token)
++      .eq("is_active", true)
++      .maybeSingle();
++
++    if (!link) return false;
++
++    const linkData = link as any;
++    if (linkData.expires_at) {
++      const isExpired = new Date(linkData.expires_at) < new Date();
++      if (isExpired) return false;
++    }
++
++    return true;
++  } catch (error) {
++    console.error("verifyAccessLink error:", error);
++    return false;
++  }
++}
++
+ const seedArchives: LifeArchive[] = [
+   {
+     id: archiveSeedIds.sariRae,
+@@ -421,8 +459,38 @@ export async function getFeaturedArchives() {
+   );
+ }
+ 
+-export async function getArchiveBySlug(slug: string) {
++export async function getArchiveBySlug(slug: string, token?: string | null) {
+   if (useSupabase) {
++    let hasAccess = false;
++    let activeToken = token;
++
++    if (!activeToken) {
++      try {
++        const cookieStore = cookies();
++        activeToken = cookieStore.get(`archive_access_${slug}`)?.value || null;
++      } catch {
++        // ignore
++      }
++    }
++
++    if (activeToken) {
++      hasAccess = await verifyAccessLink(slug, activeToken);
++    }
++
++    if (hasAccess) {
++      const admin = createAdminClient();
++      const { data, error } = await admin
++        .from("archives")
++        .select("*")
++        .eq("slug", slug)
++        .maybeSingle();
++
++      if (error) throw error;
++      if (!data) return null;
++
++      return mapArchiveRowWithResolvedPhoto(data as ArchiveRow);
++    }
++
+     const supabase = createClient();
+     const { data, error } = await supabase
+       .from("archives")
+@@ -452,13 +520,56 @@ export async function getArchiveBySlug(slug: string) {
+     : null;
+ }
+ 
+-export async function getMemoriesByArchiveSlug(slug: string) {
++export async function getMemoriesByArchiveSlug(slug: string, token?: string | null) {
+   if (useSupabase) {
++    let hasAccess = false;
++    let activeToken = token;
++
++    if (!activeToken) {
++      try {
++        const cookieStore = cookies();
++        activeToken = cookieStore.get(`archive_access_${slug}`)?.value || null;
++      } catch {
++        // ignore
++      }
++    }
++
++    if (activeToken) {
++      hasAccess = await verifyAccessLink(slug, activeToken);
++    }
++
++    if (hasAccess) {
++      const admin = createAdminClient();
++      const { data: archive } = await admin
++        .from("archives")
++        .select("id")
++        .eq("slug", slug)
++        .maybeSingle();
++
++      if (!archive) return [];
++
++      const { data, error } = await admin
++        .from("memories")
++        .select("*")
++        .eq("archive_id", (archive as any).id)
++        .is("deleted_at", null)
++        .order("memory_date", { ascending: false });
++
++      if (error) throw error;
++
++      return Promise.all(
++        data.map(async (row: MemoryRow) =>
++          mapMemoryRowWithResolvedMedia(row, slug)
++        )
++      );
++    }
++
+     const supabase = createClient();
+     const { data, error } = await supabase
+       .from("memories")
+       .select("*, archives!inner(slug)")
+       .eq("archives.slug", slug)
++      .is("deleted_at", null)
+       .order("memory_date", { ascending: false });
+ 
+     if (error) throw error;
+@@ -486,8 +597,8 @@ export async function getMemoriesByArchiveSlug(slug: string) {
+   );
+ }
+ 
+-export async function getRandomMemory(slug: string) {
+-  const archiveMemories = await getMemoriesByArchiveSlug(slug);
++export async function getRandomMemory(slug: string, token?: string | null) {
++  const archiveMemories = await getMemoriesByArchiveSlug(slug, token);
+ 
+   if (archiveMemories.length === 0) {
+     return null;
+@@ -988,3 +1099,185 @@ export async function createMemory(input: CreateMemoryInput) {
+ 
+   return memory;
+ }
++
++export async function createAccessLink(archiveSlug: string, expiresDays?: number) {
++  if (useSupabase) {
++    const supabase = createClient();
++    const {
++      data: { user },
++      error: userError,
++    } = await supabase.auth.getUser();
++
++    if (userError || !user) {
++      throw new Error("Authentication required to create access links.");
++    }
++
++    // Verify ownership
++    const { data: archive, error: archiveError } = await supabase
++      .from("archives")
++      .select("id, owner_id")
++      .eq("slug", archiveSlug)
++      .maybeSingle();
++
++    if (archiveError || !archive) {
++      throw new Error("Archive not found.");
++    }
++
++    if (archive.owner_id !== user.id) {
++      throw new Error("Only the archive owner can manage access links.");
++    }
++
++    const token = randomBytes(32).toString("hex");
++    const expiresAt = expiresDays
++      ? new Date(Date.now() + expiresDays * 24 * 60 * 60 * 1000).toISOString()
++      : null;
++
++    // Use admin client safely since permission is verified
++    const admin = createAdminClient();
++    const { data, error } = await (admin.from("access_links") as any)
++      .insert({
++        archive_id: (archive as any).id,
++        token,
++        expires_at: expiresAt,
++        created_by: user.id
++      })
++      .select()
++      .single();
++
++    if (error) throw error;
++    return data;
++  }
++
++  throw new Error("Supabase is required for access links.");
++}
++
++export async function softDeleteMemory(memoryId: string, archiveSlug: string) {
++  if (useSupabase) {
++    const supabase = createClient();
++    const {
++      data: { user },
++      error: userError,
++    } = await supabase.auth.getUser();
++
++    if (userError || !user) {
++      throw new Error("Authentication required to delete memories.");
++    }
++
++    // 1. Fetch archive and verify user has permission (Owner or Editor/Trustee)
++    const { data: archive, error: archiveError } = await supabase
++      .from("archives")
++      .select("id, owner_id")
++      .eq("slug", archiveSlug)
++      .maybeSingle();
++
++    if (archiveError || !archive) {
++      throw new Error("Archive not found.");
++    }
++
++    // Check if owner or editor/trustee member
++    const isOwner = archive.owner_id === user.id;
++    let hasEditPermission = isOwner;
++
++    if (!isOwner) {
++      const { data: membership } = await supabase
++        .from("archive_members")
++        .select("role")
++        .eq("archive_id", (archive as any).id)
++        .eq("user_id", user.id)
++        .maybeSingle();
++
++      hasEditPermission = membership?.role === "editor" || membership?.role === "trustee";
++    }
++
++    if (!hasEditPermission) {
++      throw new Error("You do not have permission to delete memories in this archive.");
++    }
++
++    // Verify memory exists inside this specific archive before updating (No arbitrary ID updates)
++    const { data: memory } = await supabase
++      .from("memories")
++      .select("id")
++      .eq("id", memoryId)
++      .eq("archive_id", (archive as any).id)
++      .maybeSingle();
++
++    if (!memory) {
++      throw new Error("Memory not found in this archive.");
++    }
++
++    // Perform soft-deletion
++    const admin = createAdminClient();
++    const { data, error } = await (admin.from("memories") as any)
++      .update({
++        deleted_at: new Date().toISOString(),
++        deleted_by: user.id
++      })
++      .eq("id", memoryId)
++      .select()
++      .single();
++
++    if (error) throw error;
++    return data;
++  }
++
++  throw new Error("Supabase is required for memory deletion.");
++}
++
++export async function restoreMemory(memoryId: string, archiveSlug: string) {
++  if (useSupabase) {
++    const supabase = createClient();
++    const {
++      data: { user },
++      error: userError,
++    } = await supabase.auth.getUser();
++
++    if (userError || !user) {
++      throw new Error("Authentication required to restore memories.");
++    }
++
++    // 1. Fetch archive and verify user has permission (Owner only for restoring!)
++    const { data: archive, error: archiveError } = await supabase
++      .from("archives")
++      .select("id, owner_id")
++      .eq("slug", archiveSlug)
++      .maybeSingle();
++
++    if (archiveError || !archive) {
++      throw new Error("Archive not found.");
++    }
++
++    // Only restore if the current user owns/admins the archive
++    const isOwner = archive.owner_id === user.id;
++    if (!isOwner) {
++      throw new Error("Only the archive owner can restore deleted memories.");
++    }
++
++    // Verify memory exists inside this specific archive before updating
++    const { data: memory } = await supabase
++      .from("memories")
++      .select("id")
++      .eq("id", memoryId)
++      .eq("archive_id", (archive as any).id)
++      .maybeSingle();
++
++    if (!memory) {
++      throw new Error("Memory not found in this archive.");
++    }
++
++    // Perform restore
++    const admin = createAdminClient();
++    const { data, error } = await (admin.from("memories") as any)
++      .update({
++        deleted_at: null,
++        deleted_by: null
++      })
++      .eq("id", memoryId)
++      .select()
++      .single();
++
++    if (error) throw error;
++    return data;
++  }
++
++  throw new Error("Supabase is required for memory restoration.");
++}
+diff --git a/lib/supabase/middleware.ts b/lib/supabase/middleware.ts
+index 2f5f004..2155129 100644
+--- a/lib/supabase/middleware.ts
++++ b/lib/supabase/middleware.ts
+@@ -33,5 +33,21 @@ export async function updateSession(request: NextRequest) {
+ 
+   await supabase.auth.getClaims();
+ 
++  // Set secure archive access cookie if a ?token parameter is detected on an archive route
++  const url = new URL(request.url);
++  const token = url.searchParams.get("token");
++  const pathParts = url.pathname.split("/").filter(Boolean);
++
++  if (token && pathParts[0] === "archive" && pathParts[1]) {
++    const slug = pathParts[1];
++    response.cookies.set(`archive_access_${slug}`, token, {
++      path: "/",
++      maxAge: 60 * 60 * 24, // 1 day session duration
++      httpOnly: true,
++      secure: process.env.NODE_ENV === "production",
++      sameSite: "lax"
++    });
++  }
++
+   return response;
+ }
+diff --git a/lib/types.ts b/lib/types.ts
+index ab51405..ee3af10 100644
+--- a/lib/types.ts
++++ b/lib/types.ts
+@@ -34,6 +34,7 @@ export type LifeArchive = {
+   memorialMode: boolean;
+   relationshipToOwner: ArchiveRelationshipToOwner;
+   createdAt: string;
++  status?: "living" | "memorial_pending" | "memorial" | "archived";
+ };
+ 
+ export type LegacyInstruction = {
+@@ -57,6 +58,9 @@ export type Memory = {
+   photoPath?: string | null;
+   date: string;
+   tags: string[];
++  deletedAt?: string | null;
++  deletedBy?: string | null;
++  sourceType?: "original" | "restored" | "enhanced" | "ai_generated";
+ };
+ 
+ export type ArchiveStore = {

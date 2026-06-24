@@ -59,8 +59,17 @@ export type Memory = {
   tags: string[];
 };
 
+export type VisitorMessage = {
+  id: string;
+  archiveSlug: string;
+  name: string;
+  message: string;
+  createdAt: string;
+};
+
 export type ArchiveStore = {
   archives: LifeArchive[];
   memories: Memory[];
   legacyInstructions: LegacyInstruction[];
+  visitorMessages?: VisitorMessage[];
 };

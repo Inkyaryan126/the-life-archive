@@ -30,7 +30,8 @@ import type {
   LegacyInstruction,
   LegacyInstructionAccessLevel,
   Memory,
-  MemoryType
+  MemoryType,
+  VisitorMessage
 } from "./types";
 
 const storePath = path.join(process.cwd(), "data", "life-archive.json");
@@ -987,4 +988,163 @@ export async function createMemory(input: CreateMemoryInput) {
   await writeStore(store);
 
   return memory;
+}
+
+export async function getVisitorMessages(archiveSlug: string): Promise<VisitorMessage[]> {
+  if (useSupabase) {
+    const supabase = createClient();
+    const { data: archive } = await supabase
+      .from("archives")
+      .select("id")
+      .eq("slug", archiveSlug)
+      .maybeSingle();
+
+    if (!archive) return [];
+
+    const { data, error } = await supabase
+      .from("visitor_messages")
+      .select("*")
+      .eq("archive_id", (archive as any).id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return (data || []).map((row: any) => ({
+      id: row.id,
+      archiveSlug,
+      name: row.name,
+      message: row.message,
+      createdAt: row.created_at
+    }));
+  }
+
+  const store = await readStore();
+  if (!store.visitorMessages) {
+    store.visitorMessages = [];
+  }
+  return store.visitorMessages.filter((m) => m.archiveSlug === archiveSlug);
+}
+
+export async function createVisitorMessage(
+  archiveSlug: string,
+  name: string,
+  message: string
+): Promise<VisitorMessage> {
+  const trimmedName = name.trim();
+  const trimmedMessage = message.trim();
+
+  if (!trimmedName || !trimmedMessage) {
+    throw new Error("Name and message are required.");
+  }
+
+  if (useSupabase) {
+    const supabase = createClient();
+    const { data: archive } = await supabase
+      .from("archives")
+      .select("id")
+      .eq("slug", archiveSlug)
+      .maybeSingle();
+
+    if (!archive) {
+      throw new Error("Archive not found.");
+    }
+
+    const { data, error } = await supabase
+      .from("visitor_messages")
+      .insert({
+        archive_id: (archive as any).id,
+        name: trimmedName,
+        message: trimmedMessage
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return {
+      id: data.id,
+      archiveSlug,
+      name: data.name,
+      message: data.message,
+      createdAt: data.created_at
+    };
+  }
+
+  const store = await readStore();
+  if (!store.visitorMessages) {
+    store.visitorMessages = [];
+  }
+
+  const newMessage: VisitorMessage = {
+    id: randomUUID(),
+    archiveSlug,
+    name: trimmedName,
+    message: trimmedMessage,
+    createdAt: new Date().toISOString()
+  };
+
+  store.visitorMessages.unshift(newMessage);
+  await writeStore(store);
+
+  return newMessage;
+}
+
+export async function deleteVisitorMessage(messageId: string): Promise<boolean> {
+  if (useSupabase) {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("visitor_messages")
+      .delete()
+      .eq("id", messageId);
+
+    if (error) throw error;
+    return true;
+  }
+
+  const store = await readStore();
+  if (store.visitorMessages) {
+    store.visitorMessages = store.visitorMessages.filter((m) => m.id !== messageId);
+    await writeStore(store);
+  }
+  return true;
+}
+
+export async function updateArchive(
+  slug: string,
+  updates: { personName: string; archiveName: string; bio: string; visibility: ArchiveVisibility }
+) {
+  if (useSupabase) {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("archives")
+      .update({
+        person_name: updates.personName,
+        archive_name: updates.archiveName,
+        bio: updates.bio,
+        visibility: updates.visibility
+      })
+      .eq("slug", slug)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return mapArchiveRowWithResolvedPhoto(data as ArchiveRow);
+  }
+
+  const store = await readStore();
+  const archiveIndex = store.archives.findIndex((a) => a.slug === slug);
+  if (archiveIndex < 0) {
+    throw new Error("Archive not found.");
+  }
+
+  store.archives[archiveIndex] = {
+    ...store.archives[archiveIndex],
+    personName: updates.personName,
+    archiveName: updates.archiveName,
+    bio: updates.bio,
+    visibility: updates.visibility
+  };
+
+  await writeStore(store);
+  return store.archives[archiveIndex];
 }
