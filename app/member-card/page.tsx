@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { createHash } from "crypto";
 import { headers } from "next/headers";
 import { MemberCard } from "@/components/MemberCard";
 import { MemberCardActions } from "@/components/MemberCardActions";
@@ -72,6 +73,12 @@ export default async function MemberCardPage({
     .replace(/[._-]+/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
   const memberName = account.defaultArchive?.personName ?? emailName;
+  const archiveId = (account.defaultArchive as any)?.id || user.id;
+  const hash = createHash("sha256").update(archiveId).digest("hex").toUpperCase();
+  const accessCode = `${hash.slice(0, 4)}-${hash.slice(4, 8)}`;
+  const createdYear = account.defaultArchive
+    ? new Date(account.defaultArchive.createdAt).getFullYear()
+    : new Date().getFullYear();
 
   return (
     <main className="member-card-page relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
@@ -138,6 +145,8 @@ export default async function MemberCardPage({
           hasArchive={hasArchive}
           memberName={memberName}
           qrSrc={svgToDataUri(qrSvg)}
+          accessCode={accessCode}
+          createdYear={createdYear}
         />
       </div>
 
