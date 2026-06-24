@@ -81,7 +81,7 @@ export default async function HomePage() {
         <nav className="sticky top-0 z-50 mx-auto w-full border-b border-archive-gold/10 bg-archive-obsidian/45 backdrop-blur-md px-5 py-5 sm:px-8">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <Link href="/" className="transition opacity-90 hover:opacity-100">
-              <SiteLogo width={160} height={40} />
+              <SiteLogo width={320} height={90} />
             </Link>
             <div className="flex items-center gap-4">
               <Link
@@ -300,7 +300,7 @@ export default async function HomePage() {
         <footer className="relative z-10 border-t border-archive-gold/20 bg-archive-obsidian/40 backdrop-blur-md mt-auto py-16 text-xs text-archive-ivory/60">
           <div className="mx-auto max-w-7xl px-5 sm:px-8 grid gap-8 md:grid-cols-4">
             <div>
-              <SiteLogo width={120} height={30} className="mb-4 opacity-80" />
+              <SiteLogo width={280} height={85} className="mb-6 opacity-95" />
               <p className="leading-6 max-w-xs text-[11px]">
                 The Life Archive is a quiet, permanent digital sanctuary helping you intentionally decide what survives you. Preserve your voice, identity, and life lessons for generations to come.
               </p>
