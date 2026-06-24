@@ -84,6 +84,12 @@ export default async function HomePage() {
               <SiteLogo width={160} height={40} />
             </Link>
             <div className="flex items-center gap-4">
+              <Link
+                href="/keepsakes"
+                className="text-xs font-semibold uppercase tracking-wider text-archive-ivory/80 transition hover:text-archive-gold"
+              >
+                Keepsakes
+              </Link>
               {isSignedIn && (
                 <Link
                   href="/member-card"
@@ -207,6 +213,51 @@ export default async function HomePage() {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Keepsakes Copy Block Section */}
+        <section className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 border-t border-archive-gold/15">
+          <div className="grid gap-10 lg:grid-cols-2 items-center">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                PHYSICAL STORYKEEPER KEEPSAKES
+              </p>
+              <h2 className="mt-3 font-serif text-3xl text-archive-ivory sm:text-4xl">
+                Physical Keepsakes That Carry Their Story
+              </h2>
+              <p className="mt-5 text-sm leading-7 text-archive-ivory/65">
+                Every Life Archive includes a free QR code. Print it, share it, or keep it with your records. When you are ready, that same QR can be placed on premium keepsakes — wallet cards, dog tags, keychains, pendants, plaques, urn tags, and more.
+              </p>
+              <p className="mt-4 font-serif text-base text-archive-gold italic">
+                &ldquo;The archive is the digital home. The keepsake is the physical key.&rdquo;
+              </p>
+              <div className="mt-6">
+                <Link
+                  href="/keepsakes"
+                  className="rounded-full bg-archive-gold px-6 py-3 text-xs font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne inline-flex"
+                >
+                  View Keepsakes Collection
+                </Link>
+              </div>
+            </div>
+            <div className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.025] p-8 shadow-luxury">
+              <h3 className="font-serif text-xl text-archive-gold mb-3">Premium Physical Artifacts</h3>
+              <ul className="grid gap-4 text-xs text-archive-ivory/70 leading-relaxed">
+                <li>
+                  <strong className="text-archive-ivory block mb-1">• Carry Close: Wallet Cards &amp; Keychains</strong>
+                  Keep their laughter, photos, and instructions in your pocket or alongside daily keys.
+                </li>
+                <li>
+                  <strong className="text-archive-ivory block mb-1">• Wear Deep: Necklaces &amp; Dog Tags</strong>
+                  Elegant pendants and rugged stainless steel tags designed to carry memory with physical presence.
+                </li>
+                <li>
+                  <strong className="text-archive-ivory block mb-1">• Anchor Permanently: Plaques &amp; Urns</strong>
+                  Beautiful weather-proof metal qr plates to mount on headstones, columbaria, or framed family frames.
+                </li>
+              </ul>
+            </div>
           </div>
         </section>
 

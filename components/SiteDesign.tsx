@@ -27,11 +27,34 @@ function imageClassName(base: string, className?: string) {
 }
 
 export function SiteLogo({ className, width = 200, height = 50 }: { className?: string, width?: number, height?: number }) {
-  return <Image src="/images/site-design/tree-logo.png" alt="The Life Archive" width={width} height={height} className={className} />;
+  const markSize = Math.min(width, height);
+  const wordmarkSize = Math.max(13, Math.min(22, height * 0.42));
+
+  return (
+    <span
+      className={imageClassName("inline-flex items-center gap-3", className)}
+      style={{ minHeight: height }}
+    >
+      <Image
+        src="/images/site-design/book-logo.png"
+        alt="The Life Archive book logo"
+        width={markSize}
+        height={markSize}
+        className="h-auto shrink-0"
+        priority={height >= 40}
+      />
+      <span
+        className="font-serif leading-none tracking-normal text-archive-ivory"
+        style={{ fontSize: wordmarkSize }}
+      >
+        The Life Archive
+      </span>
+    </span>
+  );
 }
 
-export function TreeBookLogo({ className, width = 60, height = 60 }: { className?: string, width?: number, height?: number }) {
-  return <Image src="/images/site-design/treebook-logo.png" alt="Treebook" width={width} height={height} className={className} />;
+export function BookLogo({ className, width = 60, height = 60 }: { className?: string, width?: number, height?: number }) {
+  return <Image src="/images/site-design/book-logo.png" alt="The Life Archive book logo" width={width} height={height} className={className} />;
 }
 
 export function Monogram({ className, width = 40, height = 40 }: { className?: string, width?: number, height?: number }) {

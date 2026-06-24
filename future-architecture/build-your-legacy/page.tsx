@@ -26,7 +26,7 @@ const legacyPillars = [
   },
   {
     title: "Family History",
-    description: "Map out the roots, old photographs, and oral histories of ancestors, along with those cherished secrets like the heirloom family recipe.",
+    description: "Gather old photographs, oral histories, and ancestor records, along with cherished details like the heirloom family recipe.",
     prompt: "Where did your family's journey in this country begin?"
   },
   {

@@ -47,7 +47,7 @@ export default function MonumentsPartnerPage() {
         },
         {
           title: "Sculpted Monogram Elements",
-          description: "Create unique decorative stone elements representing our tree emblem, acting as an elegant visual clue that the monument has a digital story."
+          description: "Create unique decorative stone elements representing a Life Archive record, acting as an elegant visual clue that the monument has a digital story."
         }
       ]}
       lastingValue="Granite preserves names; stories preserve lives. By partnering with The Life Archive, monument builders offer families an everlasting bridge between physical stone and the living spirit of the person they cherish."

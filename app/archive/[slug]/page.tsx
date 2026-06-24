@@ -242,6 +242,25 @@ export default async function ArchivePage({
               </p>
             </div>
             <QRPreview archiveSlug={archive.slug} />
+
+            {/* Keepsake Upsell Sidebar Card */}
+            <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold mb-2">
+                STORYKEEPER KEEPSAKE
+              </p>
+              <h4 className="font-serif text-lg text-archive-ivory leading-snug">
+                Carry This Story Anywhere
+              </h4>
+              <p className="mt-2 text-xs leading-5 text-archive-ivory/60">
+                Turn this digital sanctuary into a physical wallet card, keychain, pendant, or brass plaque. Hand-finished keys of remembrance.
+              </p>
+              <Link
+                href="/keepsakes"
+                className="mt-4 block w-full text-center rounded-full bg-archive-gold/10 border border-archive-gold/25 py-2 text-xs font-bold text-archive-gold hover:bg-archive-gold hover:text-archive-obsidian transition"
+              >
+                Explore Keepsakes
+              </Link>
+            </div>
           </aside>
         </section>
 

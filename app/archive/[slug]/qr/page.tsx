@@ -100,6 +100,27 @@ export default async function QRPage({ params }: QRPageProps) {
           </div>
         </section>
 
+        {/* Keepsake Upsell Block */}
+        <section className="no-print mt-8 rounded-lg border border-archive-gold/22 bg-archive-obsidian p-6 text-archive-ivory shadow-soft">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
+            Storykeeper Keepsakes
+          </p>
+          <h3 className="mt-2 font-serif text-2xl text-archive-ivory">
+            Turn this archive into a physical keepsake.
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-archive-ivory/70">
+            Download your QR for free, or order a premium keychain, card, pendant, plaque, or tag connected to this archive.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              href="/keepsakes"
+              className="rounded-full bg-archive-gold px-5 py-2.5 text-xs font-bold text-archive-obsidian shadow transition hover:bg-archive-champagne"
+            >
+              View Keepsakes Portfolio
+            </Link>
+          </div>
+        </section>
+
         <section className="qr-print-card mt-10 rounded-lg border border-archive-ink/10 bg-white p-8 text-center shadow-soft">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-clay">
             The Life Archive Home

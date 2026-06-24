@@ -1,5 +1,5 @@
 import React from "react";
-import { TreeBookLogo } from "./SiteDesign";
+import { BookLogo } from "./SiteDesign";
 
 type EmptyStateProps = {
   eyebrow?: string;
@@ -16,7 +16,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center text-center rounded-[2rem] border border-archive-gold/22 bg-archive-obsidian p-8 sm:p-10 shadow-luxury max-w-2xl mx-auto my-6">
-      <TreeBookLogo width={64} height={64} className="mb-6 opacity-90" />
+      <BookLogo width={64} height={64} className="mb-6 opacity-90" />
       {eyebrow && (
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold mb-3">
           {eyebrow}

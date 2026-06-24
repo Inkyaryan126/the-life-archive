@@ -523,6 +523,12 @@ export default async function DashboardPage({
         </Link>
         <div className="flex items-center gap-4">
           <Link
+            href="/keepsakes"
+            className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
+          >
+            Keepsakes
+          </Link>
+          <Link
             href="/member-card"
             className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
           >
