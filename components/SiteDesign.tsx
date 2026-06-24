@@ -28,7 +28,7 @@ function imageClassName(base: string, className?: string) {
 
 export function SiteLogo({ className, width = 200, height = 50 }: { className?: string, width?: number, height?: number }) {
   const markSize = Math.min(width, height);
-  const wordmarkSize = Math.max(13, Math.min(22, height * 0.42));
+  const wordmarkSize = Math.max(14, Math.min(42, height * 0.42));
 
   return (
     <span

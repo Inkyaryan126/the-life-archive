@@ -81,7 +81,7 @@ export default async function HomePage() {
         <nav className="sticky top-0 z-50 mx-auto w-full border-b border-archive-gold/10 bg-archive-obsidian/45 backdrop-blur-md px-5 py-5 sm:px-8">
           <div className="mx-auto flex max-w-7xl items-center justify-between">
             <Link href="/" className="transition opacity-90 hover:opacity-100">
-              <SiteLogo width={320} height={90} />
+              <SiteLogo width={420} height={120} />
             </Link>
             <div className="flex items-center gap-4">
               <Link
@@ -100,7 +100,7 @@ export default async function HomePage() {
               )}
               <Link
                 href={primaryHref}
-                className="rounded-full border border-archive-gold/40 px-5 py-2 text-xs font-semibold uppercase tracking-wider text-archive-ivory transition hover:border-archive-gold hover:bg-white/5"
+                className="rounded-full border border-archive-gold/40 px-5 py-2 text-xs font-semibold uppercase tracking-wider text-archive-ivory transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:border-archive-gold hover:bg-white/5"
               >
                 {primaryLabel}
               </Link>
@@ -109,13 +109,13 @@ export default async function HomePage() {
         </nav>
 
         {/* Hero Section */}
-        <header className="flex items-center px-5 py-16 sm:px-8 sm:py-24">
+        <header className="flex items-center px-5 py-20 sm:px-8 sm:py-28">
           <div className="mx-auto w-full max-w-7xl">
             <div className="max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-archive-gold/90">
                 What will they remember of you?
               </p>
-              <h1 className="mt-5 font-serif text-5xl leading-tight sm:text-7xl text-archive-ivory">
+              <h1 className="mt-5 font-serif text-5xl leading-tight sm:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-archive-ivory via-archive-champagne to-archive-gold/90">
                 The Life Archive
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-archive-ivory/74 font-serif italic">
@@ -127,13 +127,13 @@ export default async function HomePage() {
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link
                   href={primaryHref}
-                  className="rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+                  className="rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:bg-archive-champagne hover:shadow-lg hover:shadow-archive-gold/10"
                 >
                   {primaryLabel}
                 </Link>
                 <Link
                   href="/archive/sari-rae"
-                  className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-8 py-4 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                  className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-8 py-4 text-sm font-semibold text-archive-ivory transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:border-archive-gold hover:bg-white/[0.08]"
                 >
                   Explore Sari Rae&apos;s Legacy →
                 </Link>
@@ -143,10 +143,10 @@ export default async function HomePage() {
         </header>
 
         {/* The Keepsake Experience Section */}
-        <section className="mx-auto w-full max-w-7xl px-5 py-12 sm:px-8 border-t border-archive-gold/15">
+        <section className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 border-t border-archive-gold/15">
           <div className="grid gap-10 lg:grid-cols-2 items-center">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
                 THE KEEPSAKE EXPERIENCE
               </p>
               <h2 className="mt-3 font-serif text-3xl text-archive-ivory sm:text-4xl">
@@ -159,20 +159,29 @@ export default async function HomePage() {
                 Suddenly, static keepsakes are filled with life: hear your mother&apos;s comforting advice, listen to your grandfather&apos;s actual childhood stories, play their favorite cookout soundtrack, or read hand-written letters. You are not just reading dates carved in stone—you are stepping back into their warmth.
               </p>
             </div>
-            <div className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.02] p-8 shadow-luxury relative overflow-hidden">
+            <div className="rounded-[2rem] border border-archive-gold/15 bg-gradient-to-b from-white/[0.03] to-transparent p-8 shadow-luxury relative overflow-hidden backdrop-blur-[2px]">
               <div className="absolute top-0 right-0 w-24 h-24 bg-archive-gold/5 blur-3xl rounded-full" />
-              <h3 className="font-serif text-xl text-archive-gold mb-3">Why Families Build Archives</h3>
-              <ul className="grid gap-3 text-xs text-archive-ivory/70 leading-relaxed">
+              <h3 className="font-serif text-xl text-archive-gold mb-4">Why Families Build Archives</h3>
+              <ul className="grid gap-4 text-xs text-archive-ivory/70 leading-relaxed">
                 <li>
-                  <strong className="text-archive-ivory block mb-1">• The Voice is Forgotten First</strong>
+                  <strong className="text-archive-ivory block mb-1">
+                    <span className="text-archive-gold/90 mr-2 font-sans select-none">◆</span>
+                    The Voice is Forgotten First
+                  </strong>
                   Voice notes bring back presence and laughter more immediately than any silent photograph.
                 </li>
                 <li>
-                  <strong className="text-archive-ivory block mb-1">• Intimacy Over Exposure</strong>
+                  <strong className="text-archive-ivory block mb-1">
+                    <span className="text-archive-gold/90 mr-2 font-sans select-none">◆</span>
+                    Intimacy Over Exposure
+                  </strong>
                   A quiet space with absolute RLS-gated privacy. No ads, no likes, no public feeds. Just your legacy, safe.
                 </li>
                 <li>
-                  <strong className="text-archive-ivory block mb-1">• Guide Future Generations</strong>
+                  <strong className="text-archive-ivory block mb-1">
+                    <span className="text-archive-gold/90 mr-2 font-sans select-none">◆</span>
+                    Guide Future Generations
+                  </strong>
                   Pass down a tangible keepsake card so descendants a century from now can hear your voice and know your values.
                 </li>
               </ul>
@@ -181,9 +190,9 @@ export default async function HomePage() {
         </section>
 
         {/* How It Works Section */}
-        <section className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 border-t border-archive-gold/15">
+        <section className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 border-t border-archive-gold/15">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
               THE PRESERVATION PROCESS
             </p>
             <h2 className="mt-3 font-serif text-3xl sm:text-4xl text-archive-ivory">
@@ -198,10 +207,10 @@ export default async function HomePage() {
             {steps.map((step) => (
               <div
                 key={step.num}
-                className="rounded-2xl border border-archive-gold/14 bg-white/[0.015] p-6 transition hover:border-archive-gold/30 hover:bg-white/[0.03] flex flex-col justify-between"
+                className="group rounded-2xl border border-archive-gold/10 bg-white/[0.01] p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-archive-gold/30 hover:bg-white/[0.03] hover:shadow-lg hover:shadow-archive-gold/5 flex flex-col justify-between"
               >
                 <div>
-                  <span className="font-serif text-3xl text-archive-gold/30 font-bold block mb-4">
+                  <span className="font-serif text-3xl text-archive-gold/20 font-bold block mb-4 transition-colors duration-300 group-hover:text-archive-gold/40">
                     {step.num}
                   </span>
                   <h3 className="font-serif text-lg text-archive-champagne mb-2">
@@ -217,10 +226,10 @@ export default async function HomePage() {
         </section>
 
         {/* Keepsakes Copy Block Section */}
-        <section className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 border-t border-archive-gold/15">
+        <section className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 border-t border-archive-gold/15">
           <div className="grid gap-10 lg:grid-cols-2 items-center">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
                 PHYSICAL STORYKEEPER KEEPSAKES
               </p>
               <h2 className="mt-3 font-serif text-3xl text-archive-ivory sm:text-4xl">
@@ -235,25 +244,35 @@ export default async function HomePage() {
               <div className="mt-6">
                 <Link
                   href="/keepsakes"
-                  className="rounded-full bg-archive-gold px-6 py-3 text-xs font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne inline-flex"
+                  className="rounded-full bg-archive-gold px-6 py-3 text-xs font-bold text-archive-obsidian shadow-luxury transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:bg-archive-champagne hover:shadow-lg hover:shadow-archive-gold/10 inline-flex"
                 >
                   View Keepsakes Collection
                 </Link>
               </div>
             </div>
-            <div className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.025] p-8 shadow-luxury">
-              <h3 className="font-serif text-xl text-archive-gold mb-3">Premium Physical Artifacts</h3>
+            <div className="rounded-[2rem] border border-archive-gold/15 bg-gradient-to-b from-white/[0.03] to-transparent p-8 shadow-luxury relative overflow-hidden backdrop-blur-[2px]">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-archive-gold/5 blur-3xl rounded-full" />
+              <h3 className="font-serif text-xl text-archive-gold mb-4">Premium Physical Artifacts</h3>
               <ul className="grid gap-4 text-xs text-archive-ivory/70 leading-relaxed">
                 <li>
-                  <strong className="text-archive-ivory block mb-1">• Carry Close: Wallet Cards &amp; Keychains</strong>
+                  <strong className="text-archive-ivory block mb-1">
+                    <span className="text-archive-gold/90 mr-2 font-sans select-none">◆</span>
+                    Carry Close: Wallet Cards &amp; Keychains
+                  </strong>
                   Keep their laughter, photos, and instructions in your pocket or alongside daily keys.
                 </li>
                 <li>
-                  <strong className="text-archive-ivory block mb-1">• Wear Deep: Necklaces &amp; Dog Tags</strong>
+                  <strong className="text-archive-ivory block mb-1">
+                    <span className="text-archive-gold/90 mr-2 font-sans select-none">◆</span>
+                    Wear Deep: Necklaces &amp; Dog Tags
+                  </strong>
                   Elegant pendants and rugged stainless steel tags designed to carry memory with physical presence.
                 </li>
                 <li>
-                  <strong className="text-archive-ivory block mb-1">• Anchor Permanently: Plaques &amp; Urns</strong>
+                  <strong className="text-archive-ivory block mb-1">
+                    <span className="text-archive-gold/90 mr-2 font-sans select-none">◆</span>
+                    Anchor Permanently: Plaques &amp; Urns
+                  </strong>
                   Beautiful weather-proof metal qr plates to mount on headstones, columbaria, or framed family frames.
                 </li>
               </ul>
@@ -262,9 +281,9 @@ export default async function HomePage() {
         </section>
 
         {/* Category Cards Section */}
-        <section className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 border-t border-archive-gold/15">
+        <section className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 border-t border-archive-gold/15">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
               ORGANIZED HERITAGE
             </p>
             <h2 className="mt-3 font-serif text-3xl sm:text-4xl text-archive-ivory">
@@ -300,7 +319,7 @@ export default async function HomePage() {
         <footer className="relative z-10 border-t border-archive-gold/20 bg-archive-obsidian/40 backdrop-blur-md mt-auto py-16 text-xs text-archive-ivory/60">
           <div className="mx-auto max-w-7xl px-5 sm:px-8 grid gap-8 md:grid-cols-4">
             <div>
-              <SiteLogo width={280} height={85} className="mb-6 opacity-95" />
+              <SiteLogo width={360} height={110} className="mb-8 opacity-100" />
               <p className="leading-6 max-w-xs text-[11px]">
                 The Life Archive is a quiet, permanent digital sanctuary helping you intentionally decide what survives you. Preserve your voice, identity, and life lessons for generations to come.
               </p>
