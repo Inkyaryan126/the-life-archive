@@ -145,30 +145,30 @@ export function Guestbook({ archiveSlug, initialMessages, isOwner }: GuestbookPr
             )}
 
             <label className="grid gap-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wider text-archive-ivory/70">
-                Your Name
+              <span className="text-xs font-semibold uppercase tracking-wider text-archive-gold">
+                Your Name / Relationship
               </span>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Jane Doe"
+                placeholder="Jane Doe (Grandchild, Sister, Lifelong Friend)"
                 disabled={loading}
                 className="rounded-lg border border-archive-gold/20 bg-white/[0.03] px-3.5 py-2 text-xs text-archive-ivory outline-none placeholder-archive-ivory/30 focus:border-archive-gold"
               />
             </label>
 
             <label className="grid gap-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wider text-archive-ivory/70">
-                Tribute Message
+              <span className="text-xs font-semibold uppercase tracking-wider text-archive-gold">
+                Share a Tribute or Story
               </span>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Write your remembrance..."
-                rows={4}
+                placeholder="What story deserves to be remembered? Share a special moment, a piece of advice they gave you, or how they made you laugh..."
+                rows={5}
                 disabled={loading}
-                className="rounded-lg border border-archive-gold/20 bg-white/[0.03] px-3.5 py-2.5 text-xs text-archive-ivory outline-none placeholder-archive-ivory/30 focus:border-archive-gold resize-none"
+                className="rounded-lg border border-archive-gold/20 bg-white/[0.03] px-3.5 py-2.5 text-xs text-archive-ivory outline-none placeholder-archive-ivory/30 focus:border-archive-gold resize-none leading-relaxed"
               />
             </label>
 

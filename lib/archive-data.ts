@@ -1012,7 +1012,7 @@ export async function getVisitorMessages(archiveSlug: string): Promise<VisitorMe
     return (data || []).map((row: any) => ({
       id: row.id,
       archiveSlug,
-      name: row.name,
+      name: row.visitor_name,
       message: row.message,
       createdAt: row.created_at
     }));
@@ -1053,7 +1053,7 @@ export async function createVisitorMessage(
       .from("visitor_messages")
       .insert({
         archive_id: (archive as any).id,
-        name: trimmedName,
+        visitor_name: trimmedName,
         message: trimmedMessage
       })
       .select()
@@ -1064,7 +1064,7 @@ export async function createVisitorMessage(
     return {
       id: data.id,
       archiveSlug,
-      name: data.name,
+      name: data.visitor_name,
       message: data.message,
       createdAt: data.created_at
     };

@@ -3,10 +3,10 @@
 create table if not exists public.visitor_messages (
   id uuid primary key default gen_random_uuid(),
   archive_id uuid not null references public.archives(id) on delete cascade,
-  name text not null,
+  visitor_name text not null,
   message text not null,
   created_at timestamptz not null default now(),
-  constraint visitor_messages_name_check check (nullif(btrim(name), '') is not null),
+  constraint visitor_messages_visitor_name_check check (nullif(btrim(visitor_name), '') is not null),
   constraint visitor_messages_message_check check (nullif(btrim(message), '') is not null)
 );
 

@@ -110,6 +110,38 @@ export default async function ArchivePage({
           </div>
         </nav>
 
+        {/* Storykeeper Administration Control Bar */}
+        {isOwner ? (
+          <div className="mb-6 rounded-2xl border border-archive-gold/25 bg-archive-gold/5 p-4 flex flex-wrap items-center justify-between gap-4 text-xs relative z-20">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-archive-gold animate-pulse" />
+              <span className="font-semibold uppercase tracking-wider text-archive-gold">
+                Storykeeper Custody Active
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={`/archive/${archive.slug}/edit`}
+                className="rounded-full bg-archive-gold px-4 py-2 font-bold text-archive-obsidian shadow transition hover:bg-archive-champagne"
+              >
+                Configure Keepsake Details
+              </Link>
+              <Link
+                href={`/archive/${archive.slug}/add-memory`}
+                className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2 font-semibold text-archive-ivory transition hover:bg-white/10"
+              >
+                Add a Chapter
+              </Link>
+              <Link
+                href={`/archive/${archive.slug}/legacy-instructions`}
+                className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2 font-semibold text-archive-ivory transition hover:bg-white/10"
+              >
+                Legacy Notes
+              </Link>
+            </div>
+          </div>
+        ) : null}
+
         <section className="grid gap-8 py-12 lg:grid-cols-[1fr_360px] lg:items-start">
           <div className="overflow-hidden rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] shadow-luxury">
             <div className="relative aspect-[16/10] sm:aspect-[16/7]">
@@ -147,62 +179,51 @@ export default async function ArchivePage({
                   message="The first chapter is ready. Add a chapter whenever you are ready to begin the story."
                 />
               ) : null}
-              <p className="max-w-3xl text-lg leading-8 text-archive-ivory/74">
-                {archive.bio}
-              </p>
-              <p className="mt-4 max-w-3xl text-sm leading-6 text-archive-ivory/60">
+
+              {/* Elegant Heritage Seal */}
+              <div className="mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-archive-gold">
+                <span className="h-1.5 w-1.5 rounded-full bg-archive-gold animate-pulse" />
+                <span>Digitally Preserved Sanctuary</span>
+              </div>
+
+              {/* Beautiful drop-cap Biography */}
+              <div className="border-t border-archive-gold/15 pt-6 mt-4">
+                <p className="max-w-3xl font-serif text-lg leading-9 text-archive-ivory/80 whitespace-pre-line first-letter:text-5xl first-letter:font-bold first-letter:text-archive-gold first-letter:float-left first-letter:mr-3 first-letter:mt-1">
+                  {archive.bio}
+                </p>
+              </div>
+
+              <p className="mt-6 max-w-3xl text-xs leading-6 text-archive-ivory/50 italic border-t border-white/5 pt-4">
                 {archive.visibility === "public"
-                  ? "This is a public space. Anyone can view it, and it may appear on The Life Archive homepage."
-                  : "This is a private space. Only the story owners and authorized family can view it."}
+                  ? "This is a public keepsake archive. Anyone with this link or scanning the physical QR can view and leave a tribute."
+                  : "This is a private keepsake archive. Only authorized family and friends can access this digital sanctuary."}
               </p>
-              <div className="mt-7 flex flex-wrap gap-3">
+
+              {/* Clean Visitor Button Links (Owner actions streamlined into header drawer) */}
+              <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href={`/archive/${archive.slug}/random`}
-                  className="rounded-full bg-archive-gold px-5 py-3 text-sm font-semibold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+                  className="rounded-full bg-archive-gold px-6 py-3.5 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
                 >
                   Reveal a Memory
                 </Link>
                 <Link
                   href={`/archive/${archive.slug}/memories`}
-                  className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                  className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
                 >
                   Browse Memory Chapters
                 </Link>
-                {isOwner ? (
-                  <>
-                    <Link
-                      href={`/archive/${archive.slug}/add-memory`}
-                      className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
-                    >
-                      Add a Chapter
-                    </Link>
-                    <Link
-                      href={`/archive/${archive.slug}/edit`}
-                      className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-gold transition hover:border-archive-gold hover:bg-white/[0.08]"
-                    >
-                      Edit Keepsake
-                    </Link>
-                  </>
-                ) : null}
                 <Link
                   href={`/archive/${archive.slug}/qr`}
-                  className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                  className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
                 >
                   Share Their Story
                 </Link>
-                {isOwner ? (
-                  <Link
-                    href={`/archive/${archive.slug}/legacy-instructions`}
-                    className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
-                  >
-                    Legacy Notes
-                  </Link>
-                ) : null}
               </div>
+
               {memories.length === 0 ? (
-                <div className="mt-7 rounded-md border border-archive-gold/18 bg-archive-obsidian/40 px-4 py-3 text-sm leading-6 text-archive-ivory/68">
-                  Their story is ready for its first chapter. Add a chapter to
-                  begin bringing it to life.
+                <div className="mt-8 rounded-2xl border border-archive-gold/18 bg-archive-obsidian/40 px-5 py-4 text-sm leading-7 text-archive-ivory/68">
+                  Their story is ready for its first chapter. Add a photo, song, voice note, or lesson to begin bringing it to life.
                 </div>
               ) : null}
             </div>

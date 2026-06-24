@@ -539,7 +539,7 @@ export default async function DashboardPage({
         </div>
       </nav>
 
-      <div className="relative mx-auto max-w-7xl pb-20 pt-10 sm:pt-14">
+      <div className="relative z-10 mx-auto max-w-7xl pb-20 pt-10 sm:pt-14">
         {searchParams?.welcome === "back" ? (
           <SuccessMessage
             eyebrow="Welcome back"
@@ -825,7 +825,7 @@ export default async function DashboardPage({
                             action.label === "Share Archive" ? 170 : 366,
                           height:
                             action.label === "Share Archive" ? 214 : 136,
-                          className: "hidden md:block xl:hidden"
+                          className: "hidden md:max-xl:block"
                         },
                         {
                           src: image.desktop,
