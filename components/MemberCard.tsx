@@ -110,14 +110,14 @@ export function MemberCard({
           className="object-cover"
         />
 
-        {/* Dynamic Name Cover Panel (Hides the green box) */}
+        {/* Dynamic Name Cover Panel (Hides the green box - Inflated 4px to cover subpixels) */}
         <div
           className="absolute bg-archive-obsidian"
           style={{
-            left: asPercent(NAME_X, FRONT_WIDTH),
-            top: asPercent(NAME_Y, FRONT_HEIGHT),
-            width: asPercent(NAME_WIDTH, FRONT_WIDTH),
-            height: asPercent(NAME_HEIGHT, FRONT_HEIGHT)
+            left: asPercent(NAME_X - 4, FRONT_WIDTH),
+            top: asPercent(NAME_Y - 4, FRONT_HEIGHT),
+            width: asPercent(NAME_WIDTH + 8, FRONT_WIDTH),
+            height: asPercent(NAME_HEIGHT + 8, FRONT_HEIGHT)
           }}
         />
 
@@ -126,10 +126,10 @@ export function MemberCard({
           ref={nameBoxRef}
           className="absolute flex items-center justify-center overflow-hidden px-[2.5%] text-center"
           style={{
-            left: asPercent(NAME_X, FRONT_WIDTH),
-            top: asPercent(NAME_Y, FRONT_HEIGHT),
-            width: asPercent(NAME_WIDTH, FRONT_WIDTH),
-            height: asPercent(NAME_HEIGHT, FRONT_HEIGHT)
+            left: asPercent(NAME_X - 4, FRONT_WIDTH),
+            top: asPercent(NAME_Y - 4, FRONT_HEIGHT),
+            width: asPercent(NAME_WIDTH + 8, FRONT_WIDTH),
+            height: asPercent(NAME_HEIGHT + 8, FRONT_HEIGHT)
           }}
           aria-label={`Member name: ${memberName}`}
         >
@@ -142,14 +142,14 @@ export function MemberCard({
           </span>
         </div>
 
-        {/* Dynamic Member Since Year Cover Panel (Hides the green box) */}
+        {/* Dynamic Member Since Year Cover Panel (Hides the green box - Inflated 4px to cover subpixels) */}
         <div
           className="absolute bg-archive-obsidian"
           style={{
-            left: asPercent(YEAR_X, FRONT_WIDTH),
-            top: asPercent(YEAR_Y, FRONT_HEIGHT),
-            width: asPercent(YEAR_WIDTH, FRONT_WIDTH),
-            height: asPercent(YEAR_HEIGHT, FRONT_HEIGHT)
+            left: asPercent(YEAR_X - 4, FRONT_WIDTH),
+            top: asPercent(YEAR_Y - 4, FRONT_HEIGHT),
+            width: asPercent(YEAR_WIDTH + 8, FRONT_WIDTH),
+            height: asPercent(YEAR_HEIGHT + 8, FRONT_HEIGHT)
           }}
         />
 
@@ -157,10 +157,10 @@ export function MemberCard({
         <div
           className="absolute flex items-center justify-center text-center font-serif leading-none text-[#d5a84e]"
           style={{
-            left: asPercent(YEAR_X, FRONT_WIDTH),
-            top: asPercent(YEAR_Y, FRONT_HEIGHT),
-            width: asPercent(YEAR_WIDTH, FRONT_WIDTH),
-            height: asPercent(YEAR_HEIGHT, FRONT_HEIGHT)
+            left: asPercent(YEAR_X - 4, FRONT_WIDTH),
+            top: asPercent(YEAR_Y - 4, FRONT_HEIGHT),
+            width: asPercent(YEAR_WIDTH + 8, FRONT_WIDTH),
+            height: asPercent(YEAR_HEIGHT + 8, FRONT_HEIGHT)
           }}
           aria-label={`Member since: ${createdYear}`}
         >
@@ -180,14 +180,14 @@ export function MemberCard({
           className="object-cover"
         />
 
-        {/* QR Code Cover Panel & Container (Hides the green box) */}
+        {/* QR Code Cover Panel & Container (Hides the green box - Inflated 4px to cover subpixels) */}
         <div
           className="absolute bg-white rounded-lg flex items-center justify-center p-[1%]"
           style={{
-            left: asPercent(QR_X, BACK_WIDTH),
-            top: asPercent(QR_Y, BACK_HEIGHT),
-            width: asPercent(QR_WIDTH, BACK_WIDTH),
-            height: asPercent(QR_HEIGHT, BACK_HEIGHT)
+            left: asPercent(QR_X - 4, BACK_WIDTH),
+            top: asPercent(QR_Y - 4, BACK_HEIGHT),
+            width: asPercent(QR_WIDTH + 8, BACK_WIDTH),
+            height: asPercent(QR_HEIGHT + 8, BACK_HEIGHT)
           }}
         >
           <div className="relative w-full h-full">
@@ -205,14 +205,14 @@ export function MemberCard({
           </div>
         </div>
 
-        {/* Access Code Cover Panel (Hides the green box) */}
+        {/* Access Code Cover Panel (Hides the green box - Inflated 4px to cover subpixels) */}
         <div
           className="absolute bg-archive-obsidian"
           style={{
-            left: asPercent(CODE_X, BACK_WIDTH),
-            top: asPercent(CODE_Y, BACK_HEIGHT),
-            width: asPercent(CODE_WIDTH, BACK_WIDTH),
-            height: asPercent(CODE_HEIGHT, BACK_HEIGHT)
+            left: asPercent(CODE_X - 4, BACK_WIDTH),
+            top: asPercent(CODE_Y - 4, BACK_HEIGHT),
+            width: asPercent(CODE_WIDTH + 8, BACK_WIDTH),
+            height: asPercent(CODE_HEIGHT + 8, BACK_HEIGHT)
           }}
         />
 
@@ -220,10 +220,10 @@ export function MemberCard({
         <div
           className="absolute flex items-center justify-center text-center"
           style={{
-            left: asPercent(CODE_X, BACK_WIDTH),
-            top: asPercent(CODE_Y, BACK_HEIGHT),
-            width: asPercent(CODE_WIDTH, BACK_WIDTH),
-            height: asPercent(CODE_HEIGHT, BACK_HEIGHT)
+            left: asPercent(CODE_X - 4, BACK_WIDTH),
+            top: asPercent(CODE_Y - 4, BACK_HEIGHT),
+            width: asPercent(CODE_WIDTH + 8, BACK_WIDTH),
+            height: asPercent(CODE_HEIGHT + 8, BACK_HEIGHT)
           }}
           aria-label={`Archive Access Code: ${accessCode}`}
         >

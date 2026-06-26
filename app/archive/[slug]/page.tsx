@@ -122,15 +122,15 @@ export default async function ArchivePage({
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/archive/${archive.slug}/edit`}
-                className="rounded-full bg-archive-gold px-4 py-2 font-bold text-archive-obsidian shadow transition hover:bg-archive-champagne"
+                className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2 font-semibold text-archive-ivory transition hover:bg-white/10"
               >
                 Configure Keepsake Details
               </Link>
               <Link
                 href={`/archive/${archive.slug}/add-memory`}
-                className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2 font-semibold text-archive-ivory transition hover:bg-white/10"
+                className="rounded-full bg-archive-gold px-5 py-2 font-bold text-archive-obsidian transition-all duration-300 hover:bg-archive-champagne hover:scale-[1.03] shadow-md shadow-archive-gold/20"
               >
-                Add a Chapter
+                + Add a Chapter
               </Link>
               <Link
                 href={`/archive/${archive.slug}/legacy-instructions`}
@@ -222,8 +222,92 @@ export default async function ArchivePage({
               </div>
 
               {memories.length === 0 ? (
-                <div className="mt-8 rounded-2xl border border-archive-gold/18 bg-archive-obsidian/40 px-5 py-4 text-sm leading-7 text-archive-ivory/68">
-                  Their story is ready for its first chapter. Add a photo, song, voice note, or lesson to begin bringing it to life.
+                <div className="mt-12 border-t border-archive-gold/15 pt-12">
+                  <div className="text-center max-w-2xl mx-auto mb-10">
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+                      THE STORY BEGINS HERE
+                    </p>
+                    <h2 className="mt-3 font-serif text-3xl text-archive-ivory">
+                      Begin Your Archive
+                    </h2>
+                    <p className="mt-3 text-sm text-archive-ivory/55">
+                      Your archive is currently empty, but the canvas is ready. Select a starting point below to begin bringing this sanctuary to life.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Link
+                      href={`/archive/${archive.slug}/add-memory`}
+                      className="group rounded-2xl border border-archive-gold/15 bg-white/[0.02] p-6 hover:border-archive-gold/45 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between"
+                    >
+                      <div>
+                        <span className="text-archive-gold font-serif text-2xl">◆</span>
+                        <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
+                          Add First Chapter
+                        </h3>
+                        <p className="text-xs leading-6 text-archive-ivory/60 mt-2">
+                          Write a core memory, an overarching story of childhood, or describe a defining childhood turning point.
+                        </p>
+                      </div>
+                      <span className="text-xs text-archive-gold font-bold uppercase tracking-wider mt-6 inline-flex items-center">
+                        Add Chapter →
+                      </span>
+                    </Link>
+
+                    <Link
+                      href={`/archive/${archive.slug}/add-memory?type=photo`}
+                      className="group rounded-2xl border border-archive-gold/15 bg-white/[0.02] p-6 hover:border-archive-gold/45 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between"
+                    >
+                      <div>
+                        <span className="text-archive-gold font-serif text-2xl">◆</span>
+                        <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
+                          Upload Photos
+                        </h3>
+                        <p className="text-xs leading-6 text-archive-ivory/60 mt-2">
+                          Keep precious family portraits, childhood alleys, or hand-written letters safe in digital high-fidelity archives.
+                        </p>
+                      </div>
+                      <span className="text-xs text-archive-gold font-bold uppercase tracking-wider mt-6 inline-flex items-center">
+                        Upload Photo →
+                      </span>
+                    </Link>
+
+                    <Link
+                      href={`/archive/${archive.slug}/add-memory?type=voice`}
+                      className="group rounded-2xl border border-archive-gold/15 bg-white/[0.02] p-6 hover:border-archive-gold/45 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between"
+                    >
+                      <div>
+                        <span className="text-archive-gold font-serif text-2xl">◆</span>
+                        <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
+                          Record Voice note
+                        </h3>
+                        <p className="text-xs leading-6 text-archive-ivory/60 mt-2">
+                          The voice is always forgotten first. Record comforting advice, laughter, or spoken history directly from your phone.
+                        </p>
+                      </div>
+                      <span className="text-xs text-archive-gold font-bold uppercase tracking-wider mt-6 inline-flex items-center">
+                        Record Audio →
+                      </span>
+                    </Link>
+
+                    <Link
+                      href={`/archive/${archive.slug}/add-memory?type=song`}
+                      className="group rounded-2xl border border-archive-gold/15 bg-white/[0.02] p-6 hover:border-archive-gold/45 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between"
+                    >
+                      <div>
+                        <span className="text-archive-gold font-serif text-2xl">◆</span>
+                        <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
+                          Add Favorite Song
+                        </h3>
+                        <p className="text-xs leading-6 text-archive-ivory/60 mt-2">
+                          Music links us immediately to specific days. Pin their favorite cookout anthem or a song they sang at the piano.
+                        </p>
+                      </div>
+                      <span className="text-xs text-archive-gold font-bold uppercase tracking-wider mt-6 inline-flex items-center">
+                        Add Song →
+                      </span>
+                    </Link>
+                  </div>
                 </div>
               ) : null}
             </div>

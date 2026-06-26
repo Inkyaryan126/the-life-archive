@@ -553,17 +553,27 @@ export default async function DashboardPage({
           />
         ) : null}
 
-        <header className="max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-            Legacy overview
-          </p>
-          <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-6xl">
-            Keep the family story in one place.
-          </h1>
-          <p className="mt-4 text-base leading-7 text-archive-ivory/64 sm:text-lg sm:leading-8">
-            See the archive you are preserving, the memories already inside it,
-            and the next steps that help loved ones find what you chose to keep.
-          </p>
+        <header className="flex flex-col md:flex-row justify-between items-start gap-6 max-w-7xl">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
+              Legacy overview
+            </p>
+            <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-archive-ivory via-archive-champagne to-archive-gold/90 font-bold">
+              Preserve your authentic voice, wisdom, and living legacy.
+            </h1>
+            <p className="mt-4 text-base leading-7 text-archive-ivory/64 sm:text-lg sm:leading-8">
+              See the archive you are preserving, the memories already inside it,
+              and the next steps that help loved ones find what you chose to keep.
+            </p>
+          </div>
+          {hasArchives && (
+            <Link
+              href="/create"
+              className="mt-4 md:mt-10 rounded-full bg-archive-gold px-6 py-3.5 text-sm font-bold text-archive-obsidian shadow-luxury transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:bg-archive-champagne hover:shadow-lg hover:shadow-archive-gold/10 inline-flex shrink-0"
+            >
+              + Create Another Archive
+            </Link>
+          )}
         </header>
 
         <section className="mt-10 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
@@ -1009,8 +1019,8 @@ export default async function DashboardPage({
                 </p>
               ) : archiveLoadFailed ? (
                 <p className="mt-6 rounded-2xl border border-archive-gold/20 bg-archive-gold/10 px-4 py-3 text-sm leading-6 text-archive-champagne">
-                  We could not load every memory record right now, but the
-                  dashboard is still open. Refresh if you want to try again.
+                  We could not load every memory record right now, but your My Archives
+                  is still open. Refresh if you want to try again.
                 </p>
               ) : null}
 

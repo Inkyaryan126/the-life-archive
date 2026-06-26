@@ -97,7 +97,7 @@ export default async function MemberCardPage({
               href="/dashboard"
               className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
             >
-              Dashboard
+              My Archives
             </Link>
           ) : null}
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
@@ -195,6 +195,25 @@ export default async function MemberCardPage({
           </span>
         </div>
       </aside>
+
+      {/* Premium Metal Card Showcase */}
+      <section className="no-print relative mx-auto mt-12 max-w-4xl border-t border-archive-gold/15 pt-12">
+        <div className="rounded-[2rem] border border-archive-gold/15 bg-gradient-to-b from-white/[0.03] to-transparent p-8 sm:p-10 shadow-luxury text-center relative overflow-hidden backdrop-blur-[2px]">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-archive-gold/5 blur-3xl rounded-full" />
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold mb-2">
+            Prototype Phase · Coming Soon
+          </p>
+          <h2 className="font-serif text-2xl sm:text-3xl text-archive-ivory leading-tight mb-4">
+            The Engraved Brass Storykeeper Card
+          </h2>
+          <p className="mx-auto max-w-2xl text-sm leading-7 text-archive-ivory/68 mb-4">
+            An optional premium metal Storykeeper Card designed for families who want a heavier, more permanent keepsake.
+          </p>
+          <p className="text-xs text-archive-gold/80 italic font-serif">
+            &ldquo;Constructed to endure centuries of touch, holding your living legacy with physical weight.&rdquo;
+          </p>
+        </div>
+      </section>
     </main>
   );
 }

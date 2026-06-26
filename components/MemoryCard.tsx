@@ -38,18 +38,29 @@ export function MemoryCard({ memory }: MemoryCardProps) {
         <span aria-hidden="true" className="text-archive-ivory/20">/</span>
         <time dateTime={memory.date} className="text-archive-ivory/60">{formatMemoryDate(memory.date)}</time>
       </div>
-      <h3 className="mt-3 font-serif text-2xl text-archive-ivory">
+      <h3 className="mt-3 font-serif text-2xl text-archive-ivory leading-tight">
         {memory.title}
       </h3>
-      <p className="mt-3 leading-7 text-archive-ivory/72">{memory.content}</p>
-      {memory.mediaUrl && !photoUrl && !voiceUrl ? (
+      <p className="mt-3 leading-7 text-archive-ivory/72 text-sm line-clamp-3 overflow-hidden">
+        {memory.content}
+      </p>
+      
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/5 pt-3">
         <Link
-          href={memory.mediaUrl}
-          className="mt-4 inline-flex text-sm font-semibold text-archive-gold underline-offset-4 hover:underline"
+          href={`/archive/${memory.archiveSlug}/memories#memory-${memory.id}`}
+          className="text-xs uppercase tracking-widest text-archive-gold font-bold transition hover:text-archive-champagne"
         >
-          Open media link
+          Read Chapter →
         </Link>
-      ) : null}
+        {memory.mediaUrl && !photoUrl && !voiceUrl ? (
+          <Link
+            href={memory.mediaUrl}
+            className="text-xs font-semibold text-archive-ivory/50 underline underline-offset-4 hover:text-archive-gold"
+          >
+            Open Media
+          </Link>
+        ) : null}
+      </div>
     </article>
   );
 }

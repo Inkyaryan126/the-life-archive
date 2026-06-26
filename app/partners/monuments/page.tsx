@@ -44,7 +44,7 @@ export default async function MonumentBuildersPartnerPage() {
   const account = await getAccountContext();
   const isSignedIn = Boolean(account.user);
   const primaryHref = isSignedIn ? "/dashboard" : "/login";
-  const primaryLabel = isSignedIn ? "Enter Dashboard" : "Partner with Us";
+  const primaryLabel = isSignedIn ? "Enter My Archives" : "Partner with Us";
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian text-archive-ivory flex flex-col justify-between">

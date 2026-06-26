@@ -62,7 +62,7 @@ export default async function HelpForFamiliesPage() {
   const account = await getAccountContext();
   const isSignedIn = Boolean(account.user);
   const primaryHref = isSignedIn ? "/dashboard" : "/login";
-  const primaryLabel = isSignedIn ? "Enter Dashboard" : "Begin Your Archive";
+  const primaryLabel = isSignedIn ? "Enter My Archives" : "Begin Your Archive";
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian text-archive-ivory flex flex-col justify-between">
