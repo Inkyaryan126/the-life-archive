@@ -94,7 +94,7 @@ export default async function KeepsakesPage() {
             Dashboard
           </Link>
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-            Physical Keepsakes
+            Keepsake Store
           </span>
         </div>
       </nav>

@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { DesignBackdrop, DesignImageButtonLink, SiteLogo } from "@/components/SiteDesign";
+import { DesignImageButtonLink, SiteLogo } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
 
 export const dynamic = "force-dynamic";
@@ -70,11 +71,16 @@ export default async function HomePage() {
   const account = await getAccountContext();
   const isSignedIn = Boolean(account.user);
   const primaryHref = isSignedIn ? "/dashboard" : "/login";
-  const primaryLabel = isSignedIn ? "Enter Dashboard" : "Begin Your Archive";
+  const primaryLabel = isSignedIn ? "Enter My Archives" : "Begin Your Archive";
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian text-archive-ivory flex flex-col justify-between">
-      <DesignBackdrop />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.2),transparent_40rem),radial-gradient(circle_at_bottom_right,rgba(198,161,91,0.08),transparent_40rem),linear-gradient(180deg,rgba(7,7,8,0.1),rgba(7,7,8,0.7))]" />
+      </div>
       
       <div className="relative z-10 flex flex-col flex-grow">
         {/* Navigation Bar with Glass Blur */}
@@ -88,7 +94,7 @@ export default async function HomePage() {
                 href="/keepsakes"
                 className="text-xs font-semibold uppercase tracking-wider text-archive-ivory/80 transition hover:text-archive-gold"
               >
-                Keepsakes
+                Keepsake Store
               </Link>
               {isSignedIn && (
                 <Link
@@ -109,9 +115,10 @@ export default async function HomePage() {
         </nav>
 
         {/* Hero Section */}
-        <header className="flex items-center px-5 py-20 sm:px-8 sm:py-28">
-          <div className="mx-auto w-full max-w-7xl">
-            <div className="max-w-3xl">
+        <header className="relative overflow-visible px-5 py-20 sm:px-8 sm:py-28 lg:min-h-[680px]">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-[60%] bg-[linear-gradient(90deg,rgba(13,13,14,0.92)_0%,rgba(13,13,14,0.86)_54%,rgba(13,13,14,0.48)_78%,rgba(13,13,14,0)_100%)] lg:block" />
+          <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 lg:min-h-[680px] lg:grid-cols-[minmax(0,0.48fr)_minmax(0,0.52fr)]">
+            <div className="relative z-30 max-w-[44rem]">
               <p className="text-xs font-semibold uppercase tracking-[0.32em] text-archive-gold/90">
                 What will they remember of you?
               </p>
@@ -137,6 +144,22 @@ export default async function HomePage() {
                 >
                   Explore Sari Rae&apos;s Legacy →
                 </Link>
+              </div>
+            </div>
+            <div
+              aria-hidden="true"
+              className="relative z-10 hidden h-full min-h-[560px] overflow-visible lg:block"
+            >
+              <div className="absolute right-0 top-[8%] w-[52vw] min-w-[680px] max-w-[960px]">
+                <Image
+                  src="/images/site-design/tla-background.png"
+                  alt=""
+                  width={1536}
+                  height={1024}
+                  priority
+                  sizes="(min-width: 1920px) 960px, 52vw"
+                  className="h-auto w-full object-contain opacity-100"
+                />
               </div>
             </div>
           </div>
@@ -246,7 +269,7 @@ export default async function HomePage() {
                   href="/keepsakes"
                   className="rounded-full bg-archive-gold px-6 py-3 text-xs font-bold text-archive-obsidian shadow-luxury transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:bg-archive-champagne hover:shadow-lg hover:shadow-archive-gold/10 inline-flex"
                 >
-                  View Keepsakes Collection
+                  Visit the Keepsake Store
                 </Link>
               </div>
             </div>
@@ -335,6 +358,11 @@ export default async function HomePage() {
                 <li>
                   <Link href="/preserve-their-voice" className="hover:text-archive-champagne hover:underline transition">
                     Preserve Their Voice
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/keepsakes" className="hover:text-archive-champagne hover:underline transition">
+                    Keepsake Store
                   </Link>
                 </li>
                 <li>
