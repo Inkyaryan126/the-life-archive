@@ -81,9 +81,7 @@ export async function getAccountContext(): Promise<AccountContext> {
     createdAt: archive.created_at
   }));
   const defaultArchive =
-    archives.find((archive) => archive.relationshipToOwner === "self") ??
-    archives[0] ??
-    null;
+    archives.find((archive) => archive.relationshipToOwner === "self") ?? null;
 
   return {
     isConfigured: true,

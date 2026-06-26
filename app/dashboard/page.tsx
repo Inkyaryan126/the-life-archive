@@ -438,7 +438,7 @@ export default async function DashboardPage({
       date: archive.createdAt,
       title:
         archive.slug === defaultArchive?.slug
-          ? `Primary archive created: ${archive.archiveName}`
+          ? `Personal archive created: ${archive.archiveName}`
           : `Archive created: ${archive.archiveName}`,
       detail: `${archive.visibility === "public" ? "Public archive" : "Private archive"} · ${getArchiveRelationshipLabel(archive.relationshipToOwner)}`
     }))
@@ -477,6 +477,7 @@ export default async function DashboardPage({
     : "Keep final wishes, practical details, and personal messages in one thoughtful place.";
 
   const hasArchives = archives.length > 0;
+  const hasPersonalArchive = Boolean(defaultArchive);
   const quickActions = defaultArchive
     ? [
         {
@@ -585,12 +586,16 @@ export default async function DashboardPage({
               <div className="max-w-2xl">
                 <h2 className="font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
                   {hasArchives
-                    ? "Build a home for the memories that matter most."
+                    ? hasPersonalArchive
+                      ? "Build a home for the memories that matter most."
+                      : "Your personal archive spot is ready."
                     : "Create the archive that begins the story."}
                 </h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/62 sm:text-base sm:leading-8">
                   {hasArchives
-                    ? "Your My Archives gathers the archive, the memories inside it, and the ways family can return to it later."
+                    ? hasPersonalArchive
+                      ? "Your My Archives gathers the archive, the memories inside it, and the ways family can return to it later."
+                      : "You are preserving archives for other people. Your own archive still has a reserved primary place and will become the account's main archive when you create it."
                     : "Start with one archive for yourself or for someone you love. Then add the stories, photos, and legacy details that belong to them."}
                 </p>
               </div>
@@ -601,7 +606,7 @@ export default async function DashboardPage({
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <div className="rounded-2xl border border-archive-gold/18 bg-archive-ivory px-5 py-4 text-archive-obsidian">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
-                      Total archives
+                      {hasPersonalArchive ? "Total archives" : "Other archives"}
                     </p>
                     <p className="mt-3 font-serif text-3xl">{archives.length}</p>
                   </div>
@@ -628,6 +633,15 @@ export default async function DashboardPage({
                     </p>
                   </div>
                 </div>
+                {!hasPersonalArchive ? (
+                  <div className="mt-8">
+                    <DashboardAction
+                      href="/create?relationshipToOwner=self"
+                      label="Create My Personal Archive"
+                      description="Reserve the account's primary archive for your own story. Archives for friends and family stay listed separately."
+                    />
+                  </div>
+                ) : null}
               </>
             ) : (
               <div className="mt-8">
@@ -712,6 +726,31 @@ export default async function DashboardPage({
                   </p>
                 </div>
               </>
+            ) : hasArchives && !hasPersonalArchive ? (
+              <div className="flex h-full min-h-[28rem] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(198,161,91,0.18))] p-6 sm:p-8">
+                <div className="max-w-xl">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                    Personal archive reserved
+                  </p>
+                  <h2 className="mt-2 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
+                    Your own archive will become the primary account archive.
+                  </h2>
+                  <p className="mt-3 text-sm leading-7 text-archive-ivory/62">
+                    The archives you created for other people are still safe and
+                    available below. Create the archive for yourself when you are
+                    ready, and the dashboard will use it for member cards, QR
+                    tools, legacy instructions, and quick actions.
+                  </p>
+                  <div className="mt-5">
+                    <Link
+                      href="/create?relationshipToOwner=self"
+                      className="inline-flex rounded-full bg-archive-gold px-5 py-3 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+                    >
+                      Create My Personal Archive
+                    </Link>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="flex h-full min-h-[28rem] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(198,161,91,0.18))] p-6 sm:p-8">
                 <div className="max-w-xl">
@@ -741,123 +780,127 @@ export default async function DashboardPage({
 
         {hasArchives ? (
           <>
-            <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury sm:p-6">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="max-w-2xl">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-                    Chapters
-                  </p>
-                  <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
-                    Browse the life in chapters
-                  </h2>
-                </div>
-                <p className="max-w-xl text-sm leading-6 text-archive-ivory/58">
-                  Choose a chapter to enter one part of the story.
-                </p>
-              </div>
-              <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-                {chapterButtons.map((button) => (
-                  <DesignImageButtonLink
-                    key={button.type}
-                    href={button.href}
-                    label={button.label}
-                    className="mx-auto w-full max-w-[19rem]"
-                    images={[
-                      {
-                        src: button.image,
-                        alt: `${button.label} chapter`,
-                        width: 476,
-                        height: 417,
-                        className: "block"
-                      }
-                    ]}
-                  />
-                ))}
-              </div>
-            </section>
-
-            <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury sm:p-6">
-              <Image
-                src="/images/site-design/quickactions-banner.jpg"
-                alt="Quick actions"
-                width={1070}
-                height={82}
-                priority={false}
-                className="h-auto w-full"
-              />
-              <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-                {quickActions.map((action) => {
-                  const image =
-                    action.label === "Add Memory"
-                      ? {
-                          desktop: "/images/site-design/addmemory-button.jpg",
-                          tablet: "/images/site-design/addmemory-smallbutton.jpg",
-                          mobile: "/images/site-design/addmemory-tinybutton.jpg"
-                        }
-                      : action.label === "Invite Member"
-                        ? {
-                            desktop: "/images/site-design/invitemember-button.jpg",
-                            tablet: "/images/site-design/invitemember-smallbutton.jpg",
-                            mobile: "/images/site-design/invitemember-tinybutton.jpg"
+            {defaultArchive ? (
+              <>
+                <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury sm:p-6">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="max-w-2xl">
+                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+                        Chapters
+                      </p>
+                      <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+                        Browse the life in chapters
+                      </h2>
+                    </div>
+                    <p className="max-w-xl text-sm leading-6 text-archive-ivory/58">
+                      Choose a chapter to enter one part of the story.
+                    </p>
+                  </div>
+                  <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+                    {chapterButtons.map((button) => (
+                      <DesignImageButtonLink
+                        key={button.type}
+                        href={button.href}
+                        label={button.label}
+                        className="mx-auto w-full max-w-[19rem]"
+                        images={[
+                          {
+                            src: button.image,
+                            alt: `${button.label} chapter`,
+                            width: 476,
+                            height: 417,
+                            className: "block"
                           }
-                        : action.label === "Generate Member Card"
-                          ? {
-                              desktop: "/images/site-design/membercard-button.jpg",
-                              tablet: "/images/site-design/membercard-smallbutton.jpg",
-                              mobile: "/images/site-design/membercard-tinybutton.jpg"
-                            }
-                        : action.label === "Generate QR Card"
-                          ? {
-                              desktop: "/images/site-design/qrcard-button.jpg",
-                              tablet: "/images/site-design/qrcard-smallbutton.jpg",
-                              mobile: "/images/site-design/qrcard-tinybutton.jpg"
-                            }
-                          : {
-                                desktop: "/images/site-design/sharearchive-tinybutton.jpg",
-                                tablet: "/images/site-design/sharearchive-tinybutton.jpg",
-                                mobile: "/images/site-design/sharearchive-tinybutton.jpg"
-                              };
+                        ]}
+                      />
+                    ))}
+                  </div>
+                </section>
 
-                  return (
-                    <DesignImageButtonLink
-                      key={action.label}
-                      href={action.href}
-                      label={action.label}
-                      className="mx-auto w-full max-w-[19rem]"
-                      images={[
-                        {
-                          src: image.mobile,
-                          alt: `${action.label} button`,
-                          width:
-                            action.label === "Share Archive" ? 170 : 170,
-                          height:
-                            action.label === "Share Archive" ? 214 : 214,
-                          className: "block md:hidden"
-                        },
-                        {
-                          src: image.tablet,
-                          alt: `${action.label} button`,
-                          width:
-                            action.label === "Share Archive" ? 170 : 366,
-                          height:
-                            action.label === "Share Archive" ? 214 : 136,
-                          className: "hidden md:max-xl:block"
-                        },
-                        {
-                          src: image.desktop,
-                          alt: `${action.label} button`,
-                          width:
-                            action.label === "Share Archive" ? 170 : 365,
-                          height:
-                            action.label === "Share Archive" ? 214 : 488,
-                          className: "hidden xl:block"
-                        }
-                      ]}
-                    />
-                  );
-                })}
-              </div>
-            </section>
+                <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury sm:p-6">
+                  <Image
+                    src="/images/site-design/quickactions-banner.jpg"
+                    alt="Quick actions"
+                    width={1070}
+                    height={82}
+                    priority={false}
+                    className="h-auto w-full"
+                  />
+                  <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+                    {quickActions.map((action) => {
+                      const image =
+                        action.label === "Add Memory"
+                          ? {
+                              desktop: "/images/site-design/addmemory-button.jpg",
+                              tablet: "/images/site-design/addmemory-smallbutton.jpg",
+                              mobile: "/images/site-design/addmemory-tinybutton.jpg"
+                            }
+                          : action.label === "Invite Member"
+                            ? {
+                                desktop: "/images/site-design/invitemember-button.jpg",
+                                tablet: "/images/site-design/invitemember-smallbutton.jpg",
+                                mobile: "/images/site-design/invitemember-tinybutton.jpg"
+                              }
+                            : action.label === "Generate Member Card"
+                              ? {
+                                  desktop: "/images/site-design/membercard-button.jpg",
+                                  tablet: "/images/site-design/membercard-smallbutton.jpg",
+                                  mobile: "/images/site-design/membercard-tinybutton.jpg"
+                                }
+                              : action.label === "Generate QR Card"
+                                ? {
+                                    desktop: "/images/site-design/qrcard-button.jpg",
+                                    tablet: "/images/site-design/qrcard-smallbutton.jpg",
+                                    mobile: "/images/site-design/qrcard-tinybutton.jpg"
+                                  }
+                                : {
+                                    desktop: "/images/site-design/sharearchive-tinybutton.jpg",
+                                    tablet: "/images/site-design/sharearchive-tinybutton.jpg",
+                                    mobile: "/images/site-design/sharearchive-tinybutton.jpg"
+                                  };
+
+                      return (
+                        <DesignImageButtonLink
+                          key={action.label}
+                          href={action.href}
+                          label={action.label}
+                          className="mx-auto w-full max-w-[19rem]"
+                          images={[
+                            {
+                              src: image.mobile,
+                              alt: `${action.label} button`,
+                              width:
+                                action.label === "Share Archive" ? 170 : 170,
+                              height:
+                                action.label === "Share Archive" ? 214 : 214,
+                              className: "block md:hidden"
+                            },
+                            {
+                              src: image.tablet,
+                              alt: `${action.label} button`,
+                              width:
+                                action.label === "Share Archive" ? 170 : 366,
+                              height:
+                                action.label === "Share Archive" ? 214 : 136,
+                              className: "hidden md:max-xl:block"
+                            },
+                            {
+                              src: image.desktop,
+                              alt: `${action.label} button`,
+                              width:
+                                action.label === "Share Archive" ? 170 : 365,
+                              height:
+                                action.label === "Share Archive" ? 214 : 488,
+                              className: "hidden xl:block"
+                            }
+                          ]}
+                        />
+                      );
+                    })}
+                  </div>
+                </section>
+              </>
+            ) : null}
 
             <section className="mt-10">
               <div className="flex flex-wrap items-end justify-between gap-4">
@@ -895,12 +938,21 @@ export default async function DashboardPage({
                     The latest pieces of the story
                   </h2>
                 </div>
-                <Link
-                  href={`/archive/${defaultArchive?.slug ?? archives[0].slug}`}
-                  className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
-                >
-                  Open the archive →
-                </Link>
+                {defaultArchive ? (
+                  <Link
+                    href={`/archive/${defaultArchive.slug}`}
+                    className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
+                  >
+                    Open my archive →
+                  </Link>
+                ) : (
+                  <Link
+                    href="/create?relationshipToOwner=self"
+                    className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
+                  >
+                    Create My Personal Archive →
+                  </Link>
+                )}
               </div>
 
               {recentMemories.length > 0 ? (

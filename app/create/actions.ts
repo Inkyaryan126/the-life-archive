@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getAccountContext } from "@/lib/account";
 import { createArchive } from "@/lib/archive-data";
 import { isArchiveRelationshipToOwner } from "@/lib/archive-relationships";
 import { validateProfilePhotoUrl } from "@/lib/safe-url";
@@ -45,6 +46,19 @@ export async function createArchiveAction(formData: FormData) {
 
   if (!isArchiveRelationshipToOwner(relationshipToOwnerValue)) {
     redirectWithError("Please select who this archive is for.");
+  }
+
+  if (relationshipToOwnerValue === "self") {
+    const account = await getAccountContext();
+    const hasPersonalArchive = account.archives.some(
+      (archive) => archive.relationshipToOwner === "self"
+    );
+
+    if (hasPersonalArchive) {
+      redirectWithError(
+        "Your personal archive already exists. Create another archive for a loved one instead."
+      );
+    }
   }
 
   const profilePhotoValidation = validateProfilePhotoUrl(profilePhotoUrl);

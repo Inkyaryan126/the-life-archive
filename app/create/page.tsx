@@ -13,6 +13,7 @@ import {
 type CreateArchivePageProps = {
   searchParams?: {
     error?: string;
+    relationshipToOwner?: string;
   };
 };
 
@@ -21,6 +22,8 @@ export default async function CreateArchivePage({
 }: CreateArchivePageProps) {
   const account = await getAccountContext();
   const signInRequired = account.isConfigured && !account.user;
+  const requestedRelationship =
+    searchParams?.relationshipToOwner === "self" ? "self" : "other";
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-12 text-archive-ivory sm:px-8">
@@ -133,7 +136,7 @@ export default async function CreateArchivePage({
                 <select
                   name="relationshipToOwner"
                   required
-                  defaultValue="other"
+                  defaultValue={requestedRelationship}
                   className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
                 >
                   {archiveRelationships.map((value) => (
@@ -241,4 +244,3 @@ export default async function CreateArchivePage({
     </main>
   );
 }
-
