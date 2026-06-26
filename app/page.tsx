@@ -116,19 +116,19 @@ export default async function HomePage() {
 
         {/* Hero Section */}
         <header className="relative overflow-visible px-5 py-20 sm:px-8 sm:py-28 lg:min-h-[680px]">
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 hidden w-[60%] bg-[linear-gradient(90deg,rgba(13,13,14,0.92)_0%,rgba(13,13,14,0.86)_54%,rgba(13,13,14,0.48)_78%,rgba(13,13,14,0)_100%)] lg:block" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden w-[60%] bg-[linear-gradient(90deg,rgba(13,13,14,0.92)_0%,rgba(13,13,14,0.86)_54%,rgba(13,13,14,0.48)_78%,rgba(13,13,14,0)_100%)] lg:block" />
           <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 lg:min-h-[680px] lg:grid-cols-[minmax(0,0.48fr)_minmax(0,0.52fr)]">
             <div className="relative z-30 max-w-[44rem]">
-              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-archive-gold/90">
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-archive-gold">
                 What will they remember of you?
               </p>
-              <h1 className="mt-5 font-serif text-5xl leading-tight sm:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-archive-ivory via-archive-champagne to-archive-gold/90">
+              <h1 className="mt-5 font-serif text-5xl leading-tight sm:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-archive-ivory via-archive-champagne to-archive-gold">
                 The Life Archive
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-archive-ivory/74 font-serif italic">
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-archive-ivory/90 font-serif italic">
                 A quiet, permanent digital sanctuary for the things that cannot be replaced.
               </p>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-archive-ivory/60">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-archive-ivory/80">
                 The Life Archive is a physical-to-digital preservation platform. We help families record the spoken cadence, defining life lessons, and quiet memories of those they love—safeguarding their spirit and connecting physical keepsakes to a permanent home of heritage.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
