@@ -29,13 +29,22 @@ type Keepsake = {
 type CheckoutType = "card" | "keychain" | "plaque";
 
 const checkoutUrls: Record<CheckoutType, string | undefined> = {
-  card: process.env.NEXT_PUBLIC_CHECKOUT_MEMORY_CARD,
+  card:
+    process.env.NEXT_PUBLIC_CHECKOUT_MEMORY_CARD ||
+    process.env.NEXT_PUBLIC_CHECKOUT_STORYKEEPER_CARD,
   keychain: process.env.NEXT_PUBLIC_CHECKOUT_MEMORIAL_KEYCHAIN,
   plaque: process.env.NEXT_PUBLIC_CHECKOUT_QR_PLAQUE
 };
 
 function getCheckoutUrl(product: Pick<Keepsake, "checkoutType">) {
-  return product.checkoutType ? checkoutUrls[product.checkoutType] : undefined;
+  if (!product.checkoutType) {
+    return undefined;
+  }
+
+  return (
+    checkoutUrls[product.checkoutType] ||
+    `/api/keepsakes/checkout?type=${product.checkoutType}`
+  );
 }
 
 function CheckoutLink({
