@@ -262,8 +262,8 @@ export default async function MonumentBuildersPartnerPage() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/storykeeper-products" className="hover:text-archive-champagne hover:underline transition">
-                    Storykeeper Products
+                  <Link href="/keepsakes" className="hover:text-archive-champagne hover:underline transition">
+                    Keepsake Store
                   </Link>
                 </li>
                 <li>

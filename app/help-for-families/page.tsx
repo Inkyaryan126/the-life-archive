@@ -198,7 +198,7 @@ export default async function HelpForFamiliesPage() {
               Help those who gather at a celebration of life return to their stories. Placing physical <strong className="text-archive-gold">Storykeeper Cards</strong> at the registry table allows friends and family to instantly scan, listen to voice memories, or leave their own visitor letters whenever they need comfort.
             </p>
             <Link
-              href="/storykeeper-products"
+              href="/keepsakes"
               className="inline-flex rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:bg-archive-champagne hover:shadow-lg hover:shadow-archive-gold/10"
             >
               Learn About Storykeeper Cards
@@ -284,8 +284,8 @@ export default async function HelpForFamiliesPage() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/storykeeper-products" className="hover:text-archive-champagne hover:underline transition">
-                    Storykeeper Products
+                  <Link href="/keepsakes" className="hover:text-archive-champagne hover:underline transition">
+                    Keepsake Store
                   </Link>
                 </li>
                 <li>
