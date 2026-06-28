@@ -97,13 +97,13 @@ export function MemberCard({
   return (
     <section
       className="member-card-print-area grid gap-6"
-      aria-label="Printable Life Archive Storykeeper Card"
+      aria-label="Printable The Life Archive Memory Card"
     >
       {/* FRONT OF THE CARD */}
       <article className="member-card-face member-card-front relative aspect-[1.591/1] overflow-hidden rounded-[1.35rem] bg-archive-obsidian shadow-luxury">
         <Image
           src="/images/member-card/member-card-front.png"
-          alt="The Life Archive Storykeeper Card front, honoring every life as worthy of preservation"
+          alt="The Life Archive Memory Card front, honoring every life as worthy of preservation"
           fill
           priority
           sizes="(min-width: 544px) 544px, 100vw"
@@ -174,7 +174,7 @@ export function MemberCard({
       <article className="member-card-face member-card-back relative aspect-[1.5/1] overflow-hidden rounded-[1.35rem] bg-archive-ivory shadow-luxury">
         <Image
           src="/images/member-card/member-card-back.png"
-          alt="The Life Archive Storykeeper Card back, explaining that the card can lead loved ones to the member's preserved story"
+          alt="The Life Archive Memory Card back, explaining that the card can lead loved ones to the member's preserved story"
           fill
           sizes="(min-width: 544px) 544px, 100vw"
           className="object-cover"

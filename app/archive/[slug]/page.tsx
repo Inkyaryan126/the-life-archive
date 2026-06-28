@@ -112,13 +112,13 @@ export default async function ArchivePage({
           </div>
         </nav>
 
-        {/* Storykeeper Administration Control Bar */}
+        {/* Archive Administration Control Bar */}
         {isOwner ? (
           <div className="mb-6 rounded-2xl border border-archive-gold/25 bg-archive-gold/5 p-4 flex flex-wrap items-center justify-between gap-4 text-xs relative z-20">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-archive-gold animate-pulse" />
               <span className="font-semibold uppercase tracking-wider text-archive-gold">
-                Storykeeper Custody Active
+                Archive Custody Active
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-2">

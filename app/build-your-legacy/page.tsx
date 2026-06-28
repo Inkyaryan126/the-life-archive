@@ -69,7 +69,7 @@ const interviewQuestions = [
 const faqs = [
   {
     q: "Who has access to my legacy archive?",
-    a: "You retain absolute, granular control over everything you upload. Your archive remains completely private and locked behind enterprise-grade security until you choose to explicitly share a private link or connect it to a physical Storykeeper keepsake card."
+    a: "You retain absolute, granular control over everything you upload. Your archive remains completely private and locked behind enterprise-grade security until you choose to explicitly share a private link or connect it to The Life Archive Memory Card."
   },
   {
     q: "Is this a monthly subscription? How does it endure?",
@@ -114,7 +114,7 @@ export default async function BuildYourLegacyPage() {
                   href="/member-card"
                   className="text-xs font-semibold uppercase tracking-wider text-archive-ivory/80 transition hover:text-archive-gold"
                 >
-                  Storykeeper Card
+                  The Life Archive Memory Card
                 </Link>
               )}
               <Link

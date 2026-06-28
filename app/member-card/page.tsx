@@ -206,10 +206,10 @@ export default async function MemberCardPage({
             Premium Keepsake Option
           </p>
           <h2 className="font-serif text-2xl sm:text-3xl text-archive-ivory leading-tight mb-4">
-            The Engraved Brass Storykeeper Card
+            The Life Archive Memory Card
           </h2>
           <p className="mx-auto max-w-2xl text-sm leading-7 text-archive-ivory/68 mb-4">
-            Request a heavier, more permanent card connected to this same archive. We confirm the QR, name treatment, and finish by email before production.
+            Order a heavier, more permanent card connected to this same archive. We confirm the QR, name treatment, and finish before production.
           </p>
           <Link
             href="/keepsakes"

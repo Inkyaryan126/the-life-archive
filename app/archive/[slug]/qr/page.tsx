@@ -104,7 +104,7 @@ export default async function QRPage({ params }: QRPageProps) {
         {/* Keepsake Upsell Block */}
         <section className="no-print mt-8 rounded-lg border border-archive-gold/22 bg-archive-obsidian p-6 text-archive-ivory shadow-soft">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
-            Storykeeper Keepsakes
+            The Life Archive Keepsakes
           </p>
           <h3 className="mt-2 font-serif text-2xl text-archive-ivory">
             Turn this archive into a physical keepsake.

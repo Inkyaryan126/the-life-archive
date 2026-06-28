@@ -87,7 +87,7 @@ export default async function HelpForFamiliesPage() {
                   href="/member-card"
                   className="text-xs font-semibold uppercase tracking-wider text-archive-ivory/80 transition hover:text-archive-gold"
                 >
-                  Storykeeper Card
+                  The Life Archive Memory Card
                 </Link>
               )}
               <Link
@@ -184,7 +184,7 @@ export default async function HelpForFamiliesPage() {
           </div>
         </section>
 
-        {/* Storykeeper Card Callout inside Help for Families */}
+        {/* Memory Card Callout inside Help for Families */}
         <section className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 border-t border-archive-gold/15">
           <div className="rounded-[2.5rem] border border-archive-gold/15 bg-gradient-to-b from-white/[0.02] to-transparent p-8 sm:p-12 shadow-luxury text-center max-w-3xl mx-auto relative overflow-hidden backdrop-blur-[2px]">
             <div className="absolute top-0 right-0 w-32 h-32 bg-archive-gold/5 blur-3xl rounded-full" />
@@ -192,16 +192,16 @@ export default async function HelpForFamiliesPage() {
               A PHYSICAL KEY FOR GUESTS
             </p>
             <h2 className="font-serif text-2xl sm:text-3xl text-archive-ivory mb-4">
-              Distribute Storykeeper Cards to Attendees
+              Distribute The Life Archive Memory Cards to Attendees
             </h2>
             <p className="text-sm leading-7 text-archive-ivory/68 max-w-xl mx-auto mb-6">
-              Help those who gather at a celebration of life return to their stories. Placing physical <strong className="text-archive-gold">Storykeeper Cards</strong> at the registry table allows friends and family to instantly scan, listen to voice memories, or leave their own visitor letters whenever they need comfort.
+              Help those who gather at a celebration of life return to their stories. Placing physical <strong className="text-archive-gold">The Life Archive Memory Cards</strong> at the registry table allows friends and family to instantly scan, listen to voice memories, or leave their own visitor letters whenever they need comfort.
             </p>
             <Link
               href="/keepsakes"
               className="inline-flex rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:bg-archive-champagne hover:shadow-lg hover:shadow-archive-gold/10"
             >
-              Learn About Storykeeper Cards
+              Learn About The Life Archive Memory Cards
             </Link>
           </div>
         </section>

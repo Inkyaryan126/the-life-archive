@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 type Keepsake = {
   name: string;
   price: string;
+  stripeProductId?: string;
   eyebrow: string;
   headline: string;
   story: string;
@@ -18,27 +19,23 @@ type Keepsake = {
   included: string[];
   bestFor: string;
   visual: "card" | "keychain" | "tag" | "pendant" | "plaque" | "urn" | "frame" | "bench" | "nfc";
-  checkoutType: CheckoutType;
+  checkoutType?: CheckoutType;
   image?: {
     src: string;
     alt: string;
   };
 };
 
-type CheckoutType = "card" | "keychain" | "plaque" | "custom";
+type CheckoutType = "card" | "keychain" | "plaque";
 
 const checkoutUrls: Record<CheckoutType, string | undefined> = {
   card: process.env.NEXT_PUBLIC_CHECKOUT_STORYKEEPER_CARD,
   keychain: process.env.NEXT_PUBLIC_CHECKOUT_MEMORIAL_KEYCHAIN,
-  plaque: process.env.NEXT_PUBLIC_CHECKOUT_QR_PLAQUE,
-  custom: process.env.NEXT_PUBLIC_CHECKOUT_CUSTOM_KEEPCKSAKE
+  plaque: process.env.NEXT_PUBLIC_CHECKOUT_QR_PLAQUE
 };
 
-const contactOrderUrl =
-  "mailto:keepsakes@thelifearchive.vip?subject=Life%20Archive%20Keepsake%20Order&body=Hello%20Life%20Archive%20Team%2C%0A%0AI%20would%20like%20to%20order%20a%20premium%20physical%20keepsake%20connected%20to%20my%20archive.%0A%0AKeepsake%20Type%3A%20%5BPlease%20specify%5D%0AMy%20Archive%20Slug%3A%20%5BPlease%20enter%20slug%5D%0A%0AThank%20you!";
-
 function getCheckoutUrl(product: Pick<Keepsake, "checkoutType">) {
-  return checkoutUrls[product.checkoutType];
+  return product.checkoutType ? checkoutUrls[product.checkoutType] : undefined;
 }
 
 function CheckoutLink({
@@ -64,16 +61,17 @@ function CheckoutLink({
   }
 
   return (
-    <a href={contactOrderUrl} className={className}>
-      Contact to Order
-    </a>
+    <span aria-disabled="true" className={className}>
+      Coming Soon
+    </span>
   );
 }
 
 const keepsakes: Keepsake[] = [
   {
-    name: "Wallet Member Card",
+    name: "The Life Archive Memory Card",
     price: "$19",
+    stripeProductId: "prod_Umoxxb4aF5MuPL",
     eyebrow: "QR Card",
     headline: "A quiet card that keeps their story within reach.",
     story:
@@ -92,8 +90,9 @@ const keepsakes: Keepsake[] = [
     }
   },
   {
-    name: "Memorial Keychain",
+    name: "The Life Archive Memorial Keychain",
     price: "$24",
+    stripeProductId: "prod_Umopvhs6gAemhj",
     eyebrow: "Daily Carry",
     headline: "A small physical key for an archive that should not be forgotten.",
     story:
@@ -125,7 +124,6 @@ const keepsakes: Keepsake[] = [
     included: ["Tag layout proof", "Archive QR setup", "Personalization review"],
     bestFor: "Veterans, bikers, first responders, and active lifestyles.",
     visual: "tag",
-    checkoutType: "custom",
     image: {
       src: "/images/keepsakes/dogchain.png",
       alt: "Dog tag chain keepsake with archive QR"
@@ -145,15 +143,15 @@ const keepsakes: Keepsake[] = [
     included: ["Pendant layout proof", "QR legibility review", "Production confirmation"],
     bestFor: "Parents, partners, and close descendants.",
     visual: "pendant",
-    checkoutType: "custom",
     image: {
       src: "/images/keepsakes/memorialpendant.png",
       alt: "Memorial pendant keepsake with archive QR"
     }
   },
   {
-    name: "Memorial Plaque",
+    name: "The Life Archive Memorial Plaque",
     price: "$79",
+    stripeProductId: "prod_Ump23cb9KHhhNQ",
     eyebrow: "Placed With Care",
     headline: "A permanent signpost for a life remembered in more than dates.",
     story:
@@ -185,7 +183,6 @@ const keepsakes: Keepsake[] = [
     included: ["Tag proof", "Surface-fit follow-up", "QR placement review"],
     bestFor: "Urns, heirloom boxes, keepsake vaults, and drawers.",
     visual: "urn",
-    checkoutType: "plaque",
     image: {
       src: "/images/keepsakes/urn.png",
       alt: "Urn keepsake tag with archive QR"
@@ -205,7 +202,6 @@ const keepsakes: Keepsake[] = [
     included: ["Frame QR concept", "Archive QR placement", "Personalization proof"],
     bestFor: "Mantels, display tables, shelves, and home picture walls.",
     visual: "frame",
-    checkoutType: "plaque",
     image: {
       src: "/images/keepsakes/photoframekey.png",
       alt: "Photo frame keepsake with archive QR key"
@@ -225,7 +221,6 @@ const keepsakes: Keepsake[] = [
     included: ["Custom order discussion", "QR placement concept", "Follow-up quote process"],
     bestFor: "Public memorial benches, parks, dedication plaques, and gardens.",
     visual: "bench",
-    checkoutType: "custom",
     image: {
       src: "/images/keepsakes/dedicationplaque.png",
       alt: "Dedication plaque keepsake with archive QR"
@@ -245,7 +240,6 @@ const keepsakes: Keepsake[] = [
     included: ["NFC layout review", "QR backup placement", "Production confirmation"],
     bestFor: "Instant tap-to-reveal access and tech-forward families.",
     visual: "nfc",
-    checkoutType: "custom",
     image: {
       src: "/images/keepsakes/smartnfc.png",
       alt: "Smart NFC keepsake with QR backup"
@@ -265,7 +259,6 @@ const keepsakes: Keepsake[] = [
     included: ["Bracelet plate proof", "QR placement review", "Production confirmation"],
     bestFor: "Daily remembrance, close family members, and discreet wearable access.",
     visual: "plaque",
-    checkoutType: "custom",
     image: {
       src: "/images/keepsakes/braceletplate.png",
       alt: "Bracelet plate keepsake with archive QR"
@@ -285,7 +278,6 @@ const keepsakes: Keepsake[] = [
     included: ["Car vent concept proof", "QR placement review", "Follow-up for fit details"],
     bestFor: "Cars, road trips, and families who connect memory with movement.",
     visual: "nfc",
-    checkoutType: "custom",
     image: {
       src: "/images/keepsakes/carvent.png",
       alt: "Car vent keepsake with archive QR"
@@ -305,7 +297,6 @@ const keepsakes: Keepsake[] = [
     included: ["Money clip proof", "Archive QR setup", "Personalization review"],
     bestFor: "Daily carry, wallets, and practical personal keepsakes.",
     visual: "card",
-    checkoutType: "card",
     image: {
       src: "/images/keepsakes/moneyclip.png",
       alt: "Money clip card keepsake with archive QR"
@@ -313,7 +304,19 @@ const keepsakes: Keepsake[] = [
   }
 ];
 
-const featuredCollection = keepsakes.slice(0, 4);
+const launchProductNames = [
+  "The Life Archive Memorial Keychain",
+  "The Life Archive Memory Card",
+  "The Life Archive Memorial Plaque"
+];
+
+const activeKeepsakes = launchProductNames
+  .map((name) => keepsakes.find((keepsake) => keepsake.name === name))
+  .filter((keepsake): keepsake is Keepsake => Boolean(keepsake));
+
+const comingSoonKeepsakes = keepsakes.filter(
+  (keepsake) => !launchProductNames.includes(keepsake.name)
+);
 
 const storeSteps = [
   "Choose a keepsake",
@@ -425,9 +428,13 @@ function DetailList({ title, items }: { title: string; items: string[] }) {
 
 function ProductShowcase({
   product,
+  badge,
+  isComingSoon = false,
   reverse = false
 }: {
   product: Keepsake;
+  badge?: string;
+  isComingSoon?: boolean;
   reverse?: boolean;
 }) {
   const checkoutUrl = getCheckoutUrl(product);
@@ -445,9 +452,21 @@ function ProductShowcase({
           <h2 className="max-w-xl font-serif text-3xl leading-tight text-archive-ivory sm:text-5xl">
             {product.headline}
           </h2>
-          <span className="rounded-full border border-archive-gold/30 px-4 py-1 text-xs font-bold text-archive-gold">
-            {product.price}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            {badge ? (
+              <span className="rounded-full bg-archive-gold px-4 py-1 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian">
+                {badge}
+              </span>
+            ) : null}
+            {isComingSoon ? (
+              <span className="rounded-full border border-archive-gold/30 px-4 py-1 text-xs font-bold uppercase tracking-[0.16em] text-archive-gold">
+                Coming Soon
+              </span>
+            ) : null}
+            <span className="rounded-full border border-archive-gold/30 px-4 py-1 text-xs font-bold text-archive-gold">
+              {product.price}
+            </span>
+          </div>
         </div>
         <p className="mt-6 max-w-2xl text-sm leading-7 text-archive-ivory/76">
           {product.story}
@@ -470,12 +489,12 @@ function ProductShowcase({
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <CheckoutLink
-            checkoutUrl={checkoutUrl}
+            checkoutUrl={isComingSoon ? undefined : checkoutUrl}
             className="rounded-full bg-archive-gold px-7 py-3 text-xs font-bold uppercase tracking-[0.18em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
           >
             Order Now
           </CheckoutLink>
-          {checkoutUrl ? (
+          {!isComingSoon && checkoutUrl ? (
             <CheckoutLink
               checkoutUrl={checkoutUrl}
               className="rounded-full border border-archive-gold/30 bg-white/[0.035] px-7 py-3 text-xs font-bold uppercase tracking-[0.18em] text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.07]"
@@ -486,6 +505,63 @@ function ProductShowcase({
         </div>
       </div>
     </section>
+  );
+}
+
+function ProductCard({ product, badge }: { product: Keepsake; badge?: string }) {
+  const checkoutUrl = getCheckoutUrl(product);
+  const cardContent = (
+    <>
+      <ProductVisual image={product.image} type={product.visual} name={product.name} />
+      <div className="p-2 pt-5">
+        <div className="flex flex-wrap items-center gap-2">
+          {badge ? (
+            <span className="rounded-full bg-archive-gold px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-archive-obsidian">
+              {badge}
+            </span>
+          ) : null}
+          {!checkoutUrl ? (
+            <span className="rounded-full border border-archive-gold/30 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-archive-gold">
+              Coming Soon
+            </span>
+          ) : null}
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-archive-gold">
+            {product.eyebrow}
+          </p>
+        </div>
+        <h3 className="mt-3 font-serif text-2xl text-archive-ivory">
+          {product.name}
+        </h3>
+        <p className="mt-3 text-xs leading-6 text-archive-ivory/60">
+          {product.bestFor}
+        </p>
+        <p className="mt-3 text-xs leading-6 text-archive-ivory/54">
+          {product.story}
+        </p>
+        <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em] text-archive-champagne">
+          {checkoutUrl ? "Order Now" : "Coming Soon"}
+        </p>
+      </div>
+    </>
+  );
+
+  if (!checkoutUrl) {
+    return (
+      <div className="rounded-[2rem] border border-archive-gold/14 bg-white/[0.02] p-4 opacity-80 shadow-luxury">
+        {cardContent}
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={checkoutUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group rounded-[2rem] border border-archive-gold/14 bg-white/[0.02] p-4 shadow-luxury transition hover:border-archive-gold/35 hover:bg-white/[0.04]"
+    >
+      {cardContent}
+    </a>
   );
 }
 
@@ -556,7 +632,11 @@ export default async function KeepsakesPage() {
             </div>
           </div>
           <div className="rounded-[2.5rem] border border-archive-gold/16 bg-white/[0.025] p-4 shadow-luxury">
-            <ProductVisual image={keepsakes[0].image} type="card" name="Storykeeper Card" />
+            <ProductVisual
+              image={activeKeepsakes[0]?.image}
+              type={activeKeepsakes[0]?.visual || "keychain"}
+              name={activeKeepsakes[0]?.name || "The Life Archive Memorial Keychain"}
+            />
           </div>
         </header>
 
@@ -585,41 +665,46 @@ export default async function KeepsakesPage() {
             </h2>
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {featuredCollection.map((product) => (
-              <a
+            {activeKeepsakes.map((product, index) => (
+              <ProductCard
                 key={product.name}
-                href={getCheckoutUrl(product) || contactOrderUrl}
-                target={getCheckoutUrl(product) ? "_blank" : undefined}
-                rel={getCheckoutUrl(product) ? "noopener noreferrer" : undefined}
-                className="group rounded-[2rem] border border-archive-gold/14 bg-white/[0.02] p-4 shadow-luxury transition hover:border-archive-gold/35 hover:bg-white/[0.04]"
-              >
-                <ProductVisual image={product.image} type={product.visual} name={product.name} />
-                <div className="p-2 pt-5">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-archive-gold">
-                    {product.eyebrow}
-                  </p>
-                  <h3 className="mt-2 font-serif text-2xl text-archive-ivory">
-                    {product.name}
-                  </h3>
-                  <p className="mt-3 text-xs leading-6 text-archive-ivory/60">
-                    {product.bestFor}
-                  </p>
-                  <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em] text-archive-champagne">
-                    {getCheckoutUrl(product) ? "Order Now" : "Contact to Order"}
-                  </p>
-                </div>
-              </a>
+                product={product}
+                badge={index === 0 ? "Featured / Best Seller" : undefined}
+              />
             ))}
           </div>
         </section>
 
-        {keepsakes.map((product, index) => (
+        {activeKeepsakes.map((product, index) => (
           <ProductShowcase
             key={product.name}
             product={product}
+            badge={index === 0 ? "Featured / Best Seller" : undefined}
             reverse={index % 2 === 1}
           />
         ))}
+
+        <section className="border-t border-archive-gold/15 py-16 sm:py-20">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-archive-gold">
+              Coming Soon
+            </p>
+            <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
+              Future keepsakes in development.
+            </h2>
+            <p className="mt-5 text-sm leading-7 text-archive-ivory/66">
+              These formats remain part of the catalog, but they are not available for checkout yet.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {comingSoonKeepsakes.map((product) => (
+              <ProductCard
+                key={product.name}
+                product={product}
+              />
+            ))}
+          </div>
+        </section>
 
         <section className="border-t border-archive-gold/15 py-20 sm:py-24">
           <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
@@ -641,29 +726,21 @@ export default async function KeepsakesPage() {
 
         <section className="mb-16 rounded-[2.5rem] border border-archive-gold/22 bg-archive-obsidian/92 p-8 text-center shadow-luxury sm:p-12">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-            Custom Keepsake
+            The Life Archive Keepsakes
           </p>
           <h2 className="mx-auto mt-4 max-w-3xl font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-            Tell us which archive this should belong to.
+            Order the launch keepsake that fits your archive.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-archive-ivory/68">
-            Select the closest keepsake format, then checkout opens securely in a new tab. Custom pieces still receive a production confirmation before anything moves forward.
+            Start with the memorial keychain, memory card, or memorial plaque. After checkout, you will personalize the keepsake around the Life Archive it belongs to.
           </p>
           <div className="mt-9 flex flex-wrap justify-center gap-4">
-            <CheckoutLink
-              checkoutUrl={checkoutUrls.custom}
+            <a
+              href="#collection"
               className="rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
             >
-              Order Now
-            </CheckoutLink>
-            {checkoutUrls.custom ? (
-              <CheckoutLink
-                checkoutUrl={checkoutUrls.custom}
-                className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-8 py-4 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
-              >
-                Choose This Keepsake
-              </CheckoutLink>
-            ) : null}
+              Choose a Keepsake
+            </a>
             <Link
               href={dashboardHref}
               className="rounded-full border border-archive-gold/20 px-8 py-4 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:text-archive-ivory"

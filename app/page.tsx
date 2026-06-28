@@ -58,7 +58,7 @@ const steps = [
   {
     num: "03",
     title: "Etch the Physical Key",
-    desc: "Connect the archive to a premium, physical Storykeeper Card, memorial program, plaque, or keyring."
+    desc: "Connect the archive to The Life Archive Memory Card, memorial program, plaque, or keyring."
   },
   {
     num: "04",
@@ -101,7 +101,7 @@ export default async function HomePage() {
                   href="/member-card"
                   className="text-xs font-semibold uppercase tracking-wider text-archive-ivory/80 transition hover:text-archive-gold"
                 >
-                  Storykeeper Card
+                  The Life Archive Memory Card
                 </Link>
               )}
               <Link

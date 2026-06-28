@@ -81,7 +81,7 @@ export default async function PreserveTheirVoicePage() {
                   href="/member-card"
                   className="text-xs font-semibold uppercase tracking-wider text-archive-ivory/80 transition hover:text-archive-gold"
                 >
-                  Storykeeper Card
+                  The Life Archive Memory Card
                 </Link>
               )}
               <Link

@@ -18,7 +18,7 @@ const useCases = [
   {
     title: "Heirloom Closing Gifts",
     context: "An elegant, lasting value-add.",
-    description: "Present clients with a custom-etched physical Storykeeper Card upon signing their estate documents—giving them a beautiful physical key to store their life's personal heritage."
+    description: "Present clients with The Life Archive Memory Card upon signing their estate documents—giving them a beautiful physical key to store their life's personal heritage."
   }
 ];
 
@@ -66,7 +66,7 @@ export default async function EstatePlannersPartnerPage() {
                   href="/member-card"
                   className="text-xs font-semibold uppercase tracking-wider text-archive-ivory/80 transition hover:text-archive-gold"
                 >
-                  Storykeeper Card
+                  The Life Archive Memory Card
                 </Link>
               )}
               <Link
@@ -150,7 +150,7 @@ export default async function EstatePlannersPartnerPage() {
               <div className="text-archive-gold font-serif text-3xl mb-4">◆</div>
               <h3 className="font-serif text-lg text-archive-champagne mb-3">A Dignified Closing Gift</h3>
               <p className="text-xs leading-6 text-archive-ivory/60">
-                Provide custom Storykeeper keepsakes to clients upon trust signing, giving them a heavy, beautiful physical key to lock their family&apos;s personal archives.
+                Provide The Life Archive keepsakes to clients upon trust signing, giving them a heavy, beautiful physical key to lock their family&apos;s personal archives.
               </p>
             </div>
           </div>
