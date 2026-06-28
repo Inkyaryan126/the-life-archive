@@ -139,10 +139,10 @@ export default async function HomePage() {
                   {primaryLabel}
                 </Link>
                 <Link
-                  href="/archive/sari-rae"
+                  href="/archive/the-first-storykeeper"
                   className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-8 py-4 text-sm font-semibold text-archive-ivory transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:border-archive-gold hover:bg-white/[0.08]"
                 >
-                  Explore Sari Rae&apos;s Legacy →
+                  Explore The Story That Started It All →
                 </Link>
               </div>
             </div>

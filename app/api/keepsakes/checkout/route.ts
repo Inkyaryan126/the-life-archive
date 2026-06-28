@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { getAccountContext } from "@/lib/account";
 
-type CheckoutType = "card" | "keychain" | "plaque";
+type CheckoutType = "card" | "keychain" | "dogtag" | "plaque";
 
 const products: Record<
   CheckoutType,
   {
     name: string;
-    productId: string;
+    productId?: string;
     unitAmount: number;
   }
 > = {
@@ -20,6 +20,10 @@ const products: Record<
     name: "The Life Archive Memorial Keychain",
     productId: "prod_Umopvhs6gAemhj",
     unitAmount: 2400
+  },
+  dogtag: {
+    name: "The Life Archive Memorial Dog Tag",
+    unitAmount: 2900
   },
   plaque: {
     name: "The Life Archive Memorial Plaque",
@@ -74,10 +78,15 @@ export async function GET(request: Request) {
     "line_items[0][quantity]": "1",
     "line_items[0][price_data][currency]": "usd",
     "line_items[0][price_data][unit_amount]": String(product.unitAmount),
-    "line_items[0][price_data][product]": product.productId,
     "metadata[keepsake_type]": checkoutType,
     "metadata[product_name]": product.name
   });
+
+  if (product.productId) {
+    body.set("line_items[0][price_data][product]", product.productId);
+  } else {
+    body.set("line_items[0][price_data][product_data][name]", product.name);
+  }
 
   if (archiveSlug) {
     body.set("metadata[archive_slug]", archiveSlug);

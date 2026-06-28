@@ -22,17 +22,22 @@ type Keepsake = {
   checkoutType?: CheckoutType;
   image?: {
     src: string;
+    secondarySrc?: string;
     alt: string;
+    secondaryAlt?: string;
   };
 };
 
-type CheckoutType = "card" | "keychain" | "plaque";
+type CheckoutType = "card" | "keychain" | "dogtag" | "plaque";
 
 const checkoutUrls: Record<CheckoutType, string | undefined> = {
   card:
     process.env.NEXT_PUBLIC_CHECKOUT_MEMORY_CARD ||
     process.env.NEXT_PUBLIC_CHECKOUT_STORYKEEPER_CARD,
   keychain: process.env.NEXT_PUBLIC_CHECKOUT_MEMORIAL_KEYCHAIN,
+  dogtag:
+    process.env.NEXT_PUBLIC_CHECKOUT_DOG_TAG ||
+    "https://buy.stripe.com/6oU14n69g5FgamLaii1sQ03",
   plaque: process.env.NEXT_PUBLIC_CHECKOUT_QR_PLAQUE
 };
 
@@ -99,8 +104,10 @@ const keepsakes: Keepsake[] = [
     visual: "card",
     checkoutType: "card",
     image: {
-      src: "/images/keepsakes/member-card-dustin-sigley-preview.png",
-      alt: "Personalized Life Archive wallet member card preview"
+      src: "/images/keepsakes/flagships/wallet-card-front.png",
+      secondarySrc: "/images/keepsakes/flagships/wallet-card-back.png",
+      alt: "Front of The Life Archive Memory Card",
+      secondaryAlt: "Back of The Life Archive Memory Card"
     }
   },
   {
@@ -120,12 +127,14 @@ const keepsakes: Keepsake[] = [
     visual: "keychain",
     checkoutType: "keychain",
     image: {
-      src: "/images/keepsakes/leatherkeychain.png",
-      alt: "Leather keychain keepsake with archive QR"
+      src: "/images/keepsakes/flagships/keychain-front.png",
+      secondarySrc: "/images/keepsakes/flagships/keychain-back.png",
+      alt: "Front of The Life Archive Memorial Keychain",
+      secondaryAlt: "Back of The Life Archive Memorial Keychain"
     }
   },
   {
-    name: "Rugged Dog Tag",
+    name: "The Life Archive Memorial Dog Tag",
     price: "$29",
     eyebrow: "Rugged Tribute",
     headline: "A stronger format for lives marked by service, grit, and movement.",
@@ -138,9 +147,12 @@ const keepsakes: Keepsake[] = [
     included: ["Tag layout proof", "Archive QR setup", "Personalization review"],
     bestFor: "Veterans, bikers, first responders, and active lifestyles.",
     visual: "tag",
+    checkoutType: "dogtag",
     image: {
-      src: "/images/keepsakes/dogchain.png",
-      alt: "Dog tag chain keepsake with archive QR"
+      src: "/images/keepsakes/flagships/dogtag-front.png",
+      secondarySrc: "/images/keepsakes/flagships/dogtag-back.png",
+      alt: "Front of The Life Archive Memorial Dog Tag",
+      secondaryAlt: "Back of The Life Archive Memorial Dog Tag"
     }
   },
   {
@@ -321,6 +333,7 @@ const keepsakes: Keepsake[] = [
 const launchProductNames = [
   "The Life Archive Memorial Keychain",
   "The Life Archive Memory Card",
+  "The Life Archive Memorial Dog Tag",
   "The Life Archive Memorial Plaque"
 ];
 
@@ -387,13 +400,36 @@ function ProductVisual({
   if (image) {
     return (
       <div className="relative aspect-[4/3] overflow-hidden rounded-[2.25rem] border border-archive-gold/15 bg-archive-obsidian shadow-luxury">
-        <Image
-          src={image.src}
-          alt={image.alt}
-          fill
-          className="object-cover transition duration-500"
-          sizes="(min-width: 1024px) 44rem, (min-width: 768px) 50vw, 100vw"
-        />
+        {image.secondarySrc ? (
+          <div className="grid h-full grid-cols-2 gap-px bg-archive-gold/15">
+            <div className="relative bg-archive-obsidian">
+              <Image
+                src={image.src}
+                alt={image.alt}
+                fill
+                className="object-contain p-3 transition duration-500"
+                sizes="(min-width: 1024px) 22rem, (min-width: 768px) 25vw, 50vw"
+              />
+            </div>
+            <div className="relative bg-archive-obsidian">
+              <Image
+                src={image.secondarySrc}
+                alt={image.secondaryAlt || image.alt}
+                fill
+                className="object-contain p-3 transition duration-500"
+                sizes="(min-width: 1024px) 22rem, (min-width: 768px) 25vw, 50vw"
+              />
+            </div>
+          </div>
+        ) : (
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            className="object-cover transition duration-500"
+            sizes="(min-width: 1024px) 44rem, (min-width: 768px) 50vw, 100vw"
+          />
+        )}
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-archive-obsidian/82 via-archive-obsidian/24 to-transparent" />
         <p className="absolute bottom-6 left-6 right-6 text-[10px] font-semibold uppercase tracking-[0.24em] text-archive-ivory/68">
           {name}
@@ -527,13 +563,17 @@ function ProductShowcase({
 function ProductCard({
   archiveSlug,
   product,
-  badge
+  badge,
+  isComingSoon = false
 }: {
   archiveSlug?: string | null;
   product: Keepsake;
   badge?: string;
+  isComingSoon?: boolean;
 }) {
-  const checkoutUrl = getCheckoutUrl(product, archiveSlug);
+  const checkoutUrl = isComingSoon
+    ? undefined
+    : getCheckoutUrl(product, archiveSlug);
   const cardContent = (
     <>
       <ProductVisual image={product.image} type={product.visual} name={product.name} />
@@ -544,7 +584,7 @@ function ProductCard({
               {badge}
             </span>
           ) : null}
-          {!checkoutUrl ? (
+          {isComingSoon || !checkoutUrl ? (
             <span className="rounded-full border border-archive-gold/30 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-archive-gold">
               Coming Soon
             </span>
@@ -563,13 +603,13 @@ function ProductCard({
           {product.story}
         </p>
         <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em] text-archive-champagne">
-          {checkoutUrl ? "Order Now" : "Coming Soon"}
+          {checkoutUrl && !isComingSoon ? "Order Now" : "Coming Soon"}
         </p>
       </div>
     </>
   );
 
-  if (!checkoutUrl) {
+  if (isComingSoon || !checkoutUrl) {
     return (
       <div className="rounded-[2rem] border border-archive-gold/14 bg-white/[0.02] p-4 opacity-80 shadow-luxury">
         {cardContent}
@@ -729,6 +769,7 @@ export default async function KeepsakesPage() {
               <ProductCard
                 key={product.name}
                 product={product}
+                isComingSoon
               />
             ))}
           </div>
@@ -760,7 +801,7 @@ export default async function KeepsakesPage() {
             Order the launch keepsake that fits your archive.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-archive-ivory/68">
-            Start with the memorial keychain, memory card, or memorial plaque. After checkout, you will personalize the keepsake around the Life Archive it belongs to.
+            Start with the memorial keychain, memory card, memorial dog tag, or memorial plaque. After checkout, you will personalize the keepsake around the Life Archive it belongs to.
           </p>
           <div className="mt-9 flex flex-wrap justify-center gap-4">
             <a
