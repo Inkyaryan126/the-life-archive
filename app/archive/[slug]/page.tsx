@@ -48,20 +48,22 @@ const archiveChapterButtons = [
 ] as const;
 
 type ArchivePageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
-  searchParams?: {
+  }>;
+  searchParams?: Promise<{
     created?: string;
-  };
+  }>;
 };
 
 export default async function ArchivePage({
   params,
   searchParams
 }: ArchivePageProps) {
+  const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
   const [archive, account] = await Promise.all([
-    getArchiveBySlug(params.slug),
+    getArchiveBySlug(slug),
     getAccountContext()
   ]);
 
@@ -70,8 +72,8 @@ export default async function ArchivePage({
   }
 
   const [memories, visitorMessages] = await Promise.all([
-    getMemoriesByArchiveSlug(params.slug),
-    getVisitorMessages(params.slug)
+    getMemoriesByArchiveSlug(slug),
+    getVisitorMessages(slug)
   ]);
   const isOwner = account.archives.some((item) => item.slug === archive.slug);
 
@@ -173,7 +175,7 @@ export default async function ArchivePage({
               </div>
             </div>
             <div className="p-6 sm:p-8">
-              {searchParams?.created === "1" ? (
+              {resolvedSearchParams?.created === "1" ? (
                 <SuccessMessage
                   eyebrow="Their story has begun"
                   message="The first chapter is ready. Add a chapter whenever you are ready to begin the story."

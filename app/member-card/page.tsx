@@ -16,20 +16,21 @@ import { AccessPrompt } from "@/components/AccessPrompt";
 export const dynamic = "force-dynamic";
 
 type MemberCardPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     confirmation?: string;
     welcome?: string;
-  };
+  }>;
 };
 
 export default async function MemberCardPage({
   searchParams
 }: MemberCardPageProps) {
+  const resolvedSearchParams = await searchParams;
   const account = await getAccountContext();
   const { user } = account;
 
   if (!user) {
-    const confirmationPending = searchParams?.confirmation === "pending";
+    const confirmationPending = resolvedSearchParams?.confirmation === "pending";
 
     return (
       <AccessPrompt
@@ -52,7 +53,7 @@ export default async function MemberCardPage({
 
   const archiveSlug = account.defaultArchive?.slug ?? null;
 
-  const requestHeaders = headers();
+  const requestHeaders = await headers();
   const siteUrl = getRequestSiteUrl(
     requestHeaders.get("host"),
     requestHeaders.get("x-forwarded-proto") || "http"
@@ -65,9 +66,10 @@ export default async function MemberCardPage({
   const continueLabel = archivePath
     ? "Continue to My Archive"
     : "Create My Archive";
-  const confirmationPending = searchParams?.confirmation === "pending";
+  const confirmationPending = resolvedSearchParams?.confirmation === "pending";
   const isNewMember =
-    searchParams?.welcome === "new" || searchParams?.welcome === "confirmed";
+    resolvedSearchParams?.welcome === "new" ||
+    resolvedSearchParams?.welcome === "confirmed";
   const emailName = user.email
     .split("@")[0]
     .replace(/[._-]+/g, " ")

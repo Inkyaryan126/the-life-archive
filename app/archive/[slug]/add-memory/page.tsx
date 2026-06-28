@@ -13,26 +13,28 @@ import {
 export const dynamic = "force-dynamic";
 
 type AddMemoryPageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
-  searchParams?: {
+  }>;
+  searchParams?: Promise<{
     error?: string;
-  };
+  }>;
 };
 
 export default async function AddMemoryPage({
   params,
   searchParams
 }: AddMemoryPageProps) {
+  const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
   const [archive, account] = await Promise.all([
-    getArchiveBySlug(params.slug),
+    getArchiveBySlug(slug),
     getAccountContext()
   ]);
 
   if (!archive) {
     if (account.isConfigured && !account.user) {
-      const returnPath = `/archive/${params.slug}/add-memory`;
+      const returnPath = `/archive/${slug}/add-memory`;
 
       return (
         <AccessPrompt
@@ -109,9 +111,9 @@ export default async function AddMemoryPage({
           encType="multipart/form-data"
           className="grid gap-6 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-8 shadow-luxury"
         >
-          {searchParams?.error ? (
+          {resolvedSearchParams?.error ? (
             <p className="rounded-md border border-archive-gold/20 bg-archive-gold/10 px-4 py-3 text-sm font-semibold text-archive-gold">
-              {searchParams.error}
+              {resolvedSearchParams.error}
             </p>
           ) : null}
           <div className="grid gap-5">

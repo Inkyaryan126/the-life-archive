@@ -8,22 +8,23 @@ import { getArchiveBySlug, getRandomMemory } from "@/lib/archive-data";
 export const dynamic = "force-dynamic";
 
 type RandomMemoryPageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 export default async function RandomMemoryPage({
   params
 }: RandomMemoryPageProps) {
+  const { slug } = await params;
   const [archive, account] = await Promise.all([
-    getArchiveBySlug(params.slug),
+    getArchiveBySlug(slug),
     getAccountContext()
   ]);
 
   if (!archive) {
     if (account.isConfigured && !account.user) {
-      const returnPath = `/archive/${params.slug}/random`;
+      const returnPath = `/archive/${slug}/random`;
 
       return (
         <AccessPrompt
@@ -39,7 +40,7 @@ export default async function RandomMemoryPage({
     notFound();
   }
 
-  const memory = await getRandomMemory(params.slug);
+  const memory = await getRandomMemory(slug);
   const canAddMemory = account.archives.some((item) => item.slug === archive.slug);
 
   return (

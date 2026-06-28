@@ -373,14 +373,15 @@ async function loadArchiveOverviews(
 }
 
 type DashboardPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     welcome?: string;
-  };
+  }>;
 };
 
 export default async function DashboardPage({
   searchParams
 }: DashboardPageProps) {
+  const resolvedSearchParams = await searchParams;
   const account = await getAccountContext();
 
   if (!account.user) {
@@ -542,7 +543,7 @@ export default async function DashboardPage({
       </nav>
 
       <div className="relative z-10 mx-auto max-w-7xl pb-20 pt-10 sm:pt-14">
-        {searchParams?.welcome === "back" ? (
+        {resolvedSearchParams?.welcome === "back" ? (
           <SuccessMessage
             eyebrow="Welcome back"
             message="Your archives are ready whenever you are."

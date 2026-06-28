@@ -394,7 +394,7 @@ export function isMemoryType(value: string): value is MemoryType {
 
 export async function getFeaturedArchives() {
   if (useSupabase) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("archives")
       .select("*")
@@ -424,7 +424,7 @@ export async function getFeaturedArchives() {
 
 export async function getArchiveBySlug(slug: string) {
   if (useSupabase) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("archives")
       .select("*")
@@ -455,7 +455,7 @@ export async function getArchiveBySlug(slug: string) {
 
 export async function getMemoriesByArchiveSlug(slug: string) {
   if (useSupabase) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("memories")
       .select("*, archives!inner(slug)")
@@ -513,7 +513,7 @@ function mapLegacyInstruction(
 
 export async function getLegacyInstructionByArchiveSlug(slug: string, isOwner?: boolean) {
   if (useSupabase) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase.rpc(
       "get_legacy_instruction_by_archive_slug",
       {
@@ -580,7 +580,7 @@ export async function saveLegacyInstruction(
   }
 
   if (useSupabase) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: userError
@@ -723,7 +723,7 @@ export async function createArchive(input: CreateArchiveInput) {
     : "other";
 
   if (useSupabase) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: userError,
@@ -858,7 +858,7 @@ export async function createMemory(input: CreateMemoryInput) {
   const mediaUrl = mediaUrlValidation.value;
 
   if (useSupabase) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: userError,
@@ -992,7 +992,7 @@ export async function createMemory(input: CreateMemoryInput) {
 
 export async function getVisitorMessages(archiveSlug: string): Promise<VisitorMessage[]> {
   if (useSupabase) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: archive } = await supabase
       .from("archives")
       .select("id")
@@ -1038,7 +1038,7 @@ export async function createVisitorMessage(
   }
 
   if (useSupabase) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: archive } = await supabase
       .from("archives")
       .select("id")
@@ -1091,7 +1091,7 @@ export async function createVisitorMessage(
 
 export async function deleteVisitorMessage(messageId: string): Promise<boolean> {
   if (useSupabase) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error } = await supabase
       .from("visitor_messages")
       .delete()
@@ -1114,7 +1114,7 @@ export async function updateArchive(
   updates: { personName: string; archiveName: string; bio: string; visibility: ArchiveVisibility }
 ) {
   if (useSupabase) {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("archives")
       .update({

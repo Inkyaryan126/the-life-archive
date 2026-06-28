@@ -13,7 +13,7 @@ type QRPreviewProps = {
 };
 
 export async function QRPreview({ archiveSlug, label }: QRPreviewProps) {
-  const requestHeaders = headers();
+  const requestHeaders = await headers();
   const host = requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") || "http";
   const siteUrl = getRequestSiteUrl(host, protocol);

@@ -10,20 +10,21 @@ import { AccessPrompt } from "@/components/AccessPrompt";
 export const dynamic = "force-dynamic";
 
 type EditArchivePageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 export default async function EditArchivePage({ params }: EditArchivePageProps) {
+  const { slug } = await params;
   const account = await getAccountContext();
   const { user } = account;
 
   if (!user) {
-    redirect(`/login?next=%2Farchive%2F${params.slug}%2Fedit`);
+    redirect(`/login?next=%2Farchive%2F${slug}%2Fedit`);
   }
 
-  const archive = await getArchiveBySlug(params.slug);
+  const archive = await getArchiveBySlug(slug);
 
   if (!archive) {
     notFound();

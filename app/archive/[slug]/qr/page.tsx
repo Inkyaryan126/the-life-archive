@@ -14,19 +14,20 @@ import {
 export const dynamic = "force-dynamic";
 
 type QRPageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 export default async function QRPage({ params }: QRPageProps) {
-  const archive = await getArchiveBySlug(params.slug);
+  const { slug } = await params;
+  const archive = await getArchiveBySlug(slug);
 
   if (!archive) {
     notFound();
   }
 
-  const requestHeaders = headers();
+  const requestHeaders = await headers();
   const host = requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") || "http";
   const siteUrl = getRequestSiteUrl(host, protocol);

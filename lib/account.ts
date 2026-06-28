@@ -47,7 +47,7 @@ export async function getAccountContext(): Promise<AccountContext> {
     };
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
@@ -110,7 +110,7 @@ export async function canCurrentUserAddMemory(
     return true;
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: archive } = await supabase
     .from("archives")
     .select("id")

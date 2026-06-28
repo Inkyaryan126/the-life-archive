@@ -3,15 +3,16 @@ import { loginAction, signupAction } from "./actions";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 
 type LoginPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     confirmation?: string;
     error?: string;
     next?: string;
-  };
+  }>;
 };
 
-export default function LoginPage({ searchParams }: LoginPageProps) {
-  const confirmationPending = searchParams?.confirmation === "pending";
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const confirmationPending = resolvedSearchParams?.confirmation === "pending";
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-12 text-archive-ivory sm:px-8">
@@ -21,8 +22,8 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
           <SiteLogo width={200} height={50} className="mx-auto" />
         </Link>
         <form className="grid gap-5 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-8 shadow-luxury">
-          {searchParams?.next ? (
-            <input type="hidden" name="next" value={searchParams.next} />
+          {resolvedSearchParams?.next ? (
+            <input type="hidden" name="next" value={resolvedSearchParams.next} />
           ) : null}
           <div>
             <h1 className="font-serif text-2xl text-archive-ivory">
@@ -34,9 +35,9 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
                 : "Sign in to return to your archives, or create an account to begin."}
             </p>
           </div>
-          {searchParams?.error ? (
+          {resolvedSearchParams?.error ? (
             <p className="rounded-md border border-archive-gold/20 bg-archive-gold/10 px-4 py-3 text-sm font-semibold text-archive-gold">
-              {searchParams.error}
+              {resolvedSearchParams.error}
             </p>
           ) : null}
           <label className="grid gap-2">

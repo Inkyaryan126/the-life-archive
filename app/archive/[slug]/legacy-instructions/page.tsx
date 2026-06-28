@@ -12,13 +12,13 @@ import { SuccessMessage } from "@/components/SuccessMessage";
 export const dynamic = "force-dynamic";
 
 type LegacyInstructionsPageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
-  searchParams?: {
+  }>;
+  searchParams?: Promise<{
     error?: string;
     success?: string;
-  };
+  }>;
 };
 
 function LegacyInstructionsEditor({
@@ -199,23 +199,25 @@ export default async function LegacyInstructionsPage({
   params,
   searchParams
 }: LegacyInstructionsPageProps) {
+  const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
   const account = await getAccountContext();
-  const isOwner = account.archives.some((archive) => archive.slug === params.slug);
+  const isOwner = account.archives.some((archive) => archive.slug === slug);
   const [archive, legacyInstruction] = await Promise.all([
-    getArchiveBySlug(params.slug),
-    getLegacyInstructionByArchiveSlug(params.slug, isOwner)
+    getArchiveBySlug(slug),
+    getLegacyInstructionByArchiveSlug(slug, isOwner)
   ]);
 
   if (!isOwner && !legacyInstruction) {
     notFound();
   }
 
-  const ownedArchive = account.archives.find((item) => item.slug === params.slug);
+  const ownedArchive = account.archives.find((item) => item.slug === slug);
   const displayArchiveName =
     archive?.archiveName ?? legacyInstruction?.archiveName ?? ownedArchive?.archiveName;
   const displayPersonName =
     archive?.personName ?? legacyInstruction?.personName ?? ownedArchive?.personName;
-  const backHref = archive ? `/archive/${params.slug}` : "/";
+  const backHref = archive ? `/archive/${slug}` : "/";
 
   if (!displayArchiveName || !displayPersonName) {
     notFound();
@@ -241,17 +243,17 @@ export default async function LegacyInstructionsPage({
         <section className="py-12">
           {isOwner ? (
             <LegacyInstructionsEditor
-              slug={params.slug}
+              slug={slug}
               archiveName={displayArchiveName}
               personName={displayPersonName}
               body={legacyInstruction?.body}
               accessLevel={legacyInstruction?.accessLevel}
-              error={searchParams?.error}
-              success={searchParams?.success}
+              error={resolvedSearchParams?.error}
+              success={resolvedSearchParams?.success}
             />
           ) : legacyInstruction ? (
             <LegacyInstructionsReadOnly
-              archiveSlug={params.slug}
+              archiveSlug={slug}
               archiveName={displayArchiveName}
               personName={displayPersonName}
               body={legacyInstruction.body}

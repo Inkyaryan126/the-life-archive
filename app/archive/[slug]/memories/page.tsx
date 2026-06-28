@@ -10,13 +10,13 @@ import { prettifyType } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 type MemoriesPageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
-  searchParams?: {
+  }>;
+  searchParams?: Promise<{
     created?: string;
     type?: string;
-  };
+  }>;
 };
 
 const memoryTypeLabels: Record<MemoryType, string> = {
@@ -35,8 +35,10 @@ function isMemoryType(value: string): value is MemoryType {
 }
 
 export default async function MemoriesPage({ params, searchParams }: MemoriesPageProps) {
+  const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
   const [archive, account] = await Promise.all([
-    getArchiveBySlug(params.slug),
+    getArchiveBySlug(slug),
     getAccountContext()
   ]);
 
@@ -44,9 +46,10 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
     notFound();
   }
 
-  const memories = await getMemoriesByArchiveSlug(params.slug);
-  const selectedType = searchParams?.type && isMemoryType(searchParams.type)
-    ? searchParams.type
+  const memories = await getMemoriesByArchiveSlug(slug);
+  const selectedType =
+    resolvedSearchParams?.type && isMemoryType(resolvedSearchParams.type)
+      ? resolvedSearchParams.type
     : null;
   const filteredMemories = selectedType
     ? memories.filter((memory) => memory.type === selectedType)
@@ -87,7 +90,7 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
           ) : null}
         </header>
 
-        {searchParams?.created === "1" ? (
+        {resolvedSearchParams?.created === "1" ? (
           <SuccessMessage
             eyebrow="Another chapter has been preserved"
             message="This memory is now part of the story and ready to be revisited."

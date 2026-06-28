@@ -11,19 +11,20 @@ import {
 } from "@/lib/archive-relationships";
 
 type CreateArchivePageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     error?: string;
     relationshipToOwner?: string;
-  };
+  }>;
 };
 
 export default async function CreateArchivePage({
   searchParams
 }: CreateArchivePageProps) {
+  const resolvedSearchParams = await searchParams;
   const account = await getAccountContext();
   const signInRequired = account.isConfigured && !account.user;
   const requestedRelationship =
-    searchParams?.relationshipToOwner === "self" ? "self" : "other";
+    resolvedSearchParams?.relationshipToOwner === "self" ? "self" : "other";
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-12 text-archive-ivory sm:px-8">
@@ -99,9 +100,9 @@ export default async function CreateArchivePage({
             encType="multipart/form-data"
             className="grid gap-6 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-8 shadow-luxury"
           >
-            {searchParams?.error ? (
+            {resolvedSearchParams?.error ? (
               <p className="rounded-md border border-archive-gold/20 bg-archive-gold/10 px-4 py-3 text-sm font-semibold text-archive-gold">
-                {searchParams.error}
+                {resolvedSearchParams.error}
               </p>
             ) : null}
             <div className="grid gap-5">
