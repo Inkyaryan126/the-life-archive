@@ -1,79 +1,447 @@
+import Image from "next/image";
 import Link from "next/link";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
 
 export const dynamic = "force-dynamic";
 
-const keepsakes = [
+type Keepsake = {
+  name: string;
+  price: string;
+  eyebrow: string;
+  headline: string;
+  story: string;
+  craftsmanship: string;
+  materials: string[];
+  personalization: string[];
+  included: string[];
+  bestFor: string;
+  visual: "card" | "keychain" | "tag" | "pendant" | "plaque" | "urn" | "frame" | "bench" | "nfc";
+  image?: {
+    src: string;
+    alt: string;
+  };
+};
+
+const keepsakes: Keepsake[] = [
   {
     name: "Wallet Member Card",
     price: "$19",
-    bestFor: "Everyday pocket carrying, wallet storage, and final wishes backup.",
-    desc: "A precision-crafted, heavy matte-finish horizontal wallet card etched with your secure, unique archive QR code on the back and your profile name on the front.",
-    scenarios: "Account owners & guardians"
+    eyebrow: "QR Card",
+    headline: "A quiet card that keeps their story within reach.",
+    story:
+      "Designed for wallets, desk drawers, family files, and final-wishes folders, this card gives loved ones a clear path back to the archive when it matters.",
+    craftsmanship:
+      "Each request is prepared as a personalized proof with the archive QR, front-facing name treatment, and a restrained finish that feels archival rather than promotional.",
+    materials: ["Heavy matte card stock", "Archive QR code", "Ivory and gold print treatment"],
+    personalization: ["Archive name", "Front-facing name", "Short message or date"],
+    included: ["Personalized card proof", "Archive QR placement", "Email confirmation before production"],
+    bestFor: "Everyday carrying, wallet storage, and final wishes backup.",
+    visual: "card",
+    image: {
+      src: "/images/keepsakes/member-card-dustin-sigley-preview.png",
+      alt: "Personalized Life Archive wallet member card preview"
+    }
   },
   {
     name: "Memorial Keychain",
     price: "$24",
+    eyebrow: "Daily Carry",
+    headline: "A small physical key for an archive that should not be forgotten.",
+    story:
+      "A keychain is the keepsake people actually carry. It turns a private archive into something that can travel through everyday routines without feeling ornamental.",
+    craftsmanship:
+      "Requested as a custom proof with QR placement, name treatment, and material direction selected around durability and quiet presence.",
+    materials: ["Leather or brushed metal direction", "Engraved or printed QR", "Compact carry format"],
+    personalization: ["Name or initials", "Archive QR", "Material preference"],
+    included: ["Custom proof", "QR placement review", "Follow-up for finish selection"],
     bestFor: "Daily keys, active remembrance, and family distribution.",
-    desc: "A beautifully hand-stitched full-grain leather or brushed-metal keychain charm embedded with your secure archive QR. A durable daily companion.",
-    scenarios: "Children, spouses, & relatives"
+    visual: "keychain",
+    image: {
+      src: "/images/keepsakes/leatherkeychain.png",
+      alt: "Leather keychain keepsake with archive QR"
+    }
   },
   {
     name: "Rugged Dog Tag",
     price: "$29",
+    eyebrow: "Rugged Tribute",
+    headline: "A stronger format for lives marked by service, grit, and movement.",
+    story:
+      "The dog tag format is direct and durable. It is suited for families who want the archive to feel carried, not displayed.",
+    craftsmanship:
+      "Each inquiry starts with a proof for QR scale, name placement, and a finish direction appropriate for a more rugged object.",
+    materials: ["Stainless steel or matte black direction", "Scratch-resistant QR treatment", "Chain-ready tag format"],
+    personalization: ["Name", "Dates or short line", "Finish preference"],
+    included: ["Tag layout proof", "Archive QR setup", "Personalization review"],
     bestFor: "Veterans, bikers, first responders, and active lifestyles.",
-    desc: "A heavy-gauge, tactical-style stainless steel or matte black anodized dog tag featuring a scratch-resistant laser-engraved QR code.",
-    scenarios: "Veterans & rugged tributes"
+    visual: "tag",
+    image: {
+      src: "/images/keepsakes/dogchain.png",
+      alt: "Dog tag chain keepsake with archive QR"
+    }
   },
   {
     name: "Necklace Charm / Pendant",
     price: "$39",
-    bestFor: "Wearing close to the heart, elegant memorial jewelry.",
-    desc: "A refined, high-purity sterling silver or gold-plated pendant charm featuring a micro-engraved QR leading to their archive.",
-    scenarios: "Parents, partners, & close descendants"
+    eyebrow: "Worn Close",
+    headline: "A discreet charm for the story someone wants near the heart.",
+    story:
+      "The pendant format is intentionally small and personal. It is for families who want the archive to be present without announcing itself.",
+    craftsmanship:
+      "The request process focuses on restrained QR placement, legibility, and a finish that suits jewelry rather than signage.",
+    materials: ["Silver or gold-tone direction", "Micro QR placement", "Charm or pendant form"],
+    personalization: ["Initials or name", "Short dedication", "Finish preference"],
+    included: ["Pendant layout proof", "QR legibility review", "Email confirmation"],
+    bestFor: "Parents, partners, and close descendants.",
+    visual: "pendant",
+    image: {
+      src: "/images/keepsakes/memorialpendant.png",
+      alt: "Memorial pendant keepsake with archive QR"
+    }
   },
   {
     name: "Memorial Plaque",
     price: "$79",
+    eyebrow: "Placed With Care",
+    headline: "A permanent signpost for a life remembered in more than dates.",
+    story:
+      "A plaque can sit near a grave marker, home altar, shadow box, or family wall. It gives the archive a stable physical address.",
+    craftsmanship:
+      "Proofing centers on proportion, material tone, and QR placement so the piece reads as a memorial object first and a scan point second.",
+    materials: ["Brass, bronze, or dark plaque direction", "Engraved or inset QR", "Indoor or outdoor placement review"],
+    personalization: ["Name", "Dates", "Short dedication"],
+    included: ["Plaque proof", "Placement consultation by email", "Archive QR setup"],
     bestFor: "Grave markers, home altars, shadow boxes, or wall displays.",
-    desc: "A thick, weathered brass or obsidian-finish stone plaque designed for indoor or outdoor final resting places.",
-    scenarios: "Resting sites & home memorials"
+    visual: "plaque",
+    image: {
+      src: "/images/keepsakes/memorialplaque.png",
+      alt: "Memorial plaque keepsake with archive QR"
+    }
   },
   {
     name: "Urn / Keepsake Box Tag",
     price: "$49",
-    bestFor: "Urn placement, dynamic ashes keepsake boxes, and drawers.",
-    desc: "A slim, adhesive-backed curved bronze or brass plate engineered to conform perfectly to cylindrical urns or wood boxes.",
-    scenarios: "Urns & heirloom keepsake vaults"
+    eyebrow: "Archive Tag",
+    headline: "A small marker for the objects families already protect.",
+    story:
+      "Some keepsakes belong on the box, urn, or drawer that already holds memory. This format keeps the archive connected to the physical place families return to.",
+    craftsmanship:
+      "Each request is reviewed for object type, surface shape, and a tag treatment that should feel subtle rather than added-on.",
+    materials: ["Curved or flat tag direction", "Bronze or brass-tone option", "Adhesive-backed placement concept"],
+    personalization: ["Archive name", "Short inscription", "Surface type"],
+    included: ["Tag proof", "Surface-fit follow-up", "QR placement review"],
+    bestFor: "Urns, heirloom boxes, keepsake vaults, and drawers.",
+    visual: "urn",
+    image: {
+      src: "/images/keepsakes/urn.png",
+      alt: "Urn keepsake tag with archive QR"
+    }
   },
   {
     name: "Photo Frame QR Key",
     price: "$59",
+    eyebrow: "Memorial Photo QR",
+    headline: "A frame that lets one photograph open into a fuller life.",
+    story:
+      "A portrait already asks people to pause. Adding a quiet QR key lets that moment continue into voice notes, lessons, photos, and memories.",
+    craftsmanship:
+      "The proofing process considers frame edge, QR scale, and how the code sits beside the photograph without competing with it.",
+    materials: ["Wood-frame direction", "Inset QR plate concept", "Gold or dark accent direction"],
+    personalization: ["Name", "Frame message", "Photo context"],
+    included: ["Frame QR concept", "Archive QR placement", "Personalization proof"],
     bestFor: "Mantels, display tables, shelves, and home picture walls.",
-    desc: "A premium solid-wood portrait frame accompanied by a subtle, beautifully inset gold QR plate on the border's lower edge.",
-    scenarios: "Living room mantels & shelf displays"
+    visual: "frame",
+    image: {
+      src: "/images/keepsakes/photoframekey.png",
+      alt: "Photo frame keepsake with archive QR key"
+    }
   },
   {
     name: "Bench / Dedication Plaque",
     price: "Custom Quote",
+    eyebrow: "Custom Dedication",
+    headline: "A public marker that can hold more than a short inscription.",
+    story:
+      "For benches, gardens, dedications, and public memorials, the archive becomes a deeper layer behind a simple physical marker.",
+    craftsmanship:
+      "Custom requests are reviewed by placement, exposure, material direction, QR scale, and the tone of the dedication.",
+    materials: ["Weather-aware plaque direction", "Bronze or dark metal concept", "Custom sizing discussion"],
+    personalization: ["Name", "Dedication", "Installation context"],
+    included: ["Custom order discussion", "QR placement concept", "Follow-up quote process"],
     bestFor: "Public memorial benches, parks, dedication plaques, and gardens.",
-    desc: "A highly-durable, weather-proof commercial grade bronze plaque etched with deep channels to survive centuries in public parks.",
-    scenarios: "Dedications & public park benches"
+    visual: "bench",
+    image: {
+      src: "/images/keepsakes/dedicationplaque.png",
+      alt: "Dedication plaque keepsake with archive QR"
+    }
   },
   {
     name: "Smart NFC Keepsake",
     price: "$39",
-    bestFor: "Instant tap-to-reveal access, tech-forward families.",
-    desc: "A ceramic token or brushed card embedded with an active NFC microchip. Tap any modern smartphone to instantly slide open the archive.",
-    scenarios: "Frictionless modern sharing"
+    eyebrow: "Tap Access Option",
+    headline: "A modern option for families who want scan and tap access.",
+    story:
+      "The NFC option is for families who want the archive to open by camera scan or phone tap, while keeping the same quiet physical language.",
+    craftsmanship:
+      "Requests are reviewed for form factor, QR backup placement, and whether NFC is appropriate for the intended use.",
+    materials: ["Ceramic token or brushed card direction", "NFC tap option", "QR backup path"],
+    personalization: ["Name", "Material preference", "Use context"],
+    included: ["NFC inquiry review", "QR backup placement", "Email confirmation"],
+    bestFor: "Instant tap-to-reveal access and tech-forward families.",
+    visual: "nfc",
+    image: {
+      src: "/images/keepsakes/smartnfc.png",
+      alt: "Smart NFC keepsake with QR backup"
+    }
+  },
+  {
+    name: "Remembrance Bracelet / Bracelet Plate",
+    price: "$39",
+    eyebrow: "Worn Reminder",
+    headline: "A bracelet plate for memory that can stay close through ordinary days.",
+    story:
+      "This format is for families who want the archive attached to something wearable, simple, and easy to keep nearby.",
+    craftsmanship:
+      "Requests focus on QR legibility, plate size, and a restrained name or initials treatment that does not overwhelm the bracelet.",
+    materials: ["Bracelet plate direction", "Archive QR placement", "Dark or metal-tone finish"],
+    personalization: ["Name or initials", "Short date or phrase", "Finish preference"],
+    included: ["Bracelet plate proof", "QR placement review", "Email confirmation"],
+    bestFor: "Daily remembrance, close family members, and discreet wearable access.",
+    visual: "plaque",
+    image: {
+      src: "/images/keepsakes/braceletplate.png",
+      alt: "Bracelet plate keepsake with archive QR"
+    }
+  },
+  {
+    name: "Car Vent Keepsake",
+    price: "$34",
+    eyebrow: "Travel Companion",
+    headline: "A small keepsake for the places where songs, stories, and drives return.",
+    story:
+      "Some memories live in the car: errands, road trips, favorite songs, and quiet conversations. This keepsake gives that space a path back to the archive.",
+    craftsmanship:
+      "Each request is reviewed around size, QR access, and a low-profile format that belongs in a vehicle without feeling distracting.",
+    materials: ["Vent-friendly form factor", "Archive QR code", "Dark or metal-tone direction"],
+    personalization: ["Name", "Short phrase", "Vehicle placement context"],
+    included: ["Car vent concept proof", "QR placement review", "Follow-up for fit details"],
+    bestFor: "Cars, road trips, and families who connect memory with movement.",
+    visual: "nfc",
+    image: {
+      src: "/images/keepsakes/carvent.png",
+      alt: "Car vent keepsake with archive QR"
+    }
+  },
+  {
+    name: "Money Clip Card",
+    price: "$49",
+    eyebrow: "Pocket Archive",
+    headline: "A refined pocket piece for the archive someone wants close at hand.",
+    story:
+      "The money clip format keeps the archive attached to a practical object, suitable for someone who prefers a sturdier daily carry piece.",
+    craftsmanship:
+      "Proofing centers on QR placement, engraved name treatment, and keeping the object understated enough for everyday use.",
+    materials: ["Money clip card direction", "Engraved or printed QR", "Metal-tone finish"],
+    personalization: ["Name or initials", "Short message", "Finish preference"],
+    included: ["Money clip proof", "Archive QR setup", "Personalization review"],
+    bestFor: "Daily carry, wallets, and practical personal keepsakes.",
+    visual: "card",
+    image: {
+      src: "/images/keepsakes/moneyclip.png",
+      alt: "Money clip card keepsake with archive QR"
+    }
   }
 ];
+
+const featuredCollection = keepsakes.slice(0, 4);
+
+const storeSteps = [
+  "Choose a keepsake",
+  "Connect it to an archive",
+  "Personalize name, message, or material",
+  "Submit a request",
+  "We follow up to confirm details"
+];
+
+const trustPillars = [
+  {
+    title: "Lifetime keepsake philosophy",
+    copy:
+      "These objects are meant to live beside records, portraits, urns, drawers, and daily keys. The goal is not a seasonal product drop. It is a physical path back to a life story."
+  },
+  {
+    title: "Secure archive activation",
+    copy:
+      "Each request is connected to a specific Life Archive QR path. We confirm the archive and personalization details before production decisions move forward."
+  },
+  {
+    title: "Designed to last generations",
+    copy:
+      "Material choices favor legibility, restraint, and durability. The keepsake should still make sense to someone finding it years from now."
+  },
+  {
+    title: "Private by design",
+    copy:
+      "The keepsake is only a physical key. Archive privacy and access remain controlled by the archive experience, not by public product pages."
+  }
+];
+
+function ProductVisual({
+  image,
+  name,
+  type
+}: {
+  image?: Keepsake["image"];
+  name: string;
+  type: Keepsake["visual"];
+}) {
+  const shapeClasses: Record<Keepsake["visual"], string> = {
+    card: "h-40 w-64 rounded-[1.4rem]",
+    keychain: "h-48 w-24 rounded-[2.5rem]",
+    tag: "h-52 w-32 rounded-[4rem]",
+    pendant: "h-40 w-40 rounded-full",
+    plaque: "h-44 w-72 rounded-xl",
+    urn: "h-36 w-64 rounded-[999px]",
+    frame: "h-64 w-52 rounded-xl",
+    bench: "h-32 w-72 rounded-lg",
+    nfc: "h-44 w-44 rounded-[2rem]"
+  };
+
+  if (image) {
+    return (
+      <div className="relative aspect-[4/3] overflow-hidden rounded-[2.25rem] border border-archive-gold/15 bg-archive-obsidian shadow-luxury">
+        <Image
+          src={image.src}
+          alt={image.alt}
+          fill
+          className="object-cover transition duration-500"
+          sizes="(min-width: 1024px) 44rem, (min-width: 768px) 50vw, 100vw"
+        />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-archive-obsidian/82 via-archive-obsidian/24 to-transparent" />
+        <p className="absolute bottom-6 left-6 right-6 text-[10px] font-semibold uppercase tracking-[0.24em] text-archive-ivory/68">
+          {name}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative min-h-[22rem] overflow-hidden rounded-[2.25rem] border border-archive-gold/15 bg-[radial-gradient(circle_at_50%_22%,rgba(198,161,91,0.2),transparent_18rem),linear-gradient(145deg,rgba(255,255,255,0.08),rgba(255,255,255,0.01))] shadow-luxury">
+      <div className="absolute inset-x-10 bottom-10 h-16 rounded-full bg-black/45 blur-2xl" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(13,13,14,0),rgba(13,13,14,0.36))]" />
+      <div
+        className={`absolute left-1/2 top-1/2 grid -translate-x-1/2 -translate-y-1/2 place-items-center border border-archive-gold/35 bg-gradient-to-br from-archive-ivory/18 via-archive-gold/12 to-black/20 shadow-[0_36px_90px_rgba(0,0,0,0.48)] ${shapeClasses[type]}`}
+      >
+        <div className="grid h-20 w-20 place-items-center rounded-xl border border-archive-gold/35 bg-archive-obsidian/70">
+          <span className="text-[9px] font-bold uppercase tracking-[0.24em] text-archive-gold">
+            QR
+          </span>
+        </div>
+      </div>
+      <p className="absolute bottom-6 left-6 right-6 text-[10px] font-semibold uppercase tracking-[0.24em] text-archive-ivory/45">
+        {name}
+      </p>
+    </div>
+  );
+}
+
+function DetailList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div>
+      <h4 className="text-[10px] font-bold uppercase tracking-[0.24em] text-archive-gold">
+        {title}
+      </h4>
+      <ul className="mt-4 grid gap-3 text-xs leading-5 text-archive-ivory/68">
+        {items.map((item) => (
+          <li key={item} className="flex gap-3">
+            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-archive-gold" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ProductShowcase({
+  product,
+  mailtoUrl,
+  reverse = false
+}: {
+  product: Keepsake;
+  mailtoUrl: string;
+  reverse?: boolean;
+}) {
+  return (
+    <section className="grid gap-10 border-t border-archive-gold/15 py-16 lg:grid-cols-2 lg:items-center lg:gap-16 lg:py-24">
+      <div className={reverse ? "lg:order-last" : ""}>
+        <ProductVisual image={product.image} type={product.visual} name={product.name} />
+      </div>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.26em] text-archive-gold">
+          {product.eyebrow}
+        </p>
+        <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
+          <h2 className="max-w-xl font-serif text-3xl leading-tight text-archive-ivory sm:text-5xl">
+            {product.headline}
+          </h2>
+          <span className="rounded-full border border-archive-gold/30 px-4 py-1 text-xs font-bold text-archive-gold">
+            {product.price}
+          </span>
+        </div>
+        <p className="mt-6 max-w-2xl text-sm leading-7 text-archive-ivory/76">
+          {product.story}
+        </p>
+        <div className="mt-8 rounded-[1.5rem] border border-archive-gold/12 bg-white/[0.025] p-5">
+          <h3 className="font-serif text-xl text-archive-champagne">
+            Craftsmanship
+          </h3>
+          <p className="mt-3 text-sm leading-7 text-archive-ivory/66">
+            {product.craftsmanship}
+          </p>
+        </div>
+        <div className="mt-8 grid gap-8 md:grid-cols-3">
+          <DetailList title="Materials" items={product.materials} />
+          <DetailList title="Personalization" items={product.personalization} />
+          <DetailList title="What's included" items={product.included} />
+        </div>
+        <p className="mt-8 text-xs italic leading-6 text-archive-ivory/58">
+          Best for: {product.bestFor}
+        </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <a
+            href={mailtoUrl}
+            className="rounded-full bg-archive-gold px-7 py-3 text-xs font-bold uppercase tracking-[0.18em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+          >
+            Request Keepsake
+          </a>
+          <a
+            href={mailtoUrl}
+            className="rounded-full border border-archive-gold/30 bg-white/[0.035] px-7 py-3 text-xs font-bold uppercase tracking-[0.18em] text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.07]"
+          >
+            Ask About Custom Order
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TrustPillar({ title, copy }: { title: string; copy: string }) {
+  return (
+    <div className="border-t border-archive-gold/18 pt-6">
+      <h3 className="font-serif text-2xl text-archive-ivory">{title}</h3>
+      <p className="mt-4 text-sm leading-7 text-archive-ivory/64">{copy}</p>
+    </div>
+  );
+}
 
 export default async function KeepsakesPage() {
   const account = await getAccountContext();
   const isSignedIn = Boolean(account.user);
   const dashboardHref = isSignedIn ? "/dashboard" : "/login";
+  const dashboardLabel = isSignedIn ? "Dashboard" : "Sign In";
 
   const mailtoUrl = "mailto:keepsakes@thelifearchive.vip?subject=Life%20Archive%20Keepsake%20Request&body=Hello%20Life%20Archive%20Team%2C%0A%0AI%20am%20interested%20in%20requesting%20a%20premium%20physical%20keepsake%20connected%20to%20my%20archive.%0A%0AKeepsake%20Type%3A%20%5BPlease%20specify%3A%20Member%20Card%2C%20Keychain%2C%20Dog%20Tag%2C%20Pendant%2C%20Plaque%2C%20Urn%20Tag%2C%20etc.%5D%0AMy%20Archive%20Slug%3A%20%5BPlease%20enter%20slug%2C%20e.g.%20sari-rae%5D%0A%0AThank%20you!";
 
@@ -81,17 +449,16 @@ export default async function KeepsakesPage() {
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8">
       <DesignBackdrop />
 
-      {/* Header */}
-      <nav className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between border-b border-archive-gold/20 pb-5">
+      <nav className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-4 border-b border-archive-gold/20 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <Link href="/">
           <SiteLogo width={160} height={40} />
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex w-full items-center justify-between gap-4 sm:w-auto sm:justify-end">
           <Link
             href={dashboardHref}
             className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
           >
-            Dashboard
+            {dashboardLabel}
           </Link>
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
             Keepsake Store
@@ -99,122 +466,144 @@ export default async function KeepsakesPage() {
         </div>
       </nav>
 
-      <div className="relative z-10 mx-auto max-w-5xl py-12 sm:py-16">
-        {/* Hero */}
-        <section className="text-center max-w-3xl mx-auto">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-            PREMIUM STORYKEEPER KEEPSAKES
-          </p>
-          <h1 className="mt-5 font-serif text-4xl leading-tight sm:text-6xl text-archive-ivory">
-            Storykeeper Keepsakes
-          </h1>
-          <p className="mt-4 font-serif text-xl italic text-archive-champagne sm:text-2xl">
-            Connect a life story to something real.
-          </p>
-          <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-archive-ivory/68">
-            A Life Archive does not have to live only on a screen. Turn any archive into a physical keepsake that can be carried, worn, displayed, or placed where memories are honored.
-          </p>
-        </section>
-
-        {/* Brand Concept Core Explanation */}
-        <section className="mt-16 rounded-[2rem] border border-archive-gold/18 bg-white/[0.03] p-8 shadow-luxury max-w-4xl mx-auto">
-          <div className="grid gap-8 md:grid-cols-2 text-center md:text-left divide-y md:divide-y-0 md:divide-x divide-archive-gold/20">
-            <div className="pb-6 md:pb-0 md:pr-8">
-              <h3 className="font-serif text-2xl text-archive-gold mb-3">The Digital Home</h3>
-              <p className="text-sm leading-7 text-archive-ivory/70">
-                Every Life Archive includes a <strong className="text-archive-ivory">free QR code</strong>. You can print, download, or share this code anytime with no subscription, account, or login barriers for your visitors.
-              </p>
-            </div>
-            <div className="pt-6 md:pt-0 md:pl-8">
-              <h3 className="font-serif text-2xl text-archive-champagne mb-3">The Physical Key</h3>
-              <p className="text-sm leading-7 text-archive-ivory/70">
-                Premium keepsakes are physical, hand-crafted objects that carry your secure QR code. Multiple keepsakes can be linked to the same archive, giving every child, parent, or partner a key to their presence.
-              </p>
-            </div>
-          </div>
-          <div className="mt-8 border-t border-archive-gold/15 pt-6 text-center">
-            <p className="font-serif text-lg text-archive-gold italic">
-              &ldquo;The archive is the digital home. The keepsake is the physical key.&rdquo;
+      <div className="relative z-10 mx-auto max-w-7xl">
+        <header className="grid gap-12 py-16 sm:py-24 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center lg:py-28">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-archive-gold">
+              Keepsake Store
             </p>
-          </div>
-        </section>
-
-        {/* Product Portfolio Grid */}
-        <section className="mt-20">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
-              THE KEEPSAKE REGISTRY
+            <h1 className="mt-5 max-w-4xl font-serif text-5xl leading-[1.02] text-archive-ivory sm:text-7xl">
+              Physical keys for the stories worth finding again.
+            </h1>
+            <p className="mt-7 max-w-2xl text-base leading-8 text-archive-ivory/72">
+              Storykeeper keepsakes are requested, personalized, and confirmed by email before production. Choose the form that belongs with the archive, then we help align the QR, name, message, and material direction.
             </p>
-            <h2 className="mt-3 font-serif text-3xl sm:text-4xl text-archive-ivory">
-              Physical Keepsake Registry
-            </h2>
-            <p className="mt-3 text-xs leading-5 text-archive-ivory/50">
-              Each product is custom-etched and configured with your archive keys. No purchase is required; request a keepsake below whenever you are ready.
-            </p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {keepsakes.map((prod) => (
-              <div
-                key={prod.name}
-                className="rounded-[2rem] border border-archive-gold/14 bg-white/[0.015] p-6 flex flex-col justify-between shadow-luxury transition hover:border-archive-gold/30 hover:bg-white/[0.035]"
+            <div className="mt-9 flex flex-wrap gap-3">
+              <a
+                href="#collection"
+                className="rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
               >
-                <div>
-                  <div className="flex justify-between items-start gap-4 mb-3">
-                    <h3 className="font-serif text-lg text-archive-ivory leading-tight">
-                      {prod.name}
-                    </h3>
-                    <span className="rounded-full bg-archive-gold/10 border border-archive-gold/25 px-2.5 py-0.5 text-[10px] font-bold text-archive-gold">
-                      {prod.price}
-                    </span>
-                  </div>
-                  <p className="text-xs leading-5 text-archive-ivory/65 mb-4">
-                    {prod.desc}
-                  </p>
-                </div>
+                Choose a Keepsake
+              </a>
+              <Link
+                href={dashboardHref}
+                className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-8 py-4 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+              >
+                {isSignedIn ? "Return to Dashboard" : "Sign In to Your Archive"}
+              </Link>
+            </div>
+          </div>
+          <div className="rounded-[2.5rem] border border-archive-gold/16 bg-white/[0.025] p-4 shadow-luxury">
+            <ProductVisual image={keepsakes[0].image} type="card" name="Storykeeper Card" />
+          </div>
+        </header>
 
-                <div className="border-t border-white/5 pt-4 mt-2">
-                  <p className="text-[10px] uppercase tracking-wider text-archive-gold font-semibold mb-1">
-                    Best For:
-                  </p>
-                  <p className="text-xs italic text-archive-ivory/55">
-                    {prod.bestFor}
-                  </p>
-                  <a
-                    href={mailtoUrl}
-                    className="mt-4 block w-full rounded-xl bg-archive-gold/10 border border-archive-gold/20 py-2 text-center text-[10px] uppercase tracking-wider font-bold text-archive-gold transition hover:bg-archive-gold hover:text-archive-obsidian"
-                  >
-                    Request Keepsake
-                  </a>
-                </div>
+        <section className="border-t border-archive-gold/15 py-14">
+          <div className="grid gap-6 md:grid-cols-5">
+            {storeSteps.map((step, index) => (
+              <div key={step} className="border-t border-archive-gold/20 pt-5">
+                <span className="font-serif text-3xl text-archive-gold/45">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <p className="mt-4 text-sm leading-6 text-archive-ivory/72">
+                  {step}
+                </p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* CTA Form Section */}
-        <section className="mt-24 rounded-[2.5rem] border border-archive-gold/22 bg-archive-obsidian p-8 sm:p-12 shadow-luxury text-center max-w-4xl mx-auto">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold mb-3">
-            CUSTOM MANUFACTURING
+        <section className="py-16" id="collection">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-archive-gold">
+              Featured Collection
+            </p>
+            <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
+              Start with the form the family will actually keep.
+            </h2>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {featuredCollection.map((product) => (
+              <a
+                key={product.name}
+                href={mailtoUrl}
+                className="group rounded-[2rem] border border-archive-gold/14 bg-white/[0.02] p-4 shadow-luxury transition hover:border-archive-gold/35 hover:bg-white/[0.04]"
+              >
+                <ProductVisual image={product.image} type={product.visual} name={product.name} />
+                <div className="p-2 pt-5">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-archive-gold">
+                    {product.eyebrow}
+                  </p>
+                  <h3 className="mt-2 font-serif text-2xl text-archive-ivory">
+                    {product.name}
+                  </h3>
+                  <p className="mt-3 text-xs leading-6 text-archive-ivory/60">
+                    {product.bestFor}
+                  </p>
+                  <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em] text-archive-champagne">
+                    Request Keepsake
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        {keepsakes.map((product, index) => (
+          <ProductShowcase
+            key={product.name}
+            product={product}
+            mailtoUrl={mailtoUrl}
+            reverse={index % 2 === 1}
+          />
+        ))}
+
+        <section className="border-t border-archive-gold/15 py-20 sm:py-24">
+          <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.26em] text-archive-gold">
+                Built For Memory
+              </p>
+              <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
+                A keepsake should feel worthy before anyone scans it.
+              </h2>
+            </div>
+            <div className="grid gap-8 md:grid-cols-2">
+              {trustPillars.map((pillar) => (
+                <TrustPillar key={pillar.title} {...pillar} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-16 rounded-[2.5rem] border border-archive-gold/22 bg-archive-obsidian/92 p-8 text-center shadow-luxury sm:p-12">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+            Custom Request
           </p>
-          <h2 className="font-serif text-3xl sm:text-4xl text-archive-ivory mb-4">
-            How to Request a Physical Keepsake
+          <h2 className="mx-auto mt-4 max-w-3xl font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
+            Tell us which archive this should belong to.
           </h2>
-          <p className="text-sm leading-7 text-archive-ivory/68 max-w-2xl mx-auto mb-8">
-            Each physical key is custom hand-finished with premium materials and engraved with a permanent micro-QR scanner tag. Since we do not charge automated subscriptions, simply click the request link below, specify your desired heirloom type, and our legacy counselors will email you a custom preview and production proof.
+          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-archive-ivory/68">
+            The store is request-based so the keepsake can match the archive, name, message, material, and intended setting. Send the request, and we follow up to confirm details before anything moves forward.
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="mt-9 flex flex-wrap justify-center gap-4">
             <a
               href={mailtoUrl}
               className="rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
             >
-              Request a Keepsake Proof (via Email)
+              Request Keepsake
+            </a>
+            <a
+              href={mailtoUrl}
+              className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-8 py-4 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+            >
+              Ask About Custom Order
             </a>
             <Link
               href={dashboardHref}
-              className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-8 py-4 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+              className="rounded-full border border-archive-gold/20 px-8 py-4 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:text-archive-ivory"
             >
-              Return to Dashboard
+              {isSignedIn ? "Return to Dashboard" : "Sign In to Your Archive"}
             </Link>
           </div>
         </section>

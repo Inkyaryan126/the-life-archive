@@ -487,15 +487,19 @@ export async function getMemoriesByArchiveSlug(slug: string) {
   );
 }
 
-export async function getRandomMemory(slug: string) {
+export async function getRandomMemory(slug: string, excludeMemoryId?: string) {
   const archiveMemories = await getMemoriesByArchiveSlug(slug);
 
   if (archiveMemories.length === 0) {
     return null;
   }
 
-  const index = Math.floor(Math.random() * archiveMemories.length);
-  return archiveMemories[index];
+  const availableMemories =
+    excludeMemoryId && archiveMemories.length > 1
+      ? archiveMemories.filter((memory) => memory.id !== excludeMemoryId)
+      : archiveMemories;
+  const index = Math.floor(Math.random() * availableMemories.length);
+  return availableMemories[index];
 }
 
 function mapLegacyInstruction(

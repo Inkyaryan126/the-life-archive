@@ -46,8 +46,9 @@ export function RandomMemory({
           Random memory
         </p>
         <Link
-          href={`/archive/${archiveSlug}/random`}
+          href={`/archive/${archiveSlug}/random?exclude=${encodeURIComponent(memory.id)}`}
           className="rounded-full border border-archive-ink/15 bg-white/70 px-4 py-2 text-sm font-semibold text-archive-ink transition hover:bg-white"
+          prefetch={false}
         >
           Reveal another memory
         </Link>

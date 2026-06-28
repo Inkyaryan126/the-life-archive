@@ -11,12 +11,17 @@ type RandomMemoryPageProps = {
   params: Promise<{
     slug: string;
   }>;
+  searchParams?: Promise<{
+    exclude?: string;
+  }>;
 };
 
 export default async function RandomMemoryPage({
-  params
+  params,
+  searchParams
 }: RandomMemoryPageProps) {
   const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
   const [archive, account] = await Promise.all([
     getArchiveBySlug(slug),
     getAccountContext()
@@ -40,7 +45,7 @@ export default async function RandomMemoryPage({
     notFound();
   }
 
-  const memory = await getRandomMemory(slug);
+  const memory = await getRandomMemory(slug, resolvedSearchParams?.exclude);
   const canAddMemory = account.archives.some((item) => item.slug === archive.slug);
 
   return (
