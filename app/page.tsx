@@ -253,7 +253,7 @@ export default async function HomePage() {
           <div className="grid gap-10 lg:grid-cols-2 items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-                PHYSICAL STORYKEEPER KEEPSAKES
+                PHYSICAL ARCHIVE KEEPSAKES
               </p>
               <h2 className="mt-3 font-serif text-3xl text-archive-ivory sm:text-4xl">
                 Physical Keepsakes That Carry Their Story

@@ -29,7 +29,7 @@ type Keepsake = {
 type CheckoutType = "card" | "keychain" | "plaque";
 
 const checkoutUrls: Record<CheckoutType, string | undefined> = {
-  card: process.env.NEXT_PUBLIC_CHECKOUT_STORYKEEPER_CARD,
+  card: process.env.NEXT_PUBLIC_CHECKOUT_MEMORY_CARD,
   keychain: process.env.NEXT_PUBLIC_CHECKOUT_MEMORIAL_KEYCHAIN,
   plaque: process.env.NEXT_PUBLIC_CHECKOUT_QR_PLAQUE
 };

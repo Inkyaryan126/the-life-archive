@@ -332,7 +332,7 @@ export default async function ArchivePage({
             {/* Keepsake Upsell Sidebar Card */}
             <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold mb-2">
-                STORYKEEPER KEEPSAKE
+                ARCHIVE KEEPSAKE
               </p>
               <h4 className="font-serif text-lg text-archive-ivory leading-snug">
                 Carry This Story Anywhere
