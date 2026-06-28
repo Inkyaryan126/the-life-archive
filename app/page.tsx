@@ -84,12 +84,12 @@ export default async function HomePage() {
       
       <div className="relative z-10 flex flex-col flex-grow">
         {/* Navigation Bar with Glass Blur */}
-        <nav className="sticky top-0 z-50 mx-auto w-full border-b border-archive-gold/10 bg-archive-obsidian/45 backdrop-blur-md px-5 py-5 sm:px-8">
-          <div className="mx-auto flex max-w-7xl items-center justify-between">
+        <nav className="sticky top-0 z-50 mx-auto w-full border-b border-archive-gold/10 bg-archive-obsidian/45 px-5 py-5 backdrop-blur-md sm:px-8">
+          <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <Link href="/" className="transition opacity-90 hover:opacity-100">
-              <SiteLogo width={420} height={120} />
+              <SiteLogo width={220} height={60} />
             </Link>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <Link
                 href="/keepsakes"
                 className="text-xs font-semibold uppercase tracking-wider text-archive-ivory/80 transition hover:text-archive-gold"
@@ -198,7 +198,7 @@ export default async function HomePage() {
                     <span className="text-archive-gold/90 mr-2 font-sans select-none">◆</span>
                     Intimacy Over Exposure
                   </strong>
-                  A quiet space with absolute RLS-gated privacy. No ads, no likes, no public feeds. Just your legacy, safe.
+                  A quiet space with private access. No ads, no likes, no public feeds. Just your legacy, safe.
                 </li>
                 <li>
                   <strong className="text-archive-ivory block mb-1">

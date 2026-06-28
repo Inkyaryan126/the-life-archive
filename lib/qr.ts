@@ -8,10 +8,6 @@ export function getSiteUrl() {
 }
 
 export function getRequestSiteUrl(host: string | null, protocol = "http") {
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return getSiteUrl();
-  }
-
   if (host) {
     return `${protocol}://${host}`.replace(/\/$/, "");
   }
