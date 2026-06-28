@@ -486,11 +486,6 @@ export default async function DashboardPage({
           description: "Add a photo, voice note, lesson, or story to this archive."
         },
         {
-          href: `/archive/${defaultArchive.slug}`,
-          label: "Invite Member",
-          description: "Open the archive and share its story with someone close."
-        },
-        {
           href: "/member-card",
           label: "Generate Member Card",
           description: "Print the wallet card that keeps this archive within reach."
@@ -826,7 +821,7 @@ export default async function DashboardPage({
                     priority={false}
                     className="h-auto w-full"
                   />
-                  <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+                  <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
                     {quickActions.map((action) => {
                       const image =
                         action.label === "Add Memory"
@@ -835,13 +830,7 @@ export default async function DashboardPage({
                               tablet: "/images/site-design/addmemory-smallbutton.jpg",
                               mobile: "/images/site-design/addmemory-tinybutton.jpg"
                             }
-                          : action.label === "Invite Member"
-                            ? {
-                                desktop: "/images/site-design/invitemember-button.jpg",
-                                tablet: "/images/site-design/invitemember-smallbutton.jpg",
-                                mobile: "/images/site-design/invitemember-tinybutton.jpg"
-                              }
-                            : action.label === "Generate Member Card"
+                          : action.label === "Generate Member Card"
                               ? {
                                   desktop: "/images/site-design/membercard-button.jpg",
                                   tablet: "/images/site-design/membercard-smallbutton.jpg",
