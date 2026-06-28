@@ -87,7 +87,7 @@ export default async function CreateArchivePage({
               return as the story grows.
             </p>
             <Link
-              href="/login"
+              href="/login?next=%2Fcreate"
               className="mt-6 inline-flex rounded-full bg-archive-gold px-6 py-3 text-sm font-semibold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
             >
               Sign In or Create an Account

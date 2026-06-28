@@ -4,12 +4,15 @@ import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 
 type LoginPageProps = {
   searchParams?: {
+    confirmation?: string;
     error?: string;
     next?: string;
   };
 };
 
 export default function LoginPage({ searchParams }: LoginPageProps) {
+  const confirmationPending = searchParams?.confirmation === "pending";
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-12 text-archive-ivory sm:px-8">
       <DesignBackdrop />
@@ -23,10 +26,12 @@ export default function LoginPage({ searchParams }: LoginPageProps) {
           ) : null}
           <div>
             <h1 className="font-serif text-2xl text-archive-ivory">
-              Continue your archive
+              {confirmationPending ? "Check your email" : "Continue your archive"}
             </h1>
             <p className="mt-2 text-sm leading-6 text-archive-ivory/68">
-              Sign in to return to your archives, or create an account to begin.
+              {confirmationPending
+                ? "We sent a confirmation link. After confirming your account, sign in here to create your first archive."
+                : "Sign in to return to your archives, or create an account to begin."}
             </p>
           </div>
           {searchParams?.error ? (
