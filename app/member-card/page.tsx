@@ -201,14 +201,20 @@ export default async function MemberCardPage({
         <div className="rounded-[2rem] border border-archive-gold/15 bg-gradient-to-b from-white/[0.03] to-transparent p-8 sm:p-10 shadow-luxury text-center relative overflow-hidden backdrop-blur-[2px]">
           <div className="absolute top-0 right-0 w-32 h-32 bg-archive-gold/5 blur-3xl rounded-full" />
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold mb-2">
-            Prototype Phase · Coming Soon
+            Premium Keepsake Option
           </p>
           <h2 className="font-serif text-2xl sm:text-3xl text-archive-ivory leading-tight mb-4">
             The Engraved Brass Storykeeper Card
           </h2>
           <p className="mx-auto max-w-2xl text-sm leading-7 text-archive-ivory/68 mb-4">
-            An optional premium metal Storykeeper Card designed for families who want a heavier, more permanent keepsake.
+            Request a heavier, more permanent card connected to this same archive. We confirm the QR, name treatment, and finish by email before production.
           </p>
+          <Link
+            href="/keepsakes"
+            className="mb-5 inline-flex rounded-full border border-archive-gold/30 bg-white/[0.04] px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+          >
+            View Keepsake Store
+          </Link>
           <p className="text-xs text-archive-gold/80 italic font-serif">
             &ldquo;Constructed to endure centuries of touch, holding your living legacy with physical weight.&rdquo;
           </p>
