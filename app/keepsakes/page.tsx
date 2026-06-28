@@ -36,14 +36,19 @@ const checkoutUrls: Record<CheckoutType, string | undefined> = {
   plaque: process.env.NEXT_PUBLIC_CHECKOUT_QR_PLAQUE
 };
 
-function getCheckoutUrl(product: Pick<Keepsake, "checkoutType">) {
+function getCheckoutUrl(
+  product: Pick<Keepsake, "checkoutType">,
+  archiveSlug?: string | null
+) {
   if (!product.checkoutType) {
     return undefined;
   }
 
   return (
     checkoutUrls[product.checkoutType] ||
-    `/api/keepsakes/checkout?type=${product.checkoutType}`
+    `/api/keepsakes/checkout?type=${product.checkoutType}${
+      archiveSlug ? `&archive=${encodeURIComponent(archiveSlug)}` : ""
+    }`
   );
 }
 
@@ -436,17 +441,19 @@ function DetailList({ title, items }: { title: string; items: string[] }) {
 }
 
 function ProductShowcase({
+  archiveSlug,
   product,
   badge,
   isComingSoon = false,
   reverse = false
 }: {
+  archiveSlug?: string | null;
   product: Keepsake;
   badge?: string;
   isComingSoon?: boolean;
   reverse?: boolean;
 }) {
-  const checkoutUrl = getCheckoutUrl(product);
+  const checkoutUrl = getCheckoutUrl(product, archiveSlug);
 
   return (
     <section className="grid gap-10 border-t border-archive-gold/15 py-16 lg:grid-cols-2 lg:items-center lg:gap-16 lg:py-24">
@@ -517,8 +524,16 @@ function ProductShowcase({
   );
 }
 
-function ProductCard({ product, badge }: { product: Keepsake; badge?: string }) {
-  const checkoutUrl = getCheckoutUrl(product);
+function ProductCard({
+  archiveSlug,
+  product,
+  badge
+}: {
+  archiveSlug?: string | null;
+  product: Keepsake;
+  badge?: string;
+}) {
+  const checkoutUrl = getCheckoutUrl(product, archiveSlug);
   const cardContent = (
     <>
       <ProductVisual image={product.image} type={product.visual} name={product.name} />
@@ -588,6 +603,8 @@ export default async function KeepsakesPage() {
   const isSignedIn = Boolean(account.user);
   const dashboardHref = isSignedIn ? "/dashboard" : "/login";
   const dashboardLabel = isSignedIn ? "Dashboard" : "Sign In";
+  const checkoutArchiveSlug =
+    account.defaultArchive?.slug || account.archives[0]?.slug || null;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8">
@@ -677,6 +694,7 @@ export default async function KeepsakesPage() {
             {activeKeepsakes.map((product, index) => (
               <ProductCard
                 key={product.name}
+                archiveSlug={checkoutArchiveSlug}
                 product={product}
                 badge={index === 0 ? "Featured / Best Seller" : undefined}
               />
@@ -687,6 +705,7 @@ export default async function KeepsakesPage() {
         {activeKeepsakes.map((product, index) => (
           <ProductShowcase
             key={product.name}
+            archiveSlug={checkoutArchiveSlug}
             product={product}
             badge={index === 0 ? "Featured / Best Seller" : undefined}
             reverse={index % 2 === 1}

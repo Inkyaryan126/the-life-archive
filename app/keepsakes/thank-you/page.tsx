@@ -28,12 +28,12 @@ export default function KeepsakeThankYouPage() {
               Thank you for your order.
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-archive-ivory/72">
-              Your keepsake has been reserved. Next, you will personalize it by
-              uploading memories and selecting or creating the Life Archive it
-              belongs to.
+              Your order was received. Next, create a new Life Archive or choose
+              the archive this keepsake should connect to.
             </p>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-archive-ivory/60">
-              More instructions will be emailed after purchase.
+              Watch your email for personalization instructions before
+              production begins.
             </p>
             <div className="mt-9 flex flex-wrap justify-center gap-3">
               <Link

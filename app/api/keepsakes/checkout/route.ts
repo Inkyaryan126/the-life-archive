@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAccountContext } from "@/lib/account";
 
 type CheckoutType = "card" | "keychain" | "plaque";
 
@@ -45,12 +46,19 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type") as CheckoutType | null;
   const product = type ? products[type] : undefined;
+  const requestedArchiveSlug = searchParams.get("archive")?.trim() || null;
 
   if (!type || !product) {
     return redirectWithError(request, "That keepsake is not available for checkout yet.");
   }
 
   const checkoutType: CheckoutType = type;
+  const account = await getAccountContext();
+  const archiveSlug =
+    requestedArchiveSlug ||
+    account.defaultArchive?.slug ||
+    account.archives[0]?.slug ||
+    null;
 
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
@@ -61,14 +69,23 @@ export async function GET(request: Request) {
   const origin = getSiteOrigin(request);
   const body = new URLSearchParams({
     mode: "payment",
-    success_url: `${origin}/keepsakes/thank-you`,
+    success_url: `${origin}/keepsakes/thank-you?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/keepsakes`,
     "line_items[0][quantity]": "1",
     "line_items[0][price_data][currency]": "usd",
     "line_items[0][price_data][unit_amount]": String(product.unitAmount),
     "line_items[0][price_data][product]": product.productId,
-    "metadata[keepsake_type]": checkoutType
+    "metadata[keepsake_type]": checkoutType,
+    "metadata[product_name]": product.name
   });
+
+  if (archiveSlug) {
+    body.set("metadata[archive_slug]", archiveSlug);
+  }
+
+  if (account.user?.email && account.user.email !== "Email unavailable") {
+    body.set("customer_email", account.user.email);
+  }
 
   const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
