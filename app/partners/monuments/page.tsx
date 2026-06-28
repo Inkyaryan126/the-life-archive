@@ -32,7 +32,7 @@ const faqs = [
   },
   {
     q: "What finishes and metals do you offer to match our stone carvings?",
-    a: "We understand that aesthetic consistency is critical to monument builders. We prototype our keys in an array of classic architectural finishes—including oil-rubbed bronze, brushed stainless steel, and satin brass—to match any stone color or bronze relief."
+    a: "We understand that aesthetic consistency is critical to monument builders. Each request is reviewed against classic architectural finishes including oil-rubbed bronze, brushed stainless steel, and satin brass so the final direction can complement the stone color or bronze relief."
   },
   {
     q: "Do you supply unlinked plaques for monument showrooms?",

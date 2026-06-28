@@ -25,7 +25,7 @@ const useCases = [
 const faqs = [
   {
     q: "Are the keepsake plaques durable enough for outdoor weathering?",
-    a: "Yes. Our physical keepsake keys are engineered for permanent outdoor longevity. We prototype our outdoor plaques using high-grade architectural bronze or deep-etched stainless steel with UV-resistant coatings designed to survive generations of exposure."
+    a: "Yes. Our physical keepsake keys are designed for permanent outdoor longevity. Requests are reviewed around high-grade architectural bronze or deep-etched stainless steel with UV-resistant coatings designed to survive generations of exposure."
   },
   {
     q: "Do families need permission to attach plaques to existing monuments?",
