@@ -18,18 +18,18 @@ const YEAR_WIDTH = 262;
 const YEAR_HEIGHT = 101;
 
 // Back Template Dimensions
-const BACK_WIDTH = 1536;
-const BACK_HEIGHT = 1024;
+const BACK_WIDTH = 1578;
+const BACK_HEIGHT = 997;
 
-const QR_X = 989;
-const QR_Y = 335;
-const QR_WIDTH = 343;
-const QR_HEIGHT = 334;
+const QR_X = 936;
+const QR_Y = 293;
+const QR_WIDTH = 439;
+const QR_HEIGHT = 364;
 
-const CODE_X = 959;
-const CODE_Y = 776;
-const CODE_WIDTH = 403;
-const CODE_HEIGHT = 68;
+const CODE_X = 907;
+const CODE_Y = 770;
+const CODE_WIDTH = 486;
+const CODE_HEIGHT = 97;
 
 const asPercent = (value: number, total: number) => `${(value / total) * 100}%`;
 
@@ -171,7 +171,10 @@ export function MemberCard({
       </article>
 
       {/* BACK OF THE CARD */}
-      <article className="member-card-face member-card-back relative aspect-[1.5/1] overflow-hidden rounded-[1.35rem] bg-archive-ivory shadow-luxury">
+      <article
+        className="member-card-face member-card-back relative overflow-hidden rounded-[1.35rem] bg-archive-ivory shadow-luxury"
+        style={{ aspectRatio: "1578 / 997" }}
+      >
         <Image
           src="/images/member-card/member-card-back.png"
           alt="The Life Archive Memory Card back, explaining that the card can lead loved ones to the member's preserved story"
@@ -180,14 +183,13 @@ export function MemberCard({
           className="object-cover"
         />
 
-        {/* QR Code Cover Panel & Container (Hides the green box - Inflated 4px to cover subpixels) */}
         <div
-          className="absolute bg-white rounded-lg flex items-center justify-center p-[1%]"
+          className="absolute flex items-center justify-center p-[5%]"
           style={{
-            left: asPercent(QR_X - 4, BACK_WIDTH),
-            top: asPercent(QR_Y - 4, BACK_HEIGHT),
-            width: asPercent(QR_WIDTH + 8, BACK_WIDTH),
-            height: asPercent(QR_HEIGHT + 8, BACK_HEIGHT)
+            left: asPercent(QR_X, BACK_WIDTH),
+            top: asPercent(QR_Y, BACK_HEIGHT),
+            width: asPercent(QR_WIDTH, BACK_WIDTH),
+            height: asPercent(QR_HEIGHT, BACK_HEIGHT)
           }}
         >
           <div className="relative w-full h-full">
@@ -205,49 +207,19 @@ export function MemberCard({
           </div>
         </div>
 
-        {/* Access Code Cover Panel (Hides the green box - Inflated 4px to cover subpixels) */}
-        <div
-          className="absolute bg-archive-obsidian"
-          style={{
-            left: asPercent(CODE_X - 4, BACK_WIDTH),
-            top: asPercent(CODE_Y - 4, BACK_HEIGHT),
-            width: asPercent(CODE_WIDTH + 8, BACK_WIDTH),
-            height: asPercent(CODE_HEIGHT + 8, BACK_HEIGHT)
-          }}
-        />
-
-        <div
-          className="absolute text-left"
-          style={{
-            left: asPercent(130, BACK_WIDTH),
-            top: asPercent(670, BACK_HEIGHT),
-            width: asPercent(700, BACK_WIDTH)
-          }}
-        >
-          <p className="font-serif text-[0.55rem] font-bold uppercase tracking-[0.18em] text-archive-obsidian sm:text-xs">
-            Legacy Activation Code
-          </p>
-          <p className="mt-1 max-w-[18rem] text-[0.45rem] leading-snug text-archive-obsidian/72 sm:text-[0.65rem]">
-            Keep this private. If I can no longer update my archive, this code
-            begins the process of preserving it as my memorial at
-            thelifearchive.vip/activate-legacy.
-          </p>
-        </div>
-
-        {/* Legacy Activation Code Box */}
         <div
           className="absolute flex items-center justify-center text-center"
           style={{
-            left: asPercent(CODE_X - 4, BACK_WIDTH),
-            top: asPercent(CODE_Y - 4, BACK_HEIGHT),
-            width: asPercent(CODE_WIDTH + 8, BACK_WIDTH),
-            height: asPercent(CODE_HEIGHT + 8, BACK_HEIGHT)
+            left: asPercent(CODE_X, BACK_WIDTH),
+            top: asPercent(CODE_Y, BACK_HEIGHT),
+            width: asPercent(CODE_WIDTH, BACK_WIDTH),
+            height: asPercent(CODE_HEIGHT, BACK_HEIGHT)
           }}
           aria-label={`Legacy Activation Code: ${legacyActivationCode}`}
         >
-          <span className="font-mono font-bold tracking-[0.2em] text-[#d5a84e] text-xs sm:text-sm md:text-base leading-none">
+          <p className="font-mono whitespace-nowrap text-[0.5rem] font-bold uppercase tracking-[0.12em] text-[#d5a84e] sm:text-[0.65rem] md:text-[0.78rem] lg:text-[0.92rem] leading-none">
             {legacyActivationCode}
-          </span>
+          </p>
         </div>
       </article>
     </section>

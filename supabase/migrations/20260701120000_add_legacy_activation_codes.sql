@@ -84,3 +84,28 @@ on public.legacy_activation_requests
 for select
 to authenticated
 using (public.is_archive_owner(archive_id));
+
+drop policy if exists "Service role can read legacy activation requests"
+  on public.legacy_activation_requests;
+create policy "Service role can read legacy activation requests"
+on public.legacy_activation_requests
+for select
+to service_role
+using (true);
+
+drop policy if exists "Service role can create legacy activation requests"
+  on public.legacy_activation_requests;
+create policy "Service role can create legacy activation requests"
+on public.legacy_activation_requests
+for insert
+to service_role
+with check (true);
+
+drop policy if exists "Service role can update legacy activation requests"
+  on public.legacy_activation_requests;
+create policy "Service role can update legacy activation requests"
+on public.legacy_activation_requests
+for update
+to service_role
+using (true)
+with check (true);
