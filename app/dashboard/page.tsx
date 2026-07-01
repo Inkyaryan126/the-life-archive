@@ -1043,6 +1043,12 @@ export default async function DashboardPage({
                       longer update your archive. It is not shown publicly and
                       should only be entered at /activate-legacy.
                     </p>
+                    <Link
+                      href="/activate-legacy"
+                      className="mt-4 inline-flex rounded-full border border-archive-gold/30 bg-white/[0.04] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-archive-champagne transition hover:border-archive-gold hover:bg-white/[0.08]"
+                    >
+                      Open Activation Page
+                    </Link>
                   </div>
                   <span className="rounded-full border border-archive-gold/28 bg-archive-gold/10 px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-archive-champagne">
                     {livingDefaultArchive.legacyCodeUsedAt
