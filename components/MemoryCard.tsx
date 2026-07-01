@@ -49,12 +49,12 @@ export function MemoryCard({ memory }: MemoryCardProps) {
       </p>
       
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/5 pt-3">
-        <Link
+        <a
           href={`/archive/${memory.archiveSlug}/memories#memory-${memory.id}`}
           className="text-xs uppercase tracking-widest text-archive-gold font-bold transition hover:text-archive-champagne"
         >
           Read Chapter →
-        </Link>
+        </a>
         {memory.mediaUrl && !photoUrl && !voiceUrl ? (
           <Link
             href={memory.mediaUrl}

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { MemoryCard } from "@/components/MemoryCard";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import { DesignBackdrop } from "@/components/SiteDesign";
+import { HashScroller } from "./HashScroller";
 import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 import type { MemoryType } from "@/lib/types";
@@ -60,6 +61,7 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
   return (
     <main className="relative min-h-screen overflow-hidden px-5 py-6 text-archive-ivory sm:px-8">
       <DesignBackdrop />
+      <HashScroller />
 
       <div className="relative z-10 mx-auto max-w-5xl">
         <nav className="flex items-center justify-between pb-8">
