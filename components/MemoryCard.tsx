@@ -12,7 +12,10 @@ export function MemoryCard({ memory }: MemoryCardProps) {
   const voiceUrl = memory.type === "voice" ? memory.mediaUrl : undefined;
 
   return (
-    <article className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury">
+    <article
+      id={`memory-${memory.id}`}
+      className="scroll-mt-24 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury"
+    >
       {photoUrl ? (
         <div className="relative mb-4 aspect-[5/3] overflow-hidden rounded-2xl">
           <Image

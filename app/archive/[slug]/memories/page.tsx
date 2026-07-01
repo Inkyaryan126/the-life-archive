@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MemoryCard } from "@/components/MemoryCard";
 import { SuccessMessage } from "@/components/SuccessMessage";
+import { DesignBackdrop } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 import type { MemoryType } from "@/lib/types";
@@ -57,19 +58,21 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
   const isOwner = account.archives.some((item) => item.slug === archive.slug);
 
   return (
-    <main className="min-h-screen px-5 py-6 sm:px-8">
-      <div className="mx-auto max-w-5xl">
-        <nav className="flex items-center justify-between">
+    <main className="relative min-h-screen overflow-hidden px-5 py-6 text-archive-ivory sm:px-8">
+      <DesignBackdrop />
+
+      <div className="relative z-10 mx-auto max-w-5xl">
+        <nav className="flex items-center justify-between pb-8">
           <Link
             href={`/archive/${archive.slug}`}
-            className="text-sm font-semibold text-archive-sage underline-offset-4 hover:underline"
+            className="text-sm font-semibold text-archive-ivory/80 underline-offset-4 hover:underline hover:text-archive-gold"
           >
             Back to archive
           </Link>
           {isOwner ? (
             <Link
               href={`/archive/${archive.slug}/add-memory`}
-              className="rounded-full bg-archive-ink px-4 py-2 text-sm font-semibold text-white"
+              className="rounded-full border border-archive-gold/35 bg-white/5 px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/10"
             >
               Add Memory
             </Link>
@@ -77,14 +80,14 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
         </nav>
 
         <header className="py-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-clay">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
             Browse memories
           </p>
-          <h1 className="mt-3 font-serif text-4xl text-archive-ink sm:text-5xl">
+          <h1 className="mt-3 font-serif text-4xl text-archive-ivory sm:text-5xl">
             {archive.personName}
           </h1>
           {selectedType ? (
-            <p className="mt-3 inline-flex rounded-full border border-archive-gold/20 bg-archive-gold/10 px-4 py-2 text-sm font-semibold text-archive-clay">
+            <p className="mt-3 inline-flex rounded-full border border-archive-gold/20 bg-archive-gold/10 px-4 py-2 text-sm font-semibold text-archive-champagne">
               {memoryTypeLabels[selectedType]}
             </p>
           ) : null}
@@ -104,11 +107,11 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
             ))}
           </section>
         ) : (
-          <section className="rounded-lg border border-archive-ink/10 bg-white/82 p-6 shadow-soft">
-            <h2 className="font-serif text-3xl text-archive-ink">
+          <section className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury">
+            <h2 className="font-serif text-3xl text-archive-ivory">
               {selectedType ? `No ${prettifyType(selectedType)} memories yet` : "No memories yet"}
             </h2>
-            <p className="mt-3 leading-7 text-archive-ink/72">
+            <p className="mt-3 leading-7 text-archive-ivory/72">
               {selectedType
                 ? `This chapter does not have any ${memoryTypeLabels[selectedType].toLowerCase()} yet.`
                 : "Start with one story, photo, song, voice note, or lesson. The archive will grow from there."}
@@ -116,7 +119,7 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
             {isOwner ? (
               <Link
                 href={`/archive/${archive.slug}/add-memory`}
-                className="mt-5 inline-flex rounded-full bg-archive-clay px-5 py-3 text-sm font-semibold text-white"
+                className="mt-5 inline-flex rounded-full bg-archive-gold px-5 py-3 text-sm font-semibold text-archive-obsidian transition hover:bg-archive-champagne"
               >
                 Add Memory
               </Link>
