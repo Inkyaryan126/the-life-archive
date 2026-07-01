@@ -50,7 +50,7 @@ export function MemoryCard({ memory }: MemoryCardProps) {
       
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/5 pt-3">
         <a
-          href={`/archive/${memory.archiveSlug}/memories#memory-${memory.id}`}
+          href={`/archive/${memory.archiveSlug}/memories/${memory.id}`}
           className="text-xs uppercase tracking-widest text-archive-gold font-bold transition hover:text-archive-champagne"
         >
           Read Chapter →

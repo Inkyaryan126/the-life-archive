@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RandomMemory } from "@/components/RandomMemory";
 import { AccessPrompt } from "@/components/AccessPrompt";
+import { DesignBackdrop } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getRandomMemory } from "@/lib/archive-data";
 
@@ -49,25 +50,27 @@ export default async function RandomMemoryPage({
   const canAddMemory = account.archives.some((item) => item.slug === archive.slug);
 
   return (
-    <main className="min-h-screen px-5 py-6 sm:px-8">
-      <div className="mx-auto max-w-3xl">
+    <main className="relative min-h-screen overflow-hidden px-5 py-6 text-archive-ivory sm:px-8">
+      <DesignBackdrop />
+
+      <div className="relative z-10 mx-auto max-w-3xl">
         <nav className="flex items-center justify-between">
-          <Link href="/" className="text-lg font-semibold text-archive-ink">
+          <Link href="/" className="text-lg font-semibold text-archive-ivory">
             The Life Archive Home
           </Link>
           <Link
             href={`/archive/${archive.slug}`}
-            className="text-sm font-semibold text-archive-sage underline-offset-4 hover:underline"
+            className="text-sm font-semibold text-archive-ivory/80 underline-offset-4 hover:underline hover:text-archive-gold"
           >
             Full archive
           </Link>
         </nav>
 
         <header className="py-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-clay">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
             {archive.personName}
           </p>
-          <h1 className="mt-3 font-serif text-4xl leading-tight text-archive-ink sm:text-5xl">
+          <h1 className="mt-3 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
             A memory from this life.
           </h1>
         </header>
