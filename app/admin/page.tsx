@@ -1,12 +1,19 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { updateOrderAction } from "@/app/admin/actions";
+import {
+  markLegacyActivationMemorializedAction,
+  updateOrderAction
+} from "@/app/admin/actions";
 import { getAdminAccess } from "@/lib/admin";
 import {
   fulfillmentStatuses,
   listKeepsakeOrders,
   type KeepsakeOrder
 } from "@/lib/keepsake-orders";
+import {
+  listLegacyActivationRequests,
+  type LegacyActivationRequest
+} from "@/lib/legacy-activation";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 
 export const dynamic = "force-dynamic";
@@ -139,6 +146,74 @@ function OrderCard({ order }: { order: KeepsakeOrder }) {
   );
 }
 
+function getActivationStatusLabel(status: LegacyActivationRequest["status"]) {
+  if (status === "memorial_activated") {
+    return "Memorial Activated";
+  }
+
+  if (status === "review_closed") {
+    return "Review Closed";
+  }
+
+  return "Pending Memorial Review";
+}
+
+function LegacyActivationCard({
+  request
+}: {
+  request: LegacyActivationRequest;
+}) {
+  const isPending = request.status === "pending_memorial_review";
+
+  return (
+    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <span className="rounded-full border border-archive-gold/25 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-archive-champagne">
+            {getActivationStatusLabel(request.status)}
+          </span>
+          <h2 className="mt-4 font-serif text-2xl leading-tight text-archive-ivory">
+            {request.archiveName}
+          </h2>
+          <p className="mt-2 text-sm text-archive-ivory/68">
+            Requested by {request.requesterName} · {request.relationshipToOwner}
+          </p>
+          <p className="mt-1 text-xs text-archive-ivory/48">
+            {formatDate(request.createdAt)}
+          </p>
+          {request.message ? (
+            <p className="mt-4 max-w-2xl rounded-xl border border-archive-gold/12 bg-archive-obsidian px-4 py-3 text-sm leading-6 text-archive-ivory/68">
+              {request.message}
+            </p>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap gap-3 lg:justify-end">
+          {request.archiveSlug ? (
+            <Link
+              href={`/archive/${request.archiveSlug}`}
+              className="text-xs font-semibold text-archive-champagne underline-offset-4 hover:underline"
+            >
+              Open archive
+            </Link>
+          ) : null}
+        </div>
+      </div>
+
+      {isPending ? (
+        <form action={markLegacyActivationMemorializedAction} className="mt-5">
+          <input type="hidden" name="requestId" value={request.id} />
+          <button
+            type="submit"
+            className="rounded-full bg-archive-gold px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+          >
+            Mark Memorial Activated
+          </button>
+        </form>
+      ) : null}
+    </article>
+  );
+}
+
 export default async function AdminPage({
   searchParams
 }: {
@@ -177,15 +252,25 @@ export default async function AdminPage({
   }
 
   let orders: KeepsakeOrder[] = [];
+  let legacyActivations: LegacyActivationRequest[] = [];
   let loadError: string | null = null;
 
   try {
-    orders = await listKeepsakeOrders();
+    [orders, legacyActivations] = await Promise.all([
+      listKeepsakeOrders(),
+      listLegacyActivationRequests()
+    ]);
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "Unable to load orders.";
+    loadError =
+      error instanceof Error
+        ? error.message
+        : "Unable to load admin records.";
   }
 
   const newOrders = orders.filter((order) => order.fulfillmentStatus === "New");
+  const pendingLegacyActivations = legacyActivations.filter(
+    (request) => request.status === "pending_memorial_review"
+  );
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-8 text-archive-ivory sm:px-8">
@@ -223,18 +308,18 @@ export default async function AdminPage({
             </div>
             <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
               <p className="text-xs uppercase tracking-[0.18em] text-archive-ivory/48">
-                Total orders
+                Pending memorial reviews
               </p>
               <p className="mt-3 font-serif text-4xl text-archive-gold">
-                {orders.length}
+                {pendingLegacyActivations.length}
               </p>
             </div>
             <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
               <p className="text-xs uppercase tracking-[0.18em] text-archive-ivory/48">
-                Signed in as
+                Total orders
               </p>
-              <p className="mt-3 text-sm text-archive-ivory/72">
-                {account.user.email}
+              <p className="mt-3 font-serif text-4xl text-archive-gold">
+                {orders.length}
               </p>
             </div>
           </div>
@@ -266,6 +351,36 @@ export default async function AdminPage({
             <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-archive-ivory/64">
               Successful Stripe Checkout sessions will appear here after the webhook records them.
             </p>
+          </section>
+        ) : null}
+
+        {pendingLegacyActivations.length > 0 ? (
+          <section className="mb-10">
+            <h2 className="font-serif text-3xl text-archive-ivory">
+              Pending memorial reviews
+            </h2>
+            <div className="mt-5 grid gap-5">
+              {pendingLegacyActivations.map((request) => (
+                <LegacyActivationCard key={request.id} request={request} />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {legacyActivations.length > pendingLegacyActivations.length ? (
+          <section className="mb-10">
+            <h2 className="font-serif text-3xl text-archive-ivory">
+              Reviewed memorial requests
+            </h2>
+            <div className="mt-5 grid gap-5">
+              {legacyActivations
+                .filter(
+                  (request) => request.status !== "pending_memorial_review"
+                )
+                .map((request) => (
+                  <LegacyActivationCard key={request.id} request={request} />
+                ))}
+            </div>
           </section>
         ) : null}
 

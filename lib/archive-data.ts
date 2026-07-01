@@ -22,6 +22,9 @@ import {
   isLegacyInstructionAccessLevel,
   normalizeLegacyInstructionAccessLevel
 } from "./legacy-instructions";
+import {
+  generateUniqueLegacyActivationCode
+} from "./legacy-activation";
 import type {
   ArchiveStore,
   ArchiveVisibility,
@@ -84,6 +87,11 @@ type ArchiveRow = {
   profile_photo_path: string | null;
   visibility: ArchiveVisibility;
   memorial_mode: boolean;
+  legacy_activation_code: string | null;
+  legacy_code_used_at: string | null;
+  legacy_activated_by: string | null;
+  memorial_activated_at: string | null;
+  memorial_activated_by: string | null;
   relationship_to_owner: ArchiveRelationshipToOwner;
   created_at: string;
 };
@@ -129,6 +137,19 @@ async function mapArchiveRowWithResolvedPhoto(row: ArchiveRow) {
   };
 }
 
+function stripPrivateArchiveFields(archive: LifeArchive): LifeArchive {
+  const {
+    legacyActivationCode: _legacyActivationCode,
+    legacyCodeUsedAt: _legacyCodeUsedAt,
+    legacyActivatedBy: _legacyActivatedBy,
+    memorialActivatedAt: _memorialActivatedAt,
+    memorialActivatedBy: _memorialActivatedBy,
+    ...publicArchive
+  } = archive;
+
+  return publicArchive;
+}
+
 async function mapMemoryRowWithResolvedMedia(
   row: MemoryRow,
   archiveSlug: string
@@ -159,6 +180,10 @@ const seedArchives: LifeArchive[] = [
     profilePhotoUrl: "/images/sari-rae.png",
     visibility: "public",
     memorialMode: false,
+    legacyActivationCode: null,
+    legacyCodeUsedAt: null,
+    legacyActivatedBy: null,
+    memorialActivatedAt: null,
     relationshipToOwner: "other",
     createdAt: "2026-06-01"
   },
@@ -171,6 +196,10 @@ const seedArchives: LifeArchive[] = [
     profilePhotoUrl: "/images/dustin-sigley.png",
     visibility: "public",
     memorialMode: false,
+    legacyActivationCode: null,
+    legacyCodeUsedAt: null,
+    legacyActivatedBy: null,
+    memorialActivatedAt: null,
     relationshipToOwner: "self",
     createdAt: "2026-06-20"
   }
@@ -409,16 +438,18 @@ export async function getFeaturedArchives() {
 
   const store = await readStore();
   return Promise.all(
-    store.archives.map(async (archive) => ({
-      ...archive,
-      profilePhotoUrl: await resolveStorageImageUrl(
-        archive.profilePhotoPath,
-        getSafeProfilePhotoUrl(archive.profilePhotoUrl)
-      ),
-      relationshipToOwner: normalizeArchiveRelationshipToOwner(
-        archive.relationshipToOwner
-      )
-    }))
+    store.archives.map(async (archive) =>
+      stripPrivateArchiveFields({
+        ...archive,
+        profilePhotoUrl: await resolveStorageImageUrl(
+          archive.profilePhotoPath,
+          getSafeProfilePhotoUrl(archive.profilePhotoUrl)
+        ),
+        relationshipToOwner: normalizeArchiveRelationshipToOwner(
+          archive.relationshipToOwner
+        )
+      })
+    )
   );
 }
 
@@ -440,7 +471,7 @@ export async function getArchiveBySlug(slug: string) {
   const store = await readStore();
   const archive = store.archives.find((item) => item.slug === slug);
   return archive
-    ? {
+    ? stripPrivateArchiveFields({
         ...archive,
         profilePhotoUrl: await resolveStorageImageUrl(
           archive.profilePhotoPath,
@@ -449,7 +480,7 @@ export async function getArchiveBySlug(slug: string) {
         relationshipToOwner: normalizeArchiveRelationshipToOwner(
           archive.relationshipToOwner
         )
-      }
+      })
     : null;
 }
 
@@ -745,6 +776,9 @@ export async function createArchive(input: CreateArchiveInput) {
       slugify(input.personName),
       (existingArchives || []).map((a: any) => ({ slug: a.slug }))
     );
+    const legacyActivationCode = input.memorialMode
+      ? null
+      : await generateUniqueLegacyActivationCode();
 
     const { data, error } = await supabase
       .from("archives")
@@ -757,6 +791,7 @@ export async function createArchive(input: CreateArchiveInput) {
         profile_photo_path: null,
         visibility: input.visibility,
         memorial_mode: input.memorialMode,
+        legacy_activation_code: legacyActivationCode,
         relationship_to_owner: relationshipToOwner,
         is_demo: false,
         owner_id: user.id
@@ -813,6 +848,15 @@ export async function createArchive(input: CreateArchiveInput) {
     store.archives.map((a) => ({ slug: a.slug }))
   );
   const now = new Date().toISOString().slice(0, 10);
+  const legacyActivationCode = input.memorialMode
+    ? null
+    : await generateUniqueLegacyActivationCode(
+        new Set(
+          store.archives
+            .map((archive) => archive.legacyActivationCode)
+            .filter((code): code is string => Boolean(code))
+        )
+      );
 
   const archive: LifeArchive = {
     id: randomUUID(),
@@ -824,6 +868,10 @@ export async function createArchive(input: CreateArchiveInput) {
     profilePhotoPath: null,
     visibility: input.visibility,
     memorialMode: input.memorialMode,
+    legacyActivationCode,
+    legacyCodeUsedAt: null,
+    legacyActivatedBy: null,
+    memorialActivatedAt: null,
     relationshipToOwner,
     createdAt: now
   };
@@ -1147,6 +1195,76 @@ export async function updateArchive(
     archiveName: updates.archiveName,
     bio: updates.bio,
     visibility: updates.visibility
+  };
+
+  await writeStore(store);
+  return store.archives[archiveIndex];
+}
+
+export async function regenerateLegacyActivationCode(slug: string) {
+  if (useSupabase) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      throw new Error("Authentication required to regenerate this code.");
+    }
+
+    const legacyActivationCode = await generateUniqueLegacyActivationCode();
+    const { data, error } = await supabase
+      .from("archives")
+      .update({
+        legacy_activation_code: legacyActivationCode,
+        legacy_code_used_at: null,
+        legacy_activated_by: null
+      })
+      .eq("slug", slug)
+      .eq("owner_id", user.id)
+      .eq("memorial_mode", false)
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    await supabase
+      .from("legacy_activation_requests")
+      .update({ status: "review_closed" })
+      .eq("archive_id", data.id)
+      .eq("status", "pending_memorial_review");
+
+    return mapArchiveRowWithResolvedPhoto(data as ArchiveRow);
+  }
+
+  const store = await readStore();
+  const archiveIndex = store.archives.findIndex((a) => a.slug === slug);
+
+  if (archiveIndex < 0) {
+    throw new Error("Archive not found.");
+  }
+
+  if (store.archives[archiveIndex].memorialMode) {
+    throw new Error("Memorial Archives do not use Legacy Activation Codes.");
+  }
+
+  const legacyActivationCode = await generateUniqueLegacyActivationCode(
+    new Set(
+      store.archives
+        .filter((archive) => archive.slug !== slug)
+        .map((archive) => archive.legacyActivationCode)
+        .filter((code): code is string => Boolean(code))
+    )
+  );
+
+  store.archives[archiveIndex] = {
+    ...store.archives[archiveIndex],
+    legacyActivationCode,
+    legacyCodeUsedAt: null,
+    legacyActivatedBy: null
   };
 
   await writeStore(store);

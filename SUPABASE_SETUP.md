@@ -27,6 +27,9 @@ supabase/migrations/20260621113000_add_relationship_to_owner_to_archives.sql
 supabase/migrations/20260621124500_add_legacy_instructions.sql
 supabase/migrations/20260622130000_add_storage_media_paths.sql
 supabase/migrations/20260622133000_fix_dustin_example_archive_photo.sql
+supabase/migrations/20260624000000_create_visitor_messages.sql
+supabase/migrations/20260628120000_create_keepsake_orders.sql
+supabase/migrations/20260701120000_add_legacy_activation_codes.sql
 ```
 
 It creates:
@@ -43,6 +46,10 @@ It creates:
 - private `archive-media` Storage bucket
 - `archives.profile_photo_path`
 - `memories.photo_path`
+- `visitor_messages`
+- `keepsake_orders`
+- `archives.legacy_activation_code`
+- `legacy_activation_requests`
 
 ## Seed File
 
@@ -115,11 +122,35 @@ supabase/migrations/20260622133000_fix_dustin_example_archive_photo.sql
 19. Paste the full contents of:
 
 ```text
-supabase/seed.sql
+supabase/migrations/20260624000000_create_visitor_messages.sql
 ```
 
 20. Run it.
-21. In **Table Editor**, confirm that `archives` contains `sari-rae` and `dustin-sigley`.
+21. Create another new query.
+22. Paste the full contents of:
+
+```text
+supabase/migrations/20260628120000_create_keepsake_orders.sql
+```
+
+23. Run it.
+24. Create another new query.
+25. Paste the full contents of:
+
+```text
+supabase/migrations/20260701120000_add_legacy_activation_codes.sql
+```
+
+26. Run it.
+27. Create another new query.
+28. Paste the full contents of:
+
+```text
+supabase/seed.sql
+```
+
+29. Run it.
+30. In **Table Editor**, confirm that `archives` contains `sari-rae` and `dustin-sigley`.
 
 ## How To Run With Supabase CLI Later
 
@@ -161,4 +192,4 @@ No share-token table is included yet. If private QR links should work without lo
 - Use `archives.owner_id = auth.uid()` for owner-only access.
 - Use `archive_members.role = 'editor'` for collaborator memory writes.
 - Keep memory-level visibility out of MVP; public archives expose all memories.
-- Treat `memorial_mode` as presentation-only.
+- Treat `memorial_mode` as the reviewed memorial presentation state. Legacy activation requests should remain pending until an admin completes review.

@@ -76,6 +76,7 @@ export default async function ArchivePage({
     getVisitorMessages(slug)
   ]);
   const isOwner = account.archives.some((item) => item.slug === archive.slug);
+  const canUseMemberCard = isOwner && !archive.memorialMode;
 
   return (
     <main className="relative min-h-screen overflow-hidden px-5 py-6 text-archive-ivory sm:px-8">
@@ -95,12 +96,14 @@ export default async function ArchivePage({
                 >
                   My Archives
                 </Link>
-                <Link
-                  href="/member-card"
-                  className="hidden text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:inline-flex"
-                >
-                  Member Card
-                </Link>
+                {canUseMemberCard ? (
+                  <Link
+                    href="/member-card"
+                    className="hidden text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:inline-flex"
+                  >
+                    Member Card
+                  </Link>
+                ) : null}
               </>
             ) : null}
             <Link
@@ -165,7 +168,7 @@ export default async function ArchivePage({
                   </span>
                   {archive.memorialMode ? (
                     <span className="rounded-full border border-white/18 bg-black/24 px-3 py-1 text-xs font-semibold uppercase tracking-wide backdrop-blur">
-                      Memorial
+                      Memorial Archive
                     </span>
                   ) : null}
                 </div>

@@ -7,6 +7,7 @@ import {
   DesignImageButtonLink,
   SiteLogo
 } from "@/components/SiteDesign";
+import { regenerateLegacyActivationCodeAction } from "@/app/dashboard/actions";
 import { signOutAction } from "@/app/login/actions";
 import { getAccountContext, type AccountArchive } from "@/lib/account";
 import { getArchiveRelationshipLabel } from "@/lib/archive-relationships";
@@ -191,7 +192,7 @@ function DashboardArchiveCard({
             : "Private · authorized people only"}
         </span>
         <span className="rounded-full border border-archive-gold/18 px-3 py-1.5 text-archive-ivory/66">
-          {archive.memorialMode ? "Memorial" : "Living archive"}
+          {archive.memorialMode ? "Memorial Archive" : "Living Archive"}
         </span>
         <span className="rounded-full border border-archive-gold/18 px-3 py-1.5 text-archive-ivory/66">
           {relationshipLabel}
@@ -374,6 +375,8 @@ async function loadArchiveOverviews(
 
 type DashboardPageProps = {
   searchParams?: Promise<{
+    legacyCode?: string;
+    legacyCodeError?: string;
     welcome?: string;
   }>;
 };
@@ -479,6 +482,8 @@ export default async function DashboardPage({
 
   const hasArchives = archives.length > 0;
   const hasPersonalArchive = Boolean(defaultArchive);
+  const livingDefaultArchive =
+    defaultArchive && !defaultArchive.memorialMode ? defaultArchive : null;
   const quickActions = defaultArchive
     ? [
         {
@@ -486,11 +491,16 @@ export default async function DashboardPage({
           label: "Add Memory",
           description: "Add a photo, voice note, lesson, or story to this archive."
         },
-        {
-          href: "/member-card",
-          label: "Generate Member Card",
-          description: "Print the wallet card that keeps this archive within reach."
-        },
+        ...(livingDefaultArchive
+          ? [
+              {
+                href: "/member-card",
+                label: "Generate Member Card",
+                description:
+                  "Print the wallet card that keeps this Living Archive within reach."
+              }
+            ]
+          : []),
         {
           href: `/archive/${defaultArchive.slug}/qr`,
           label: "Generate QR Card",
@@ -525,12 +535,14 @@ export default async function DashboardPage({
           >
             Keepsakes
           </Link>
-          <Link
-            href="/member-card"
-            className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
-          >
-            Member Card
-          </Link>
+          {livingDefaultArchive ? (
+            <Link
+              href="/member-card"
+              className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
+            >
+              Member Card
+            </Link>
+          ) : null}
           <form action={signOutAction}>
             <button
               type="submit"
@@ -547,6 +559,13 @@ export default async function DashboardPage({
           <SuccessMessage
             eyebrow="Welcome back"
             message="Your archives are ready whenever you are."
+          />
+        ) : null}
+
+        {resolvedSearchParams?.legacyCode === "regenerated" ? (
+          <SuccessMessage
+            eyebrow="Legacy code updated"
+            message="Your previous Legacy Activation Code was replaced. Use the new code shown in your dashboard and Member Card."
           />
         ) : null}
 
@@ -1005,6 +1024,66 @@ export default async function DashboardPage({
                       ? "Open Legacy Instructions"
                       : "Write Legacy Instructions"}
                   </Link>
+                </div>
+              </section>
+            ) : null}
+
+            {livingDefaultArchive?.legacyActivationCode ? (
+              <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="max-w-2xl">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                      Private Legacy Activation Code
+                    </p>
+                    <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
+                      Keep this code somewhere trusted.
+                    </h2>
+                    <p className="mt-3 text-sm leading-7 text-archive-ivory/62 sm:text-base sm:leading-8">
+                      This single-use code begins memorial review if you can no
+                      longer update your archive. It is not shown publicly and
+                      should only be entered at /activate-legacy.
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-archive-gold/28 bg-archive-gold/10 px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-archive-champagne">
+                    {livingDefaultArchive.legacyCodeUsedAt
+                      ? "Used"
+                      : "Unused"}
+                  </span>
+                </div>
+
+                <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
+                  <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian px-5 py-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                      Legacy Activation Code
+                    </p>
+                    <p className="mt-3 break-all font-mono text-2xl font-bold tracking-[0.16em] text-archive-champagne sm:text-3xl">
+                      {livingDefaultArchive.legacyActivationCode}
+                    </p>
+                    {livingDefaultArchive.legacyCodeUsedAt ? (
+                      <p className="mt-3 text-sm leading-6 text-archive-ivory/60">
+                        Submitted by {livingDefaultArchive.legacyActivatedBy || "a requester"} and Pending Memorial Review.
+                      </p>
+                    ) : (
+                      <p className="mt-3 text-sm leading-6 text-archive-ivory/60">
+                        If compromised, regenerate it and reprint your Member
+                        Card.
+                      </p>
+                    )}
+                  </div>
+
+                  <form action={regenerateLegacyActivationCodeAction}>
+                    <input
+                      type="hidden"
+                      name="archiveSlug"
+                      value={livingDefaultArchive.slug}
+                    />
+                    <button
+                      type="submit"
+                      className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-5 py-3 text-center text-sm font-bold text-archive-champagne transition hover:border-archive-gold hover:bg-white/[0.08]"
+                    >
+                      Regenerate Code
+                    </button>
+                  </form>
                 </div>
               </section>
             ) : null}

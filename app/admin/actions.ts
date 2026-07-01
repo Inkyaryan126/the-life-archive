@@ -7,6 +7,7 @@ import {
   isFulfillmentStatus,
   updateKeepsakeOrder
 } from "@/lib/keepsake-orders";
+import { markLegacyActivationMemorialized } from "@/lib/legacy-activation";
 
 function readString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -18,7 +19,7 @@ function redirectWithError(message: string): never {
 }
 
 export async function updateOrderAction(formData: FormData) {
-  const { isAdmin } = await getAdminAccess();
+  const { account, isAdmin } = await getAdminAccess();
 
   if (!isAdmin) {
     redirectWithError("You do not have access to update orders.");
@@ -50,4 +51,36 @@ export async function updateOrderAction(formData: FormData) {
 
   revalidatePath("/admin");
   redirect("/admin?success=updated");
+}
+
+export async function markLegacyActivationMemorializedAction(
+  formData: FormData
+) {
+  const { account, isAdmin } = await getAdminAccess();
+
+  if (!isAdmin) {
+    redirectWithError("You do not have access to update legacy activations.");
+  }
+
+  const requestId = readString(formData, "requestId");
+
+  if (!requestId) {
+    redirectWithError("Activation request ID is missing.");
+  }
+
+  try {
+    await markLegacyActivationMemorialized(
+      requestId,
+      account.user?.email ?? "admin"
+    );
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unable to complete memorial activation.";
+    redirectWithError(message);
+  }
+
+  revalidatePath("/admin");
+  redirect("/admin?success=legacy-activated");
 }

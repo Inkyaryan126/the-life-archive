@@ -69,6 +69,9 @@ export default async function CreateArchivePage({
           <p className="mt-3 max-w-4xl text-sm leading-7 text-archive-ivory/72 sm:text-base sm:leading-8">
             An archive is a collection of memories centered around one person.
             You can create an archive for yourself or for someone you love.
+            Choose Living Archive when the person can still own, update, and
+            carry their Member Card. Choose Memorial Archive when the archive is
+            already being preserved in remembrance.
             Each archive can hold photos, videos, stories, voice recordings,
             life lessons, and other meaningful memories that can be preserved
             and shared for future generations.
@@ -211,21 +214,48 @@ export default async function CreateArchivePage({
                 </select>
               </label>
 
-              <label className="flex items-center justify-between gap-4 rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3">
-                <span>
-                  <span className="block text-sm font-semibold text-archive-ivory">
-                    Remembrance language
+              <fieldset className="grid gap-3 rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-4">
+                <legend className="text-sm font-semibold text-archive-ivory">
+                  Archive type
+                </legend>
+                <label className="flex gap-3 rounded-lg border border-archive-gold/12 bg-archive-obsidian/40 px-4 py-3">
+                  <input
+                    name="archiveType"
+                    type="radio"
+                    value="living"
+                    defaultChecked
+                    className="mt-1 size-4 accent-archive-gold"
+                  />
+                  <span>
+                    <span className="block text-sm font-semibold text-archive-ivory">
+                      Living Archive
+                    </span>
+                    <span className="mt-1 block text-sm leading-6 text-archive-ivory/64">
+                      For someone who can still own and update their archive.
+                      This creates a private Legacy Activation Code and makes
+                      the archive eligible for a Member Card.
+                    </span>
                   </span>
-                  <span className="mt-1 block text-sm leading-6 text-archive-ivory/64">
-                    Use remembrance-focused wording throughout this archive.
+                </label>
+                <label className="flex gap-3 rounded-lg border border-archive-gold/12 bg-archive-obsidian/40 px-4 py-3">
+                  <input
+                    name="archiveType"
+                    type="radio"
+                    value="memorial"
+                    className="mt-1 size-4 accent-archive-gold"
+                  />
+                  <span>
+                    <span className="block text-sm font-semibold text-archive-ivory">
+                      Memorial Archive · Already Passed Away
+                    </span>
+                    <span className="mt-1 block text-sm leading-6 text-archive-ivory/64">
+                      For someone who has already passed away. This archive uses
+                      remembrance language and does not create a Legacy
+                      Activation Code or Member Card.
+                    </span>
                   </span>
-                </span>
-                <input
-                  name="memorialMode"
-                  type="checkbox"
-                  className="size-5 accent-archive-gold"
-                />
-              </label>
+                </label>
+              </fieldset>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">

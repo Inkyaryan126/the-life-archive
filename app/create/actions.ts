@@ -29,12 +29,14 @@ export async function createArchiveAction(formData: FormData) {
   const profilePhotoUrl = readRequiredString(formData, "profilePhotoUrl");
   const profilePhotoFile = readOptionalFile(formData, "profilePhotoFile");
   const visibilityValue = readRequiredString(formData, "visibility");
+  const archiveType = readRequiredString(formData, "archiveType");
   const relationshipToOwnerValue = readRequiredString(
     formData,
     "relationshipToOwner"
   );
   const visibility: ArchiveVisibility =
     visibilityValue === "public" ? "public" : "private";
+  const memorialMode = archiveType === "memorial";
 
   if (!archiveName) {
     redirectWithError("Archive name is required.");
@@ -77,7 +79,7 @@ export async function createArchiveAction(formData: FormData) {
       profilePhotoUrl: profilePhotoValidation.value,
       profilePhotoFile,
       visibility,
-      memorialMode: formData.get("memorialMode") === "on",
+      memorialMode,
       relationshipToOwner: relationshipToOwnerValue
     });
   } catch (error) {

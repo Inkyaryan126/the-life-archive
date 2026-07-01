@@ -11,6 +11,11 @@ export type AccountArchive = {
   personName: string;
   visibility: ArchiveVisibility;
   memorialMode: boolean;
+  legacyActivationCode: string | null;
+  legacyCodeUsedAt: string | null;
+  legacyActivatedBy: string | null;
+  memorialActivatedAt: string | null;
+  memorialActivatedBy: string | null;
   relationshipToOwner: ArchiveRelationshipToOwner;
   createdAt: string;
 };
@@ -75,6 +80,11 @@ export async function getAccountContext(): Promise<AccountContext> {
     personName: archive.person_name,
     visibility: archive.visibility as ArchiveVisibility,
     memorialMode: archive.memorial_mode,
+    legacyActivationCode: archive.legacy_activation_code ?? null,
+    legacyCodeUsedAt: archive.legacy_code_used_at ?? null,
+    legacyActivatedBy: archive.legacy_activated_by ?? null,
+    memorialActivatedAt: archive.memorial_activated_at ?? null,
+    memorialActivatedBy: archive.memorial_activated_by ?? null,
     relationshipToOwner: normalizeArchiveRelationshipToOwner(
       archive.relationship_to_owner
     ),

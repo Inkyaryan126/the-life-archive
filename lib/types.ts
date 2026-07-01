@@ -32,6 +32,11 @@ export type LifeArchive = {
   profilePhotoPath?: string | null;
   visibility: ArchiveVisibility;
   memorialMode: boolean;
+  legacyActivationCode?: string | null;
+  legacyCodeUsedAt?: string | null;
+  legacyActivatedBy?: string | null;
+  memorialActivatedAt?: string | null;
+  memorialActivatedBy?: string | null;
   relationshipToOwner: ArchiveRelationshipToOwner;
   createdAt: string;
 };

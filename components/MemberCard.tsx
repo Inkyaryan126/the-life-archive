@@ -37,7 +37,7 @@ type MemberCardProps = {
   hasArchive: boolean;
   memberName: string;
   qrSrc: string;
-  accessCode: string;
+  legacyActivationCode: string;
   createdYear: number;
 };
 
@@ -45,7 +45,7 @@ export function MemberCard({
   hasArchive,
   memberName,
   qrSrc,
-  accessCode,
+  legacyActivationCode,
   createdYear
 }: MemberCardProps) {
   const nameBoxRef = useRef<HTMLDivElement>(null);
@@ -216,7 +216,25 @@ export function MemberCard({
           }}
         />
 
-        {/* Access Code Box */}
+        <div
+          className="absolute text-left"
+          style={{
+            left: asPercent(130, BACK_WIDTH),
+            top: asPercent(670, BACK_HEIGHT),
+            width: asPercent(700, BACK_WIDTH)
+          }}
+        >
+          <p className="font-serif text-[0.55rem] font-bold uppercase tracking-[0.18em] text-archive-obsidian sm:text-xs">
+            Legacy Activation Code
+          </p>
+          <p className="mt-1 max-w-[18rem] text-[0.45rem] leading-snug text-archive-obsidian/72 sm:text-[0.65rem]">
+            Keep this private. If I can no longer update my archive, this code
+            begins the process of preserving it as my memorial at
+            thelifearchive.vip/activate-legacy.
+          </p>
+        </div>
+
+        {/* Legacy Activation Code Box */}
         <div
           className="absolute flex items-center justify-center text-center"
           style={{
@@ -225,10 +243,10 @@ export function MemberCard({
             width: asPercent(CODE_WIDTH + 8, BACK_WIDTH),
             height: asPercent(CODE_HEIGHT + 8, BACK_HEIGHT)
           }}
-          aria-label={`Archive Access Code: ${accessCode}`}
+          aria-label={`Legacy Activation Code: ${legacyActivationCode}`}
         >
           <span className="font-mono font-bold tracking-[0.2em] text-[#d5a84e] text-xs sm:text-sm md:text-base leading-none">
-            {accessCode}
+            {legacyActivationCode}
           </span>
         </div>
       </article>

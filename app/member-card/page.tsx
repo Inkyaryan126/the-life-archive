@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { createHash } from "crypto";
 import { headers } from "next/headers";
 import { MemberCard } from "@/components/MemberCard";
 import { MemberCardActions } from "@/components/MemberCardActions";
@@ -51,7 +50,11 @@ export default async function MemberCardPage({
     );
   }
 
-  const archiveSlug = account.defaultArchive?.slug ?? null;
+  const livingArchive =
+    account.defaultArchive && !account.defaultArchive.memorialMode
+      ? account.defaultArchive
+      : null;
+  const archiveSlug = livingArchive?.slug ?? null;
 
   const requestHeaders = await headers();
   const siteUrl = getRequestSiteUrl(
@@ -74,13 +77,26 @@ export default async function MemberCardPage({
     .split("@")[0]
     .replace(/[._-]+/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
-  const memberName = account.defaultArchive?.personName ?? emailName;
-  const archiveId = (account.defaultArchive as any)?.id || user.id;
-  const hash = createHash("sha256").update(archiveId).digest("hex").toUpperCase();
-  const accessCode = `${hash.slice(0, 4)}-${hash.slice(4, 8)}`;
-  const createdYear = account.defaultArchive
-    ? new Date(account.defaultArchive.createdAt).getFullYear()
+  const memberName = livingArchive?.personName ?? emailName;
+  const legacyActivationCode =
+    livingArchive?.legacyActivationCode ?? "CREATE-ARCHIVE";
+  const createdYear = livingArchive
+    ? new Date(livingArchive.createdAt).getFullYear()
     : new Date().getFullYear();
+
+  if (!livingArchive) {
+    return (
+      <AccessPrompt
+        eyebrow="Member Card"
+        title="Member Cards are for Living Archives."
+        message="Memorial Archives use memorial QR keepsakes instead. Create a Living Archive to generate a Member Card with a private Legacy Activation Code."
+        primaryHref="/create?relationshipToOwner=self"
+        primaryLabel="Create a Living Archive"
+        secondaryHref="/dashboard"
+        secondaryLabel="Return to Dashboard"
+      />
+    );
+  }
 
   return (
     <main className="member-card-page relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
@@ -147,7 +163,7 @@ export default async function MemberCardPage({
           hasArchive={hasArchive}
           memberName={memberName}
           qrSrc={svgToDataUri(qrSvg)}
-          accessCode={accessCode}
+          legacyActivationCode={legacyActivationCode}
           createdYear={createdYear}
         />
       </div>
@@ -162,9 +178,9 @@ export default async function MemberCardPage({
           use Front Only and Back Only separately so you can match the two
           faces in your printer.
         </p>
-        {account.defaultArchive ? (
+        {livingArchive ? (
           <p className="mx-auto mt-5 max-w-xl text-center text-sm leading-6 text-archive-ivory/60">
-            {account.defaultArchive.visibility === "public"
+            {livingArchive.visibility === "public"
               ? "This card opens a public archive that anyone can view. Public archives may also appear on The Life Archive homepage."
               : "This card opens a private archive. Only you and authorized members can view it after signing in."}
           </p>

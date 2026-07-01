@@ -8,7 +8,7 @@ const useCases = [
   {
     title: "Weatherproof Grave Markers",
     context: "Permanent physical-to-digital connections.",
-    description: "Incorporate elegant, custom-milled QR keepsake plaques directly onto new or existing headstones, markers, or columbarium niches. A brief scan instantly opens their secure living archive."
+    description: "Incorporate elegant, custom-milled QR keepsake plaques directly onto new or existing headstones, markers, or columbarium niches. A brief scan instantly opens their secure Living Archive."
   },
   {
     title: "Botanical Bench Plaques",
