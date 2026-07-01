@@ -184,7 +184,7 @@ export function MemberCard({
         />
 
         <div
-          className="absolute flex items-center justify-center p-[5%]"
+          className="absolute flex items-center justify-center"
           style={{
             left: asPercent(QR_X, BACK_WIDTH),
             top: asPercent(QR_Y, BACK_HEIGHT),
@@ -192,7 +192,10 @@ export function MemberCard({
             height: asPercent(QR_HEIGHT, BACK_HEIGHT)
           }}
         >
-          <div className="relative w-full h-full">
+          <div
+            className="relative"
+            style={{ height: "88%", aspectRatio: "1 / 1" }}
+          >
             <Image
               src={qrSrc}
               alt={
