@@ -84,8 +84,8 @@ export default async function HomePage() {
       
       <div className="relative z-10 flex flex-col flex-grow">
         {/* Navigation Bar with Glass Blur */}
-        <nav className="sticky top-0 z-50 mx-auto w-full border-b border-archive-gold/10 bg-archive-obsidian/45 px-5 py-5 backdrop-blur-md sm:px-8">
-          <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <nav className="sticky top-0 z-50 mx-auto w-full border-b border-archive-gold/10 bg-archive-obsidian/45 px-5 py-5 backdrop-blur-md sm:px-8 lg:px-10">
+          <div className="mx-auto flex max-w-[92rem] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <Link href="/" className="transition opacity-90 hover:opacity-100">
               <SiteLogo width={220} height={60} />
             </Link>
@@ -115,20 +115,20 @@ export default async function HomePage() {
         </nav>
 
         {/* Hero Section */}
-        <header className="relative overflow-visible px-5 py-20 sm:px-8 sm:py-28 lg:min-h-[680px]">
+        <header className="relative overflow-visible px-5 py-20 sm:px-8 sm:py-28 lg:min-h-[760px] lg:px-10">
           <div className="pointer-events-none absolute inset-y-0 left-0 z-0 hidden w-[60%] bg-[linear-gradient(90deg,rgba(13,13,14,0.92)_0%,rgba(13,13,14,0.86)_54%,rgba(13,13,14,0.48)_78%,rgba(13,13,14,0)_100%)] lg:block" />
-          <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-10 lg:min-h-[680px] lg:grid-cols-[minmax(0,0.48fr)_minmax(0,0.52fr)]">
-            <div className="relative z-30 max-w-[44rem]">
+          <div className="relative z-10 mx-auto grid w-full max-w-[92rem] items-center gap-10 lg:min-h-[760px] lg:grid-cols-[minmax(0,0.44fr)_minmax(0,0.56fr)]">
+            <div className="relative z-30 max-w-[42rem]">
               <p className="text-xs font-semibold uppercase tracking-[0.32em] text-archive-gold">
                 What will they remember of you?
               </p>
               <h1 className="mt-5 font-serif text-5xl leading-tight sm:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-archive-ivory via-archive-champagne to-archive-gold">
                 The Life Archive
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-archive-ivory/90 font-serif italic">
+              <p className="mt-6 max-w-xl text-lg leading-8 text-archive-ivory/90 font-serif italic">
                 A quiet, permanent digital sanctuary for the things that cannot be replaced.
               </p>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-archive-ivory/80">
+              <p className="mt-4 max-w-xl text-sm leading-7 text-archive-ivory/80">
                 The Life Archive is a physical-to-digital preservation platform. We help families record the spoken cadence, defining life lessons, and quiet memories of those they love—safeguarding their spirit and connecting physical keepsakes to a permanent home of heritage.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
@@ -150,14 +150,14 @@ export default async function HomePage() {
               aria-hidden="true"
               className="relative z-10 hidden h-full min-h-[560px] overflow-visible lg:block"
             >
-              <div className="absolute right-0 top-[8%] w-[52vw] min-w-[680px] max-w-[960px]">
+              <div className="absolute right-[-1%] top-[6%] w-[58vw] min-w-[760px] max-w-[1100px]">
                 <Image
                   src="/images/site-design/tla-background.png"
                   alt=""
                   width={1536}
                   height={1024}
                   priority
-                  sizes="(min-width: 1920px) 960px, 52vw"
+                  sizes="(min-width: 1920px) 1100px, 58vw"
                   className="h-auto w-full object-contain opacity-100"
                 />
               </div>
@@ -166,7 +166,7 @@ export default async function HomePage() {
         </header>
 
         {/* The Keepsake Experience Section */}
-        <section className="mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 border-t border-archive-gold/15">
+        <section className="mx-auto w-full max-w-[92rem] px-5 py-16 sm:px-8 lg:px-10 border-t border-archive-gold/15">
           <div className="grid gap-10 lg:grid-cols-2 items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
@@ -213,7 +213,7 @@ export default async function HomePage() {
         </section>
 
         {/* How It Works Section */}
-        <section className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 border-t border-archive-gold/15">
+        <section className="mx-auto w-full max-w-[92rem] px-5 py-20 sm:px-8 lg:px-10 border-t border-archive-gold/15">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
               THE PRESERVATION PROCESS
@@ -249,7 +249,7 @@ export default async function HomePage() {
         </section>
 
         {/* Keepsakes Copy Block Section */}
-        <section className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 border-t border-archive-gold/15">
+        <section className="mx-auto w-full max-w-[92rem] px-5 py-20 sm:px-8 lg:px-10 border-t border-archive-gold/15">
           <div className="grid gap-10 lg:grid-cols-2 items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
@@ -304,7 +304,7 @@ export default async function HomePage() {
         </section>
 
         {/* Category Cards Section */}
-        <section className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 border-t border-archive-gold/15">
+        <section className="mx-auto w-full max-w-[92rem] px-5 py-20 sm:px-8 lg:px-10 border-t border-archive-gold/15">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
               ORGANIZED HERITAGE
@@ -340,7 +340,7 @@ export default async function HomePage() {
 
         {/* Editorial Legacy Footer */}
         <footer className="relative z-10 border-t border-archive-gold/20 bg-archive-obsidian/40 backdrop-blur-md mt-auto py-16 text-xs text-archive-ivory/60">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8 grid gap-8 md:grid-cols-4">
+          <div className="mx-auto max-w-[92rem] px-5 sm:px-8 lg:px-10 grid gap-8 md:grid-cols-4">
             <div>
               <SiteLogo width={360} height={110} className="mb-8 opacity-100" />
               <p className="leading-6 max-w-xs text-[11px]">
