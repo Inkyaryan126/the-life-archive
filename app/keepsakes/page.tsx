@@ -461,10 +461,10 @@ function ProductVisual({
 function DetailList({ title, items }: { title: string; items: string[] }) {
   return (
     <div>
-      <h4 className="text-[10px] font-bold uppercase tracking-[0.24em] text-archive-gold">
+      <h4 className="text-[0.72rem] font-bold uppercase tracking-[0.24em] text-archive-gold">
         {title}
       </h4>
-      <ul className="mt-4 grid gap-3 text-xs leading-5 text-archive-ivory/68">
+      <ul className="mt-4 grid gap-3 text-sm leading-6 text-archive-ivory/68">
         {items.map((item) => (
           <li key={item} className="flex gap-3">
             <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-archive-gold" />
@@ -497,37 +497,37 @@ function ProductShowcase({
         <ProductVisual image={product.image} type={product.visual} name={product.name} />
       </div>
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.26em] text-archive-gold">
+        <p className="text-sm font-semibold uppercase tracking-[0.26em] text-archive-gold">
           {product.eyebrow}
         </p>
         <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
-          <h2 className="max-w-xl font-serif text-3xl leading-tight text-archive-ivory sm:text-5xl">
+          <h2 className="max-w-xl font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
             {product.headline}
           </h2>
           <div className="flex flex-wrap items-center gap-2">
             {badge ? (
-              <span className="rounded-full bg-archive-gold px-4 py-1 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian">
+              <span className="rounded-full bg-archive-gold px-4 py-1 text-[0.72rem] font-bold uppercase tracking-[0.16em] text-archive-obsidian">
                 {badge}
               </span>
             ) : null}
             {isComingSoon ? (
-              <span className="rounded-full border border-archive-gold/30 px-4 py-1 text-xs font-bold uppercase tracking-[0.16em] text-archive-gold">
+              <span className="rounded-full border border-archive-gold/30 px-4 py-1 text-[0.72rem] font-bold uppercase tracking-[0.16em] text-archive-gold">
                 Coming Soon
               </span>
             ) : null}
-            <span className="rounded-full border border-archive-gold/30 px-4 py-1 text-xs font-bold text-archive-gold">
+            <span className="rounded-full border border-archive-gold/30 px-4 py-1 text-[0.72rem] font-bold text-archive-gold">
               {product.price}
             </span>
           </div>
         </div>
-        <p className="mt-6 max-w-2xl text-sm leading-7 text-archive-ivory/76">
+        <p className="mt-6 max-w-2xl text-base leading-7 text-archive-ivory/76">
           {product.story}
         </p>
         <div className="mt-8 rounded-[1.5rem] border border-archive-gold/12 bg-white/[0.025] p-5">
           <h3 className="font-serif text-xl text-archive-champagne">
             Craftsmanship
           </h3>
-          <p className="mt-3 text-sm leading-7 text-archive-ivory/66">
+          <p className="mt-3 text-base leading-7 text-archive-ivory/66">
             {product.craftsmanship}
           </p>
         </div>
@@ -536,20 +536,20 @@ function ProductShowcase({
           <DetailList title="Personalization" items={product.personalization} />
           <DetailList title="What's included" items={product.included} />
         </div>
-        <p className="mt-8 text-xs italic leading-6 text-archive-ivory/58">
+        <p className="mt-8 text-sm italic leading-7 text-archive-ivory/58">
           Best for: {product.bestFor}
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <CheckoutLink
             checkoutUrl={isComingSoon ? undefined : checkoutUrl}
-            className="rounded-full bg-archive-gold px-7 py-3 text-xs font-bold uppercase tracking-[0.18em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+            className="rounded-full bg-archive-gold px-7 py-3 text-sm font-bold uppercase tracking-[0.18em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne sm:text-base"
           >
             Order Now
           </CheckoutLink>
           {!isComingSoon && checkoutUrl ? (
             <CheckoutLink
               checkoutUrl={checkoutUrl}
-              className="rounded-full border border-archive-gold/30 bg-white/[0.035] px-7 py-3 text-xs font-bold uppercase tracking-[0.18em] text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.07]"
+              className="rounded-full border border-archive-gold/30 bg-white/[0.035] px-7 py-3 text-sm font-bold uppercase tracking-[0.18em] text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.07] sm:text-base"
             >
               Choose This Keepsake
             </CheckoutLink>
@@ -580,29 +580,29 @@ function ProductCard({
       <div className="p-2 pt-5">
         <div className="flex flex-wrap items-center gap-2">
           {badge ? (
-            <span className="rounded-full bg-archive-gold px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-archive-obsidian">
+            <span className="rounded-full bg-archive-gold px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-archive-obsidian">
               {badge}
             </span>
           ) : null}
           {isComingSoon || !checkoutUrl ? (
-            <span className="rounded-full border border-archive-gold/30 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-archive-gold">
+            <span className="rounded-full border border-archive-gold/30 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-archive-gold">
               Coming Soon
             </span>
           ) : null}
-          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-archive-gold">
+          <p className="text-[0.72rem] font-bold uppercase tracking-[0.22em] text-archive-gold">
             {product.eyebrow}
           </p>
         </div>
-        <h3 className="mt-3 font-serif text-2xl text-archive-ivory">
+        <h3 className="mt-3 font-serif text-2xl leading-tight text-archive-ivory sm:text-[2rem]">
           {product.name}
         </h3>
-        <p className="mt-3 text-xs leading-6 text-archive-ivory/60">
+        <p className="mt-3 text-sm leading-7 text-archive-ivory/68">
           {product.bestFor}
         </p>
-        <p className="mt-3 text-xs leading-6 text-archive-ivory/54">
+        <p className="mt-3 text-sm leading-7 text-archive-ivory/58">
           {product.story}
         </p>
-        <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em] text-archive-champagne">
+        <p className="mt-5 text-[0.75rem] font-bold uppercase tracking-[0.18em] text-archive-champagne">
           {checkoutUrl && !isComingSoon ? "Order Now" : "Coming Soon"}
         </p>
       </div>
@@ -633,7 +633,7 @@ function TrustPillar({ title, copy }: { title: string; copy: string }) {
   return (
     <div className="border-t border-archive-gold/18 pt-6">
       <h3 className="font-serif text-2xl text-archive-ivory">{title}</h3>
-      <p className="mt-4 text-sm leading-7 text-archive-ivory/64">{copy}</p>
+      <p className="mt-4 text-base leading-7 text-archive-ivory/64">{copy}</p>
     </div>
   );
 }
@@ -647,51 +647,51 @@ export default async function KeepsakesPage() {
     account.defaultArchive?.slug || account.archives[0]?.slug || null;
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8">
+    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
       <DesignBackdrop />
 
-      <nav className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-4 border-b border-archive-gold/20 pb-5 sm:flex-row sm:items-center sm:justify-between">
+      <nav className="relative z-10 mx-auto flex w-full max-w-[96rem] flex-col gap-4 border-b border-archive-gold/20 pb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <Link href="/">
-          <SiteLogo width={160} height={40} />
+          <SiteLogo width={240} height={60} />
         </Link>
-        <div className="flex w-full items-center justify-between gap-4 sm:w-auto sm:justify-end">
+        <div className="flex w-full items-center justify-between gap-5 sm:w-auto sm:justify-end sm:gap-8">
           <Link
             href={dashboardHref}
             className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
           >
             {dashboardLabel}
           </Link>
-          <span className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+          <span className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
             Keepsake Store
           </span>
         </div>
       </nav>
 
-      <div className="relative z-10 mx-auto max-w-7xl">
-        <header className="grid gap-12 py-16 sm:py-24 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center lg:py-28">
+      <div className="relative z-10 mx-auto w-full max-w-[96rem]">
+        <header className="grid gap-12 py-16 sm:py-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:items-center lg:gap-14 lg:py-28">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-archive-gold">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-archive-gold">
               Keepsake Store
             </p>
             <h1 className="mt-5 max-w-4xl font-serif text-5xl leading-[1.02] text-archive-ivory sm:text-7xl">
               Physical keys for the stories worth finding again.
             </h1>
-            <p className="mt-7 max-w-2xl text-base leading-8 text-archive-ivory/72">
+            <p className="mt-7 max-w-2xl text-base leading-8 text-archive-ivory/72 sm:text-lg">
               Choose the form that belongs with the archive, complete checkout, and we help align the QR, name, message, and material direction before production.
             </p>
-            <p className="mt-3 text-sm font-semibold text-archive-gold">
+            <p className="mt-3 text-sm font-semibold text-archive-gold sm:text-base">
               Secure checkout opens in a new tab.
             </p>
-            <div className="mt-9 flex flex-wrap gap-3">
+            <div className="mt-9 flex flex-wrap gap-4">
               <a
                 href="#collection"
-                className="rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+                className="rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne sm:text-base"
               >
                 Choose a Keepsake
               </a>
               <Link
                 href={dashboardHref}
-                className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-8 py-4 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-8 py-4 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] sm:text-base"
               >
                 {isSignedIn ? "Return to Dashboard" : "Sign In to Your Archive"}
               </Link>
@@ -706,14 +706,14 @@ export default async function KeepsakesPage() {
           </div>
         </header>
 
-        <section className="border-t border-archive-gold/15 py-14">
+        <section className="border-t border-archive-gold/15 py-14 sm:py-16">
           <div className="grid gap-6 md:grid-cols-5">
             {storeSteps.map((step, index) => (
               <div key={step} className="border-t border-archive-gold/20 pt-5">
-                <span className="font-serif text-3xl text-archive-gold/45">
+                <span className="font-serif text-4xl text-archive-gold/45">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <p className="mt-4 text-sm leading-6 text-archive-ivory/72">
+                <p className="mt-4 text-base leading-7 text-archive-ivory/72">
                   {step}
                 </p>
               </div>
@@ -723,14 +723,14 @@ export default async function KeepsakesPage() {
 
         <section className="py-16" id="collection">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-archive-gold">
+            <p className="text-sm font-semibold uppercase tracking-[0.26em] text-archive-gold">
               Featured Collection
             </p>
             <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
               Start with the form the family will actually keep.
             </h2>
           </div>
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))]">
             {activeKeepsakes.map((product, index) => (
               <ProductCard
                 key={product.name}
@@ -754,17 +754,17 @@ export default async function KeepsakesPage() {
 
         <section className="border-t border-archive-gold/15 py-16 sm:py-20">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-archive-gold">
+            <p className="text-sm font-semibold uppercase tracking-[0.26em] text-archive-gold">
               Coming Soon
             </p>
             <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
               Future keepsakes in development.
             </h2>
-            <p className="mt-5 text-sm leading-7 text-archive-ivory/66">
+            <p className="mt-5 text-base leading-7 text-archive-ivory/66">
               These formats remain part of the catalog, but they are not available for checkout yet.
             </p>
           </div>
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(18rem,1fr))]">
             {comingSoonKeepsakes.map((product) => (
               <ProductCard
                 key={product.name}
@@ -776,9 +776,9 @@ export default async function KeepsakesPage() {
         </section>
 
         <section className="border-t border-archive-gold/15 py-20 sm:py-24">
-          <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.26em] text-archive-gold">
+              <p className="text-sm font-semibold uppercase tracking-[0.26em] text-archive-gold">
                 Built For Memory
               </p>
               <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
@@ -794,25 +794,25 @@ export default async function KeepsakesPage() {
         </section>
 
         <section className="mb-16 rounded-[2.5rem] border border-archive-gold/22 bg-archive-obsidian/92 p-8 text-center shadow-luxury sm:p-12">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-archive-gold">
             The Life Archive Keepsakes
           </p>
           <h2 className="mx-auto mt-4 max-w-3xl font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
             Order the launch keepsake that fits your archive.
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-archive-ivory/68">
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-archive-ivory/68">
             Start with the memorial keychain, memory card, memorial dog tag, or memorial plaque. After checkout, you will personalize the keepsake around the Life Archive it belongs to.
           </p>
           <div className="mt-9 flex flex-wrap justify-center gap-4">
             <a
               href="#collection"
-              className="rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+              className="rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne sm:text-base"
             >
               Choose a Keepsake
             </a>
             <Link
               href={dashboardHref}
-              className="rounded-full border border-archive-gold/20 px-8 py-4 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:text-archive-ivory"
+              className="rounded-full border border-archive-gold/20 px-8 py-4 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:text-archive-ivory sm:text-base"
             >
               {isSignedIn ? "Return to Dashboard" : "Sign In to Your Archive"}
             </Link>

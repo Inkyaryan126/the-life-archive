@@ -37,14 +37,14 @@ export default async function QRPage({ params }: QRPageProps) {
   const qrSrc = svgToDataUri(qrSvg);
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-5 py-6 text-archive-ivory sm:px-8">
+    <main className="relative min-h-screen overflow-hidden px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
       <DesignBackdrop />
 
-      <div className="relative z-10 mx-auto max-w-5xl">
+      <div className="relative z-10 mx-auto w-full max-w-[96rem]">
         <nav className="no-print">
           <Link
             href={`/archive/${archive.slug}`}
-            className="text-sm font-semibold text-archive-ivory/80 underline-offset-4 hover:underline hover:text-archive-gold"
+            className="text-sm font-semibold text-archive-ivory/80 underline-offset-4 hover:text-archive-gold sm:text-base"
           >
             Back to archive
           </Link>
@@ -54,13 +54,13 @@ export default async function QRPage({ params }: QRPageProps) {
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
             {archive.archiveName}
           </p>
-          <h1 className="mt-3 font-serif text-4xl leading-tight text-archive-ivory">
+          <h1 className="mt-3 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
             QR code for {archive.personName}
           </h1>
-          <p className="mt-5 leading-7 text-archive-ivory/72">
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-archive-ivory/78">
             Scan to reveal a random memory.
           </p>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-archive-ivory/60">
+          <p className="mt-2 max-w-2xl text-base leading-7 text-archive-ivory/62">
             {archive.visibility === "public"
               ? "Anyone who scans this code can view the archive. Public archives may also appear on The Life Archive homepage."
               : "Only the archive owner and authorized members can open this private archive after signing in."}
@@ -100,25 +100,25 @@ export default async function QRPage({ params }: QRPageProps) {
                 </span>
               </p>
             </div>
-            <PrintButton>Print QR Card</PrintButton>
+            <PrintButton>Print Free QR Card</PrintButton>
           </div>
         </section>
 
         {/* Keepsake Upsell Block */}
-        <section className="no-print mt-8 rounded-lg border border-archive-gold/22 bg-archive-obsidian p-6 text-archive-ivory shadow-soft">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
+        <section className="no-print mt-8 rounded-[2rem] border border-archive-gold/22 bg-archive-obsidian p-6 text-archive-ivory shadow-soft">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-archive-gold">
             The Life Archive Keepsakes
           </p>
-          <h3 className="mt-2 font-serif text-2xl text-archive-ivory">
-            Turn this archive into a physical keepsake.
+          <h3 className="mt-2 font-serif text-3xl text-archive-ivory">
+            Print this QR free, then place it on a keepsake.
           </h3>
-          <p className="mt-2 text-sm leading-6 text-archive-ivory/70">
-            Download your QR for free, or order a premium keychain, card, pendant, plaque, or tag connected to this archive.
+          <p className="mt-2 text-base leading-7 text-archive-ivory/70">
+            Download your QR at no cost, or order a premium keychain, card, pendant, plaque, or tag connected to this archive.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link
               href="/keepsakes"
-              className="rounded-full bg-archive-gold px-5 py-2.5 text-xs font-bold text-archive-obsidian shadow transition hover:bg-archive-champagne"
+              className="rounded-full bg-archive-gold px-5 py-2.5 text-sm font-bold text-archive-obsidian shadow transition hover:bg-archive-champagne"
             >
               View Keepsakes Portfolio
             </Link>
@@ -146,7 +146,7 @@ export default async function QRPage({ params }: QRPageProps) {
           <p className="mt-5 text-lg font-semibold text-archive-ivory">
             Scan to reveal a random memory.
           </p>
-          <p className="mx-auto mt-3 max-w-md break-all text-xs leading-5 text-archive-ivory/56">
+          <p className="mx-auto mt-3 max-w-md break-all text-sm leading-6 text-archive-ivory/56">
             {randomMemoryUrl}
           </p>
         </section>

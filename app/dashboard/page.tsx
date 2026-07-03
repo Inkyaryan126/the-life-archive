@@ -128,7 +128,7 @@ function getArchiveInitials(name: string) {
 function MemoryBreakdownCard({ label, count }: MemoryBreakdownCardProps) {
   return (
     <article className="rounded-2xl border border-archive-gold/18 bg-white/[0.04] p-5 shadow-luxury">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
+      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-archive-gold">
         {label}
       </p>
       <p className="mt-4 font-serif text-4xl leading-none text-archive-ivory">
@@ -147,10 +147,10 @@ function DashboardAction({ description, href, label }: DashboardActionProps) {
       <p className="font-serif text-2xl leading-tight text-archive-ivory">
         {label}
       </p>
-      <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
+      <p className="mt-2 text-base leading-7 text-archive-ivory/62">
         {description}
       </p>
-      <span className="mt-5 inline-flex text-sm font-semibold text-archive-champagne transition group-hover:translate-x-1">
+      <span className="mt-5 inline-flex text-base font-semibold text-archive-champagne transition group-hover:translate-x-1">
         Continue →
       </span>
     </Link>
@@ -171,7 +171,7 @@ function DashboardArchiveCard({
     <article className="rounded-3xl border border-archive-gold/18 bg-white/[0.04] p-5 shadow-luxury sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
             {archive.personName}
           </p>
           <h3 className="mt-2 font-serif text-2xl leading-tight text-archive-ivory sm:text-[2rem]">
@@ -179,13 +179,13 @@ function DashboardArchiveCard({
           </h3>
         </div>
         {isDefault ? (
-          <span className="rounded-full border border-archive-gold/28 bg-archive-gold/10 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-archive-champagne">
+          <span className="rounded-full border border-archive-gold/28 bg-archive-gold/10 px-3 py-1 text-sm font-semibold uppercase tracking-[0.16em] text-archive-champagne">
             Primary archive
           </span>
         ) : null}
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2 text-[0.68rem] font-semibold uppercase tracking-[0.14em]">
+      <div className="mt-5 flex flex-wrap gap-2 text-sm font-semibold uppercase tracking-[0.14em]">
         <span className="rounded-full border border-archive-gold/18 px-3 py-1.5 text-archive-ivory/66">
           {archive.visibility === "public"
             ? "Public · discoverable"
@@ -201,7 +201,7 @@ function DashboardArchiveCard({
 
       <div className="mt-6 grid gap-4 border-t border-archive-gold/12 pt-5 sm:grid-cols-[1fr_auto] sm:items-end">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
             Memories
           </p>
           <p className="mt-2 font-serif text-3xl text-archive-ivory">
@@ -213,13 +213,13 @@ function DashboardArchiveCard({
         </div>
         {latestMemory ? (
           <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/35 px-4 py-3">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-archive-gold">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
               Most recent memory
             </p>
             <p className="mt-2 text-sm font-semibold text-archive-ivory">
               {latestMemory.title}
             </p>
-            <p className="mt-1 text-xs leading-5 text-archive-ivory/58">
+            <p className="mt-1 text-sm leading-6 text-archive-ivory/58">
               {latestMemory.archiveName} · {formatMemoryDate(latestMemory.date)}
             </p>
           </div>
@@ -280,7 +280,7 @@ function MemoryPreviewCard({ memory }: { memory: MemoryWithArchive }) {
       ) : (
         <div className="flex aspect-[16/10] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(198,161,91,0.14))] p-5">
           <div className="max-w-full">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-archive-gold">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-archive-gold">
               {typeLabel}
             </p>
             <p className="mt-3 text-lg font-semibold text-archive-ivory">
@@ -291,10 +291,10 @@ function MemoryPreviewCard({ memory }: { memory: MemoryWithArchive }) {
       )}
       <div className="p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
             {typeLabel}
           </p>
-          <p className="text-xs text-archive-ivory/58">
+          <p className="text-sm text-archive-ivory/58">
             {formatMemoryDate(memory.date)}
           </p>
         </div>
@@ -305,7 +305,7 @@ function MemoryPreviewCard({ memory }: { memory: MemoryWithArchive }) {
           {memory.content}
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs uppercase tracking-[0.16em] text-archive-ivory/48">
+          <p className="text-sm uppercase tracking-[0.16em] text-archive-ivory/48">
             {memory.archiveName}
           </p>
           <Link
@@ -331,11 +331,11 @@ function ActivityCard({
 }) {
   return (
     <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.035] p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
         {formatTimestamp(date)}
       </p>
       <h3 className="mt-2 font-serif text-xl text-archive-ivory">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-archive-ivory/60">{detail}</p>
+      <p className="mt-2 text-base leading-7 text-archive-ivory/60">{detail}</p>
     </article>
   );
 }
@@ -521,24 +521,24 @@ export default async function DashboardPage({
     : [];
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
+    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
       <DesignBackdrop />
 
-      <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between border-b border-archive-gold/20 pb-5">
+      <nav className="relative z-10 mx-auto flex w-full max-w-[96rem] flex-col gap-4 border-b border-archive-gold/20 pb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <Link href="/" className="block">
-          <SiteLogo width={160} height={40} />
+          <SiteLogo width={240} height={60} />
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4 sm:justify-end sm:gap-6">
           <Link
             href="/keepsakes"
-            className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
+            className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base"
           >
             Keepsakes
           </Link>
           {livingDefaultArchive ? (
             <Link
               href="/member-card"
-              className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
+              className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base"
             >
               Member Card
             </Link>
@@ -546,7 +546,7 @@ export default async function DashboardPage({
           <form action={signOutAction}>
             <button
               type="submit"
-              className="rounded-full border border-archive-gold/35 px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/5"
+              className="rounded-full border border-archive-gold/35 px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/5 sm:text-base"
             >
               Sign Out
             </button>
@@ -554,7 +554,7 @@ export default async function DashboardPage({
         </div>
       </nav>
 
-      <div className="relative z-10 mx-auto max-w-7xl pb-20 pt-10 sm:pt-14">
+      <div className="relative z-10 mx-auto w-full max-w-[96rem] pb-20 pt-10 sm:pt-14">
         {resolvedSearchParams?.welcome === "back" ? (
           <SuccessMessage
             eyebrow="Welcome back"
@@ -569,9 +569,9 @@ export default async function DashboardPage({
           />
         ) : null}
 
-        <header className="flex flex-col md:flex-row justify-between items-start gap-6 max-w-7xl">
+        <header className="flex flex-col justify-between gap-6 lg:flex-row lg:items-start lg:gap-10">
           <div className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-archive-gold">
               Legacy overview
             </p>
             <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-archive-ivory via-archive-champagne to-archive-gold/90 font-bold">
@@ -585,7 +585,7 @@ export default async function DashboardPage({
           {hasArchives && (
             <Link
               href="/create"
-              className="mt-4 md:mt-10 rounded-full bg-archive-gold px-6 py-3.5 text-sm font-bold text-archive-obsidian shadow-luxury transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:bg-archive-champagne hover:shadow-lg hover:shadow-archive-gold/10 inline-flex shrink-0"
+              className="mt-4 inline-flex shrink-0 rounded-full bg-archive-gold px-6 py-3.5 text-sm font-bold text-archive-obsidian shadow-luxury transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:bg-archive-champagne hover:shadow-lg hover:shadow-archive-gold/10 md:mt-10 sm:text-base"
             >
               + Create Another Archive
             </Link>
@@ -594,7 +594,7 @@ export default async function DashboardPage({
 
         <section className="mt-10 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
               Archive summary
             </p>
             <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
@@ -606,7 +606,7 @@ export default async function DashboardPage({
                       : "Your personal archive spot is ready."
                     : "Create the archive that begins the story."}
                 </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/62 sm:text-base sm:leading-8">
+                <p className="mt-3 max-w-2xl text-base leading-7 text-archive-ivory/62 sm:text-lg sm:leading-8">
                   {hasArchives
                     ? hasPersonalArchive
                       ? "Your My Archives gathers the archive, the memories inside it, and the ways family can return to it later."
@@ -620,19 +620,19 @@ export default async function DashboardPage({
               <>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <div className="rounded-2xl border border-archive-gold/18 bg-archive-ivory px-5 py-4 text-archive-obsidian">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
                       {hasPersonalArchive ? "Total archives" : "Other archives"}
                     </p>
                     <p className="mt-3 font-serif text-3xl">{archives.length}</p>
                   </div>
                   <div className="rounded-2xl border border-archive-gold/18 bg-archive-ivory px-5 py-4 text-archive-obsidian">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
                       Total memories
                     </p>
                     <p className="mt-3 font-serif text-3xl">{totalMemories}</p>
                   </div>
                   <div className="rounded-2xl border border-archive-gold/18 bg-archive-ivory px-5 py-4 text-archive-obsidian">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
                       Member since
                     </p>
                     <p className="mt-3 font-serif text-2xl leading-tight">
@@ -640,7 +640,7 @@ export default async function DashboardPage({
                     </p>
                   </div>
                   <div className="rounded-2xl border border-archive-gold/18 bg-archive-ivory px-5 py-4 text-archive-obsidian">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
                       Email status
                     </p>
                     <p className="mt-3 font-serif text-2xl leading-tight">
@@ -685,7 +685,7 @@ export default async function DashboardPage({
                   ) : (
                     <div className="flex h-full items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(198,161,91,0.18))] p-8">
                       <div className="rounded-3xl border border-white/12 bg-black/20 px-5 py-4 text-archive-ivory">
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
+                        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-archive-gold">
                           {getArchiveInitials(selectedArchive.personName)}
                         </p>
                         <p className="mt-2 font-serif text-3xl">
@@ -698,7 +698,7 @@ export default async function DashboardPage({
                   <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
                     <div className="flex flex-wrap items-end justify-between gap-4">
                       <div className="max-w-2xl">
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
                           Selected archive
                         </p>
                         <h2 className="mt-2 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
@@ -720,7 +720,7 @@ export default async function DashboardPage({
                 <div className="grid gap-5 p-6 sm:p-8">
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/50 px-5 py-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
                         Memories inside
                       </p>
                       <p className="mt-2 font-serif text-3xl text-archive-ivory">
@@ -728,7 +728,7 @@ export default async function DashboardPage({
                       </p>
                     </div>
                     <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/50 px-5 py-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
                         Created
                       </p>
                       <p className="mt-2 font-serif text-2xl text-archive-ivory">
@@ -744,7 +744,7 @@ export default async function DashboardPage({
             ) : hasArchives && !hasPersonalArchive ? (
               <div className="flex h-full min-h-[28rem] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(198,161,91,0.18))] p-6 sm:p-8">
                 <div className="max-w-xl">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
                     Personal archive reserved
                   </p>
                   <h2 className="mt-2 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
@@ -769,7 +769,7 @@ export default async function DashboardPage({
             ) : (
               <div className="flex h-full min-h-[28rem] items-end bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(198,161,91,0.18))] p-6 sm:p-8">
                 <div className="max-w-xl">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
                     No archive yet
                   </p>
                   <h2 className="mt-2 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
@@ -800,24 +800,24 @@ export default async function DashboardPage({
                 <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury sm:p-6">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="max-w-2xl">
-                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+                      <p className="text-sm font-semibold uppercase tracking-[0.24em] text-archive-gold">
                         Chapters
                       </p>
                       <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
                         Browse the life in chapters
                       </h2>
                     </div>
-                    <p className="max-w-xl text-sm leading-6 text-archive-ivory/58">
+                    <p className="max-w-xl text-base leading-7 text-archive-ivory/58">
                       Choose a chapter to enter one part of the story.
                     </p>
                   </div>
-                  <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+                  <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
                     {chapterButtons.map((button) => (
                       <DesignImageButtonLink
                         key={button.type}
                         href={button.href}
                         label={button.label}
-                        className="mx-auto w-full max-w-[19rem]"
+                        className="w-full"
                         images={[
                           {
                             src: button.image,
@@ -841,7 +841,7 @@ export default async function DashboardPage({
                     priority={false}
                     className="h-auto w-full"
                   />
-                  <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+                  <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-4">
                     {quickActions.map((action) => {
                       const image =
                         action.label === "Add Memory"
@@ -873,7 +873,7 @@ export default async function DashboardPage({
                           key={action.label}
                           href={action.href}
                           label={action.label}
-                          className="mx-auto w-full max-w-[19rem]"
+                          className="w-full"
                           images={[
                             {
                               src: image.mobile,
@@ -914,14 +914,14 @@ export default async function DashboardPage({
             <section className="mt-10">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
                     Memory breakdown
                   </p>
                   <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
                     What this archive holds
                   </h2>
                 </div>
-                <p className="max-w-xl text-sm leading-6 text-archive-ivory/58">
+                <p className="max-w-xl text-base leading-7 text-archive-ivory/58">
                   A quick look at the kinds of memories preserved across your
                   archives.
                 </p>
@@ -940,7 +940,7 @@ export default async function DashboardPage({
             <section className="mt-12">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
                     Recent memories
                   </p>
                   <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
@@ -982,25 +982,25 @@ export default async function DashboardPage({
               <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="max-w-2xl">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                    <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
                       Legacy instructions
                     </p>
                     <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
                       Keep the guidance that matters most.
                     </h2>
-                    <p className="mt-3 text-sm leading-7 text-archive-ivory/62 sm:text-base sm:leading-8">
+                    <p className="mt-3 text-base leading-7 text-archive-ivory/62 sm:text-lg sm:leading-8">
                       Final wishes, practical details, and personal messages
                       belong in one thoughtful place.
                     </p>
                   </div>
-                  <span className="rounded-full border border-archive-gold/28 bg-archive-gold/10 px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-archive-champagne">
+                  <span className="rounded-full border border-archive-gold/28 bg-archive-gold/10 px-3 py-1.5 text-sm font-semibold uppercase tracking-[0.16em] text-archive-champagne">
                     {legacyInstructionLabel}
                   </span>
                 </div>
 
                 <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
                   <div className="rounded-2xl border border-archive-gold/14 bg-archive-ivory px-5 py-4 text-archive-obsidian">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
                       {defaultArchive.archiveName}
                     </p>
                     <p className="mt-2 text-lg font-semibold">
@@ -1032,20 +1032,20 @@ export default async function DashboardPage({
               <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="max-w-2xl">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                    <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
                       Private Legacy Activation Code
                     </p>
                     <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
                       Keep this code somewhere trusted.
                     </h2>
-                    <p className="mt-3 text-sm leading-7 text-archive-ivory/62 sm:text-base sm:leading-8">
+                    <p className="mt-3 text-base leading-7 text-archive-ivory/62 sm:text-lg sm:leading-8">
                       This single-use code begins memorial review if you can no
                       longer update your archive. It is not shown publicly and
                       should only be entered at /activate-legacy.
                     </p>
                     <Link
                       href="/activate-legacy"
-                      className="mt-4 inline-flex rounded-full border border-archive-gold/30 bg-white/[0.04] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-archive-champagne transition hover:border-archive-gold hover:bg-white/[0.08]"
+                      className="mt-4 inline-flex rounded-full border border-archive-gold/30 bg-white/[0.04] px-4 py-2.5 text-sm font-bold uppercase tracking-[0.14em] text-archive-champagne transition hover:border-archive-gold hover:bg-white/[0.08] sm:text-base"
                     >
                       Open Activation Page
                     </Link>
@@ -1059,18 +1059,18 @@ export default async function DashboardPage({
 
                 <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
                   <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian px-5 py-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
                       Legacy Activation Code
                     </p>
                     <p className="mt-3 break-all font-mono text-2xl font-bold tracking-[0.16em] text-archive-champagne sm:text-3xl">
                       {livingDefaultArchive.legacyActivationCode}
                     </p>
                     {livingDefaultArchive.legacyCodeUsedAt ? (
-                      <p className="mt-3 text-sm leading-6 text-archive-ivory/60">
+                      <p className="mt-3 text-base leading-7 text-archive-ivory/60">
                         Submitted by {livingDefaultArchive.legacyActivatedBy || "a requester"} and Pending Memorial Review.
                       </p>
                     ) : (
-                      <p className="mt-3 text-sm leading-6 text-archive-ivory/60">
+                      <p className="mt-3 text-base leading-7 text-archive-ivory/60">
                         If compromised, regenerate it and reprint your Member
                         Card.
                       </p>
@@ -1085,7 +1085,7 @@ export default async function DashboardPage({
                     />
                     <button
                       type="submit"
-                      className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-5 py-3 text-center text-sm font-bold text-archive-champagne transition hover:border-archive-gold hover:bg-white/[0.08]"
+                    className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-5 py-3 text-center text-sm font-bold text-archive-champagne transition hover:border-archive-gold hover:bg-white/[0.08] sm:text-base"
                     >
                       Regenerate Code
                     </button>
@@ -1097,14 +1097,14 @@ export default async function DashboardPage({
             <section className="mt-12">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
                     Recent member activity
                   </p>
                   <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
                     Real account and archive milestones
                   </h2>
                 </div>
-                <p className="max-w-xl text-sm leading-6 text-archive-ivory/58">
+                <p className="max-w-xl text-base leading-7 text-archive-ivory/58">
                   This timeline is built only from live account and archive
                   records.
                 </p>
@@ -1124,7 +1124,7 @@ export default async function DashboardPage({
             <section className="mt-12 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
                     Your archives
                   </p>
                   <h2 className="mt-2 font-serif text-3xl sm:text-4xl">
@@ -1133,7 +1133,7 @@ export default async function DashboardPage({
                 </div>
                 <Link
                   href="/create"
-                  className="rounded-full border border-archive-gold/35 px-5 py-2.5 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:bg-white/5"
+                  className="rounded-full border border-archive-gold/35 px-5 py-2.5 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:bg-white/5 sm:text-base"
                 >
                   Create another archive
                 </Link>

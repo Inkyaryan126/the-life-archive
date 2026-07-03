@@ -27,16 +27,16 @@ export default async function CreateArchivePage({
     resolvedSearchParams?.relationshipToOwner === "self" ? "self" : "other";
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-12 text-archive-ivory sm:px-8">
+    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-12 text-archive-ivory lg:px-12 xl:px-16 sm:py-14">
       <DesignBackdrop />
-      <div className="relative z-10 mx-auto max-w-3xl">
-        <nav className="flex items-center justify-between pb-10">
+      <div className="relative z-10 mx-auto w-full max-w-[96rem]">
+        <nav className="flex flex-col gap-4 pb-10 sm:flex-row sm:items-center sm:justify-between">
           <Link href="/">
-            <SiteLogo width={160} height={40} />
+            <SiteLogo width={240} height={60} />
           </Link>
           <Link
             href="/archive/sari-rae"
-            className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
+            className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base"
           >
             Example archive
           </Link>
@@ -63,10 +63,10 @@ export default async function CreateArchivePage({
         </section>
 
         <section className="mb-10 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
             What is an Archive?
           </p>
-          <p className="mt-3 max-w-4xl text-sm leading-7 text-archive-ivory/72 sm:text-base sm:leading-8">
+          <p className="mt-3 max-w-4xl text-base leading-8 text-archive-ivory/72">
             An archive is a collection of memories centered around one person.
             You can create an archive for yourself or for someone you love.
             Choose Living Archive when the person can still own, update, and
@@ -86,13 +86,13 @@ export default async function CreateArchivePage({
             <h2 className="mt-3 font-serif text-3xl text-archive-ivory">
               Sign in to create an archive.
             </h2>
-            <p className="mx-auto mt-4 max-w-xl leading-7 text-archive-ivory/70">
+            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-archive-ivory/70">
               Your account keeps your archives together and gives you a place to
               return as the story grows.
             </p>
             <Link
               href="/login?next=%2Fcreate"
-              className="mt-6 inline-flex rounded-full bg-archive-gold px-6 py-3 text-sm font-semibold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+              className="mt-6 inline-flex rounded-full bg-archive-gold px-6 py-3 text-base font-semibold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
             >
               Sign In or Create an Account
             </Link>
@@ -261,10 +261,10 @@ export default async function CreateArchivePage({
             <div className="flex flex-wrap items-center gap-3">
               <button
                 type="submit"
-                className="rounded-full bg-archive-gold px-6 py-3 text-sm font-semibold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
-              >
-                Begin Their Story
-              </button>
+            className="rounded-full bg-archive-gold px-6 py-3 text-base font-semibold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+          >
+            Begin Their Story
+          </button>
               <p className="text-sm leading-6 text-archive-ivory/60">
                 Next, you&apos;ll enter their story and add its first chapter.
               </p>

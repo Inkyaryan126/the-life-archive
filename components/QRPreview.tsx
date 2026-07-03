@@ -21,14 +21,14 @@ export async function QRPreview({ archiveSlug, label }: QRPreviewProps) {
   const qrSvg = await generateQrSvg(target);
 
   return (
-    <div className="rounded-lg border border-archive-ink/10 bg-white/82 p-5 shadow-soft">
+    <div className="rounded-[1.5rem] border border-archive-gold/18 bg-white/82 p-5 shadow-soft">
       <Image
         src={svgToDataUri(qrSvg)}
         alt={label || "QR code for random memory"}
-        width={192}
-        height={192}
+        width={220}
+        height={220}
         unoptimized
-        className="mx-auto rounded-md bg-white p-3 ring-1 ring-archive-ink/10"
+        className="mx-auto rounded-md bg-white p-3 ring-1 ring-archive-gold/10"
       />
       <p className="mt-5 text-sm font-semibold text-archive-ink">
         Where this QR code leads

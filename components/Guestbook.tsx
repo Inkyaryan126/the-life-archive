@@ -68,35 +68,35 @@ export function Guestbook({ archiveSlug, initialMessages, isOwner }: GuestbookPr
 
   return (
     <section className="mt-8 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
-      <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.08fr)_400px]">
         {/* Message board */}
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
             GUESTBOOK &amp; TRIBUTES
           </p>
           <h2 className="mt-2 font-serif text-3xl text-archive-ivory sm:text-4xl">
             Tributes of Remembrance
           </h2>
-          <p className="mt-2 text-sm text-archive-ivory/60">
+          <p className="mt-2 text-base leading-7 text-archive-ivory/62">
             Read messages left by friends, family, and future generations.
           </p>
 
-          <div className="mt-8 grid gap-4 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin">
+          <div className="mt-8 grid max-h-[500px] gap-4 overflow-y-auto pr-2 scrollbar-thin">
             {messages.length === 0 ? (
-              <p className="text-sm italic text-archive-ivory/40">
+              <p className="text-base italic text-archive-ivory/40">
                 No tributes have been recorded yet. Leave the first message to begin.
               </p>
             ) : (
               messages.map((m) => (
                 <div
                   key={m.id}
-                  className="rounded-2xl border border-white/5 bg-white/[0.015] p-5 relative group"
+                  className="group relative rounded-2xl border border-white/5 bg-white/[0.015] p-5"
                 >
-                  <div className="flex justify-between items-start gap-4">
-                    <h4 className="font-serif text-base text-archive-champagne font-semibold">
+                  <div className="flex items-start justify-between gap-4">
+                    <h4 className="font-serif text-lg font-semibold text-archive-champagne">
                       {m.name}
                     </h4>
-                    <span className="text-[10px] text-archive-ivory/40">
+                    <span className="text-sm text-archive-ivory/40">
                       {new Date(m.createdAt).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -104,14 +104,14 @@ export function Guestbook({ archiveSlug, initialMessages, isOwner }: GuestbookPr
                       })}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-archive-ivory/80 whitespace-pre-line">
+                  <p className="mt-2 whitespace-pre-line text-base leading-7 text-archive-ivory/78">
                     {m.message}
                   </p>
 
                   {isOwner && (
                     <button
                       onClick={() => handleDelete(m.id)}
-                      className="mt-3 text-[10px] uppercase tracking-wider font-semibold text-archive-clay hover:text-white transition"
+                      className="mt-3 text-sm font-semibold uppercase tracking-[0.16em] text-archive-clay transition hover:text-white"
                     >
                       Delete Tribute
                     </button>
@@ -123,29 +123,29 @@ export function Guestbook({ archiveSlug, initialMessages, isOwner }: GuestbookPr
         </div>
 
         {/* Leave a tribute form */}
-        <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/60 p-6 flex flex-col justify-between">
+        <div className="flex flex-col justify-between rounded-2xl border border-archive-gold/14 bg-archive-obsidian/60 p-6">
           <form onSubmit={handleSubmit} className="grid gap-4">
             <div>
-              <h3 className="font-serif text-xl text-archive-gold">Leave a Tribute</h3>
-              <p className="text-xs leading-5 text-archive-ivory/50 mt-1">
+              <h3 className="font-serif text-2xl text-archive-gold">Leave a Tribute</h3>
+              <p className="mt-1 text-sm leading-6 text-archive-ivory/55">
                 Share a story, dynamic lesson, or simple message of remembrance.
               </p>
             </div>
 
             {error && (
-              <p className="rounded-lg border border-archive-clay/20 bg-archive-clay/10 p-3 text-xs text-archive-clay">
+              <p className="rounded-lg border border-archive-clay/20 bg-archive-clay/10 p-3 text-sm text-archive-clay">
                 {error}
               </p>
             )}
 
             {success && (
-              <p className="rounded-lg border border-archive-gold/20 bg-archive-gold/10 p-3 text-xs text-archive-gold">
+              <p className="rounded-lg border border-archive-gold/20 bg-archive-gold/10 p-3 text-sm text-archive-gold">
                 {success}
               </p>
             )}
 
             <label className="grid gap-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wider text-archive-gold">
+              <span className="text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
                 Your Name / Relationship
               </span>
               <input
@@ -154,12 +154,12 @@ export function Guestbook({ archiveSlug, initialMessages, isOwner }: GuestbookPr
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Jane Doe (Grandchild, Sister, Lifelong Friend)"
                 disabled={loading}
-                className="rounded-lg border border-archive-gold/20 bg-white/[0.03] px-3.5 py-2 text-xs text-archive-ivory outline-none placeholder-archive-ivory/30 focus:border-archive-gold"
+                className="rounded-lg border border-archive-gold/20 bg-white/[0.03] px-3.5 py-2.5 text-sm text-archive-ivory outline-none placeholder-archive-ivory/30 focus:border-archive-gold"
               />
             </label>
 
             <label className="grid gap-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wider text-archive-gold">
+              <span className="text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
                 Share a Tribute or Story
               </span>
               <textarea
@@ -168,14 +168,14 @@ export function Guestbook({ archiveSlug, initialMessages, isOwner }: GuestbookPr
                 placeholder="What story deserves to be remembered? Share a special moment, a piece of advice they gave you, or how they made you laugh..."
                 rows={5}
                 disabled={loading}
-                className="rounded-lg border border-archive-gold/20 bg-white/[0.03] px-3.5 py-2.5 text-xs text-archive-ivory outline-none placeholder-archive-ivory/30 focus:border-archive-gold resize-none leading-relaxed"
+                className="resize-none rounded-lg border border-archive-gold/20 bg-white/[0.03] px-3.5 py-2.5 text-sm leading-relaxed text-archive-ivory outline-none placeholder-archive-ivory/30 focus:border-archive-gold"
               />
             </label>
 
             <button
               type="submit"
               disabled={loading}
-              className="rounded-lg bg-archive-gold py-2.5 text-xs font-bold text-archive-obsidian transition hover:bg-archive-champagne disabled:opacity-50 mt-2"
+              className="mt-2 rounded-lg bg-archive-gold py-2.5 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne disabled:opacity-50"
             >
               {loading ? "Preserving..." : "Preserve Tribute"}
             </button>

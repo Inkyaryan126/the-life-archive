@@ -50,23 +50,23 @@ export default async function EditArchivePage({ params }: EditArchivePageProps) 
   const qrSrc = svgToDataUri(qrSvg);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8">
+    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
       <DesignBackdrop />
 
-      <div className="relative z-10 mx-auto max-w-5xl">
+      <div className="relative z-10 mx-auto w-full max-w-[96rem]">
         {/* Navigation */}
-        <nav className="flex items-center justify-between pb-10 border-b border-archive-gold/20">
+        <nav className="flex flex-col gap-4 border-b border-archive-gold/20 pb-10 sm:flex-row sm:items-center sm:justify-between">
           <Link href="/">
-            <SiteLogo width={160} height={40} />
+            <SiteLogo width={240} height={60} />
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4 sm:justify-end sm:gap-6">
             <Link
               href="/dashboard"
-              className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
+              className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline sm:text-base"
             >
               Dashboard
             </Link>
-            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+            <span className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
               Admin Keepsake Portal
             </span>
           </div>

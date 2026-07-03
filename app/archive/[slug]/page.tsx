@@ -80,27 +80,27 @@ export default async function ArchivePage({
   const canUseMemberCard = isOwner && !isMemorialArchive;
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-5 py-6 text-archive-ivory sm:px-8">
+    <main className="relative min-h-screen overflow-hidden px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
       <DesignBackdrop />
 
-      <div className="relative z-10 mx-auto max-w-6xl">
-        <nav className="flex items-center justify-between pb-10">
+      <div className="relative z-10 mx-auto w-full max-w-[96rem]">
+        <nav className="flex flex-col gap-4 pb-10 sm:flex-row sm:items-center sm:justify-between">
           <Link href="/">
-            <SiteLogo width={160} height={40} />
+            <SiteLogo width={240} height={60} />
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4 sm:justify-end sm:gap-6">
             {account.user ? (
               <>
                 <Link
                   href="/dashboard"
-                  className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
+                  className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base"
                 >
                   My Archives
                 </Link>
                 {canUseMemberCard ? (
                   <Link
                     href="/member-card"
-                    className="hidden text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:inline-flex"
+                    className="hidden text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:inline-flex sm:text-base"
                   >
                     Member Card
                   </Link>
@@ -109,7 +109,7 @@ export default async function ArchivePage({
             ) : null}
             <Link
               href={`/archive/${archive.slug}/qr`}
-              className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
+              className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base"
             >
               Share Their Story
             </Link>
@@ -118,10 +118,10 @@ export default async function ArchivePage({
 
         {/* Archive Administration Control Bar */}
         {isOwner ? (
-          <div className="mb-6 rounded-2xl border border-archive-gold/25 bg-archive-gold/5 p-4 flex flex-wrap items-center justify-between gap-4 text-xs relative z-20">
+          <div className="relative z-20 mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-archive-gold/25 bg-archive-gold/5 p-4 text-sm">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-archive-gold animate-pulse" />
-              <span className="font-semibold uppercase tracking-wider text-archive-gold">
+              <span className="font-semibold uppercase tracking-[0.18em] text-archive-gold">
                 {isMemorialArchive
                   ? "Memorial Archive Active"
                   : "Archive Custody Active"}
@@ -132,19 +132,19 @@ export default async function ArchivePage({
                 <>
                   <Link
                     href={`/archive/${archive.slug}/memories`}
-                    className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2 font-semibold text-archive-ivory transition hover:bg-white/10"
+                    className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2.5 font-semibold text-archive-ivory transition hover:bg-white/10"
                   >
                     Browse Chapters
                   </Link>
                   <Link
                     href={`/archive/${archive.slug}/qr`}
-                    className="rounded-full bg-archive-gold px-5 py-2 font-bold text-archive-obsidian transition-all duration-300 hover:bg-archive-champagne hover:scale-[1.03] shadow-md shadow-archive-gold/20"
+                    className="rounded-full bg-archive-gold px-5 py-2.5 font-bold text-archive-obsidian transition-all duration-300 hover:scale-[1.03] hover:bg-archive-champagne shadow-md shadow-archive-gold/20"
                   >
                     View Memorial QR
                   </Link>
                   <Link
                     href={`/archive/${archive.slug}/legacy-instructions`}
-                    className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2 font-semibold text-archive-ivory transition hover:bg-white/10"
+                    className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2.5 font-semibold text-archive-ivory transition hover:bg-white/10"
                   >
                     Legacy Notes
                   </Link>
@@ -153,19 +153,19 @@ export default async function ArchivePage({
                 <>
                   <Link
                     href={`/archive/${archive.slug}/edit`}
-                    className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2 font-semibold text-archive-ivory transition hover:bg-white/10"
+                    className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2.5 font-semibold text-archive-ivory transition hover:bg-white/10"
                   >
                     Configure Keepsake Details
                   </Link>
                   <Link
                     href={`/archive/${archive.slug}/add-memory`}
-                    className="rounded-full bg-archive-gold px-5 py-2 font-bold text-archive-obsidian transition-all duration-300 hover:bg-archive-champagne hover:scale-[1.03] shadow-md shadow-archive-gold/20"
+                    className="rounded-full bg-archive-gold px-5 py-2.5 font-bold text-archive-obsidian transition-all duration-300 hover:scale-[1.03] hover:bg-archive-champagne shadow-md shadow-archive-gold/20"
                   >
                     + Add a Chapter
                   </Link>
                   <Link
                     href={`/archive/${archive.slug}/legacy-instructions`}
-                    className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2 font-semibold text-archive-ivory transition hover:bg-white/10"
+                    className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2.5 font-semibold text-archive-ivory transition hover:bg-white/10"
                   >
                     Legacy Notes
                   </Link>
@@ -175,32 +175,32 @@ export default async function ArchivePage({
           </div>
         ) : null}
 
-        <section className="grid gap-8 py-12 lg:grid-cols-[1fr_360px] lg:items-start">
+        <section className="grid gap-8 py-12 lg:grid-cols-[minmax(0,1.12fr)_360px] lg:items-start">
           <div className="overflow-hidden rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] shadow-luxury">
-            <div className="relative aspect-[16/10] sm:aspect-[16/7]">
+            <div className="relative aspect-[4/3] sm:aspect-[16/9] lg:aspect-auto lg:h-[520px]">
               <Image
                 src={archive.profilePhotoUrl}
                 alt={archive.personName}
                 fill
                 priority
-                className="object-cover"
+                className="object-cover object-[center_25%]"
                 sizes="(min-width: 1024px) 760px, 100vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-archive-obsidian/88 via-archive-obsidian/36 to-transparent" />
               <div className="absolute bottom-0 p-6 text-white sm:p-8">
                 <div className="flex flex-wrap gap-2">
-                  <span className="rounded-full border border-white/18 bg-black/24 px-3 py-1 text-xs font-semibold uppercase tracking-wide backdrop-blur">
+                  <span className="rounded-full border border-white/18 bg-black/24 px-3 py-1 text-sm font-semibold uppercase tracking-wide backdrop-blur">
                     {archive.visibility === "public"
                       ? "Public · visible to everyone"
                       : "Private · authorized people only"}
                   </span>
                   {archive.memorialMode ? (
-                    <span className="rounded-full border border-white/18 bg-black/24 px-3 py-1 text-xs font-semibold uppercase tracking-wide backdrop-blur">
+                    <span className="rounded-full border border-white/18 bg-black/24 px-3 py-1 text-sm font-semibold uppercase tracking-wide backdrop-blur">
                       Memorial Archive
                     </span>
                   ) : null}
                 </div>
-                <h1 className="mt-4 font-serif text-5xl leading-tight">
+                <h1 className="mt-4 max-w-[16ch] font-serif text-4xl leading-tight sm:text-5xl">
                   {archive.personName}
                 </h1>
               </div>
@@ -214,19 +214,19 @@ export default async function ArchivePage({
               ) : null}
 
               {/* Elegant Heritage Seal */}
-              <div className="mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-archive-gold">
+              <div className="mb-6 flex items-center gap-3 text-sm uppercase tracking-[0.22em] text-archive-gold">
                 <span className="h-1.5 w-1.5 rounded-full bg-archive-gold animate-pulse" />
                 <span>Digitally Preserved Sanctuary</span>
               </div>
 
               {/* Beautiful drop-cap Biography */}
               <div className="border-t border-archive-gold/15 pt-6 mt-4">
-                <p className="max-w-3xl font-serif text-lg leading-9 text-archive-ivory/80 whitespace-pre-line first-letter:text-5xl first-letter:font-bold first-letter:text-archive-gold first-letter:float-left first-letter:mr-3 first-letter:mt-1">
+                <p className="max-w-3xl font-serif text-lg leading-9 text-archive-ivory/80 whitespace-pre-line first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-5xl first-letter:font-bold first-letter:text-archive-gold">
                   {archive.bio}
                 </p>
               </div>
 
-              <p className="mt-6 max-w-3xl text-xs leading-6 text-archive-ivory/50 italic border-t border-white/5 pt-4">
+              <p className="mt-6 max-w-3xl border-t border-white/5 pt-4 text-sm leading-7 italic text-archive-ivory/55">
                 {archive.visibility === "public"
                   ? "This is a public keepsake archive. Anyone with this link or scanning the physical QR can view and leave a tribute."
                   : "This is a private keepsake archive. Only authorized family and friends can access this digital sanctuary."}
@@ -236,19 +236,19 @@ export default async function ArchivePage({
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href={`/archive/${archive.slug}/random`}
-                  className="rounded-full bg-archive-gold px-6 py-3.5 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+                  className="rounded-full bg-archive-gold px-6 py-3.5 text-base font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
                 >
                   {isMemorialArchive ? "Reveal a Memory" : "Reveal a Memory"}
                 </Link>
                 <Link
                   href={`/archive/${archive.slug}/memories`}
-                  className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                  className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3.5 text-base font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
                 >
                   {isMemorialArchive ? "Browse Memorial Chapters" : "Browse Memory Chapters"}
                 </Link>
                 <Link
                   href={`/archive/${archive.slug}/qr`}
-                  className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                  className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3.5 text-base font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
                 >
                   {isMemorialArchive ? "View Memorial QR" : "Share Their Story"}
                 </Link>
@@ -257,13 +257,13 @@ export default async function ArchivePage({
               {memories.length === 0 ? (
                 <div className="mt-12 border-t border-archive-gold/15 pt-12">
                   <div className="text-center max-w-2xl mx-auto mb-10">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+                    <p className="text-sm font-semibold uppercase tracking-[0.24em] text-archive-gold">
                       {isMemorialArchive ? "THE STORY IS PRESERVED HERE" : "THE STORY BEGINS HERE"}
                     </p>
-                    <h2 className="mt-3 font-serif text-3xl text-archive-ivory">
+                    <h2 className="mt-3 font-serif text-3xl text-archive-ivory sm:text-4xl">
                       {isMemorialArchive ? "Memorial Archive" : "Begin Your Archive"}
                     </h2>
-                    <p className="mt-3 text-sm text-archive-ivory/55">
+                    <p className="mt-3 text-base leading-7 text-archive-ivory/60">
                       {isMemorialArchive
                         ? "This archive is now preserved as a memorial. Additions remain closed, but chapters and keepsakes can still be revisited."
                         : "Your archive is currently empty, but the canvas is ready. Select a starting point below to begin bringing this sanctuary to life."}
@@ -274,13 +274,13 @@ export default async function ArchivePage({
                     <div className="flex flex-wrap justify-center gap-3">
                       <Link
                         href={`/archive/${archive.slug}/memories`}
-                        className="rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+                        className="rounded-full bg-archive-gold px-6 py-3 text-base font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
                       >
                         Browse Chapters
                       </Link>
                       <Link
                         href={`/archive/${archive.slug}/qr`}
-                        className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                        className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3 text-base font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
                       >
                         View Memorial QR
                       </Link>
@@ -296,11 +296,11 @@ export default async function ArchivePage({
                           <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
                             Add First Chapter
                           </h3>
-                          <p className="text-xs leading-6 text-archive-ivory/60 mt-2">
+                          <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
                             Write a core memory, an overarching story of childhood, or describe a defining childhood turning point.
                           </p>
                         </div>
-                        <span className="text-xs text-archive-gold font-bold uppercase tracking-wider mt-6 inline-flex items-center">
+                        <span className="mt-6 inline-flex items-center text-sm font-bold uppercase tracking-[0.16em] text-archive-gold">
                           Add Chapter →
                         </span>
                       </Link>
@@ -314,11 +314,11 @@ export default async function ArchivePage({
                           <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
                             Upload Photos
                           </h3>
-                          <p className="text-xs leading-6 text-archive-ivory/60 mt-2">
+                          <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
                             Keep precious family portraits, childhood alleys, or hand-written letters safe in digital high-fidelity archives.
                           </p>
                         </div>
-                        <span className="text-xs text-archive-gold font-bold uppercase tracking-wider mt-6 inline-flex items-center">
+                        <span className="mt-6 inline-flex items-center text-sm font-bold uppercase tracking-[0.16em] text-archive-gold">
                           Upload Photo →
                         </span>
                       </Link>
@@ -332,11 +332,11 @@ export default async function ArchivePage({
                           <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
                             Record Voice note
                           </h3>
-                          <p className="text-xs leading-6 text-archive-ivory/60 mt-2">
+                          <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
                             The voice is always forgotten first. Record comforting advice, laughter, or spoken history directly from your phone.
                           </p>
                         </div>
-                        <span className="text-xs text-archive-gold font-bold uppercase tracking-wider mt-6 inline-flex items-center">
+                        <span className="mt-6 inline-flex items-center text-sm font-bold uppercase tracking-[0.16em] text-archive-gold">
                           Record Audio →
                         </span>
                       </Link>
@@ -350,11 +350,11 @@ export default async function ArchivePage({
                           <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
                             Add Favorite Song
                           </h3>
-                          <p className="text-xs leading-6 text-archive-ivory/60 mt-2">
+                          <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
                             Music links us immediately to specific days. Pin their favorite cookout anthem or a song they sang at the piano.
                           </p>
                         </div>
-                        <span className="text-xs text-archive-gold font-bold uppercase tracking-wider mt-6 inline-flex items-center">
+                        <span className="mt-6 inline-flex items-center text-sm font-bold uppercase tracking-[0.16em] text-archive-gold">
                           Add Song →
                         </span>
                       </Link>
@@ -381,18 +381,18 @@ export default async function ArchivePage({
 
             {/* Keepsake Upsell Sidebar Card */}
             <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold mb-2">
+              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
                 ARCHIVE KEEPSAKE
               </p>
-              <h4 className="font-serif text-lg text-archive-ivory leading-snug">
+              <h4 className="font-serif text-xl leading-snug text-archive-ivory">
                 Carry This Story Anywhere
               </h4>
-              <p className="mt-2 text-xs leading-5 text-archive-ivory/60">
+              <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
                 Turn this digital sanctuary into a physical wallet card, keychain, pendant, or brass plaque. Hand-finished keys of remembrance.
               </p>
               <Link
                 href="/keepsakes"
-                className="mt-4 block w-full text-center rounded-full bg-archive-gold/10 border border-archive-gold/25 py-2 text-xs font-bold text-archive-gold hover:bg-archive-gold hover:text-archive-obsidian transition"
+                className="mt-4 block w-full rounded-full border border-archive-gold/25 bg-archive-gold/10 py-2.5 text-center text-sm font-bold text-archive-gold transition hover:bg-archive-gold hover:text-archive-obsidian"
               >
                 Explore Keepsakes
               </Link>
@@ -403,24 +403,24 @@ export default async function ArchivePage({
         <section className="mt-4 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
                 Memory Chapters
               </p>
               <h2 className="mt-2 font-serif text-3xl text-archive-ivory sm:text-4xl">
                 Explore their story by chapter
               </h2>
             </div>
-            <p className="max-w-xl text-sm leading-6 text-archive-ivory/58">
+            <p className="max-w-xl text-base leading-7 text-archive-ivory/60">
               Each button opens a beautifully preserved section of this story.
             </p>
           </div>
-          <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+          <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
             {archiveChapterButtons.map((button) => (
               <DesignImageButtonLink
                 key={button.label}
                 href={`/archive/${archive.slug}/memories?type=${button.hrefSuffix}`}
                 label={button.label}
-                className="mx-auto w-full max-w-[19rem]"
+                className="w-full"
                 images={[
                   {
                     src: button.image,

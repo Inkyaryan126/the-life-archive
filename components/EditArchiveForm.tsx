@@ -57,32 +57,32 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_360px] items-start mt-8">
+    <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
       {/* Edit Form */}
-      <form onSubmit={handleSubmit} className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8 grid gap-5">
+      <form onSubmit={handleSubmit} className="grid gap-5 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
         <div>
           <h2 className="font-serif text-2xl text-archive-ivory sm:text-3xl">
             Edit Keepsake Details
           </h2>
-          <p className="text-xs text-archive-ivory/50 mt-1">
+          <p className="mt-1 text-sm leading-6 text-archive-ivory/55">
             Update the public memorial text, names, and visibility configurations.
           </p>
         </div>
 
         {error && (
-          <p className="rounded-lg border border-archive-clay/20 bg-archive-clay/10 p-3 text-xs text-archive-clay">
+          <p className="rounded-lg border border-archive-clay/20 bg-archive-clay/10 p-3 text-sm text-archive-clay">
             {error}
           </p>
         )}
 
         {success && (
-          <p className="rounded-lg border border-archive-gold/20 bg-archive-gold/10 p-3 text-xs text-archive-gold">
+          <p className="rounded-lg border border-archive-gold/20 bg-archive-gold/10 p-3 text-sm text-archive-gold">
             {success}
           </p>
         )}
 
         <label className="grid gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-archive-gold">
+          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
             Person&apos;s Name
           </span>
           <input
@@ -90,12 +90,12 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
             value={personName}
             onChange={(e) => setPersonName(e.target.value)}
             disabled={loading}
-            className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4 text-sm"
+            className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-sm text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
           />
         </label>
 
         <label className="grid gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-archive-gold">
+          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
             Keepsake Page Title
           </span>
           <input
@@ -103,12 +103,12 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
             value={archiveName}
             onChange={(e) => setArchiveName(e.target.value)}
             disabled={loading}
-            className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4 text-sm"
+            className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-sm text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
           />
         </label>
 
         <label className="grid gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-archive-gold">
+          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
             Tribute / Biography
           </span>
           <textarea
@@ -116,19 +116,19 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
             onChange={(e) => setBio(e.target.value)}
             disabled={loading}
             rows={6}
-            className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4 text-sm resize-none leading-7"
+            className="resize-none rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-sm leading-7 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
           />
         </label>
 
         <div className="grid gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-archive-gold">
+          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
             Visibility Setting
           </span>
           <div className="flex gap-4">
             <button
               type="button"
               onClick={() => setVisibility("public")}
-              className={`flex-1 rounded-lg border p-3 text-xs font-semibold transition ${
+              className={`flex-1 rounded-lg border p-3 text-sm font-semibold transition ${
                 visibility === "public"
                   ? "border-archive-gold bg-archive-gold/10 text-archive-gold"
                   : "border-white/10 bg-white/[0.02] text-archive-ivory/60"
@@ -139,7 +139,7 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
             <button
               type="button"
               onClick={() => setVisibility("private")}
-              className={`flex-1 rounded-lg border p-3 text-xs font-semibold transition ${
+              className={`flex-1 rounded-lg border p-3 text-sm font-semibold transition ${
                 visibility === "private"
                   ? "border-archive-gold bg-archive-gold/10 text-archive-gold"
                   : "border-white/10 bg-white/[0.02] text-archive-ivory/60"
@@ -154,13 +154,13 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
           <button
             type="submit"
             disabled={loading}
-            className="rounded-full bg-archive-gold px-6 py-3 text-xs font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne disabled:opacity-50"
+            className="rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne disabled:opacity-50"
           >
             {loading ? "Preserving..." : "Save Keepsake Changes"}
           </button>
           <Link
             href={`/archive/${archive.slug}`}
-            className="rounded-full border border-white/10 bg-white/[0.02] px-6 py-3 text-xs font-semibold text-archive-ivory transition hover:bg-white/[0.06] flex items-center"
+            className="flex items-center rounded-full border border-white/10 bg-white/[0.02] px-6 py-3 text-sm font-semibold text-archive-ivory transition hover:bg-white/[0.06]"
           >
             View Live Keepsake
           </Link>
@@ -168,17 +168,17 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
       </form>
 
       {/* QR Code and Share Links */}
-      <aside className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold mb-3">
+      <aside className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 text-center shadow-luxury">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-archive-gold">
           MEMORIAL QR KEY
         </p>
-        <h3 className="font-serif text-xl text-archive-ivory mb-2">QR Memorial Keepsake</h3>
-        <p className="text-xs leading-5 text-archive-ivory/60 mb-6">
+        <h3 className="mb-2 font-serif text-2xl text-archive-ivory">QR Memorial Keepsake</h3>
+        <p className="mb-6 text-sm leading-6 text-archive-ivory/62">
           This secure code connects physical plaques, urns, programs, or markers directly back to this digital sanctuary.
         </p>
 
         {/* QR Code Element */}
-        <div className="rounded-2xl border border-archive-gold/15 bg-white p-4 inline-block shadow-luxury mx-auto">
+        <div className="mx-auto inline-block rounded-2xl border border-archive-gold/15 bg-white p-4 shadow-luxury">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={qrSrc} alt="Memorial Keepsake QR Code" className="w-48 h-48 mx-auto" />
         </div>
@@ -187,11 +187,11 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
           <button
             type="button"
             onClick={handleCopyLink}
-            className="w-full rounded-full bg-archive-gold px-5 py-3 text-xs font-bold text-archive-obsidian shadow-soft transition hover:bg-archive-champagne"
+            className="w-full rounded-full bg-archive-gold px-5 py-3 text-sm font-bold text-archive-obsidian shadow-soft transition hover:bg-archive-champagne"
           >
             {copied ? "Copied to Clipboard!" : "Copy Shareable Link"}
           </button>
-          <p className="text-[10px] leading-relaxed text-archive-ivory/45 break-all mt-2 max-w-[280px] mx-auto select-all">
+          <p className="mx-auto mt-2 max-w-[280px] break-all text-sm leading-relaxed text-archive-ivory/45 select-all">
             {archiveUrl}
           </p>
         </div>
