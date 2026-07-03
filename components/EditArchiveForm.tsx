@@ -41,10 +41,10 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
     try {
       const result = await updateArchiveDetailsAction(archive.slug, formData);
       if (result.success) {
-        setSuccess("Your keepsake page has been successfully updated and preserved.");
+        setSuccess("Your archive has been successfully updated and preserved.");
       }
     } catch (err: any) {
-      setError(err.message || "Failed to update keepsake.");
+      setError(err.message || "Failed to update archive.");
     } finally {
       setLoading(false);
     }
@@ -62,10 +62,10 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
       <form onSubmit={handleSubmit} className="grid gap-5 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
         <div>
           <h2 className="font-serif text-2xl text-archive-ivory sm:text-3xl">
-            Edit Keepsake Details
+            Edit Archive Details
           </h2>
           <p className="mt-1 text-sm leading-6 text-archive-ivory/55">
-            Update the public memorial text, names, and visibility configurations.
+            Update the public archive text, names, and visibility settings.
           </p>
         </div>
 
@@ -96,7 +96,7 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
 
         <label className="grid gap-2">
           <span className="text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
-            Keepsake Page Title
+            Archive Page Title
           </span>
           <input
             type="text"
@@ -156,13 +156,13 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
             disabled={loading}
             className="rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne disabled:opacity-50"
           >
-            {loading ? "Preserving..." : "Save Keepsake Changes"}
+            {loading ? "Preserving..." : "Save Archive Changes"}
           </button>
           <Link
             href={`/archive/${archive.slug}`}
             className="flex items-center rounded-full border border-white/10 bg-white/[0.02] px-6 py-3 text-sm font-semibold text-archive-ivory transition hover:bg-white/[0.06]"
           >
-            View Live Keepsake
+            View Live Archive
           </Link>
         </div>
       </form>
@@ -170,17 +170,25 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
       {/* QR Code and Share Links */}
       <aside className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 text-center shadow-luxury">
         <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-archive-gold">
-          MEMORIAL QR KEY
+          QR CODE
         </p>
-        <h3 className="mb-2 font-serif text-2xl text-archive-ivory">QR Memorial Keepsake</h3>
+        <h3 className="mb-2 font-serif text-2xl text-archive-ivory">
+          {archive.memorialMode ? "Memorial QR Code" : "Life Archive QR Code"}
+        </h3>
         <p className="mb-6 text-sm leading-6 text-archive-ivory/62">
-          This secure code connects physical plaques, urns, programs, or markers directly back to this digital sanctuary.
+          {archive.memorialMode
+            ? "This QR code connects cards, plaques, programs, and keepsakes back to this memorial archive."
+            : "This QR code connects a Life Archive card or keepsake back to this living archive."}
         </p>
 
         {/* QR Code Element */}
-        <div className="mx-auto inline-block rounded-2xl border border-archive-gold/15 bg-white p-4 shadow-luxury">
+        <div className="mx-auto inline-block rounded-2xl border border-archive-gold/15 bg-archive-obsidian/80 p-4 shadow-luxury">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={qrSrc} alt="Memorial Keepsake QR Code" className="w-48 h-48 mx-auto" />
+          <img
+            src={qrSrc}
+            alt={archive.memorialMode ? "Memorial archive QR code" : "Life archive QR code"}
+            className="mx-auto h-48 w-48"
+          />
         </div>
 
         <div className="mt-8 grid gap-3">

@@ -38,7 +38,7 @@ export default async function EditArchivePage({ params }: EditArchivePageProps) 
       <AccessPrompt
         eyebrow="Access Denied"
         title="Unauthorized Admin Access."
-        message="Only the archive owner can edit or configure this memorial keepsake."
+        message="Only the archive owner can edit or configure this archive."
         primaryHref="/dashboard"
         primaryLabel="Return to Dashboard"
       />
@@ -65,18 +65,18 @@ export default async function EditArchivePage({ params }: EditArchivePageProps) 
         <div className="min-w-0">
           {/* Navigation */}
           <nav className="flex flex-col gap-4 border-b border-archive-gold/20 pb-10 sm:flex-row sm:items-center sm:justify-between lg:hidden">
-            <Link href="/">
-              <SiteLogo width={240} height={60} />
-            </Link>
-            <div className="flex flex-wrap items-center gap-4 sm:justify-end sm:gap-6">
+        <Link href="/">
+          <SiteLogo width={240} height={60} />
+        </Link>
+        <div className="flex flex-wrap items-center gap-4 sm:justify-end sm:gap-6">
               <Link
                 href="/dashboard"
                 className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline sm:text-base"
               >
-                Dashboard
+              Dashboard
               </Link>
               <span className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
-                Admin Keepsake Portal
+                Admin Archive Portal
               </span>
             </div>
           </nav>
