@@ -76,10 +76,10 @@ export function DesignBackdrop({ className }: DesignBackdropProps) {
         fill
         priority
         sizes="100vw"
-        className="object-cover object-right opacity-60 md:opacity-42 lg:opacity-25"
+        className="object-cover object-right opacity-35 md:opacity-24 lg:opacity-14"
       />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.2),transparent_40rem),radial-gradient(circle_at_bottom_right,rgba(198,161,91,0.08),transparent_40rem),linear-gradient(180deg,rgba(7,7,8,0.1),rgba(7,7,8,0.7))]" />
-      <div className="absolute inset-0 hidden lg:block bg-[linear-gradient(180deg,rgba(7,7,8,0.3),rgba(7,7,8,0.94))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.16),transparent_40rem),radial-gradient(circle_at_bottom_right,rgba(198,161,91,0.05),transparent_40rem),linear-gradient(180deg,rgba(2,2,3,0.28),rgba(2,2,3,0.92))]" />
+      <div className="absolute inset-0 hidden lg:block bg-[linear-gradient(180deg,rgba(2,2,3,0.42),rgba(2,2,3,0.96))]" />
     </div>
   );
 }

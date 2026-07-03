@@ -8,6 +8,7 @@ import {
 } from "@/lib/legacy-instructions";
 import { saveLegacyInstructionsAction } from "./actions";
 import { SuccessMessage } from "@/components/SuccessMessage";
+import { AppSidebar } from "@/components/AppSidebar";
 
 export const dynamic = "force-dynamic";
 
@@ -221,6 +222,49 @@ export default async function LegacyInstructionsPage({
 
   if (!displayArchiveName || !displayPersonName) {
     notFound();
+  }
+
+  if (isOwner) {
+    return (
+      <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
+        <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.14),transparent_30rem),radial-gradient(circle_at_bottom_right,rgba(198,161,91,0.06),transparent_36rem)]" />
+
+        <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
+          <AppSidebar
+            active="legacy-instructions"
+            archiveSlug={slug}
+            archiveName={displayArchiveName}
+            archivePersonName={displayPersonName}
+          />
+
+          <div className="min-w-0">
+            <nav className="flex items-center justify-between border-b border-archive-gold/20 pb-5 lg:hidden">
+              <Link href="/" className="font-serif text-lg tracking-wide">
+                The Life Archive Home
+              </Link>
+              <Link
+                href={`/archive/${slug}`}
+                className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
+              >
+                Back to Archive
+              </Link>
+            </nav>
+
+            <section className="py-12">
+              <LegacyInstructionsEditor
+                slug={slug}
+                archiveName={displayArchiveName}
+                personName={displayPersonName}
+                body={legacyInstruction?.body}
+                accessLevel={legacyInstruction?.accessLevel}
+                error={resolvedSearchParams?.error}
+                success={resolvedSearchParams?.success}
+              />
+            </section>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   return (

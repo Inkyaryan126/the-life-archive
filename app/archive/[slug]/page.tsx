@@ -77,6 +77,8 @@ export default async function ArchivePage({
   ]);
   const isOwner = account.archives.some((item) => item.slug === archive.slug);
   const isMemorialArchive = archive.memorialMode;
+  const isLivingArchive = !isMemorialArchive;
+  const archiveStatusLabel = isMemorialArchive ? "Memorial Archive" : "Living Archive";
   const canUseMemberCard = isOwner && !isMemorialArchive;
 
   return (
@@ -190,15 +192,13 @@ export default async function ArchivePage({
               <div className="absolute bottom-0 p-6 text-white sm:p-8">
                 <div className="flex flex-wrap gap-2">
                   <span className="rounded-full border border-white/18 bg-black/24 px-3 py-1 text-sm font-semibold uppercase tracking-wide backdrop-blur">
+                    {archiveStatusLabel}
+                  </span>
+                  <span className="rounded-full border border-white/18 bg-black/24 px-3 py-1 text-sm font-semibold uppercase tracking-wide backdrop-blur">
                     {archive.visibility === "public"
                       ? "Public · visible to everyone"
                       : "Private · authorized people only"}
                   </span>
-                  {archive.memorialMode ? (
-                    <span className="rounded-full border border-white/18 bg-black/24 px-3 py-1 text-sm font-semibold uppercase tracking-wide backdrop-blur">
-                      Memorial Archive
-                    </span>
-                  ) : null}
                 </div>
                 <h1 className="mt-4 max-w-[16ch] font-serif text-4xl leading-tight sm:text-5xl">
                   {archive.personName}
@@ -213,60 +213,93 @@ export default async function ArchivePage({
                 />
               ) : null}
 
-              {/* Elegant Heritage Seal */}
-              <div className="mb-6 flex items-center gap-3 text-sm uppercase tracking-[0.22em] text-archive-gold">
-                <span className="h-1.5 w-1.5 rounded-full bg-archive-gold animate-pulse" />
-                <span>Digitally Preserved Sanctuary</span>
+              <div className="border-t border-archive-gold/15 pt-6">
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-archive-gold">
+                  {isMemorialArchive ? "Memorial Archive" : "Living Archive"}
+                </p>
+                <h2 className="mt-3 font-serif text-3xl text-archive-ivory sm:text-4xl">
+                  {isMemorialArchive ? "Legacy Preserved" : "Continue Building This Archive"}
+                </h2>
+                <p className="mt-3 text-base leading-7 text-archive-ivory/64">
+                  {isMemorialArchive
+                    ? "This memorial archive preserves the stories, tributes, photos, lessons, and memories shared in honor of this life."
+                    : "This archive is being built while life is still being lived. Add memories, voice notes, lessons, songs, and instructions that can become a lasting legacy when the time comes."}
+                </p>
               </div>
 
-              {/* Beautiful drop-cap Biography */}
-              <div className="border-t border-archive-gold/15 pt-6 mt-4">
+              <div className="mt-6 flex items-center gap-3 text-sm uppercase tracking-[0.22em] text-archive-gold">
+                <span className="h-1.5 w-1.5 rounded-full bg-archive-gold animate-pulse" />
+                <span>{isMemorialArchive ? "In Loving Memory" : "Living Legacy"}</span>
+              </div>
+
+              <div className="mt-4 border-t border-archive-gold/15 pt-6">
                 <p className="max-w-3xl font-serif text-lg leading-9 text-archive-ivory/80 whitespace-pre-line first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:text-5xl first-letter:font-bold first-letter:text-archive-gold">
                   {archive.bio}
                 </p>
               </div>
 
               <p className="mt-6 max-w-3xl border-t border-white/5 pt-4 text-sm leading-7 italic text-archive-ivory/55">
-                {archive.visibility === "public"
-                  ? "This is a public keepsake archive. Anyone with this link or scanning the physical QR can view and leave a tribute."
-                  : "This is a private keepsake archive. Only authorized family and friends can access this digital sanctuary."}
+                {isMemorialArchive
+                  ? archive.visibility === "public"
+                    ? "This memorial archive is open to anyone with the link or the physical QR. Friends and family can leave tributes and revisit the preserved story here."
+                    : "This memorial archive is private. Only authorized family and friends can access the preserved story and leave tributes."
+                  : archive.visibility === "public"
+                    ? "This living archive is open to anyone with the link or the physical QR. It is still being built, and it will grow into a lasting legacy over time."
+                    : "This living archive is private. Only authorized family and friends can access the archive as it is being built."}
               </p>
 
               {/* Clean Visitor Button Links (Owner actions streamlined into header drawer) */}
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href={`/archive/${archive.slug}/random`}
-                  className="rounded-full bg-archive-gold px-6 py-3.5 text-base font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
-                >
-                  {isMemorialArchive ? "Reveal a Memory" : "Reveal a Memory"}
-                </Link>
+                {isLivingArchive && isOwner ? (
+                  <Link
+                    href={`/archive/${archive.slug}/add-memory`}
+                    className="rounded-full bg-archive-gold px-6 py-3.5 text-base font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+                  >
+                    Add a Memory
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/archive/${archive.slug}/random`}
+                    className="rounded-full bg-archive-gold px-6 py-3.5 text-base font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+                  >
+                    Reveal a Memory
+                  </Link>
+                )}
                 <Link
                   href={`/archive/${archive.slug}/memories`}
                   className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3.5 text-base font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
                 >
-                  {isMemorialArchive ? "Browse Memorial Chapters" : "Browse Memory Chapters"}
+                  {isMemorialArchive ? "Browse Memorial Chapters" : "View Chapters"}
                 </Link>
                 <Link
                   href={`/archive/${archive.slug}/qr`}
                   className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3.5 text-base font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
                 >
-                  {isMemorialArchive ? "View Memorial QR" : "Share Their Story"}
+                  {isMemorialArchive ? "View Memorial QR" : "Open QR Card"}
                 </Link>
+                {isLivingArchive && isOwner ? (
+                  <Link
+                    href={`/archive/${archive.slug}/edit`}
+                    className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3.5 text-base font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                  >
+                    Edit Archive
+                  </Link>
+                ) : null}
               </div>
 
               {memories.length === 0 ? (
                 <div className="mt-12 border-t border-archive-gold/15 pt-12">
                   <div className="text-center max-w-2xl mx-auto mb-10">
                     <p className="text-sm font-semibold uppercase tracking-[0.24em] text-archive-gold">
-                      {isMemorialArchive ? "THE STORY IS PRESERVED HERE" : "THE STORY BEGINS HERE"}
+                      {isMemorialArchive ? "THE STORY IS PRESERVED HERE" : "THE STORY IS STILL BEING BUILT"}
                     </p>
                     <h2 className="mt-3 font-serif text-3xl text-archive-ivory sm:text-4xl">
-                      {isMemorialArchive ? "Memorial Archive" : "Begin Your Archive"}
+                      {isMemorialArchive ? "Memorial Archive" : "Living Archive"}
                     </h2>
                     <p className="mt-3 text-base leading-7 text-archive-ivory/60">
                       {isMemorialArchive
                         ? "This archive is now preserved as a memorial. Additions remain closed, but chapters and keepsakes can still be revisited."
-                        : "Your archive is currently empty, but the canvas is ready. Select a starting point below to begin bringing this sanctuary to life."}
+                        : "This archive is being built while life is still being lived. Add memories, voice notes, lessons, songs, and instructions that can become a lasting legacy when the time comes."}
                     </p>
                   </div>
 
@@ -285,79 +318,89 @@ export default async function ArchivePage({
                         View Memorial QR
                       </Link>
                     </div>
-                  ) : (
+                  ) : isOwner ? (
                     <div className="grid gap-4 sm:grid-cols-2">
                       <Link
                         href={`/archive/${archive.slug}/add-memory`}
-                        className="group rounded-2xl border border-archive-gold/15 bg-white/[0.02] p-6 hover:border-archive-gold/45 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between"
+                        className="group rounded-2xl border border-archive-gold/15 bg-white/[0.02] p-6 transition-all duration-300 hover:border-archive-gold/45 hover:bg-white/[0.04] flex flex-col justify-between"
                       >
                         <div>
-                          <span className="text-archive-gold font-serif text-2xl">◆</span>
-                          <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
-                            Add First Chapter
+                          <span className="font-serif text-2xl text-archive-gold">◆</span>
+                          <h3 className="mt-3 font-serif text-xl text-archive-champagne transition-colors group-hover:text-archive-gold">
+                            Add a Memory
                           </h3>
                           <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
-                            Write a core memory, an overarching story of childhood, or describe a defining childhood turning point.
+                            Add a photograph, voice note, lesson, or story while the archive is still being lived.
                           </p>
                         </div>
                         <span className="mt-6 inline-flex items-center text-sm font-bold uppercase tracking-[0.16em] text-archive-gold">
-                          Add Chapter →
+                          Continue Building →
                         </span>
                       </Link>
 
                       <Link
-                        href={`/archive/${archive.slug}/add-memory?type=photo`}
-                        className="group rounded-2xl border border-archive-gold/15 bg-white/[0.02] p-6 hover:border-archive-gold/45 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between"
+                        href={`/archive/${archive.slug}/memories`}
+                        className="group rounded-2xl border border-archive-gold/15 bg-white/[0.02] p-6 transition-all duration-300 hover:border-archive-gold/45 hover:bg-white/[0.04] flex flex-col justify-between"
                       >
                         <div>
-                          <span className="text-archive-gold font-serif text-2xl">◆</span>
-                          <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
-                            Upload Photos
+                          <span className="font-serif text-2xl text-archive-gold">◆</span>
+                          <h3 className="mt-3 font-serif text-xl text-archive-champagne transition-colors group-hover:text-archive-gold">
+                            View Chapters
                           </h3>
                           <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
-                            Keep precious family portraits, childhood alleys, or hand-written letters safe in digital high-fidelity archives.
+                            Review the chapters that already exist and choose where to continue next.
                           </p>
                         </div>
                         <span className="mt-6 inline-flex items-center text-sm font-bold uppercase tracking-[0.16em] text-archive-gold">
-                          Upload Photo →
+                          Open Chapters →
                         </span>
                       </Link>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="rounded-2xl border border-archive-gold/15 bg-archive-obsidian/70 p-6">
+                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                          Have a Life Archive activation code?
+                        </p>
+                        <h3 className="mt-3 font-serif text-2xl text-archive-ivory">
+                          Connect this keepsake to the right archive.
+                        </h3>
+                        <p className="mt-2 text-sm leading-7 text-archive-ivory/62">
+                          Enter the code from a Life Archive card or keepsake to link access to the correct archive.
+                        </p>
+                        <Link
+                          href="/activate-legacy"
+                          className="mt-5 inline-flex rounded-full bg-archive-gold px-5 py-3 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+                        >
+                          Activate a Code
+                        </Link>
+                      </div>
 
-                      <Link
-                        href={`/archive/${archive.slug}/add-memory?type=voice`}
-                        className="group rounded-2xl border border-archive-gold/15 bg-white/[0.02] p-6 hover:border-archive-gold/45 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between"
-                      >
-                        <div>
-                          <span className="text-archive-gold font-serif text-2xl">◆</span>
-                          <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
-                            Record Voice note
-                          </h3>
-                          <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
-                            The voice is always forgotten first. Record comforting advice, laughter, or spoken history directly from your phone.
-                          </p>
+                      <div className="rounded-2xl border border-archive-gold/15 bg-white/[0.02] p-6">
+                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                          Living Archive
+                        </p>
+                        <h3 className="mt-3 font-serif text-2xl text-archive-ivory">
+                          Add a memory when you are ready.
+                        </h3>
+                        <p className="mt-2 text-sm leading-7 text-archive-ivory/62">
+                          Keep adding photos, voice notes, songs, and lessons so this archive can become a lasting legacy over time.
+                        </p>
+                        <div className="mt-5 flex flex-wrap gap-3">
+                          <Link
+                            href={`/archive/${archive.slug}/memories`}
+                            className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                          >
+                            View Chapters
+                          </Link>
+                          <Link
+                            href={`/archive/${archive.slug}/qr`}
+                            className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                          >
+                            Open QR Card
+                          </Link>
                         </div>
-                        <span className="mt-6 inline-flex items-center text-sm font-bold uppercase tracking-[0.16em] text-archive-gold">
-                          Record Audio →
-                        </span>
-                      </Link>
-
-                      <Link
-                        href={`/archive/${archive.slug}/add-memory?type=song`}
-                        className="group rounded-2xl border border-archive-gold/15 bg-white/[0.02] p-6 hover:border-archive-gold/45 hover:bg-white/[0.04] transition-all duration-300 flex flex-col justify-between"
-                      >
-                        <div>
-                          <span className="text-archive-gold font-serif text-2xl">◆</span>
-                          <h3 className="font-serif text-xl text-archive-champagne mt-3 group-hover:text-archive-gold transition-colors">
-                            Add Favorite Song
-                          </h3>
-                          <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
-                            Music links us immediately to specific days. Pin their favorite cookout anthem or a song they sang at the piano.
-                          </p>
-                        </div>
-                        <span className="mt-6 inline-flex items-center text-sm font-bold uppercase tracking-[0.16em] text-archive-gold">
-                          Add Song →
-                        </span>
-                      </Link>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -377,7 +420,7 @@ export default async function ArchivePage({
                 chapters recorded
               </p>
             </div>
-            <QRPreview archiveSlug={archive.slug} />
+            <QRPreview archiveSlug={archive.slug} archiveMode={isMemorialArchive ? "memorial" : "living"} />
 
             {/* Keepsake Upsell Sidebar Card */}
             <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury">
@@ -435,12 +478,59 @@ export default async function ArchivePage({
           </div>
         </section>
 
-        {/* Guestbook Section */}
-        <Guestbook
-          archiveSlug={archive.slug}
-          initialMessages={visitorMessages}
-          isOwner={isOwner}
-        />
+        {isMemorialArchive ? (
+          <Guestbook
+            archiveSlug={archive.slug}
+            initialMessages={visitorMessages}
+            isOwner={isOwner}
+            archiveMode="memorial"
+          />
+        ) : !isOwner ? (
+          <section className="mt-8 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_400px] lg:items-start">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
+                  Living Archive
+                </p>
+                <h2 className="mt-2 font-serif text-3xl text-archive-ivory sm:text-4xl">
+                  This archive is still being built.
+                </h2>
+                <p className="mt-2 text-base leading-7 text-archive-ivory/62">
+                  Memories, voice notes, songs, and instructions can be added over time, and the archive can later be transitioned into memorial mode when needed.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link
+                    href={`/archive/${archive.slug}/memories`}
+                    className="rounded-full bg-archive-gold px-6 py-3.5 text-base font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+                  >
+                    View Chapters
+                  </Link>
+                  <Link
+                    href={`/archive/${archive.slug}/qr`}
+                    className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3.5 text-base font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                  >
+                    Open QR Card
+                  </Link>
+                </div>
+              </div>
+
+              <div className="rounded-[1.5rem] border border-archive-gold/18 bg-archive-obsidian/80 p-5 shadow-luxury">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                  Have a Life Archive activation code?
+                </p>
+                <p className="mt-3 text-base leading-7 text-archive-ivory/68">
+                  Enter the code from a Life Archive card or keepsake to connect it to the right archive.
+                </p>
+                <Link
+                  href="/activate-legacy"
+                  className="mt-5 inline-flex rounded-full bg-archive-gold px-5 py-3 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+                >
+                  Activate a Code
+                </Link>
+              </div>
+            </div>
+          </section>
+        ) : null}
       </div>
     </main>
   );

@@ -4,9 +4,10 @@ import type { LifeArchive } from "@/lib/types";
 
 type ArchiveCardProps = {
   archive: LifeArchive;
+  canEdit?: boolean;
 };
 
-export function ArchiveCard({ archive }: ArchiveCardProps) {
+export function ArchiveCard({ archive, canEdit = false }: ArchiveCardProps) {
   return (
     <article className="overflow-hidden rounded-lg border border-archive-ink/10 bg-white/78 shadow-soft backdrop-blur">
       <div className="relative aspect-[4/3]">
@@ -38,6 +39,14 @@ export function ArchiveCard({ archive }: ArchiveCardProps) {
         >
           Open archive
         </Link>
+        {canEdit ? (
+          <Link
+            href={`/archive/${archive.slug}/edit`}
+            className="ml-3 mt-5 inline-flex rounded-full border border-archive-ink/15 px-4 py-2 text-sm font-semibold text-archive-ink transition hover:border-archive-ink/30 hover:bg-archive-mist"
+          >
+            Edit archive
+          </Link>
+        ) : null}
       </div>
     </article>
   );
