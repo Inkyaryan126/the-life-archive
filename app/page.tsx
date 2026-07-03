@@ -85,8 +85,8 @@ function SectionDivider() {
 export default async function HomePage() {
   const account = await getAccountContext();
   const isSignedIn = Boolean(account.user);
-  const primaryHref = isSignedIn ? "/dashboard" : "/login";
-  const primaryLabel = isSignedIn ? "Enter My Archives" : "Begin Your Archive";
+  const primaryHref = isSignedIn ? "/dashboard" : "/create";
+  const primaryLabel = isSignedIn ? "Enter My Archives" : "Create My Archive";
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian text-archive-ivory flex flex-col justify-between">
@@ -144,7 +144,7 @@ export default async function HomePage() {
                 A quiet, permanent digital sanctuary for the things that cannot be replaced.
               </p>
               <p className="mt-6 max-w-[43rem] text-lg leading-8 text-archive-ivory/82 lg:text-lg xl:text-xl">
-                The Life Archive is a physical-to-digital preservation platform. We help families record the spoken cadence, defining life lessons, and quiet memories of those they love—safeguarding their spirit and connecting physical keepsakes to a permanent home of heritage.
+                The Life Archive helps families preserve the stories, photos, voice notes, songs, and lessons that should never disappear. Each archive can connect to a QR keepsake, turning a physical object into a doorway back to someone&apos;s life.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link
@@ -157,7 +157,7 @@ export default async function HomePage() {
                   href="/archive/the-first-storykeeper"
                   className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-8 py-4 text-base font-semibold text-archive-ivory transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:border-archive-gold hover:bg-white/[0.08]"
                 >
-                  Explore The Story That Started It All →
+                  Explore How It Works →
                 </Link>
               </div>
             </div>
@@ -191,10 +191,10 @@ export default async function HomePage() {
                 Bridging the Physical and the Eternal
               </h2>
               <p className="mt-6 text-lg leading-8 text-archive-ivory/78 lg:text-lg xl:text-xl">
-                A simple scan on a physical monument, urn, celebration program, or custom wallet card instantly unlocks their secure digital sanctuary.
+                A simple scan on a card, pendant, plaque, urn, program, or wallet keepsake can open a living archive of memories, messages, photos, songs, and voice notes.
               </p>
               <p className="mt-5 text-lg leading-8 text-archive-ivory/74 lg:text-lg xl:text-xl">
-                Suddenly, static keepsakes are filled with life: hear your mother&apos;s comforting advice, listen to your grandfather&apos;s actual childhood stories, play their favorite cookout soundtrack, or read hand-written letters. You are not just reading dates carved in stone—you are stepping back into their warmth.
+                Suddenly, a quiet keepsake becomes a way to hear advice again, see familiar faces, read stories in their own words, and feel close to them once more.
               </p>
             </div>
             <div className="relative max-w-[48rem] overflow-hidden rounded-[2rem] border border-archive-gold/15 bg-gradient-to-b from-white/[0.03] to-transparent p-8 shadow-luxury backdrop-blur-[2px] lg:ml-auto lg:p-10">
@@ -375,7 +375,7 @@ export default async function HomePage() {
             <div>
               <SiteLogo width={240} height={64} className="mb-6 opacity-100" />
               <p className="max-w-xl text-base leading-7">
-                The Life Archive is a quiet, permanent digital sanctuary helping you intentionally decide what survives you. Preserve your voice, identity, and life lessons for generations to come.
+                The Life Archive is a quiet, permanent sanctuary for the stories, voices, and lessons you choose to carry forward. Preserve what matters most for the generations who come next.
               </p>
             </div>
             <div>
