@@ -14,6 +14,7 @@ import {
   listLegacyActivationRequests,
   type LegacyActivationRequest
 } from "@/lib/legacy-activation";
+import { getSiteVisitStats, type SiteVisitStats } from "@/lib/site-visits";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 
 export const dynamic = "force-dynamic";
@@ -49,6 +50,69 @@ function getStatusClass(status: KeepsakeOrder["fulfillmentStatus"]) {
   }
 
   return "border-archive-gold/25 text-archive-champagne";
+}
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
+      <p className="text-xs uppercase tracking-[0.18em] text-archive-ivory/48">
+        {label}
+      </p>
+      <p className="mt-3 font-serif text-4xl text-archive-gold">
+        {value.toLocaleString("en-US")}
+      </p>
+    </div>
+  );
+}
+
+function SiteVisitSection({ stats }: { stats: SiteVisitStats }) {
+  return (
+    <section className="mb-10">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+            Visitor Activity
+          </p>
+          <h2 className="mt-3 font-serif text-3xl text-archive-ivory">
+            Public site visits
+          </h2>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-4 sm:grid-cols-3">
+        <StatCard label="Total public visits" value={stats.totalPublicVisits} />
+        <StatCard label="Visits today" value={stats.visitsToday} />
+        <StatCard label="Last 7 days" value={stats.visitsLast7Days} />
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
+        <h3 className="font-serif text-2xl text-archive-ivory">
+          Top visited paths
+        </h3>
+        {stats.topPaths.length > 0 ? (
+          <div className="mt-4 divide-y divide-archive-gold/10">
+            {stats.topPaths.map((path) => (
+              <div
+                key={path.path}
+                className="flex flex-col gap-2 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+              >
+                <span className="break-all font-semibold text-archive-champagne">
+                  {path.path}
+                </span>
+                <span className="text-archive-ivory/58">
+                  {path.visitCount.toLocaleString("en-US")} visits
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm leading-7 text-archive-ivory/64">
+            No public visits have been recorded yet.
+          </p>
+        )}
+      </div>
+    </section>
+  );
 }
 
 function OrderCard({ order }: { order: KeepsakeOrder }) {
@@ -253,12 +317,19 @@ export default async function AdminPage({
 
   let orders: KeepsakeOrder[] = [];
   let legacyActivations: LegacyActivationRequest[] = [];
+  let siteVisitStats: SiteVisitStats = {
+    totalPublicVisits: 0,
+    visitsToday: 0,
+    visitsLast7Days: 0,
+    topPaths: []
+  };
   let loadError: string | null = null;
 
   try {
-    [orders, legacyActivations] = await Promise.all([
+    [orders, legacyActivations, siteVisitStats] = await Promise.all([
       listKeepsakeOrders(),
-      listLegacyActivationRequests()
+      listLegacyActivationRequests(),
+      getSiteVisitStats()
     ]);
   } catch (error) {
     loadError =
@@ -295,33 +366,15 @@ export default async function AdminPage({
             Keepsake Fulfillment
           </p>
           <h1 className="mt-4 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
-            Orders
+            Admin dashboard
           </h1>
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-archive-ivory/48">
-                New orders
-              </p>
-              <p className="mt-3 font-serif text-4xl text-archive-gold">
-                {newOrders.length}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-archive-ivory/48">
-                Pending memorial reviews
-              </p>
-              <p className="mt-3 font-serif text-4xl text-archive-gold">
-                {pendingLegacyActivations.length}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-archive-ivory/48">
-                Total orders
-              </p>
-              <p className="mt-3 font-serif text-4xl text-archive-gold">
-                {orders.length}
-              </p>
-            </div>
+            <StatCard label="New orders" value={newOrders.length} />
+            <StatCard
+              label="Pending memorial reviews"
+              value={pendingLegacyActivations.length}
+            />
+            <StatCard label="Total orders" value={orders.length} />
           </div>
         </header>
 
@@ -342,6 +395,8 @@ export default async function AdminPage({
             {loadError}
           </section>
         ) : null}
+
+        {!loadError ? <SiteVisitSection stats={siteVisitStats} /> : null}
 
         {!loadError && orders.length === 0 ? (
           <section className="rounded-2xl border border-archive-gold/18 bg-white/[0.025] p-8 text-center shadow-luxury">

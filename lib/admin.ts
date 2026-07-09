@@ -1,22 +1,19 @@
 import "server-only";
 
 import { getAccountContext } from "@/lib/account";
-
-function getAdminEmails() {
-  return (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean);
-}
+import {
+  getConfiguredAdminEmails,
+  isConfiguredAdminEmail
+} from "@/lib/admin-emails";
 
 export async function getAdminAccess() {
   const account = await getAccountContext();
-  const email = account.user?.email.toLowerCase() ?? null;
-  const adminEmails = getAdminEmails();
+  const email = account.user?.email ?? null;
+  const adminEmails = getConfiguredAdminEmails();
 
   return {
     account,
-    isAdmin: Boolean(email && adminEmails.includes(email)),
+    isAdmin: isConfiguredAdminEmail(email),
     adminEmailsConfigured: adminEmails.length > 0
   };
 }

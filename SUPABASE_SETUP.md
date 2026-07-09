@@ -11,6 +11,7 @@ NEXT_PUBLIC_SITE_URL=https://thelifearchive.vip
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_SERVICE_ROLE_KEY=server-only-service-role-key
+ADMIN_EMAILS=you@example.com
 ```
 
 Do not expose `SUPABASE_SERVICE_ROLE_KEY` to the browser. It should only be used in trusted server-side scripts or admin-only maintenance tasks.
@@ -30,6 +31,7 @@ supabase/migrations/20260622133000_fix_dustin_example_archive_photo.sql
 supabase/migrations/20260624000000_create_visitor_messages.sql
 supabase/migrations/20260628120000_create_keepsake_orders.sql
 supabase/migrations/20260701120000_add_legacy_activation_codes.sql
+supabase/migrations/20260708120000_create_site_visits.sql
 ```
 
 It creates:
@@ -50,6 +52,7 @@ It creates:
 - `keepsake_orders`
 - `archives.legacy_activation_code`
 - `legacy_activation_requests`
+- `site_visits`
 
 ## Seed File
 
@@ -146,11 +149,19 @@ supabase/migrations/20260701120000_add_legacy_activation_codes.sql
 28. Paste the full contents of:
 
 ```text
-supabase/seed.sql
+supabase/migrations/20260708120000_create_site_visits.sql
 ```
 
 29. Run it.
-30. In **Table Editor**, confirm that `archives` contains `sari-rae` and `dustin-sigley`.
+30. Create another new query.
+31. Paste the full contents of:
+
+```text
+supabase/seed.sql
+```
+
+32. Run it.
+33. In **Table Editor**, confirm that `archives` contains `sari-rae` and `dustin-sigley`.
 
 ## How To Run With Supabase CLI Later
 

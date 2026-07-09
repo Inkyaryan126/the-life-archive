@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { recordSiteVisit } from "@/lib/site-visit-tracking";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -31,7 +32,15 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getClaims();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  await recordSiteVisit({
+    request,
+    supabase,
+    userEmail: user?.email ?? null
+  });
 
   return response;
 }
