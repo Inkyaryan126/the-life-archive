@@ -2,38 +2,11 @@
 
 import type { FormEvent, KeyboardEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { submitLegacyQuestionEntry } from "@/app/legacy-question/actions";
 
 type CaptureMode = "voice" | "text" | "video";
 type RecorderState = "idle" | "requesting" | "recording" | "recorded" | "error";
 type SubmissionStatus = "idle" | "saving" | "success";
-
-type MemoryEntryPayload = {
-  archiveId?: string;
-  entryType: CaptureMode;
-  textContent?: string;
-  mediaBlob?: Blob;
-  mediaMimeType?: string;
-  durationSeconds?: number;
-  contributorName?: string;
-  contributorEmail: string;
-  consentFlags: {
-    privateByDefault: boolean;
-    canEmailCopy: boolean;
-    wantsReminders: boolean;
-  };
-  visibility: "private";
-  createdAt: string;
-};
-
-type SavedMemoryEntry = {
-  memoryEntryId: string;
-};
-
-type StarterArchiveResponse = {
-  archiveId: string;
-  starterArchiveUrl: string;
-  qrTargetUrl: string;
-};
 
 const modes: Array<{
   id: CaptureMode;
@@ -72,169 +45,13 @@ function isEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
-function safeRandomId(prefix: string) {
-  const uuid =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-
-  return `${prefix}_${uuid}`;
-}
-
-async function saveMemoryEntry(payload: MemoryEntryPayload): Promise<SavedMemoryEntry> {
-  /*
-    Future database schema:
-
-    Table: archives
-    - id uuid primary key
-    - owner_user_id nullable for pre-signup leads
-    - owner_email text nullable
-    - title text
-    - subject_name text nullable
-    - archive_type text: "self" | "living_loved_one" | "memorial" | "pet" | "family"
-    - slug text unique
-    - visibility text: "private" | "invite_only" | "public"
-    - qr_code_url text nullable
-    - created_at timestamptz
-    - updated_at timestamptz
-
-    Table: archive_members
-    - id uuid primary key
-    - archive_id uuid references archives(id)
-    - user_id uuid nullable
-    - email text
-    - role text: "owner" | "editor" | "contributor" | "viewer" | "trustee"
-    - invited_by uuid nullable
-    - invite_status text: "pending" | "accepted"
-    - created_at timestamptz
-
-    Table: memory_entries
-    - id uuid primary key
-    - archive_id uuid references archives(id)
-    - contributor_user_id uuid nullable
-    - contributor_email text nullable
-    - entry_type text: "voice" | "text" | "video" | "photo" | "song" | "lesson"
-    - title text nullable
-    - text_content text nullable
-    - media_file_id uuid nullable
-    - duration_seconds int nullable
-    - visibility text: "private" | "family" | "public"
-    - consent_status text: "owner_confirmed" | "contributor_confirmed" | "needs_review"
-    - random_enabled boolean default true
-    - created_at timestamptz
-    - updated_at timestamptz
-
-    Table: media_files
-    - id uuid primary key
-    - archive_id uuid references archives(id)
-    - entry_id uuid references memory_entries(id)
-    - storage_path text
-    - mime_type text
-    - size_bytes bigint
-    - duration_seconds int nullable
-    - created_at timestamptz
-
-    Table: legacy_leads
-    - id uuid primary key
-    - email text
-    - first_name text nullable
-    - first_entry_id uuid nullable
-    - source text default "legacy_question_page"
-    - wants_reminders boolean default false
-    - created_at timestamptz
-
-    Future extensions:
-    - Multiple archives per account for self, parents, grandparents, children, pets, veterans, spouses, and loved ones.
-    - Multi-contributor archives so family members add memories to one shared archive instead of duplicates.
-    - Family invite links with owner review before submitted memories become part of the archive.
-    - Memory of the day email digests for birthdays, anniversaries, and scheduled remembrance.
-    - Paid tiers for physical keepsakes, storage, HD video, QR/NFC products, scheduled messages, trustees, and vault features.
-    - Admin dashboard for leads, starter memories, moderation, source card batches, conversion tracking, and CSV export.
-    - Analytics hooks: legacy_page_viewed, capture_tab_selected, recording_started, recording_completed,
-      text_memory_written, video_recorded, email_submitted, starter_archive_created.
-  */
-  const logPayload = {
-    ...payload,
-    mediaBlob: payload.mediaBlob
-      ? {
-          type: payload.mediaBlob.type,
-          size: payload.mediaBlob.size
-        }
-      : undefined
-  };
-
-  console.info("saveMemoryEntry placeholder", logPayload);
-  await new Promise((resolve) => setTimeout(resolve, 450));
-
-  return {
-    memoryEntryId: safeRandomId("memory")
-  };
-}
-
-async function sendMemoryEmail(payload: {
-  email: string;
-  firstName?: string;
-  memoryEntryId: string;
-  starterArchiveUrl: string;
+export function MemoryCaptureWidget({
+  initialSource = "legacy_question_page",
+  initialCardBatch = null
+}: {
+  initialSource?: string;
+  initialCardBatch?: string | null;
 }) {
-  // TODO: Wire to Resend, SendGrid, Postmark, or the transactional provider selected for launch.
-  console.info("sendMemoryEmail placeholder", payload);
-  await new Promise((resolve) => setTimeout(resolve, 250));
-
-  return { ok: true };
-}
-
-async function createStarterArchive(payload: {
-  ownerEmail: string;
-  ownerFirstName?: string;
-  firstEntryId: string;
-  archiveTitle?: string;
-  archiveType?: "self" | "loved_one" | "memorial";
-  visibility: "private";
-}): Promise<StarterArchiveResponse> {
-  console.info("createStarterArchive placeholder", payload);
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  const archiveId = safeRandomId("archive");
-  const slug = `starter-${archiveId.replace(/^archive_/, "").slice(0, 8)}`;
-  const qrTarget = generateArchiveQrTarget(slug);
-
-  return {
-    archiveId,
-    starterArchiveUrl: `/archive/${slug}`,
-    qrTargetUrl: qrTarget.qrTargetUrl
-  };
-}
-
-function generateArchiveQrTarget(archiveSlugOrId: string) {
-  /*
-    Each archive has one QR code. The QR code should point to:
-    /archive/[slug]/random
-
-    When that route loads:
-    1. Find archive by slug.
-    2. Query memory_entries for that archive where random_enabled = true and visibility allows viewer access.
-    3. Randomly select one eligible entry.
-    4. Render that entry or redirect to its detail page.
-    5. Optionally avoid repeats with browser localStorage recentlySeenEntryIds, a session cookie, or server-side scan history.
-
-    Example pseudo-query:
-    SELECT *
-    FROM memory_entries
-    WHERE archive_id = :archiveId
-    AND random_enabled = true
-    AND visibility IN allowedVisibility
-    ORDER BY random()
-    LIMIT 1;
-
-    Production systems may want better randomization than ORDER BY random() for very large archives.
-  */
-  return {
-    qrTargetUrl: `/archive/${archiveSlugOrId}/random`
-  };
-}
-
-export function MemoryCaptureWidget() {
   const [selectedMode, setSelectedMode] = useState<CaptureMode>("voice");
   const [audioState, setAudioState] = useState<RecorderState>("idle");
   const [videoState, setVideoState] = useState<RecorderState>("idle");
@@ -539,57 +356,37 @@ export function MemoryCaptureWidget() {
     }
 
     setSubmissionStatus("saving");
-    console.info("email_submitted", { source: "legacy_question_page" });
+    console.info("email_submitted", {
+      source: initialSource,
+      cardBatch: initialCardBatch
+    });
 
-    const saved = await saveMemoryEntry({
+    const result = await submitLegacyQuestionEntry({
+      email,
+      firstName,
+      wantsReminders: wantsReminder,
       entryType: selectedMode,
       textContent: selectedMode === "text" ? textMemory.trim() : undefined,
-      mediaBlob:
-        selectedMode === "voice"
-          ? audioBlob ?? undefined
-          : selectedMode === "video"
-            ? videoBlob ?? undefined
-            : undefined,
+      durationSeconds: selectedMode === "text" ? null : elapsedSeconds,
+      source: initialSource,
+      cardBatch: initialCardBatch,
       mediaMimeType:
         selectedMode === "voice"
-          ? audioBlob?.type
+          ? audioBlob?.type ?? null
           : selectedMode === "video"
-            ? videoBlob?.type
-            : undefined,
-      durationSeconds: selectedMode === "text" ? undefined : elapsedSeconds,
-      contributorName: firstName.trim() || undefined,
-      contributorEmail: email.trim(),
-      consentFlags: {
-        privateByDefault: true,
-        canEmailCopy: true,
-        wantsReminders: wantsReminder
-      },
-      visibility: "private",
-      createdAt: new Date().toISOString()
+            ? videoBlob?.type ?? null
+            : null
     });
 
-    const archive = await createStarterArchive({
-      ownerEmail: email.trim(),
-      ownerFirstName: firstName.trim() || undefined,
-      firstEntryId: saved.memoryEntryId,
-      visibility: "private"
-    });
-
-    await sendMemoryEmail({
-      email: email.trim(),
-      firstName: firstName.trim() || undefined,
-      memoryEntryId: saved.memoryEntryId,
-      starterArchiveUrl: archive.starterArchiveUrl
-    });
-
-    console.info("starter_archive_created", {
-      archiveId: archive.archiveId,
-      qrTargetUrl: archive.qrTargetUrl
-    });
+    if (!result.success) {
+      setSubmissionStatus("idle");
+      setMemoryError(result.message);
+      return;
+    }
 
     setSubmissionStatus("success");
     setSuccessMessage(
-      "Check your email for your private copy and starter archive link. Later, you can add more memories, invite family, and create a QR code that reveals a different memory each time it is scanned."
+      "This is how a Life Archive begins - one real story at a time. We are saving early submissions while this feature is in beta."
     );
   }
 
@@ -803,10 +600,10 @@ export function MemoryCaptureWidget() {
               onSubmit={handleSubmit}
             >
               <h3 className="font-serif text-3xl leading-tight">
-                Where should we send your memory?
+                Where should we save this for you?
               </h3>
               <p className="mt-3 text-sm leading-6 text-[#5f554a]">
-                We&apos;ll send you a private copy and a link to continue building your starter archive.
+                We&apos;ll use this to follow up with your private copy and starter archive link as this beta opens.
               </p>
 
               <div className="mt-5 grid gap-4">

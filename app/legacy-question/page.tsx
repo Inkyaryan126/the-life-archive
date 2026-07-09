@@ -36,11 +36,22 @@ const privacyPoints = [
   "Archive owners should be able to remove entries or change visibility."
 ];
 
-export default function LegacyQuestionPage() {
+export default async function LegacyQuestionPage({
+  searchParams
+}: {
+  searchParams?: Promise<{
+    source?: string;
+    batch?: string;
+  }>;
+}) {
+  const params = await searchParams;
+  const source = params?.source || "legacy_question_page";
+  const cardBatch = params?.batch || null;
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#11100e] text-[#f8f1e7]">
       <HeroSection />
-      <MemoryCaptureWidget />
+      <MemoryCaptureWidget initialSource={source} initialCardBatch={cardBatch} />
       <HowItWorksSection />
       <RandomQrExplainer />
       <PrivacyConsentSection />
