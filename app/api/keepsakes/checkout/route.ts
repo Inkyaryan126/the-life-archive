@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAccountContext } from "@/lib/account";
+import { createClient } from "@/lib/supabase/server";
 
 type CheckoutType = "card" | "keychain" | "dogtag" | "plaque";
 
@@ -9,26 +10,31 @@ const products: Record<
     name: string;
     productId?: string;
     unitAmount: number;
+    requiresArchive: boolean;
   }
 > = {
   card: {
     name: "The Life Archive Memory Card",
     productId: "prod_Umoxxb4aF5MuPL",
-    unitAmount: 1900
+    unitAmount: 1900,
+    requiresArchive: true
   },
   keychain: {
     name: "The Life Archive Memorial Keychain",
     productId: "prod_Umopvhs6gAemhj",
-    unitAmount: 2400
+    unitAmount: 2400,
+    requiresArchive: true
   },
   dogtag: {
     name: "The Life Archive Memorial Dog Tag",
-    unitAmount: 2900
+    unitAmount: 2900,
+    requiresArchive: true
   },
   plaque: {
     name: "The Life Archive Memorial Plaque",
     productId: "prod_Ump23cb9KHhhNQ",
-    unitAmount: 7900
+    unitAmount: 7900,
+    requiresArchive: true
   }
 };
 
@@ -46,6 +52,89 @@ function redirectWithError(request: Request, message: string) {
   );
 }
 
+async function resolveAuthorizedArchiveSlug(input: {
+  account: Awaited<ReturnType<typeof getAccountContext>>;
+  requestedArchiveSlug: string | null;
+  requiresArchive: boolean;
+}) {
+  const { account, requestedArchiveSlug, requiresArchive } = input;
+
+  if (!account.user) {
+    return {
+      archiveSlug: null,
+      error: "Sign in to your account before checkout."
+    };
+  }
+
+  const supabase = await createClient();
+
+  if (requestedArchiveSlug) {
+    if (account.archives.some((archive) => archive.slug === requestedArchiveSlug)) {
+      return { archiveSlug: requestedArchiveSlug, error: null };
+    }
+
+    const { data: archive, error: archiveError } = await supabase
+      .from("archives")
+      .select("id, slug, owner_id")
+      .eq("slug", requestedArchiveSlug)
+      .maybeSingle();
+
+    if (archiveError) {
+      return {
+        archiveSlug: null,
+        error: "Checkout temporarily unavailable."
+      };
+    }
+
+    if (!archive) {
+      return {
+        archiveSlug: null,
+        error: "That archive was not found."
+      };
+    }
+
+    if (archive.owner_id === account.user.id) {
+      return { archiveSlug: archive.slug as string, error: null };
+    }
+
+    const { data: membership, error: membershipError } = await supabase
+      .from("archive_members")
+      .select("role")
+      .eq("archive_id", archive.id)
+      .eq("user_id", account.user.id)
+      .maybeSingle();
+
+    if (membershipError) {
+      return {
+        archiveSlug: null,
+        error: "Checkout temporarily unavailable."
+      };
+    }
+
+    if (!membership) {
+      return {
+        archiveSlug: null,
+        error: "That archive does not belong to this account."
+      };
+    }
+
+    return { archiveSlug: archive.slug as string, error: null };
+  }
+
+  if (requiresArchive) {
+    if (account.defaultArchive?.slug) {
+      return { archiveSlug: account.defaultArchive.slug, error: null };
+    }
+
+    return {
+      archiveSlug: null,
+      error: "Choose an archive from My Archives before checkout."
+    };
+  }
+
+  return { archiveSlug: null, error: null };
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type") as CheckoutType | null;
@@ -58,11 +147,15 @@ export async function GET(request: Request) {
 
   const checkoutType: CheckoutType = type;
   const account = await getAccountContext();
-  const archiveSlug =
-    requestedArchiveSlug ||
-    account.defaultArchive?.slug ||
-    account.archives[0]?.slug ||
-    null;
+  const { archiveSlug, error: archiveError } = await resolveAuthorizedArchiveSlug({
+    account,
+    requestedArchiveSlug,
+    requiresArchive: product.requiresArchive
+  });
+
+  if (archiveError) {
+    return redirectWithError(request, archiveError);
+  }
 
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 

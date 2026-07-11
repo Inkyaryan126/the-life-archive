@@ -643,8 +643,7 @@ export default async function KeepsakesPage() {
   const isSignedIn = Boolean(account.user);
   const dashboardHref = isSignedIn ? "/dashboard" : "/login";
   const dashboardLabel = isSignedIn ? "Dashboard" : "Sign In";
-  const checkoutArchiveSlug =
-    account.defaultArchive?.slug || account.archives[0]?.slug || null;
+  const checkoutArchiveSlug = account.defaultArchive?.slug || null;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">

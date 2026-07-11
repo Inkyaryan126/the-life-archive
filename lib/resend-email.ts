@@ -28,20 +28,35 @@ function getResendApiKey() {
 }
 
 export async function sendEmail(input: SendEmailInput) {
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${getResendApiKey()}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      from: getFromEmail(),
-      to: [input.to],
-      subject: input.subject,
-      html: input.html,
-      text: input.text
-    })
-  });
+  const controller = new AbortController();
+  const timeout = globalThis.setTimeout(() => controller.abort(), 15000);
+  let response: Response;
+
+  try {
+    response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${getResendApiKey()}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: getFromEmail(),
+        to: [input.to],
+        subject: input.subject,
+        html: input.html,
+        text: input.text
+      }),
+      signal: controller.signal
+    });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error("Resend request timed out before completing.");
+    }
+
+    throw error;
+  } finally {
+    globalThis.clearTimeout(timeout);
+  }
 
   let body: { id?: string; message?: string; name?: string };
 

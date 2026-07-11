@@ -368,6 +368,9 @@ export default async function AdminPage({
           <h1 className="mt-4 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
             Admin dashboard
           </h1>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-archive-ivory/68">
+            Review fulfillment, legacy activations, and live site activity in one place.
+          </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <StatCard label="New orders" value={newOrders.length} />
             <StatCard
@@ -377,6 +380,33 @@ export default async function AdminPage({
             <StatCard label="Total orders" value={orders.length} />
           </div>
         </header>
+
+        <section className="mb-10 grid gap-4 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 sm:grid-cols-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+              Signed in as
+            </p>
+            <p className="mt-2 font-serif text-2xl text-archive-ivory">
+              {account.user?.displayName ?? "Archive Member"}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+              Email
+            </p>
+            <p className="mt-2 break-all text-sm text-archive-ivory/74">
+              {account.user?.email ?? "Email unavailable"}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+              User ID
+            </p>
+            <p className="mt-2 break-all text-sm text-archive-ivory/74">
+              {account.user?.id ?? "Unavailable"}
+            </p>
+          </div>
+        </section>
 
         {params?.success ? (
           <p className="mb-6 rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4 text-sm text-emerald-100">

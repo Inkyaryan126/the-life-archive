@@ -355,31 +355,41 @@ export function MemoryCaptureWidget({
       cardBatch: initialCardBatch
     });
 
-    const result = await submitLegacyQuestionEntry({
-      email,
-      firstName,
-      wantsReminders: wantsReminder,
-      entryType: selectedMode,
-      textContent: selectedMode === "text" ? textMemory.trim() : undefined,
-      durationSeconds: selectedMode === "text" ? null : elapsedSeconds,
-      source: initialSource,
-      cardBatch: initialCardBatch,
-      mediaMimeType:
-        selectedMode === "voice"
-          ? audioBlob?.type ?? null
-          : selectedMode === "video"
-            ? videoBlob?.type ?? null
-            : null
-    });
+    try {
+      const result = await submitLegacyQuestionEntry({
+        email,
+        firstName,
+        wantsReminders: wantsReminder,
+        entryType: selectedMode,
+        textContent: selectedMode === "text" ? textMemory.trim() : undefined,
+        durationSeconds: selectedMode === "text" ? null : elapsedSeconds,
+        source: initialSource,
+        cardBatch: initialCardBatch,
+        mediaMimeType:
+          selectedMode === "voice"
+            ? audioBlob?.type ?? null
+            : selectedMode === "video"
+              ? videoBlob?.type ?? null
+              : null
+      });
 
-    if (!result.success) {
+      if (!result.success) {
+        setSubmissionStatus("idle");
+        setMemoryError(result.message);
+        return;
+      }
+
+      setSubmissionStatus("success");
+      setSuccessMessage(result.message);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "We captured your memory, but the secure link could not be sent yet.";
+
       setSubmissionStatus("idle");
-      setMemoryError(result.message);
-      return;
+      setMemoryError(message);
     }
-
-    setSubmissionStatus("success");
-    setSuccessMessage(result.message);
   }
 
   return (

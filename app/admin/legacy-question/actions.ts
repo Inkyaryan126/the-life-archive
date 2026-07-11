@@ -2,13 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { buildLegacyQuestionClaimEmail } from "@/lib/legacy-question-claim-email";
+import { issueLegacyQuestionClaimToken } from "@/lib/legacy-question-claims";
 import { getAdminAccess } from "@/lib/admin";
 import { processLegacyQuestionSubmission } from "@/lib/legacy-question-onboarding";
 import {
   deleteLegacyQuestionTestSubmission,
   isLegacyQuestionStatus,
+  updateLegacyQuestionProcessing,
+  getLegacyQuestionSubmission,
   updateLegacyQuestionSubmission
 } from "@/lib/legacy-question-submissions";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { sendEmail } from "@/lib/resend-email";
 
 function readString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -17,6 +23,102 @@ function readString(formData: FormData, key: string) {
 
 function redirectWithError(message: string): never {
   redirect(`/admin/legacy-question?error=${encodeURIComponent(message)}`);
+}
+
+function getDisplayName(email: string, firstName: string | null) {
+  const trimmed = firstName?.trim();
+
+  if (trimmed) {
+    return trimmed;
+  }
+
+  return email.split("@")[0] || "Your";
+}
+
+async function getArchiveNameAndOwner(submissionId: string) {
+  const submission = await getLegacyQuestionSubmission(submissionId);
+
+  if (!submission) {
+    throw new Error("Submission was not found.");
+  }
+
+  const supabase = createAdminClient();
+  const directLookup: any = submission.starterArchiveId
+    ? await supabase
+        .from("archives")
+        .select("id, archive_name, owner_id")
+        .eq("id", submission.starterArchiveId)
+        .maybeSingle()
+    : { data: null, error: null };
+
+  const fallbackLookup: any = await supabase
+    .from("archives")
+    .select("id, archive_name, owner_id")
+    .eq("legacy_question_submission_id", submission.id)
+    .maybeSingle();
+
+  const archiveRow = directLookup.data ?? fallbackLookup.data;
+  const archiveLookupError = directLookup.error ?? fallbackLookup.error;
+
+  if (archiveLookupError) {
+    throw new Error(archiveLookupError.message || "Unable to find the starter archive.");
+  }
+
+  if (!archiveRow || !archiveRow.owner_id) {
+    throw new Error("The starter archive is missing its owner.");
+  }
+
+  return {
+    submission,
+    archive: {
+      id: archiveRow.id as string,
+      archiveName: archiveRow.archive_name as string,
+      ownerId: archiveRow.owner_id as string
+    }
+  };
+}
+
+async function sendFreshClaimEmailForSubmission(submissionId: string) {
+  const { submission, archive } = await getArchiveNameAndOwner(submissionId);
+  const claim = await issueLegacyQuestionClaimToken({
+    submissionId: submission.id,
+    archiveId: archive.id,
+    userId: archive.ownerId,
+    email: submission.email
+  });
+  const claimUrl = `${process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "http://localhost:3000"}/claim/${claim.rawToken}`;
+  const email = buildLegacyQuestionClaimEmail({
+    archiveName: archive.archiveName,
+    displayName: getDisplayName(submission.email, submission.firstName),
+    claimUrl,
+    expiresAt: claim.expiresAt
+  });
+
+  try {
+    await sendEmail({
+      to: submission.email,
+      ...email
+    });
+
+    await updateLegacyQuestionProcessing(submission.id, {
+      invitationSentAt: new Date().toISOString(),
+      welcomeEmailSentAt: new Date().toISOString(),
+      processingStatus: "email_sent",
+      processingStage: "email_sent",
+      processingError: null
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unable to send a fresh claim email.";
+
+    await updateLegacyQuestionProcessing(submission.id, {
+      processingStatus: "failed",
+      processingStage: "email_send",
+      processingError: message
+    });
+
+    throw error;
+  }
 }
 
 export async function updateLegacyQuestionSubmissionAction(
@@ -79,6 +181,33 @@ export async function retryLegacyQuestionSubmissionAction(formData: FormData) {
 
   revalidatePath("/admin/legacy-question");
   redirect("/admin/legacy-question?success=retried");
+}
+
+export async function sendFreshLegacyQuestionClaimEmailAction(
+  formData: FormData
+) {
+  const { isAdmin } = await getAdminAccess();
+
+  if (!isAdmin) {
+    redirectWithError("You do not have access to reissue claim emails.");
+  }
+
+  const submissionId = readString(formData, "submissionId");
+
+  if (!submissionId) {
+    redirectWithError("Submission ID is missing.");
+  }
+
+  try {
+    await sendFreshClaimEmailForSubmission(submissionId);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unable to send a fresh claim email.";
+    redirectWithError(message);
+  }
+
+  revalidatePath("/admin/legacy-question");
+  redirect("/admin/legacy-question?success=claim_reissued");
 }
 
 export async function deleteLegacyQuestionTestSubmissionAction(

@@ -2,8 +2,10 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSiteUrl } from "@/lib/qr";
+import { buildLegacyQuestionClaimEmail } from "@/lib/legacy-question-claim-email";
 import { sendEmail } from "@/lib/resend-email";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { issueLegacyQuestionClaimToken } from "@/lib/legacy-question-claims";
 import {
   getLegacyQuestionSubmission,
   updateLegacyQuestionProcessing,
@@ -54,70 +56,15 @@ function getReadableError(error: unknown) {
     .slice(0, 700);
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-function getWelcomeEmail(input: {
-  archiveName: string;
-  displayName: string;
-  secureLink: string;
-}) {
-  const subject = "Your Life Archive starter is waiting";
-  const greeting = input.displayName === "Your" ? "Hello" : `Hello ${input.displayName}`;
-  const escapedGreeting = escapeHtml(greeting);
-  const escapedArchiveName = escapeHtml(input.archiveName);
-  const escapedSecureLink = escapeHtml(input.secureLink);
-
-  const text = `${greeting},
-
-Your first memory has been preserved in The Life Archive.
-
-Your starter archive, ${input.archiveName}, is waiting for you. Use the secure link below to claim it and continue building it with more stories, photos, songs, lessons, videos, and voice notes.
-
-${input.secureLink}
-
-This is a starter archive, not a finished archive. You can keep adding to it over time.
-
-The Life Archive`;
-
-  const html = `<!doctype html>
-<html>
-  <body style="margin:0;background:#11100e;color:#211912;font-family:Georgia,'Times New Roman',serif;">
-    <div style="max-width:640px;margin:0 auto;background:#f8f1e7;padding:36px 28px;">
-      <p style="margin:0 0 14px;color:#8e6b2f;font:700 12px Arial,sans-serif;letter-spacing:0.16em;text-transform:uppercase;">The Life Archive</p>
-      <h1 style="margin:0 0 18px;color:#211912;font-size:34px;line-height:1.1;">Your first memory has been preserved.</h1>
-      <p style="margin:0 0 18px;color:#5f554a;font:16px/1.7 Arial,sans-serif;">${escapedGreeting},</p>
-      <p style="margin:0 0 18px;color:#5f554a;font:16px/1.7 Arial,sans-serif;">Your starter archive, <strong>${escapedArchiveName}</strong>, is waiting for you. Use the secure link below to claim it and continue building it with more stories, photos, songs, lessons, videos, and voice notes.</p>
-      <p style="margin:28px 0;">
-        <a href="${escapedSecureLink}" style="display:inline-block;background:#c9a45c;color:#11100e;text-decoration:none;border-radius:999px;padding:14px 22px;font:700 15px Arial,sans-serif;">Claim my starter archive</a>
-      </p>
-      <p style="margin:0 0 18px;color:#5f554a;font:14px/1.7 Arial,sans-serif;">This is a starter archive, not a finished archive. You can keep adding to it over time.</p>
-      <p style="margin:28px 0 0;color:#8e6b2f;font:700 12px Arial,sans-serif;letter-spacing:0.16em;text-transform:uppercase;">Preserve the voice, stories, and memories that should not disappear.</p>
-    </div>
-  </body>
-</html>`;
-
-  return { subject, text, html };
-}
-
-async function generateSecureClaimLink(input: {
+async function resolveLegacyQuestionAuthUser(input: {
   email: string;
   firstName: string | null;
 }) {
-  const siteUrl = getSiteUrl();
-  const redirectTo = `${siteUrl}/auth/callback`;
   const supabase = getAdminClient();
   const { data, error } = await supabase.auth.admin.generateLink({
     type: "magiclink",
     email: input.email,
     options: {
-      redirectTo,
       data: {
         first_name: input.firstName ?? undefined,
         onboarding_source: "legacy_question"
@@ -125,12 +72,11 @@ async function generateSecureClaimLink(input: {
     }
   });
 
-  if (error || !data.user || !data.properties?.action_link) {
-    throw new Error(error?.message || "Unable to create secure claim link.");
+  if (error || !data.user) {
+    throw new Error(error?.message || "Unable to resolve the archive owner.");
   }
 
   return {
-    actionLink: data.properties.action_link,
     userId: data.user.id
   };
 }
@@ -328,7 +274,7 @@ export async function processLegacyQuestionSubmission(submissionId: string) {
       processingStage: currentStage
     });
 
-    const claim = await generateSecureClaimLink({
+    const owner = await resolveLegacyQuestionAuthUser({
       email: submission.email,
       firstName: submission.firstName
     });
@@ -347,7 +293,7 @@ export async function processLegacyQuestionSubmission(submissionId: string) {
 
     const archive = await ensureStarterArchive({
       submission,
-      ownerId: claim.userId
+      ownerId: owner.userId
     });
     const archiveCreatedAt = submission.archiveCreatedAt || new Date().toISOString();
 
@@ -370,7 +316,7 @@ export async function processLegacyQuestionSubmission(submissionId: string) {
     const memory = await ensureFirstMemory({
       submission: refreshedAfterArchive,
       archive,
-      ownerId: claim.userId
+      ownerId: owner.userId
     });
     const firstMemoryCreatedAt =
       refreshedAfterArchive.firstMemoryCreatedAt || new Date().toISOString();
@@ -384,20 +330,44 @@ export async function processLegacyQuestionSubmission(submissionId: string) {
     });
 
     if (!refreshedAfterArchive.welcomeEmailSentAt) {
+      currentStage = "claim_link_create";
+      await updateLegacyQuestionProcessing(submission.id, {
+        processingStage: currentStage
+      });
+
+      const claim = await issueLegacyQuestionClaimToken({
+        submissionId: submission.id,
+        archiveId: archive.id,
+        userId: owner.userId,
+        email: submission.email
+      });
+
+      const claimUrl = `${getSiteUrl().replace(/\/$/, "")}/claim/${claim.rawToken}`;
+      const email = buildLegacyQuestionClaimEmail({
+        archiveName: archive.archiveName,
+        displayName: getDisplayName(submission),
+        claimUrl,
+        expiresAt: claim.expiresAt
+      });
+
+      currentStage = "claim_link_created";
+      await updateLegacyQuestionProcessing(submission.id, {
+        processingStatus: "claim_link_created",
+        processingStage: currentStage
+      });
+
       currentStage = "email_send";
       await updateLegacyQuestionProcessing(submission.id, {
         processingStage: currentStage
       });
 
-      const email = getWelcomeEmail({
-        archiveName: archive.archiveName,
-        displayName: getDisplayName(submission),
-        secureLink: claim.actionLink
-      });
-
       await sendEmail({
         to: submission.email,
         ...email
+      });
+
+      await updateLegacyQuestionProcessing(submission.id, {
+        invitationSentAt: new Date().toISOString()
       });
     }
 

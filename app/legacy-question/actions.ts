@@ -107,32 +107,56 @@ export async function submitLegacyQuestionEntry(
   const referrer = trimToNull(requestHeaders.get("referer"))?.slice(0, 500) ?? null;
   const userAgent = trimToNull(requestHeaders.get("user-agent"))?.slice(0, 500) ?? null;
 
-  const created = await createLegacyQuestionSubmission({
-    email,
-    firstName,
-    wantsReminders: input.wantsReminders,
-    entryType,
-    textContent: entryType === "text" ? textContent : null,
-    mediaStoragePath: null,
-    mediaMimeType,
-    durationSeconds: normalizeDuration(input.durationSeconds),
-    source,
-    cardBatch,
-    referrer,
-    userAgent
-  });
-  const processed = await processLegacyQuestionSubmission(created.id);
-  const processingStatus = processed?.processingStatus ?? "failed";
-  const isComplete = processingStatus === "email_sent";
-  const isMediaPending = processingStatus === "media_pending";
+  let createdSubmissionId: string | null = null;
 
-  return {
-    success: true,
-    submissionId: created.id,
-    message: isComplete
-      ? "Your first memory is saved. Check your email for the secure link to your archive."
-      : isMediaPending
-        ? "Your memory is captured. Voice and video starter archives are pending secure media upload support."
-        : "Your memory is safely captured, but we could not send the email yet. We'll retry it."
-  };
+  try {
+    const created = await createLegacyQuestionSubmission({
+      email,
+      firstName,
+      wantsReminders: input.wantsReminders,
+      entryType,
+      textContent: entryType === "text" ? textContent : null,
+      mediaStoragePath: null,
+      mediaMimeType,
+      durationSeconds: normalizeDuration(input.durationSeconds),
+      source,
+      cardBatch,
+      referrer,
+      userAgent
+    });
+
+    createdSubmissionId = created.id;
+
+    const processed = await processLegacyQuestionSubmission(created.id);
+    const processingStatus = processed?.processingStatus ?? "failed";
+    const isComplete = processingStatus === "email_sent";
+    const isMediaPending = processingStatus === "media_pending";
+
+    return {
+      success: true,
+      submissionId: created.id,
+      message: isComplete
+        ? "Your first memory is saved. Check your email for the secure link to your archive."
+        : isMediaPending
+          ? "Your memory is captured. Voice and video starter archives are pending secure media upload support."
+          : "Your memory is safely captured, but we could not send the email yet. We'll retry it."
+    };
+  } catch (error) {
+    const readableError =
+      error instanceof Error ? error.message : "Unable to save your memory right now.";
+
+    if (createdSubmissionId) {
+      return {
+        success: true,
+        submissionId: createdSubmissionId,
+        message:
+          "Your memory is safely captured, but we could not send the email yet. We'll retry it."
+      };
+    }
+
+    return {
+      success: false,
+      message: readableError
+    };
+  }
 }

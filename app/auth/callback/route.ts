@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getSafeInternalPath } from "@/lib/safe-path";
 
 const defaultNextPath = "/dashboard?welcome=starter";
 
 function getSafeNextPath(value: string | null) {
-  return value?.startsWith("/") && !value.startsWith("//")
-    ? value
-    : defaultNextPath;
+  return getSafeInternalPath(value, defaultNextPath, [
+    "/dashboard",
+    "/create",
+    "/login",
+    "/reset-password",
+    "/setup-password"
+  ]);
 }
 
 function getLoginRedirect(origin: string, next: string, message: string) {
@@ -43,12 +48,27 @@ export async function GET(request: Request) {
     searchParams.get("token_hash") || searchParams.get("token");
   const type = searchParams.get("type");
   const next = getSafeNextPath(searchParams.get("next"));
+  const nextPathname = next.split(/[?#]/)[0];
   const supabase = await createClient();
+  const recoveryFlow =
+    nextPathname === "/reset-password" || nextPathname === "/setup-password";
 
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const response = NextResponse.redirect(new URL(next, origin));
+
+      if (recoveryFlow) {
+        response.cookies.set("tla_recovery_session", "1", {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+          path: nextPathname,
+          maxAge: 60 * 15
+        });
+      }
+
+      return response;
     }
 
     logCallbackFailure({
@@ -67,7 +87,19 @@ export async function GET(request: Request) {
     });
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const response = NextResponse.redirect(new URL(next, origin));
+
+      if (recoveryFlow || type === "recovery") {
+        response.cookies.set("tla_recovery_session", "1", {
+          httpOnly: true,
+          sameSite: "lax",
+          secure: process.env.NODE_ENV === "production",
+          path: nextPathname,
+          maxAge: 60 * 15
+        });
+      }
+
+      return response;
     }
 
     logCallbackFailure({

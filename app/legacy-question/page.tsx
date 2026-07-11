@@ -6,7 +6,7 @@ import { SiteLogo } from "@/components/SiteDesign";
 export const metadata: Metadata = {
   title: "Share One Memory | The Life Archive",
   description:
-    "In 60 seconds, share one private memory, story, voice note, or video and begin a free Life Archive starter."
+    "Share one private memory, story, voice note, or video and begin a free Life Archive starter."
 };
 
 const howItWorksSteps = [
@@ -96,9 +96,6 @@ function HeroSection() {
             Every person has one story that deserves to{" "}
             <span className="text-[#c9a45c]">live forever.</span>
           </h1>
-          <p className="mt-6 max-w-3xl text-xl leading-8 text-[#efe3d1] sm:text-2xl sm:leading-10">
-            In 60 seconds, share one memory, lesson, story, or message you never want lost.
-          </p>
         </div>
       </section>
     </header>

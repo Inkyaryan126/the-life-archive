@@ -5,6 +5,7 @@ import { SiteLogo } from "@/components/SiteDesign";
 type AppSidebarProps = {
   active:
     | "dashboard"
+    | "settings"
     | "member-card"
     | "keepsakes"
     | "add-memory"
@@ -79,6 +80,7 @@ export function AppSidebar({
             Main
           </p>
           <SidebarLink href="/dashboard" label="My Archives" active={active === "dashboard"} />
+          <SidebarLink href="/dashboard/settings" label="Profile Settings" active={active === "settings"} />
           <SidebarLink href="/member-card" label="Member Card" active={active === "member-card"} />
           <SidebarLink href="/keepsakes" label="Keepsake Store" active={active === "keepsakes"} />
         </div>

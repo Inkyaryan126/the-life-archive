@@ -74,11 +74,7 @@ export default async function MemberCardPage({
   const isNewMember =
     resolvedSearchParams?.welcome === "new" ||
     resolvedSearchParams?.welcome === "confirmed";
-  const emailName = user.email
-    .split("@")[0]
-    .replace(/[._-]+/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-  const memberName = livingArchive?.personName ?? emailName;
+  const memberName = livingArchive?.personName ?? user.displayName;
   const legacyActivationCode =
     livingArchive?.legacyActivationCode ?? "CREATE-ARCHIVE";
   const createdYear = livingArchive

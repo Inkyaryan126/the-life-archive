@@ -4,6 +4,10 @@ import type { ArchiveVisibility } from "@/lib/types";
 import type { ArchiveRelationshipToOwner } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeArchiveRelationshipToOwner } from "@/lib/archive-relationships";
+import {
+  getFallbackDisplayName,
+  type PublicProfile
+} from "@/lib/profiles";
 
 export type AccountArchive = {
   slug: string;
@@ -27,7 +31,9 @@ export type AccountContext = {
     email: string;
     createdAt: string;
     emailConfirmed: boolean;
+    displayName: string;
   } | null;
+  profile: PublicProfile | null;
   archives: AccountArchive[];
   defaultArchive: AccountArchive | null;
   // Temporary compatibility alias for consumers that still expect one archive.
@@ -45,6 +51,7 @@ export async function getAccountContext(): Promise<AccountContext> {
     return {
       isConfigured: false,
       user: null,
+      profile: null,
       archives: [],
       defaultArchive: null,
       archive: null,
@@ -61,6 +68,7 @@ export async function getAccountContext(): Promise<AccountContext> {
     return {
       isConfigured: true,
       user: null,
+      profile: null,
       archives: [],
       defaultArchive: null,
       archive: null,
@@ -73,6 +81,16 @@ export async function getAccountContext(): Promise<AccountContext> {
     .select("*")
     .eq("owner_id", user.id)
     .order("created_at", { ascending: true });
+
+  const { data: profileRow, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, display_name, avatar_url, bio, created_at, updated_at")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    throw profileError;
+  }
 
   const archives: AccountArchive[] = (archiveRows ?? []).map((archive) => ({
     slug: archive.slug,
@@ -92,6 +110,16 @@ export async function getAccountContext(): Promise<AccountContext> {
   }));
   const defaultArchive =
     archives.find((archive) => archive.relationshipToOwner === "self") ?? null;
+  const profile = profileRow
+    ? {
+        id: profileRow.id,
+        displayName: profileRow.display_name,
+        avatarUrl: profileRow.avatar_url,
+        bio: profileRow.bio,
+        createdAt: profileRow.created_at,
+        updatedAt: profileRow.updated_at
+      }
+    : null;
 
   return {
     isConfigured: true,
@@ -99,8 +127,14 @@ export async function getAccountContext(): Promise<AccountContext> {
       id: user.id,
       email: user.email ?? "Email unavailable",
       createdAt: user.created_at,
-      emailConfirmed: Boolean(user.email_confirmed_at)
+      emailConfirmed: Boolean(user.email_confirmed_at),
+      displayName: getFallbackDisplayName({
+        profileDisplayName: profile?.displayName,
+        metadata: user.user_metadata as Record<string, unknown> | null,
+        email: user.email
+      })
     },
+    profile,
     archives,
     defaultArchive,
     archive: defaultArchive,

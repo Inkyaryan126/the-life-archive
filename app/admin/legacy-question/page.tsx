@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   deleteLegacyQuestionTestSubmissionAction,
+  sendFreshLegacyQuestionClaimEmailAction,
   retryLegacyQuestionSubmissionAction,
   updateLegacyQuestionSubmissionAction
 } from "@/app/admin/legacy-question/actions";
@@ -9,10 +10,18 @@ import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { getAdminAccess } from "@/lib/admin";
 import { isConfiguredAdminEmail } from "@/lib/admin-emails";
 import {
+  listLegacyQuestionClaimOverviews,
+  type LegacyQuestionClaimOverview
+} from "@/lib/legacy-question-claims";
+import {
   legacyQuestionStatuses,
   listLegacyQuestionSubmissions,
   type LegacyQuestionSubmission
 } from "@/lib/legacy-question-submissions";
+import {
+  getFallbackDisplayName,
+  loadProfilesByUserIds
+} from "@/lib/profiles";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +85,22 @@ function processingStatusClass(
   return "border-sky-300/35 text-sky-100";
 }
 
+function claimStatusClass(status: LegacyQuestionClaimOverview["claimStatus"]) {
+  if (status === "claimed") {
+    return "border-emerald-300/35 text-emerald-200";
+  }
+
+  if (status === "expired" || status === "revoked") {
+    return "border-red-300/35 text-red-100";
+  }
+
+  if (status === "active") {
+    return "border-sky-300/35 text-sky-100";
+  }
+
+  return "border-archive-gold/35 text-archive-champagne";
+}
+
 const pipelineStages: Array<{
   label: string;
   key:
@@ -93,9 +118,13 @@ const pipelineStages: Array<{
 ];
 
 function SubmissionCard({
-  submission
+  submission,
+  claim,
+  claimDisplayName
 }: {
   submission: LegacyQuestionSubmission;
+  claim: LegacyQuestionClaimOverview;
+  claimDisplayName: string | null;
 }) {
   const isAdminTestSubmission = isConfiguredAdminEmail(submission.email);
 
@@ -246,95 +275,156 @@ function SubmissionCard({
               {previewText(submission.textContent)}
             </p>
           </div>
+
+          <div className="mt-5 rounded-xl border border-archive-gold/10 bg-archive-obsidian/60 p-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+              Claim token
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span
+                className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${claimStatusClass(
+                  claim.claimStatus
+                )}`}
+              >
+                {claim.claimStatus.replace(/_/g, " ")}
+              </span>
+              {claim.expiresAt ? (
+                <span className="text-xs text-archive-ivory/58">
+                  Expires {formatPipelineDate(claim.expiresAt)}
+                </span>
+              ) : null}
+            </div>
+            <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+              <div className="rounded-xl border border-archive-gold/10 bg-archive-obsidian/80 p-3">
+                <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+                  Claim owner
+                </dt>
+                <dd className="mt-1 text-archive-ivory/78">
+                  {claim.userId ? claimDisplayName ?? "Archive Member" : "Not created yet"}
+                </dd>
+              </div>
+              <div className="rounded-xl border border-archive-gold/10 bg-archive-obsidian/80 p-3">
+                <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+                  User ID
+                </dt>
+                <dd className="mt-1 break-all text-archive-ivory/78">
+                  {claim.userId || "Not linked yet"}
+                </dd>
+              </div>
+            </dl>
+          </div>
         </div>
 
-        <form
-          action={updateLegacyQuestionSubmissionAction}
-          className="rounded-2xl border border-archive-gold/12 bg-archive-obsidian/70 p-4"
-        >
-          <input type="hidden" name="submissionId" value={submission.id} />
-          <label className="grid gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Status
-            </span>
-            <select
-              className="rounded-xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none focus:border-archive-gold"
-              defaultValue={submission.submissionStatus}
-              name="submissionStatus"
+        <div className="grid gap-4 xl:col-start-2">
+          <form
+            action={sendFreshLegacyQuestionClaimEmailAction}
+            className="rounded-2xl border border-archive-gold/12 bg-archive-obsidian/70 p-4"
+          >
+            <input type="hidden" name="submissionId" value={submission.id} />
+            <p className="text-sm font-semibold text-archive-ivory">
+              Claim email
+            </p>
+            <p className="mt-2 text-sm leading-6 text-archive-ivory/68">
+              Sends a fresh local claim link and revokes any previous active claim token for this submission.
+            </p>
+            <button
+              className="mt-4 w-full rounded-full border border-archive-gold/35 px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-champagne transition hover:border-archive-gold hover:text-archive-ivory"
+              type="submit"
             >
-              {legacyQuestionStatuses.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="mt-4 grid gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Notes
-            </span>
-            <textarea
-              className="min-h-28 rounded-xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none focus:border-archive-gold"
-              defaultValue={submission.notes}
-              name="notes"
-              placeholder="Follow-up notes, signal quality, card batch observations"
-              rows={4}
-            />
-          </label>
-          <button
-            className="mt-4 w-full rounded-full bg-archive-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
-            type="submit"
+              Send Fresh Claim Email
+            </button>
+          </form>
+
+          <form
+            action={retryLegacyQuestionSubmissionAction}
+            className="rounded-2xl border border-archive-gold/12 bg-archive-obsidian/70 p-4"
           >
-            Update
-          </button>
-        </form>
-        <form
-          action={retryLegacyQuestionSubmissionAction}
-          className="rounded-2xl border border-archive-gold/12 bg-archive-obsidian/70 p-4 xl:col-start-2"
-        >
-          <input type="hidden" name="submissionId" value={submission.id} />
-          <p className="text-sm leading-6 text-archive-ivory/68">
-            Retry safely uses the submission ID as the idempotency key. It will
-            not create duplicate starter archives or first memories.
-          </p>
-          <button
-            className="mt-4 w-full rounded-full border border-archive-gold/35 px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-champagne transition hover:border-archive-gold hover:text-archive-ivory"
-            type="submit"
+            <input type="hidden" name="submissionId" value={submission.id} />
+            <p className="text-sm leading-6 text-archive-ivory/68">
+              Retry safely uses the submission ID as the idempotency key. It will
+              not create duplicate starter archives or first memories.
+            </p>
+            <button
+              className="mt-4 w-full rounded-full border border-archive-gold/35 px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-champagne transition hover:border-archive-gold hover:text-archive-ivory"
+              type="submit"
+            >
+              Retry Pipeline
+            </button>
+          </form>
+
+          <form
+            action={updateLegacyQuestionSubmissionAction}
+            className="rounded-2xl border border-archive-gold/12 bg-archive-obsidian/70 p-4"
           >
-            Retry Pipeline
-          </button>
-        </form>
-        <form
-          action={deleteLegacyQuestionTestSubmissionAction}
-          className="rounded-2xl border border-red-300/20 bg-red-400/10 p-4 xl:col-start-2"
-        >
-          <input type="hidden" name="submissionId" value={submission.id} />
-          <p className="text-sm font-semibold text-red-100">
-            Delete Test Submission
-          </p>
-          <p className="mt-2 text-sm leading-6 text-red-100/78">
-            Deletes only this submission, its linked first memory, and its
-            linked starter archive. The Supabase auth user and any other
-            archives remain untouched.
-          </p>
-          <label className="mt-4 grid gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-red-100/80">
-              Type DELETE TEST to confirm
-            </span>
-            <input
-              className="rounded-xl border border-red-200/25 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none focus:border-red-200"
-              name="deleteConfirmation"
-              placeholder="DELETE TEST"
-              type="text"
-            />
-          </label>
-          <button
-            className="mt-4 w-full rounded-full border border-red-200/35 px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-red-100 transition hover:border-red-100 hover:bg-red-300/10"
-            type="submit"
+            <input type="hidden" name="submissionId" value={submission.id} />
+            <label className="grid gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+                Status
+              </span>
+              <select
+                className="rounded-xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none focus:border-archive-gold"
+                defaultValue={submission.submissionStatus}
+                name="submissionStatus"
+              >
+                {legacyQuestionStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="mt-4 grid gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+                Notes
+              </span>
+              <textarea
+                className="min-h-28 rounded-xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none focus:border-archive-gold"
+                defaultValue={submission.notes}
+                name="notes"
+                placeholder="Follow-up notes, signal quality, card batch observations"
+                rows={4}
+              />
+            </label>
+            <button
+              className="mt-4 w-full rounded-full bg-archive-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+              type="submit"
+            >
+              Update
+            </button>
+          </form>
+
+          <form
+            action={deleteLegacyQuestionTestSubmissionAction}
+            className="rounded-2xl border border-red-300/20 bg-red-400/10 p-4"
           >
-            Delete Test Submission
-          </button>
-        </form>
+            <input type="hidden" name="submissionId" value={submission.id} />
+            <p className="text-sm font-semibold text-red-100">
+              Delete Test Submission
+            </p>
+            <p className="mt-2 text-sm leading-6 text-red-100/78">
+              Deletes only this submission, its linked first memory, and its
+              linked starter archive. The Supabase auth user and any other
+              archives remain untouched.
+            </p>
+            <label className="mt-4 grid gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-red-100/80">
+                Type DELETE TEST to confirm
+              </span>
+              <input
+                className="rounded-xl border border-red-200/25 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none focus:border-red-200"
+                name="deleteConfirmation"
+                placeholder="DELETE TEST"
+                type="text"
+              />
+            </label>
+            <button
+              className="mt-4 w-full rounded-full border border-red-200/35 px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-red-100 transition hover:border-red-100 hover:bg-red-300/10"
+              type="submit"
+            >
+              Delete Test Submission
+            </button>
+          </form>
+        </div>
       </div>
     </article>
   );
@@ -353,6 +443,10 @@ function getSuccessMessage(value: string | undefined) {
 
   if (value === "retried") {
     return "Submission pipeline retried.";
+  }
+
+  if (value === "claim_reissued") {
+    return "Fresh claim email sent.";
   }
 
   return "Submission updated.";
@@ -396,10 +490,27 @@ export default async function LegacyQuestionAdminPage({
   }
 
   let submissions: LegacyQuestionSubmission[] = [];
+  let claims = new Map<string, LegacyQuestionClaimOverview>();
+  let claimProfiles = new Map<string, { displayName: string | null }>();
   let loadError: string | null = null;
 
   try {
     submissions = await listLegacyQuestionSubmissions();
+    claims = await listLegacyQuestionClaimOverviews(
+      submissions.map((submission) => submission.id)
+    );
+    claimProfiles = await loadProfilesByUserIds(
+      submissions
+        .map((submission) => claims.get(submission.id)?.userId)
+        .filter((value): value is string => Boolean(value))
+    ).then((profiles) =>
+      new Map(
+        [...profiles.entries()].map(([id, profile]) => [
+          id,
+          { displayName: profile.displayName }
+        ])
+      )
+    );
   } catch (error) {
     loadError =
       error instanceof Error ? error.message : "Unable to load submissions.";
@@ -436,6 +547,33 @@ export default async function LegacyQuestionAdminPage({
           </p>
         </header>
 
+        <section className="mb-10 grid gap-4 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 sm:grid-cols-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+              Signed in as
+            </p>
+            <p className="mt-2 font-serif text-2xl text-archive-ivory">
+              {account.user?.displayName ?? "Archive Member"}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+              Email
+            </p>
+            <p className="mt-2 break-all text-sm text-archive-ivory/74">
+              {account.user?.email ?? "Email unavailable"}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+              User ID
+            </p>
+            <p className="mt-2 break-all text-sm text-archive-ivory/74">
+              {account.user?.id ?? "Unavailable"}
+            </p>
+          </div>
+        </section>
+
         {successMessage ? (
           <p className="mb-6 rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4 text-sm text-emerald-100">
             {successMessage}
@@ -468,7 +606,35 @@ export default async function LegacyQuestionAdminPage({
         {!loadError && submissions.length > 0 ? (
           <section className="grid gap-5 pb-16">
             {submissions.map((submission) => (
-              <SubmissionCard key={submission.id} submission={submission} />
+              <SubmissionCard
+                key={submission.id}
+                claim={
+                  claims.get(submission.id) ?? {
+                    claimId: null,
+                    submissionId: submission.id,
+                    archiveId: null,
+                    userId: null,
+                    email: null,
+                    expiresAt: null,
+                    claimedAt: null,
+                    revokedAt: null,
+                    createdAt: null,
+                    claimStatus: "not_created"
+                  }
+                }
+                claimDisplayName={
+                  claims.get(submission.id)?.userId
+                    ? getFallbackDisplayName({
+                        profileDisplayName:
+                          claimProfiles.get(
+                            claims.get(submission.id)?.userId ?? ""
+                          )?.displayName ?? null,
+                        email: claims.get(submission.id)?.email ?? submission.email
+                      })
+                    : null
+                }
+                submission={submission}
+              />
             ))}
           </section>
         ) : null}

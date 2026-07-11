@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import { DesignBackdrop, DesignImageButtonLink, SiteLogo } from "@/components/SiteDesign";
 import { regenerateLegacyActivationCodeAction } from "@/app/dashboard/actions";
+import { saveProfileAction } from "@/app/dashboard/settings/actions";
 import { signOutAction } from "@/app/login/actions";
 import { getAccountContext, type AccountArchive } from "@/lib/account";
 import { getArchiveRelationshipLabel } from "@/lib/archive-relationships";
@@ -209,7 +210,9 @@ type DashboardPageProps = {
   searchParams?: Promise<{
     legacyCode?: string;
     legacyCodeError?: string;
+    error?: string;
     welcome?: string;
+    success?: string;
   }>;
 };
 
@@ -222,6 +225,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   }
 
   const { archives, defaultArchive, user } = account;
+  const hasBlankDisplayName = !account.profile?.displayName?.trim();
+  const showStarterWelcome = resolvedSearchParams?.welcome === "starter";
+  const showStarterProfilePrompt = showStarterWelcome && hasBlankDisplayName;
   const archiveOverviews = archives.length > 0 ? await loadArchiveOverviews(archives) : [];
   const selectedOverview = archiveOverviews.find((item) => item.archive.slug === defaultArchive?.slug) ?? null;
   const selectedArchive = selectedOverview?.archiveDetails ?? null;
@@ -229,6 +235,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const legacyInstruction = defaultArchive
     ? await getLegacyInstructionByArchiveSlug(defaultArchive.slug, true).catch(() => null)
     : null;
+  const passwordUpdated = resolvedSearchParams?.success === "password-updated";
 
   const allMemories: MemoryWithArchive[] = archiveOverviews.flatMap((overview) =>
     overview.memories.map((memory) => ({
@@ -314,27 +321,74 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <AppSidebar active="dashboard" archiveSlug={sidebarArchiveSlug} archiveName={sidebarArchiveName} archivePersonName={sidebarArchivePersonName} showArchiveActions={Boolean(sidebarArchiveSlug)} />
 
         <div className="min-w-0">
-          <nav className="relative z-10 flex flex-col gap-4 border-b border-archive-gold/20 pb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 lg:hidden">
-            <Link href="/" className="block"><SiteLogo width={240} height={60} /></Link>
-            <div className="flex flex-wrap items-center gap-4 sm:justify-end sm:gap-6">
-              <Link href="/keepsakes" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">Keepsakes</Link>
-              {livingDefaultArchive ? <Link href="/member-card" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">Member Card</Link> : null}
-              <form action={signOutAction}><button type="submit" className="rounded-full border border-archive-gold/35 px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/5 sm:text-base">Sign Out</button></form>
-            </div>
-          </nav>
-
-          <div className="pb-20 pt-10 sm:pt-14">
-            {resolvedSearchParams?.welcome === "back" ? <SuccessMessage eyebrow="Welcome back" message="Your archives are ready whenever you are." /> : null}
-            {resolvedSearchParams?.legacyCode === "regenerated" ? <SuccessMessage eyebrow="Legacy code updated" message="Your previous Legacy Activation Code was replaced. Use the new code shown in your dashboard and Member Card." /> : null}
-
-            <header className="flex flex-col justify-between gap-6 lg:flex-row lg:items-start lg:gap-10">
-              <div className="max-w-3xl">
-                <p className="text-sm font-semibold uppercase tracking-[0.28em] text-archive-gold">My Archives</p>
-                <h1 className="mt-4 font-serif text-4xl font-bold leading-tight text-archive-ivory sm:text-6xl">My Archives</h1>
-                <p className="mt-4 max-w-2xl text-base leading-7 text-archive-ivory/64 sm:text-lg sm:leading-8">Choose an archive to open, add memories, edit details, or print a QR keepsake.</p>
+            <nav className="relative z-10 flex flex-col gap-4 border-b border-archive-gold/20 pb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 lg:hidden">
+              <Link href="/" className="block"><SiteLogo width={240} height={60} /></Link>
+              <div className="flex flex-wrap items-center gap-4 sm:justify-end sm:gap-6">
+                <Link href="/keepsakes" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">Keepsakes</Link>
+                <Link href="/dashboard/settings" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">Profile Settings</Link>
+                {livingDefaultArchive ? <Link href="/member-card" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">Member Card</Link> : null}
+                <form action={signOutAction}><button type="submit" className="rounded-full border border-archive-gold/35 px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/5 sm:text-base">Sign Out</button></form>
               </div>
-              {hasArchives ? <Link href="/create" className="mt-4 inline-flex shrink-0 rounded-full bg-archive-gold px-6 py-3.5 text-sm font-bold text-archive-obsidian shadow-luxury transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:bg-archive-champagne hover:shadow-lg hover:shadow-archive-gold/10 md:mt-10 sm:text-base">+ Create Another Archive</Link> : null}
-            </header>
+            </nav>
+
+            <div className="pb-20 pt-10 sm:pt-14">
+              {passwordUpdated ? <SuccessMessage eyebrow="Password updated" message="Your new password is active." /> : null}
+              {resolvedSearchParams?.error ? (
+                <p className="mb-8 rounded-2xl border border-red-300/20 bg-red-400/10 p-4 text-sm leading-6 text-red-100">
+                  {resolvedSearchParams.error}
+                </p>
+              ) : null}
+              {showStarterWelcome ? <SuccessMessage eyebrow="Starter archive ready" message="Your first memory is saved. Check your email for the secure link to your archive." /> : null}
+              {resolvedSearchParams?.welcome === "back" ? <SuccessMessage eyebrow="Welcome back" message="Your archives are ready whenever you are." /> : null}
+              {resolvedSearchParams?.legacyCode === "regenerated" ? <SuccessMessage eyebrow="Legacy code updated" message="Your previous Legacy Activation Code was replaced. Use the new code shown in your dashboard and Member Card." /> : null}
+
+              <header className="flex flex-col justify-between gap-6 lg:flex-row lg:items-start lg:gap-10">
+                <div className="max-w-3xl">
+                  <p className="text-sm font-semibold uppercase tracking-[0.28em] text-archive-gold">My Archives</p>
+                  <h1 className="mt-4 font-serif text-4xl font-bold leading-tight text-archive-ivory sm:text-6xl">My Archives</h1>
+                  <p className="mt-4 max-w-2xl text-base leading-7 text-archive-ivory/64 sm:text-lg sm:leading-8">Choose an archive to open, add memories, edit details, or print a QR keepsake.</p>
+                  <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
+                    <span className="rounded-full border border-archive-gold/18 bg-white/[0.03] px-3 py-1.5 font-semibold uppercase tracking-[0.14em] text-archive-gold">
+                      Signed in as {user.displayName}
+                    </span>
+                    <Link href="/dashboard/settings" className="font-semibold text-archive-champagne underline-offset-4 hover:underline">
+                      Profile Settings
+                    </Link>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-3 lg:mt-10">
+                  {hasArchives ? <Link href="/create" className="inline-flex shrink-0 rounded-full bg-archive-gold px-6 py-3.5 text-sm font-bold text-archive-obsidian shadow-luxury transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:bg-archive-champagne hover:shadow-lg hover:shadow-archive-gold/10 sm:text-base">+ Create Another Archive</Link> : null}
+                  <Link href="/dashboard/settings" className="inline-flex shrink-0 rounded-full border border-archive-gold/28 bg-white/[0.04] px-6 py-3.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] sm:text-base">Profile Settings</Link>
+                </div>
+              </header>
+
+              {showStarterProfilePrompt ? (
+                <section className="mt-8 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
+                  <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+                    <div className="max-w-2xl">
+                      <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">Starter archive</p>
+                      <h2 className="mt-2 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">What should we call you?</h2>
+                      <p className="mt-3 text-base leading-7 text-archive-ivory/62 sm:text-lg sm:leading-8">This name stays inside your account. You can skip it and fill it in later from Profile Settings.</p>
+                    </div>
+                    <form action={saveProfileAction} className="grid gap-3 sm:min-w-[28rem] sm:grid-cols-[1fr_auto] sm:items-end">
+                      <input type="hidden" name="next" value="/dashboard?welcome=starter" />
+                      <label className="grid gap-2 sm:col-span-1">
+                        <span className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-archive-gold">Display name</span>
+                        <input
+                          name="displayName"
+                          defaultValue={account.profile?.displayName ?? ""}
+                          maxLength={60}
+                          placeholder="What should we call you?"
+                          className="rounded-2xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 text-base text-archive-ivory outline-none transition placeholder:text-archive-ivory/36 focus:border-archive-gold"
+                        />
+                      </label>
+                      <button type="submit" className="rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne">
+                        Save My Name
+                      </button>
+                    </form>
+                  </div>
+                </section>
+              ) : null}
 
             {featuredArchive ? (
               <section className="mt-8 overflow-hidden rounded-[2.5rem] border border-archive-gold/18 bg-archive-obsidian/92 shadow-luxury">
