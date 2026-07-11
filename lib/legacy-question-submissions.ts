@@ -10,10 +10,21 @@ export const legacyQuestionStatuses = [
   "archived",
   "failed"
 ] as const;
+export const legacyQuestionProcessingStatuses = [
+  "captured",
+  "archive_created",
+  "memory_created",
+  "claim_link_created",
+  "email_sent",
+  "media_pending",
+  "failed"
+] as const;
 
 export type LegacyQuestionEntryType =
   (typeof legacyQuestionEntryTypes)[number];
 export type LegacyQuestionStatus = (typeof legacyQuestionStatuses)[number];
+export type LegacyQuestionProcessingStatus =
+  (typeof legacyQuestionProcessingStatuses)[number];
 
 export type LegacyQuestionSubmission = {
   id: string;
@@ -31,7 +42,17 @@ export type LegacyQuestionSubmission = {
   referrer: string | null;
   userAgent: string | null;
   starterArchiveId: string | null;
-  mockArchiveSlug: string | null;
+  starterArchiveSlug: string | null;
+  firstMemoryId: string | null;
+  archiveCreatedAt: string | null;
+  firstMemoryCreatedAt: string | null;
+  invitationSentAt: string | null;
+  welcomeEmailSentAt: string | null;
+  processingStatus: LegacyQuestionProcessingStatus;
+  processingStage: string | null;
+  processingError: string | null;
+  processingAttempts: number;
+  lastProcessingAttemptAt: string | null;
   submissionStatus: LegacyQuestionStatus;
   visibility: "private" | "family" | "public";
   consentPrivateDefault: boolean;
@@ -55,7 +76,17 @@ type LegacyQuestionSubmissionRow = {
   referrer: string | null;
   user_agent: string | null;
   starter_archive_id: string | null;
-  mock_archive_slug: string | null;
+  starter_archive_slug: string | null;
+  first_memory_id: string | null;
+  archive_created_at: string | null;
+  first_memory_created_at: string | null;
+  invitation_sent_at: string | null;
+  welcome_email_sent_at: string | null;
+  processing_status: LegacyQuestionProcessingStatus;
+  processing_stage: string | null;
+  processing_error: string | null;
+  processing_attempts: number;
+  last_processing_attempt_at: string | null;
   submission_status: LegacyQuestionStatus;
   visibility: "private" | "family" | "public";
   consent_private_default: boolean;
@@ -76,7 +107,6 @@ export type CreateLegacyQuestionSubmissionInput = {
   cardBatch?: string | null;
   referrer?: string | null;
   userAgent?: string | null;
-  mockArchiveSlug?: string | null;
 };
 
 function getAdminClient() {
@@ -95,6 +125,14 @@ export function isLegacyQuestionStatus(
   value: string
 ): value is LegacyQuestionStatus {
   return legacyQuestionStatuses.includes(value as LegacyQuestionStatus);
+}
+
+export function isLegacyQuestionProcessingStatus(
+  value: string
+): value is LegacyQuestionProcessingStatus {
+  return legacyQuestionProcessingStatuses.includes(
+    value as LegacyQuestionProcessingStatus
+  );
 }
 
 function mapSubmission(
@@ -116,7 +154,17 @@ function mapSubmission(
     referrer: row.referrer,
     userAgent: row.user_agent,
     starterArchiveId: row.starter_archive_id,
-    mockArchiveSlug: row.mock_archive_slug,
+    starterArchiveSlug: row.starter_archive_slug,
+    firstMemoryId: row.first_memory_id,
+    archiveCreatedAt: row.archive_created_at,
+    firstMemoryCreatedAt: row.first_memory_created_at,
+    invitationSentAt: row.invitation_sent_at,
+    welcomeEmailSentAt: row.welcome_email_sent_at,
+    processingStatus: row.processing_status ?? "captured",
+    processingStage: row.processing_stage,
+    processingError: row.processing_error,
+    processingAttempts: row.processing_attempts ?? 0,
+    lastProcessingAttemptAt: row.last_processing_attempt_at,
     submissionStatus: row.submission_status,
     visibility: row.visibility,
     consentPrivateDefault: row.consent_private_default,
@@ -144,13 +192,14 @@ export async function createLegacyQuestionSubmission(
       card_batch: input.cardBatch || null,
       referrer: input.referrer || null,
       user_agent: input.userAgent || null,
-      mock_archive_slug: input.mockArchiveSlug || null,
       submission_status: "captured",
+      processing_status: "captured",
+      processing_stage: "captured",
       visibility: "private",
       consent_private_default: true,
       consent_contact: true
     })
-    .select("id, mock_archive_slug")
+    .select("id")
     .single();
 
   if (error) {
@@ -158,9 +207,23 @@ export async function createLegacyQuestionSubmission(
   }
 
   return {
-    id: String(data.id),
-    mockArchiveSlug: data.mock_archive_slug as string | null
+    id: String(data.id)
   };
+}
+
+export async function getLegacyQuestionSubmission(submissionId: string) {
+  const supabase = getAdminClient();
+  const { data, error } = await supabase
+    .from("legacy_question_submissions")
+    .select("*")
+    .eq("id", submissionId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data ? mapSubmission(data as LegacyQuestionSubmissionRow) : null;
 }
 
 export async function listLegacyQuestionSubmissions(limit = 100) {
@@ -195,4 +258,108 @@ export async function updateLegacyQuestionSubmission(input: {
   if (error) {
     throw new Error(error.message);
   }
+}
+
+export async function updateLegacyQuestionProcessing(
+  submissionId: string,
+  values: Partial<{
+    starterArchiveId: string | null;
+    starterArchiveSlug: string | null;
+    firstMemoryId: string | null;
+    archiveCreatedAt: string | null;
+    firstMemoryCreatedAt: string | null;
+    invitationSentAt: string | null;
+    welcomeEmailSentAt: string | null;
+    processingStatus: LegacyQuestionProcessingStatus;
+    processingStage: string | null;
+    processingError: string | null;
+    processingAttempts: number;
+    lastProcessingAttemptAt: string | null;
+    submissionStatus: LegacyQuestionStatus;
+  }>
+) {
+  const supabase = getAdminClient();
+  const update: Record<string, string | number | null> = {};
+
+  if ("starterArchiveId" in values) {
+    update.starter_archive_id = values.starterArchiveId ?? null;
+  }
+
+  if ("starterArchiveSlug" in values) {
+    update.starter_archive_slug = values.starterArchiveSlug ?? null;
+  }
+
+  if ("firstMemoryId" in values) {
+    update.first_memory_id = values.firstMemoryId ?? null;
+  }
+
+  if ("archiveCreatedAt" in values) {
+    update.archive_created_at = values.archiveCreatedAt ?? null;
+  }
+
+  if ("firstMemoryCreatedAt" in values) {
+    update.first_memory_created_at = values.firstMemoryCreatedAt ?? null;
+  }
+
+  if ("invitationSentAt" in values) {
+    update.invitation_sent_at = values.invitationSentAt ?? null;
+  }
+
+  if ("welcomeEmailSentAt" in values) {
+    update.welcome_email_sent_at = values.welcomeEmailSentAt ?? null;
+  }
+
+  if ("processingStatus" in values && values.processingStatus) {
+    update.processing_status = values.processingStatus;
+  }
+
+  if ("processingStage" in values) {
+    update.processing_stage = values.processingStage ?? null;
+  }
+
+  if ("processingError" in values) {
+    update.processing_error = values.processingError ?? null;
+  }
+
+  if ("processingAttempts" in values && typeof values.processingAttempts === "number") {
+    update.processing_attempts = values.processingAttempts;
+  }
+
+  if ("lastProcessingAttemptAt" in values) {
+    update.last_processing_attempt_at = values.lastProcessingAttemptAt ?? null;
+  }
+
+  if ("submissionStatus" in values && values.submissionStatus) {
+    update.submission_status = values.submissionStatus;
+  }
+
+  const { error } = await supabase
+    .from("legacy_question_submissions")
+    .update(update)
+    .eq("id", submissionId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function deleteLegacyQuestionTestSubmission(submissionId: string) {
+  const supabase = getAdminClient();
+  const { data, error } = await supabase.rpc(
+    "delete_legacy_question_test_submission",
+    {
+      target_submission_id: submissionId
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as {
+    submission_id: string;
+    deleted_memories: number;
+    deleted_archives: number;
+    deleted_submissions: number;
+  };
 }

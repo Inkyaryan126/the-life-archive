@@ -62,7 +62,7 @@ export default async function LegacyQuestionPage({
 
 function HeroSection() {
   return (
-    <header className="relative min-h-[760px] overflow-hidden px-4 pb-28 pt-5 sm:px-6 lg:min-h-[820px] lg:px-10">
+    <header className="relative overflow-hidden px-4 pb-8 pt-5 sm:px-6 lg:px-10">
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-[linear-gradient(115deg,rgba(17,16,14,0.96)_0%,rgba(17,16,14,0.86)_38%,rgba(42,33,26,0.50)_68%,rgba(17,16,14,0.92)_100%),url('/images/site-design/tla-background.png')] bg-cover bg-center"
@@ -87,57 +87,20 @@ function HeroSection() {
         </Link>
       </nav>
 
-      <div className="relative z-10 mx-auto grid w-full max-w-[1280px] items-center gap-10 pt-20 lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,0.72fr)] lg:pt-28">
-        <section className="max-w-4xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c9a45c] sm:text-base">
+      <section className="relative z-10 mx-auto w-full max-w-[1280px] pt-14 sm:pt-16 lg:pt-20">
+        <div className="max-w-5xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#d8b66f] sm:text-base">
             A living archive for voices, stories, and memories.
           </p>
-          <h1 className="mt-6 max-w-5xl font-serif text-5xl leading-[0.98] text-[#f8f1e7] sm:text-6xl lg:text-7xl xl:text-8xl">
+          <h1 className="mt-5 font-serif text-5xl leading-[0.98] text-[#f8f1e7] sm:text-6xl lg:text-7xl xl:text-8xl">
             Every person has one story that deserves to{" "}
             <span className="text-[#c9a45c]">live forever.</span>
           </h1>
-          <p className="mt-7 max-w-3xl text-xl leading-8 text-[#efe3d1] sm:text-2xl sm:leading-10">
-            In 60 seconds, share one memory, story, or message you never want the world to forget.
+          <p className="mt-6 max-w-3xl text-xl leading-8 text-[#efe3d1] sm:text-2xl sm:leading-10">
+            In 60 seconds, share one memory, lesson, story, or message you never want lost.
           </p>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-[#efe3d1]/78 sm:text-lg">
-            Save it privately today. Turn it into a free starter archive when you&apos;re ready.
-          </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Link
-              className="inline-flex min-h-14 items-center justify-center rounded-full bg-[#c9a45c] px-8 py-4 text-base font-bold text-[#11100e] shadow-[0_18px_45px_rgba(201,164,92,0.22)] transition hover:bg-[#e5cf9a] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/35"
-              href="#share-memory"
-            >
-              Share My Story
-            </Link>
-            <Link
-              className="inline-flex min-h-14 items-center justify-center rounded-full border border-[#efe3d1]/25 bg-white/[0.04] px-8 py-4 text-base font-semibold text-[#f8f1e7] transition hover:border-[#c9a45c] hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30"
-              href="#how-it-works"
-            >
-              See How It Works
-            </Link>
-          </div>
-        </section>
-
-        <aside className="rounded-[1.75rem] border border-[#c9a45c]/25 bg-[#11100e]/72 p-5 shadow-[0_28px_80px_rgba(0,0,0,0.38)] backdrop-blur-md sm:p-7">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#c9a45c]">
-            Not just a profile
-          </p>
-          <h2 className="mt-4 font-serif text-3xl leading-tight text-[#f8f1e7] sm:text-4xl">
-            A QR code can become a doorway into a living archive.
-          </h2>
-          <p className="mt-5 text-base leading-7 text-[#efe3d1]/78">
-            Scan once and hear one story. Scan again later and discover another.
-          </p>
-          <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-            <p className="text-sm font-semibold text-[#f8f1e7]">
-              One QR code. A lifetime of memories.
-            </p>
-            <p className="mt-2 text-sm leading-6 text-[#efe3d1]/72">
-              Voice notes, written stories, photos, and videos can surface over time instead of pointing to one static page.
-            </p>
-          </div>
-        </aside>
-      </div>
+        </div>
+      </section>
     </header>
   );
 }

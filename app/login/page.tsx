@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { loginAction, signupAction } from "./actions";
+import { loginAction, magicLinkAction, signupAction } from "./actions";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 
 type LoginPageProps = {
   searchParams?: Promise<{
     confirmation?: string;
     error?: string;
+    link?: string;
     next?: string;
   }>;
 };
@@ -13,6 +14,7 @@ type LoginPageProps = {
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const resolvedSearchParams = await searchParams;
   const confirmationPending = resolvedSearchParams?.confirmation === "pending";
+  const expiredLink = resolvedSearchParams?.link === "expired";
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-12 text-archive-ivory sm:px-8">
@@ -32,6 +34,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             <p className="mt-2 text-sm leading-6 text-archive-ivory/68">
               {confirmationPending
                 ? "We sent a confirmation link. After confirming your account, sign in here to create your first archive."
+                : expiredLink
+                  ? "Secure links can only be used once and may expire. Enter your email to request a fresh sign-in link."
                 : "Sign in to return to your archives, or create an account to begin."}
             </p>
           </div>
@@ -72,6 +76,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               Sign Up
             </button>
           </div>
+          {expiredLink ? (
+            <button
+              formAction={magicLinkAction}
+              className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+            >
+              Email me a fresh secure link
+            </button>
+          ) : null}
         </form>
       </div>
     </main>

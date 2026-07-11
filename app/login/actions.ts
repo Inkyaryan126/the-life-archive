@@ -98,6 +98,33 @@ export async function signupAction(formData: FormData) {
   );
 }
 
+export async function magicLinkAction(formData: FormData) {
+  const email = formData.get("email") as string;
+  const supabase = await createClient();
+  const nextPath = getSafeNextPath(formData.get("next"), "/dashboard?welcome=back");
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: `${getSiteUrl()}/auth/callback?next=${encodeURIComponent(nextPath)}`,
+      shouldCreateUser: true
+    }
+  });
+
+  if (error) {
+    redirect(
+      getLoginErrorPath(
+        "We couldn't send a fresh secure link. Check the email address and try again.",
+        nextPath
+      )
+    );
+  }
+
+  redirect(
+    `/login?confirmation=pending&next=${encodeURIComponent(nextPath)}`
+  );
+}
+
 export async function signOutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();

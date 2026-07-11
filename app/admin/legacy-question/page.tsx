@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { updateLegacyQuestionSubmissionAction } from "@/app/admin/legacy-question/actions";
+import {
+  deleteLegacyQuestionTestSubmissionAction,
+  retryLegacyQuestionSubmissionAction,
+  updateLegacyQuestionSubmissionAction
+} from "@/app/admin/legacy-question/actions";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { getAdminAccess } from "@/lib/admin";
+import { isConfiguredAdminEmail } from "@/lib/admin-emails";
 import {
   legacyQuestionStatuses,
   listLegacyQuestionSubmissions,
@@ -19,6 +24,10 @@ function formatDate(value: string) {
     hour: "numeric",
     minute: "2-digit"
   }).format(new Date(value));
+}
+
+function formatPipelineDate(value: string | null) {
+  return value ? formatDate(value) : "Pending";
 }
 
 function previewText(value: string | null) {
@@ -49,11 +58,47 @@ function statusClass(status: LegacyQuestionSubmission["submissionStatus"]) {
   return "border-archive-gold/35 text-archive-champagne";
 }
 
+function processingStatusClass(
+  status: LegacyQuestionSubmission["processingStatus"]
+) {
+  if (status === "email_sent") {
+    return "border-emerald-300/35 text-emerald-200";
+  }
+
+  if (status === "failed") {
+    return "border-red-300/35 text-red-100";
+  }
+
+  if (status === "media_pending") {
+    return "border-amber-300/35 text-amber-100";
+  }
+
+  return "border-sky-300/35 text-sky-100";
+}
+
+const pipelineStages: Array<{
+  label: string;
+  key:
+    | "createdAt"
+    | "archiveCreatedAt"
+    | "firstMemoryCreatedAt"
+    | "invitationSentAt"
+    | "welcomeEmailSentAt";
+}> = [
+  { label: "Submission captured", key: "createdAt" },
+  { label: "Archive created", key: "archiveCreatedAt" },
+  { label: "Memory created", key: "firstMemoryCreatedAt" },
+  { label: "Claim link created", key: "invitationSentAt" },
+  { label: "Welcome email sent", key: "welcomeEmailSentAt" }
+];
+
 function SubmissionCard({
   submission
 }: {
   submission: LegacyQuestionSubmission;
 }) {
+  const isAdminTestSubmission = isConfiguredAdminEmail(submission.email);
+
   return (
     <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
@@ -66,9 +111,21 @@ function SubmissionCard({
             >
               {submission.submissionStatus}
             </span>
+            <span
+              className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${processingStatusClass(
+                submission.processingStatus
+              )}`}
+            >
+              {submission.processingStatus.replace(/_/g, " ")}
+            </span>
             <span className="rounded-full border border-archive-gold/16 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-archive-ivory/60">
               {submission.entryType}
             </span>
+            {isAdminTestSubmission ? (
+              <span className="rounded-full border border-amber-300/35 bg-amber-300/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-100">
+                Admin test
+              </span>
+            ) : null}
             <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-ivory/45">
               {formatDate(submission.createdAt)}
             </span>
@@ -83,6 +140,31 @@ function SubmissionCard({
           </p>
 
           <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
+            <div className="rounded-xl border border-archive-gold/10 bg-archive-obsidian/60 p-3">
+              <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+                Starter archive
+              </dt>
+              <dd className="mt-1 break-all text-archive-ivory/75">
+                {submission.starterArchiveSlug ? (
+                  <Link
+                    className="text-archive-champagne underline-offset-4 hover:underline"
+                    href={`/archive/${submission.starterArchiveSlug}`}
+                  >
+                    /archive/{submission.starterArchiveSlug}
+                  </Link>
+                ) : (
+                  "Not created yet"
+                )}
+              </dd>
+            </div>
+            <div className="rounded-xl border border-archive-gold/10 bg-archive-obsidian/60 p-3">
+              <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+                First memory ID
+              </dt>
+              <dd className="mt-1 break-all text-archive-ivory/75">
+                {submission.firstMemoryId || "Not created yet"}
+              </dd>
+            </div>
             <div className="rounded-xl border border-archive-gold/10 bg-archive-obsidian/60 p-3">
               <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
                 Source
@@ -116,6 +198,45 @@ function SubmissionCard({
               </dd>
             </div>
           </dl>
+
+          <div className="mt-5 rounded-xl border border-archive-gold/10 bg-archive-obsidian/60 p-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+              Pipeline
+            </p>
+            <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+              {pipelineStages.map((stage) => (
+                <div key={stage.key}>
+                  <dt className="text-archive-ivory/48">{stage.label}</dt>
+                  <dd className="mt-1 text-archive-ivory/78">
+                    {formatPipelineDate(submission[stage.key])}
+                  </dd>
+                </div>
+              ))}
+              <div>
+                <dt className="text-archive-ivory/48">Failed/current stage</dt>
+                <dd className="mt-1 break-all text-archive-ivory/78">
+                  {submission.processingStage || "None"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-archive-ivory/48">Attempts</dt>
+                <dd className="mt-1 text-archive-ivory/78">
+                  {submission.processingAttempts}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-archive-ivory/48">Last attempt</dt>
+                <dd className="mt-1 text-archive-ivory/78">
+                  {formatPipelineDate(submission.lastProcessingAttemptAt)}
+                </dd>
+              </div>
+            </dl>
+            {submission.processingError ? (
+              <p className="mt-4 rounded-xl border border-red-300/18 bg-red-400/10 p-3 text-sm leading-6 text-red-100">
+                {submission.processingError}
+              </p>
+            ) : null}
+          </div>
 
           <div className="mt-5 rounded-xl border border-archive-gold/10 bg-archive-obsidian/60 p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
@@ -167,9 +288,74 @@ function SubmissionCard({
             Update
           </button>
         </form>
+        <form
+          action={retryLegacyQuestionSubmissionAction}
+          className="rounded-2xl border border-archive-gold/12 bg-archive-obsidian/70 p-4 xl:col-start-2"
+        >
+          <input type="hidden" name="submissionId" value={submission.id} />
+          <p className="text-sm leading-6 text-archive-ivory/68">
+            Retry safely uses the submission ID as the idempotency key. It will
+            not create duplicate starter archives or first memories.
+          </p>
+          <button
+            className="mt-4 w-full rounded-full border border-archive-gold/35 px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-champagne transition hover:border-archive-gold hover:text-archive-ivory"
+            type="submit"
+          >
+            Retry Pipeline
+          </button>
+        </form>
+        <form
+          action={deleteLegacyQuestionTestSubmissionAction}
+          className="rounded-2xl border border-red-300/20 bg-red-400/10 p-4 xl:col-start-2"
+        >
+          <input type="hidden" name="submissionId" value={submission.id} />
+          <p className="text-sm font-semibold text-red-100">
+            Delete Test Submission
+          </p>
+          <p className="mt-2 text-sm leading-6 text-red-100/78">
+            Deletes only this submission, its linked first memory, and its
+            linked starter archive. The Supabase auth user and any other
+            archives remain untouched.
+          </p>
+          <label className="mt-4 grid gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-red-100/80">
+              Type DELETE TEST to confirm
+            </span>
+            <input
+              className="rounded-xl border border-red-200/25 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none focus:border-red-200"
+              name="deleteConfirmation"
+              placeholder="DELETE TEST"
+              type="text"
+            />
+          </label>
+          <button
+            className="mt-4 w-full rounded-full border border-red-200/35 px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-red-100 transition hover:border-red-100 hover:bg-red-300/10"
+            type="submit"
+          >
+            Delete Test Submission
+          </button>
+        </form>
       </div>
     </article>
   );
+}
+
+function getSuccessMessage(value: string | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  if (value.startsWith("deleted:")) {
+    const [, submissions, archives, memories] = value.split(":");
+
+    return `Deleted test submission. Removed ${submissions ?? "0"} submission, ${archives ?? "0"} linked starter archive, and ${memories ?? "0"} linked first memory record.`;
+  }
+
+  if (value === "retried") {
+    return "Submission pipeline retried.";
+  }
+
+  return "Submission updated.";
 }
 
 export default async function LegacyQuestionAdminPage({
@@ -218,6 +404,7 @@ export default async function LegacyQuestionAdminPage({
     loadError =
       error instanceof Error ? error.message : "Unable to load submissions.";
   }
+  const successMessage = getSuccessMessage(params?.success);
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-8 text-archive-ivory sm:px-8">
@@ -249,9 +436,9 @@ export default async function LegacyQuestionAdminPage({
           </p>
         </header>
 
-        {params?.success ? (
+        {successMessage ? (
           <p className="mb-6 rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4 text-sm text-emerald-100">
-            Submission updated.
+            {successMessage}
           </p>
         ) : null}
 

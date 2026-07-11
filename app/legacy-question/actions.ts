@@ -6,6 +6,7 @@ import {
   isLegacyQuestionEntryType,
   type LegacyQuestionEntryType
 } from "@/lib/legacy-question-submissions";
+import { processLegacyQuestionSubmission } from "@/lib/legacy-question-onboarding";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const textMinLength = 20;
@@ -27,7 +28,6 @@ export type LegacyQuestionSubmitResult =
   | {
       success: true;
       submissionId: string;
-      starterArchiveUrl: string;
       message: string;
     }
   | {
@@ -51,15 +51,6 @@ function sanitizeCardBatch(value: string | null | undefined) {
   const trimmed = value?.trim().replace(/[^a-zA-Z0-9_-]/g, "-") ?? "";
 
   return trimmed.slice(0, 80) || null;
-}
-
-function buildMockArchiveSlug() {
-  const randomPart =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID().slice(0, 8)
-      : `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-
-  return `starter-${randomPart}`;
 }
 
 function normalizeDuration(value: number | null | undefined) {
@@ -116,14 +107,6 @@ export async function submitLegacyQuestionEntry(
   const referrer = trimToNull(requestHeaders.get("referer"))?.slice(0, 500) ?? null;
   const userAgent = trimToNull(requestHeaders.get("user-agent"))?.slice(0, 500) ?? null;
 
-  /*
-    Media upload TODO:
-    The current field-test MVP saves audio/video engagement metadata but does not
-    upload Blobs. Existing storage helpers are tied to archive memory records and
-    audio/photo paths. When starter archives are real, upload media to private
-    Supabase Storage, set media_storage_path, and keep generated media out of logs.
-  */
-  const mockArchiveSlug = buildMockArchiveSlug();
   const created = await createLegacyQuestionSubmission({
     email,
     firstName,
@@ -136,14 +119,20 @@ export async function submitLegacyQuestionEntry(
     source,
     cardBatch,
     referrer,
-    userAgent,
-    mockArchiveSlug
+    userAgent
   });
+  const processed = await processLegacyQuestionSubmission(created.id);
+  const processingStatus = processed?.processingStatus ?? "failed";
+  const isComplete = processingStatus === "email_sent";
+  const isMediaPending = processingStatus === "media_pending";
 
   return {
     success: true,
     submissionId: created.id,
-    starterArchiveUrl: `/archive/${mockArchiveSlug}`,
-    message: "Your memory is saved."
+    message: isComplete
+      ? "Your first memory is saved. Check your email for the secure link to your archive."
+      : isMediaPending
+        ? "Your memory is captured. Voice and video starter archives are pending secure media upload support."
+        : "Your memory is safely captured, but we could not send the email yet. We'll retry it."
   };
 }

@@ -12,21 +12,24 @@ const modes: Array<{
   id: CaptureMode;
   label: string;
   description: string;
+  disabled?: boolean;
 }> = [
   {
-    id: "voice",
-    label: "Record Voice",
-    description: "Tell a story, leave a lesson, or say something you hope someone hears someday."
+    id: "text",
+    label: "Write a Memory",
+    description: "Write one memory, lesson, story, or message you never want lost."
   },
   {
-    id: "text",
-    label: "Write Story",
-    description: "Write one memory you would never want erased."
+    id: "voice",
+    label: "Record Your Voice",
+    description: "Preview only - voice uploads are not preserved yet.",
+    disabled: true
   },
   {
     id: "video",
     label: "Record Video",
-    description: "Speak like you are talking to someone you love."
+    description: "Preview only - video uploads are not preserved yet.",
+    disabled: true
   }
 ];
 
@@ -52,7 +55,7 @@ export function MemoryCaptureWidget({
   initialSource?: string;
   initialCardBatch?: string | null;
 }) {
-  const [selectedMode, setSelectedMode] = useState<CaptureMode>("voice");
+  const [selectedMode, setSelectedMode] = useState<CaptureMode>("text");
   const [audioState, setAudioState] = useState<RecorderState>("idle");
   const [videoState, setVideoState] = useState<RecorderState>("idle");
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -154,6 +157,10 @@ export function MemoryCaptureWidget({
   }
 
   function setMode(mode: CaptureMode) {
+    if (modes.find((item) => item.id === mode)?.disabled) {
+      return;
+    }
+
     setSelectedMode(mode);
     setMemoryError("");
     setRecordingError("");
@@ -162,8 +169,9 @@ export function MemoryCaptureWidget({
   }
 
   function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
-    const currentIndex = modes.findIndex((mode) => mode.id === selectedMode);
-    const lastIndex = modes.length - 1;
+    const enabledModes = modes.filter((mode) => !mode.disabled);
+    const currentIndex = enabledModes.findIndex((mode) => mode.id === selectedMode);
+    const lastIndex = enabledModes.length - 1;
     let nextIndex = currentIndex;
 
     if (event.key === "ArrowRight") {
@@ -179,7 +187,7 @@ export function MemoryCaptureWidget({
     }
 
     event.preventDefault();
-    const nextMode = modes[nextIndex].id;
+    const nextMode = enabledModes[nextIndex].id;
     setMode(nextMode);
     document.getElementById(`tab-${nextMode}`)?.focus();
   }
@@ -324,20 +332,6 @@ export function MemoryCaptureWidget({
     return !textValidationMessage;
   }
 
-  function focusEmailForm() {
-    if (!hasValidMemory()) {
-      setMemoryError("Share a memory first, then we will send it to you.");
-      return;
-    }
-
-    setMemoryError("");
-    window.setTimeout(() => emailRef.current?.focus(), 50);
-    document.getElementById("legacy-email-capture")?.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-  }
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setEmailError("");
@@ -385,60 +379,73 @@ export function MemoryCaptureWidget({
     }
 
     setSubmissionStatus("success");
-    setSuccessMessage(
-      "This is how a Life Archive begins - one real story at a time. We are saving early submissions while this feature is in beta."
-    );
+    setSuccessMessage(result.message);
   }
 
   return (
     <section
       id="share-memory"
       aria-labelledby="capture-heading"
-      className="relative z-20 mx-auto -mt-16 w-full max-w-6xl px-4 pb-16 sm:px-6 lg:-mt-24"
+      className="relative z-20 mx-auto w-full max-w-[1280px] px-4 pb-14 sm:px-6 lg:px-10"
     >
-      <div className="overflow-hidden rounded-[1.75rem] border border-archive-gold/25 bg-[#f8f1e7] text-[#221b15] shadow-[0_32px_90px_rgba(0,0,0,0.36)]">
-        <div className="grid gap-0 lg:grid-cols-[minmax(0,1.05fr)_minmax(22rem,0.95fr)]">
-          <div className="p-5 sm:p-8 lg:p-10">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#8e6b2f]">
-              In 60 seconds
-            </p>
-            <h2 id="capture-heading" className="mt-3 font-serif text-4xl leading-tight text-[#18130f] sm:text-5xl">
+      <div className="overflow-hidden rounded-2xl border border-archive-gold/25 bg-[#f8f1e7] text-[#221b15] shadow-[0_28px_70px_rgba(0,0,0,0.32)]">
+        <div className="grid items-start gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.82fr)]">
+          <div className="p-5 sm:p-8 lg:p-9">
+            <h2 id="capture-heading" className="font-serif text-4xl leading-tight text-[#18130f] sm:text-5xl">
               What&apos;s yours?
             </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-[#5f554a] sm:text-lg">
-              Use your voice, your words, or your face. Keep it simple. One real memory is enough to begin.
+            <p className="mt-3 max-w-2xl text-base leading-7 text-[#5b5147] sm:text-lg">
+              Share one memory, lesson, story, or message you never want lost.
             </p>
 
+            <p className="mt-7 text-sm font-bold uppercase tracking-[0.14em] text-[#7a5a25]">
+              Choose how to share
+            </p>
             <div
               aria-label="Choose how to leave your first memory"
-              className="mt-7 grid gap-3 sm:grid-cols-3"
+              className="mt-3 grid gap-3 sm:grid-cols-3"
               role="tablist"
             >
               {modes.map((mode) => (
                 <button
                   key={mode.id}
                   aria-controls={`panel-${mode.id}`}
+                  aria-disabled={mode.disabled || undefined}
                   aria-selected={selectedMode === mode.id}
-                  className={`rounded-2xl border px-4 py-4 text-left transition focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/35 ${
+                  className={`min-h-32 rounded-2xl border px-4 py-4 text-left transition focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/35 ${
                     selectedMode === mode.id
-                      ? "border-[#9d7735] bg-[#211912] text-[#f8f1e7] shadow-lg"
-                      : "border-[#d9c8ae] bg-white/60 text-[#352a21] hover:border-[#c9a45c]"
+                      ? "border-[#8e6b2f] bg-[#211912] text-[#f8f1e7] shadow-lg"
+                      : mode.disabled
+                        ? "cursor-not-allowed border-[#d9c8ae] bg-[#eee2d1] text-[#6f675d] opacity-80"
+                        : "border-[#d9c8ae] bg-white/70 text-[#352a21] hover:border-[#9d7735] hover:bg-white active:scale-[0.99]"
                   }`}
+                  disabled={mode.disabled}
                   id={`tab-${mode.id}`}
                   role="tab"
                   type="button"
                   onKeyDown={handleTabKeyDown}
                   onClick={() => setMode(mode.id)}
                 >
-                  <span className="block text-sm font-bold">{mode.label}</span>
-                  <span className={`mt-2 block text-xs leading-5 ${selectedMode === mode.id ? "text-[#efe3d1]" : "text-[#6f675d]"}`}>
+                  <span className="flex items-center justify-between gap-2 text-base font-bold">
+                    {mode.label}
+                    {selectedMode === mode.id ? (
+                      <span className="rounded-full bg-[#c9a45c] px-2 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#11100e]">
+                        Selected
+                      </span>
+                    ) : mode.disabled ? (
+                      <span className="rounded-full border border-[#b49a6f] px-2 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#7a5a25]">
+                        Coming soon
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className={`mt-3 block text-sm leading-6 ${selectedMode === mode.id ? "text-[#efe3d1]" : "text-[#665b50]"}`}>
                     {mode.description}
                   </span>
                 </button>
               ))}
             </div>
 
-            <div className="mt-7 rounded-[1.5rem] border border-[#d9c8ae] bg-white/75 p-4 shadow-sm sm:p-6">
+            <div className="mt-6 rounded-2xl border border-[#d9c8ae] bg-white/80 p-4 shadow-sm sm:p-6">
               {selectedMode === "voice" && (
                 <div
                   aria-labelledby="tab-voice"
@@ -517,72 +524,70 @@ export function MemoryCaptureWidget({
                 </div>
               )}
 
-              <div className="mt-6 rounded-2xl border border-[#d9c8ae] bg-[#f3eadc] p-4">
-                <p className="flex gap-3 text-sm font-semibold text-[#211912]">
-                  <span aria-hidden="true">Lock</span>
+              <div className="mt-5 rounded-2xl border border-[#d9c8ae] bg-[#f3eadc] p-4">
+                <p className="flex gap-3 text-sm font-bold text-[#211912]">
+                  <span aria-hidden="true">Private</span>
                   <span>Private by default. Nothing is posted publicly without your permission.</span>
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[#6f675d]">
-                  You can delete it, keep it private, or build an archive around it later.
+                  Text memories can become the first chapter in a starter archive. Voice and video uploads are coming later.
                 </p>
               </div>
             </div>
           </div>
 
-          <aside className="border-t border-[#d9c8ae] bg-[#211912] p-5 text-[#f8f1e7] sm:p-8 lg:border-l lg:border-t-0 lg:p-10">
-            <div className="rounded-[1.5rem] border border-[#c9a45c]/25 bg-white/[0.04] p-5">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#c9a45c]">
-                Preview before email
+          <aside className="border-t border-[#d9c8ae] bg-[#211912] p-5 text-[#f8f1e7] sm:p-8 lg:h-full lg:border-l lg:border-t-0 lg:p-9">
+            <div className="rounded-2xl border border-[#c9a45c]/25 bg-white/[0.04] p-5">
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#d8b66f]">
+                Preview
               </p>
               {createdMemoryPreview ? (
                 <div className="mt-4">
                   <h3 className="font-serif text-3xl leading-tight">
-                    Your first memory is ready.
+                    Preview your memory
                   </h3>
-                  <p className="mt-3 leading-7 text-[#efe3d1]/82">
-                    This can become the first entry in your free Life Archive starter.
-                  </p>
                   <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
                     {selectedMode === "voice" && audioUrl && (
-                      <audio className="w-full" controls src={audioUrl}>
-                        Your browser does not support the audio element.
-                      </audio>
+                      <div>
+                        <audio className="w-full" controls src={audioUrl}>
+                          Your browser does not support the audio element.
+                        </audio>
+                        <p className="mt-3 text-sm font-semibold text-[#f1d598]">
+                          Not uploaded yet.
+                        </p>
+                      </div>
                     )}
                     {selectedMode === "text" && (
-                      <p className="max-h-72 overflow-auto whitespace-pre-wrap text-sm leading-7 text-[#f8f1e7]">
+                      <p className="max-h-72 overflow-auto whitespace-pre-wrap text-base leading-7 text-[#f8f1e7]">
                         {textMemory.trim()}
                       </p>
                     )}
                     {selectedMode === "video" && videoUrl && (
-                      <video className="aspect-video w-full rounded-xl bg-black" controls src={videoUrl}>
-                        Your browser does not support the video element.
-                      </video>
+                      <div>
+                        <video className="aspect-video w-full rounded-xl bg-black" controls src={videoUrl}>
+                          Your browser does not support the video element.
+                        </video>
+                        <p className="mt-3 text-sm font-semibold text-[#f1d598]">
+                          Not uploaded yet.
+                        </p>
+                      </div>
                     )}
                   </div>
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <button
-                      className="rounded-full bg-[#c9a45c] px-5 py-3.5 text-sm font-bold text-[#11100e] transition hover:bg-[#e5cf9a] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/35"
-                      type="button"
-                      onClick={focusEmailForm}
-                    >
-                      Send This To Me
-                    </button>
-                    <button
-                      className="rounded-full border border-white/20 px-5 py-3.5 text-sm font-semibold text-[#f8f1e7] transition hover:border-[#c9a45c] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30"
-                      type="button"
-                      onClick={() => resetMemory()}
-                    >
-                      Start Over
-                    </button>
-                  </div>
+                  <button
+                    className="mt-4 text-sm font-semibold text-[#efe3d1]/72 underline-offset-4 hover:text-[#f8f1e7] hover:underline focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30"
+                    type="button"
+                    onClick={() => resetMemory()}
+                  >
+                    Start over
+                  </button>
                 </div>
               ) : (
                 <div className="mt-4">
                   <h3 className="font-serif text-3xl leading-tight">
-                    Create first. Then we ask where to send it.
+                    Preview your memory
                   </h3>
                   <p className="mt-3 leading-7 text-[#efe3d1]/82">
-                    Record, write, or film one memory. You will be able to preview it before entering your email.
+                    Your written memory will appear here before you save it.
                   </p>
                 </div>
               )}
@@ -594,16 +599,16 @@ export function MemoryCaptureWidget({
             </div>
 
             <form
-              className="mt-6 rounded-[1.5rem] border border-[#c9a45c]/25 bg-[#f8f1e7] p-5 text-[#211912]"
+              className="mt-5 rounded-2xl border border-[#c9a45c]/25 bg-[#f8f1e7] p-5 text-[#211912]"
               id="legacy-email-capture"
               noValidate
               onSubmit={handleSubmit}
             >
-              <h3 className="font-serif text-3xl leading-tight">
-                Where should we save this for you?
+              <h3 className="font-serif text-2xl leading-tight">
+                Where should we send your secure link?
               </h3>
               <p className="mt-3 text-sm leading-6 text-[#5f554a]">
-                We&apos;ll use this to follow up with your private copy and starter archive link as this beta opens.
+                Text memories are saved into a private starter archive and linked to this email.
               </p>
 
               <div className="mt-5 grid gap-4">
@@ -653,11 +658,11 @@ export function MemoryCaptureWidget({
               </div>
 
               <button
-                className="mt-5 w-full rounded-full bg-[#211912] px-6 py-4 text-base font-bold text-[#f8f1e7] transition hover:bg-[#352a21] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/35 disabled:cursor-not-allowed disabled:opacity-70"
+                className="mt-5 w-full rounded-full bg-[#c9a45c] px-6 py-4 text-base font-bold text-[#11100e] shadow-[0_16px_38px_rgba(201,164,92,0.24)] transition hover:bg-[#e5cf9a] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/35 disabled:cursor-not-allowed disabled:opacity-70"
                 disabled={submissionStatus === "saving"}
                 type="submit"
               >
-                {submissionStatus === "saving" ? "Saving..." : "Send My Memory"}
+                {submissionStatus === "saving" ? "Saving..." : "Save My First Memory"}
               </button>
 
               <div aria-live="polite" className="mt-4">

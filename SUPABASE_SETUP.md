@@ -12,9 +12,12 @@ NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_SERVICE_ROLE_KEY=server-only-service-role-key
 ADMIN_EMAILS=you@example.com
+RESEND_API_KEY=server-only-resend-api-key
+TLA_FROM_EMAIL="The Life Archive <hello@thelifearchive.vip>"
 ```
 
 Do not expose `SUPABASE_SERVICE_ROLE_KEY` to the browser. It should only be used in trusted server-side scripts or admin-only maintenance tasks.
+Do not expose `RESEND_API_KEY` to the browser. It is used only by server-side onboarding email code.
 
 Phase 1 storage-backed image uploads also require the service role key so the server can upload private archive images and generate signed image URLs.
 
