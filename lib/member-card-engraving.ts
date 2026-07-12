@@ -73,7 +73,6 @@ const OUTPUT_WIDTH = 2026;
 const OUTPUT_HEIGHT = 1276;
 const OUTPUT_DENSITY = 600;
 const FONT_DIR = join(process.cwd(), "assets", "fonts");
-const FRONT_MEMBER_SINCE_X_OFFSET = 0;
 
 const NAME_FONT_PATH = join(
   FONT_DIR,
@@ -114,7 +113,7 @@ type TextFitOptions = {
 
 type TextLinePath = {
   text: string;
-  glyphPaths: OpenTypePath[];
+  path: OpenTypePath;
   bbox: {
     x1: number;
     y1: number;
@@ -194,16 +193,12 @@ function buildTextLinePath(
   letterSpacing: number
 ) {
   const sanitized = sanitizeText(text);
+  const path = new (opentype as any).Path();
   const fontAny = font as any;
   const glyphs = fontAny.stringToGlyphs(sanitized);
-  const glyphPaths: OpenTypePath[] = [];
   const scale = fontSize / fontAny.unitsPerEm;
   let cursorX = 0;
   let previousGlyph: any = null;
-  let x1 = Number.POSITIVE_INFINITY;
-  let y1 = Number.POSITIVE_INFINITY;
-  let x2 = Number.NEGATIVE_INFINITY;
-  let y2 = Number.NEGATIVE_INFINITY;
 
   for (const glyph of glyphs) {
     if (previousGlyph) {
@@ -211,27 +206,16 @@ function buildTextLinePath(
     }
 
     const glyphPath = glyph.getPath(cursorX, 0, fontSize);
-    if ((glyphPath as any).commands?.length > 0) {
-      const bbox = glyphPath.getBoundingBox();
-      glyphPaths.push(glyphPath);
-      x1 = Math.min(x1, bbox.x1);
-      y1 = Math.min(y1, bbox.y1);
-      x2 = Math.max(x2, bbox.x2);
-      y2 = Math.max(y2, bbox.y2);
-    }
-
+    path.extend(glyphPath);
     cursorX += glyph.advanceWidth * scale + letterSpacing;
     previousGlyph = glyph;
   }
 
-  const hasBounds = Number.isFinite(x1) && Number.isFinite(y1) && Number.isFinite(x2) && Number.isFinite(y2);
-  const bbox = hasBounds
-    ? { x1, y1, x2, y2 }
-    : { x1: 0, y1: 0, x2: 0, y2: 0 };
+  const bbox = path.getBoundingBox();
 
   return {
     text: sanitized,
-    glyphPaths,
+    path,
     bbox: {
       x1: bbox.x1,
       y1: bbox.y1,
@@ -433,29 +417,6 @@ function renderPathElement(path: OpenTypePath, transform?: string) {
   return `<path d="${path.toPathData(2)}" fill="#000000"${transform ? ` transform="${transform}"` : ""}/>`;
 }
 
-function renderGlyphPathGroup(paths: OpenTypePath[], transform: string) {
-  return `<g transform="${transform}">${paths.map((path) => renderPathElement(path)).join("")}</g>`;
-}
-
-function renderScaledLinePath(input: {
-  text: string;
-  font: OpenTypeFont;
-  fontSize: number;
-  letterSpacing: number;
-  pathFontSize?: number;
-}) {
-  const { text, font, fontSize, letterSpacing, pathFontSize } = input;
-  const renderFontSize = pathFontSize ?? fontSize;
-  const renderScale = fontSize / renderFontSize;
-
-  return buildTextLinePath(
-    text,
-    font,
-    renderFontSize,
-    letterSpacing / renderScale
-  );
-}
-
 function renderTextPathsInBox(input: {
   box: TextBox;
   text: string;
@@ -466,9 +427,8 @@ function renderTextPathsInBox(input: {
   letterSpacing: number;
   allowWrap: boolean;
   lineGap?: number;
-  pathFontSize?: number;
 }) {
-  const { box, text, maxFontSize, minFontSize, maxLines, font, letterSpacing, allowWrap, pathFontSize } = input;
+  const { box, text, maxFontSize, minFontSize, maxLines, font, letterSpacing, allowWrap } = input;
 
   const fit = fitTextToBox({
     box,
@@ -489,24 +449,16 @@ function renderTextPathsInBox(input: {
   let cursorY = fit.usableBox.y + (fit.usableBox.height - fit.blockHeight) / 2;
 
   return fit.linePaths
-    .map(({ text: lineText, bbox, width, height }) => {
-      const renderLine = renderScaledLinePath({
-        text: lineText,
-        font,
-        fontSize: fit.fontSize,
-        letterSpacing: fit.letterSpacing,
-        pathFontSize
-      });
-      const renderScale = fit.fontSize / (pathFontSize ?? fit.fontSize);
+    .map(({ path, bbox, width, height }) => {
       const centerX = bbox.x1 + width / 2;
       const centerY = bbox.y1 + height / 2;
       const targetX = fit.usableBox.x + fit.usableBox.width / 2;
       const targetY = cursorY + height / 2;
       cursorY += height + lineGap;
 
-      return renderGlyphPathGroup(
-        renderLine.glyphPaths,
-        `translate(${(targetX - centerX).toFixed(2)} ${(targetY - centerY).toFixed(2)}) scale(${renderScale.toFixed(4)})`
+      return renderPathElement(
+        path,
+        `translate(${(targetX - centerX).toFixed(2)} ${(targetY - centerY).toFixed(2)})`
       );
     })
     .join("");
@@ -793,7 +745,6 @@ async function buildFrontOverlay(candidate: MemberCardEngravingCandidate) {
   const scaleY = OUTPUT_HEIGHT / FRONT_TEMPLATE_HEIGHT;
   const nameBox = scaleBox(FRONT_OVERLAY.frontNameBox, scaleX, scaleY);
   const yearBox = scaleBox(FRONT_OVERLAY.memberSinceBox, scaleX, scaleY);
-  const adjustedYearBox = { ...yearBox, x: yearBox.x + FRONT_MEMBER_SINCE_X_OFFSET };
   const displayName = sanitizeText(candidate.profileDisplayName);
   const yearText = `${candidate.createdYear}`;
   const nameFont = await loadFont(NAME_FONT_PATH);
@@ -816,15 +767,14 @@ async function buildFrontOverlay(candidate: MemberCardEngravingCandidate) {
         allowWrap: true
       })}
       ${renderTextPathsInBox({
-        box: adjustedYearBox,
+        box: yearBox,
         text: yearText,
         maxFontSize: Math.round(64 * scaleY),
         minFontSize: Math.round(34 * scaleY),
         maxLines: 1,
         font: yearFont,
         letterSpacing: 0,
-        allowWrap: false,
-        pathFontSize: 120
+        allowWrap: false
       })}
     `
   });
