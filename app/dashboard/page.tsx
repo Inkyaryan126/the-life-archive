@@ -312,6 +312,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const sidebarArchiveSlug = featuredArchive?.slug ?? null;
   const sidebarArchiveName = featuredArchive?.archiveName ?? null;
   const sidebarArchivePersonName = featuredArchive?.personName ?? null;
+  const featuredStatLabelClass =
+    "text-[0.68rem] font-semibold uppercase tracking-[0.08em] leading-tight text-archive-gold sm:text-[0.7rem] sm:tracking-[0.1em] md:text-[0.72rem]";
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
@@ -426,21 +428,21 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     <p className="text-base leading-7 text-archive-ivory/68">{archiveBio}</p>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/50 px-5 py-4">
-                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">Memories inside</p>
+                        <p className={featuredStatLabelClass}>Memories inside</p>
                         <p className="mt-2 font-serif text-3xl text-archive-ivory">{selectedOverview?.memories.length ?? 0}</p>
                       </div>
                       <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/50 px-5 py-4">
-                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">Created</p>
+                        <p className={featuredStatLabelClass}>Created</p>
                         <p className="mt-2 font-serif text-2xl text-archive-ivory">{archiveCreatedLabel}</p>
                       </div>
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/50 px-5 py-4">
-                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">Type</p>
+                        <p className={featuredStatLabelClass}>Type</p>
                         <p className="mt-2 text-lg font-semibold text-archive-ivory">{featuredArchive.memorialMode ? "Memorial archive" : "Living archive"}</p>
                       </div>
                       <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/50 px-5 py-4">
-                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">Relationship</p>
+                        <p className={featuredStatLabelClass}>Relationship</p>
                         <p className="mt-2 text-lg font-semibold text-archive-ivory">{getArchiveRelationshipLabel(featuredArchive.relationshipToOwner)}</p>
                       </div>
                     </div>
