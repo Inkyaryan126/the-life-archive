@@ -99,7 +99,7 @@ export default async function MemberCardPage({
     <main className="member-card-page relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
       <DesignBackdrop />
 
-      <div className="relative mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
+      <div className="no-print relative mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
         <AppSidebar
           active="member-card"
           archiveSlug={livingArchive.slug}
@@ -156,7 +156,7 @@ export default async function MemberCardPage({
             <p className="mx-auto mt-7 max-w-2xl text-sm leading-7 text-archive-ivory/68 sm:text-base sm:leading-8">
               {isNewMember
                 ? "Once you create your archive, this card becomes a path back to what you chose to preserve. Print it. Carry it. Keep it where someone you love can find it. Years from now, one scan may open the door to the memories that still sound and feel like you."
-                : "This card is intended to be printed and kept in your wallet. If something ever happens to you before you&apos;ve shared your archive with loved ones, this card can help them find the memories, stories, and legacy you chose to preserve."}
+                : "This card is intended to be printed and kept in your wallet. If something ever happens to you before you’ve shared your archive with loved ones, it can help them find the memories, stories, and legacy you chose to preserve."}
             </p>
 
             {confirmationPending ? (
@@ -177,7 +177,7 @@ export default async function MemberCardPage({
             />
           </div>
 
-          <div className="relative mx-auto mt-10 max-w-3xl">
+          <div className="no-print relative mx-auto mt-10 max-w-3xl">
             <MemberCardActions
               continueHref={continueHref}
               continueLabel={continueLabel}

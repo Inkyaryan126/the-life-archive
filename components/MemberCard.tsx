@@ -220,7 +220,7 @@ export function MemberCard({
           }}
           aria-label={`Legacy Activation Code: ${legacyActivationCode}`}
         >
-          <p className="font-mono whitespace-nowrap text-[0.5rem] font-bold uppercase tracking-[0.12em] text-[#d5a84e] sm:text-[0.65rem] md:text-[0.78rem] lg:text-[0.92rem] leading-none">
+          <p className="font-mono whitespace-nowrap text-[0.42rem] font-bold uppercase tracking-[0.08em] text-[#d5a84e] sm:text-[0.52rem] sm:tracking-[0.1em] md:text-[0.62rem] lg:text-[0.72rem] leading-none">
             {legacyActivationCode}
           </p>
         </div>
