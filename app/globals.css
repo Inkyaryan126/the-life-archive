@@ -37,6 +37,11 @@ select {
 }
 
 @media print {
+  @page {
+    size: auto;
+    margin: 0.25in;
+  }
+
   body {
     background: #ffffff;
   }
@@ -56,6 +61,7 @@ select {
 
   .member-card-page {
     min-height: 0 !important;
+    overflow: visible !important;
     padding: 0 !important;
   }
 
@@ -67,6 +73,10 @@ select {
     display: block !important;
     margin: 0 auto !important;
     max-width: none !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    transform: none !important;
+    visibility: visible !important;
     width: 3.375in !important;
   }
 
@@ -87,6 +97,7 @@ select {
     box-shadow: none !important;
     height: 2.125in !important;
     overflow: hidden !important;
+    break-inside: avoid !important;
     page-break-inside: avoid !important;
     print-color-adjust: exact;
     width: 3.375in !important;
