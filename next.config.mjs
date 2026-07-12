@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingIncludes: {
+    "/admin/member-cards": ["./assets/fonts/**/*.woff"],
+    "/admin/member-cards/[archiveId]/front": ["./assets/fonts/**/*.woff"],
+    "/admin/member-cards/[archiveId]/back": ["./assets/fonts/**/*.woff"]
+  },
   images: {
     remotePatterns: [
       {

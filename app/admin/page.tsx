@@ -358,6 +358,12 @@ export default async function AdminPage({
             <Link href="/keepsakes" className="underline-offset-4 hover:underline">
               Keepsake Store
             </Link>
+            <Link
+              href="/admin/member-cards"
+              className="underline-offset-4 hover:underline"
+            >
+              Member Card Engraving
+            </Link>
           </div>
         </nav>
 
