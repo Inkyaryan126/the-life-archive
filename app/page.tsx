@@ -209,13 +209,13 @@ function HeroSection({
             a doorway into a living archive: a voice note today, a photo next
             week, a lesson years from now.
           </p>
-          <div className="mt-6 overflow-hidden rounded-2xl border border-archive-gold/18 bg-black/20">
+          <div className="mt-6 overflow-hidden rounded-2xl border border-archive-gold/18 bg-black/20 p-3">
             <Image
-              src="/images/site-design/quickactions-banner.jpg"
-              alt="A warm Life Archive interface preview"
-              width={1536}
-              height={512}
-              className="h-40 w-full object-cover opacity-82 sm:h-52"
+              src="/images/keepsakes/flagships/wallet-card-front.png"
+              alt="A Life Archive wallet card with a QR code"
+              width={350}
+              height={250}
+              className="h-auto w-full object-contain"
               priority
             />
           </div>
