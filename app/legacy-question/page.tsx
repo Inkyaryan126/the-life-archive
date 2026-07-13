@@ -2,17 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MemoryCaptureWidget } from "@/components/legacy-question/MemoryCaptureWidget";
 import { SiteLogo } from "@/components/SiteDesign";
+import { publicSupportEmail } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Share One Memory | The Life Archive",
   description:
-    "Share one private memory, story, voice note, or video and begin a free Life Archive starter."
+    "Share one private written memory or story and begin a free Life Archive starter."
 };
 
 const howItWorksSteps = [
   {
     title: "You share one memory",
-    copy: "Use your voice, your words, or a short video."
+    copy: "Start with one written memory, story, lesson, or message."
   },
   {
     title: "We send it back to you",
@@ -20,7 +21,7 @@ const howItWorksSteps = [
   },
   {
     title: "You start a free archive",
-    copy: "Add stories, photos, videos, songs, lessons, and voice notes."
+    copy: "Add stories, photos, songs, lessons, and supported voice notes as the archive grows."
   },
   {
     title: "Your QR code brings memories back",
@@ -94,7 +95,7 @@ function HeroSection() {
           </p>
           <h1 className="mt-5 font-serif text-5xl leading-[0.98] text-[#f8f1e7] sm:text-6xl lg:text-7xl xl:text-8xl">
             Every person has one story that deserves to{" "}
-            <span className="text-[#c9a45c]">live forever.</span>
+            <span className="text-[#c9a45c]">be found again.</span>
           </h1>
         </div>
       </section>
@@ -202,7 +203,7 @@ function PrivacyConsentSection() {
             Built with privacy and consent in mind.
           </h2>
           <p className="mt-6 text-lg leading-8 text-[#efe3d1]/78">
-            Your first memory is private by default. Nothing is shared publicly without permission. If you create an archive for someone else, only add memories you have the right to share. Family members can be invited later to contribute their own memories.
+            Your story belongs to you. Memories are handled with care, and you control what is shared, who can access your archive, and how your legacy is preserved. If you create an archive for someone else, only add memories you have the right to share.
           </p>
         </div>
 
@@ -218,7 +219,7 @@ function PrivacyConsentSection() {
             ))}
           </ul>
           <p className="mt-6 rounded-2xl border border-[#c9a45c]/20 bg-black/20 p-4 text-sm leading-6 text-[#efe3d1]/72">
-            This MVP does not need a full legal privacy policy on this page, but the interface should be designed as if privacy matters from day one.
+            Written Legacy Question memories are saved privately into a starter archive. Voice and video recording will return here when secure upload support is ready.
           </p>
         </div>
       </div>
@@ -240,13 +241,16 @@ function FooterSection() {
           </p>
         </div>
         <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-3 text-sm font-semibold text-[#efe3d1]/72">
-          <Link className="hover:text-[#c9a45c] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30" href="#">
+          <Link className="hover:text-[#c9a45c] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30" href="/privacy">
             Privacy
           </Link>
-          <Link className="hover:text-[#c9a45c] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30" href="#">
+          <Link className="hover:text-[#c9a45c] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30" href="/terms">
             Terms
           </Link>
-          <Link className="hover:text-[#c9a45c] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30" href="mailto:hello@thelifearchive.vip">
+          <Link className="hover:text-[#c9a45c] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30" href="/faq">
+            FAQ
+          </Link>
+          <Link className="hover:text-[#c9a45c] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30" href={`mailto:${publicSupportEmail}`}>
             Contact
           </Link>
           <Link className="hover:text-[#c9a45c] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30" href="/create">

@@ -1,14 +1,13 @@
 const PROFILE_PHOTO_HOSTS = new Set(["images.unsplash.com"]);
 const PROFILE_PHOTO_PATHS = new Set([
   "/images/dustin-sigley.png",
-  "/images/dustin-sigley.jpg",
-  "/images/sari-rae.png"
+  "/images/dustin-sigley.jpg"
 ]);
 const MEMORY_MEDIA_HOSTS = new Set([
   "images.unsplash.com",
   "open.spotify.com"
 ]);
-const MEMORY_MEDIA_PATHS = new Set(["/images/sari-rae.png"]);
+const MEMORY_MEDIA_PATHS = new Set<string>([]);
 
 export type UrlValidationResult =
   | { ok: true; value: string }

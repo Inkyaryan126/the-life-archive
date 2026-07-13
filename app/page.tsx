@@ -3,13 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteLogo } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
+import { exampleArchivePath } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "The Life Archive - Preserve Voices, Stories, and Memories",
   description:
-    "Create a private digital archive for yourself or a loved one. Save voice recordings, stories, photos, videos, and memories, then connect them to a QR code family can scan for years."
+    "Create a private digital archive for yourself or a loved one. Save stories, photos, voice notes, songs, and memories, then connect them to a QR code family can scan for years."
 };
 
 const audienceCards = [
@@ -38,7 +39,7 @@ const steps = [
   },
   {
     title: "Add memories",
-    copy: "Write stories, upload photos and videos, add voice notes, songs, and lessons."
+    copy: "Write stories, upload photos and voice notes, add songs, and preserve lessons."
   },
   {
     title: "Invite family",
@@ -122,6 +123,7 @@ export default async function HomePage() {
       <HowItWorksSection />
       <LegacyQuestionSection />
       <PhysicalWorldSection />
+      <PricingSection />
       <TrustSection />
       <FinalCtaSection />
       <FooterSection />
@@ -182,7 +184,7 @@ function HeroSection({
           </h1>
           <p className="mt-7 max-w-3xl text-xl leading-8 text-archive-ivory/86 sm:text-2xl sm:leading-10">
             Create a private digital archive for yourself or someone you love.
-            Save voice recordings, stories, photos, videos, and memories, then
+            Save stories, photos, voice notes, songs, and memories, then
             connect them to a QR code family can scan for years to come.
           </p>
           <div className="mt-6 max-w-2xl rounded-2xl border border-archive-gold/22 bg-white/[0.045] p-4 text-base leading-7 text-archive-champagne shadow-luxury">
@@ -310,7 +312,7 @@ function RandomQrSection() {
           <p className="mt-6 max-w-3xl text-lg leading-8 text-archive-ivory/78 sm:text-xl sm:leading-9">
             Most QR codes open the same page every time. A Life Archive QR can
             open a random memory from one archive: a voice note, story, photo,
-            video, song, or lesson. That means the same card, keychain, frame,
+            song, or lesson. That means the same card, keychain, frame,
             or marker can reveal something different each time it is scanned.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -381,13 +383,13 @@ function LegacyQuestionSection() {
             Not ready to build a full archive yet?
           </h2>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-archive-ivory/78 sm:text-xl sm:leading-9">
-            In 60 seconds, share one memory, story, or message you never want
-            the world to forget. Record your voice, write your answer, or record
-            a short video. We&apos;ll save it privately and help you turn it into a
-            starter archive.
+            Share one written memory, story, or message you never want the
+            world to forget. We&apos;ll save it privately and help you turn it into
+            a starter archive.
           </p>
-          <div className="mt-8">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <PrimaryCta href="/legacy-question">Answer the Legacy Question</PrimaryCta>
+            <SecondaryCta href={exampleArchivePath}>View a Real Example</SecondaryCta>
           </div>
         </div>
         <div className="rounded-[1.75rem] border border-archive-gold/25 bg-white/[0.045] p-6 shadow-luxury">
@@ -436,6 +438,32 @@ function PhysicalWorldSection() {
               {item}
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PricingSection() {
+  return (
+    <section className="bg-archive-paper px-5 py-16 text-archive-ink sm:px-8 lg:px-10 lg:py-24">
+      <div className="mx-auto grid w-full max-w-[1280px] gap-10 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1fr)] lg:items-start">
+        <div>
+          <Eyebrow>Pricing and ownership</Eyebrow>
+          <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
+            Start the archive first. Add physical keepsakes only when they make sense.
+          </h2>
+        </div>
+        <div className="grid gap-4">
+          <p className="rounded-2xl border border-archive-gold/18 bg-white/64 p-5 text-base leading-7 text-archive-ink/76 shadow-soft">
+            Creating a Life Archive is currently free. Optional physical keepsakes are purchased separately through secure checkout.
+          </p>
+          <p className="rounded-2xl border border-archive-gold/18 bg-white/64 p-5 text-base leading-7 text-archive-ink/76 shadow-soft">
+            If archive pricing changes in the future, members will be notified clearly before any change affects them. You retain ownership of the memories and content you add.
+          </p>
+          <p className="rounded-2xl border border-archive-gold/18 bg-white/64 p-5 text-base leading-7 text-archive-ink/76 shadow-soft">
+            The Life Archive is built for long-term preservation, but no online service can promise uninterrupted or permanent hosting forever.
+          </p>
         </div>
       </div>
     </section>
@@ -532,6 +560,15 @@ function FooterSection() {
           </Link>
           <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/keepsakes">
             Keepsakes
+          </Link>
+          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/faq">
+            FAQ
+          </Link>
+          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/privacy">
+            Privacy
+          </Link>
+          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/terms">
+            Terms
           </Link>
         </nav>
       </div>

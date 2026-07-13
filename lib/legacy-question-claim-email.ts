@@ -26,7 +26,7 @@ export function buildLegacyQuestionClaimEmail(input: {
 
 Your first memory has been preserved in The Life Archive.
 
-Your starter archive, ${input.archiveName}, is waiting for you. Use the local claim link below to finish signing in and continue building it with more stories, photos, songs, lessons, videos, and voice notes.
+Your starter archive, ${input.archiveName}, is waiting for you. Use the local claim link below to finish signing in and continue building it with more stories, photos, songs, lessons, and voice notes.
 
 ${input.claimUrl}
 
@@ -43,7 +43,7 @@ The Life Archive`;
       <p style="margin:0 0 14px;color:#8e6b2f;font:700 12px Arial,sans-serif;letter-spacing:0.16em;text-transform:uppercase;">The Life Archive</p>
       <h1 style="margin:0 0 18px;color:#211912;font-size:34px;line-height:1.1;">Your starter archive is ready.</h1>
       <p style="margin:0 0 18px;color:#5f554a;font:16px/1.7 Arial,sans-serif;">${escapedGreeting},</p>
-      <p style="margin:0 0 18px;color:#5f554a;font:16px/1.7 Arial,sans-serif;">Your starter archive, <strong>${escapedArchiveName}</strong>, is waiting for you. Use the local claim link below to finish signing in and continue building it with more stories, photos, songs, lessons, videos, and voice notes.</p>
+      <p style="margin:0 0 18px;color:#5f554a;font:16px/1.7 Arial,sans-serif;">Your starter archive, <strong>${escapedArchiveName}</strong>, is waiting for you. Use the local claim link below to finish signing in and continue building it with more stories, photos, songs, lessons, and voice notes.</p>
       <p style="margin:28px 0;">
         <a href="${escapedClaimUrl}" style="display:inline-block;background:#c9a45c;color:#11100e;text-decoration:none;border-radius:999px;padding:14px 22px;font:700 15px Arial,sans-serif;">Claim My Archive</a>
       </p>

@@ -1,20 +1,8 @@
 {
   "archives": [
     {
-      "id": "9e1b0e95-1d3b-4e91-9c42-5b8bf6c8d501",
-      "slug": "sari-rae",
-      "archiveName": "Sari Rae's Life Archive",
-      "personName": "Sari Rae",
-      "bio": "Sari Rae is a devoted mother whose life centers on family, care, and the small moments that become lasting memories. With a background in cosmetology and a gift for making people feel their best, her archive holds the stories, lessons, and moments that reflect a warm, grounded life well lived.",
-      "profilePhotoUrl": "/images/sari-rae.png",
-      "visibility": "public",
-      "memorialMode": false,
-      "relationshipToOwner": "other",
-      "createdAt": "2026-06-01"
-    },
-    {
       "id": "f7d2eb3c-2c6c-4c11-b7f2-90c2d6c1c5be",
-      "slug": "dustin-sigley",
+      "slug": "dustin-sigley-2",
       "archiveName": "Dustin Sigley's Life Archive",
       "personName": "Dustin Sigley",
       "bio": "Dustin Sigley is the founder of The Life Archive, built from the belief that a person deserves to leave behind more than a name, a date, and a few scattered memories. His archive preserves the ideas, lessons, music, and moments that shaped the beginning of the project.",
@@ -27,59 +15,8 @@
   ],
   "memories": [
     {
-      "id": "m-001",
-      "archiveSlug": "sari-rae",
-      "title": "The kitchen table rule",
-      "type": "lesson",
-      "content": "Sari always said the best conversations happen after the dishes are cleared, when nobody is in a hurry and the family can just be together.",
-      "date": "2021-11-24",
-      "tags": [
-        "family",
-        "lesson",
-        "home"
-      ]
-    },
-    {
-      "id": "m-002",
-      "archiveSlug": "sari-rae",
-      "title": "A day at the salon",
-      "type": "photo",
-      "content": "A moment from the salon, where Sari helped someone leave feeling a little lighter and a little more confident.",
-      "mediaUrl": "/images/sari-rae.png",
-      "date": "2019-07-12",
-      "tags": [
-        "cosmetology",
-        "family"
-      ]
-    },
-    {
-      "id": "m-003",
-      "archiveSlug": "sari-rae",
-      "title": "A letter for the first hard year",
-      "type": "journal",
-      "content": "If you are reading this during a hard season, remember that love is often built in the ordinary things: a meal, a ride home, a calm voice, and showing up again tomorrow.",
-      "date": "2024-01-02",
-      "tags": [
-        "future",
-        "journal"
-      ]
-    },
-    {
-      "id": "m-004",
-      "archiveSlug": "sari-rae",
-      "title": "Her Sunday playlist",
-      "type": "song",
-      "content": "The songs that played while Sari cooked on Sunday mornings and the family drifted in one by one.",
-      "mediaUrl": "https://open.spotify.com/",
-      "date": "2020-03-08",
-      "tags": [
-        "music",
-        "sunday"
-      ]
-    },
-    {
       "id": "dustin-001",
-      "archiveSlug": "dustin-sigley",
+      "archiveSlug": "dustin-sigley-2",
       "title": "The first version",
       "type": "journal",
       "content": "The Life Archive started with a simple belief: people should not need a perfect biography to preserve what mattered. A few memories, lessons, songs, and notes can become a doorway back into a life.",
@@ -92,7 +29,7 @@
     },
     {
       "id": "dustin-002",
-      "archiveSlug": "dustin-sigley",
+      "archiveSlug": "dustin-sigley-2",
       "title": "Preserve stories before they disappear",
       "type": "lesson",
       "content": "Do not wait for the perfect time to ask for the story. Save the voice note, write the sentence down, collect the photo, and keep the detail while it is still close.",
@@ -105,7 +42,7 @@
     },
     {
       "id": "dustin-003",
-      "archiveSlug": "dustin-sigley",
+      "archiveSlug": "dustin-sigley-2",
       "title": "A song for the first scan",
       "type": "song",
       "content": "A song connected to the earliest days of The Life Archive and the belief that music can bring a moment back.",

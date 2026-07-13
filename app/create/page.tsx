@@ -9,6 +9,7 @@ import {
   archiveRelationshipLabels,
   archiveRelationships
 } from "@/lib/archive-relationships";
+import { exampleArchivePath } from "@/lib/site-config";
 
 type CreateArchivePageProps = {
   searchParams?: Promise<{
@@ -35,10 +36,10 @@ export default async function CreateArchivePage({
             <SiteLogo width={240} height={60} />
           </Link>
           <Link
-            href="/archive/sari-rae"
+            href={exampleArchivePath}
             className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base"
           >
-            Example archive
+            View real example archive
           </Link>
         </nav>
 
@@ -54,7 +55,7 @@ export default async function CreateArchivePage({
             It can be your story. It can be your mother&apos;s story. It can be a
             grandparent, spouse, child, friend, veteran, mentor, or someone
             who is no longer here to tell their story themselves. Each archive
-            can contain photos, videos, voice recordings, journal entries, life
+            can contain photos, voice recordings, journal entries, life
             lessons, favorite songs, and personal memories. When complete, the
             archive can be shared through a private link, QR card, memorial
             keychain, funeral keepsake, or family collection so future
@@ -72,7 +73,7 @@ export default async function CreateArchivePage({
             Choose Living Archive when the person can still own, update, and
             carry their Member Card. Choose Memorial Archive when the archive is
             already being preserved in remembrance.
-            Each archive can hold photos, videos, stories, voice recordings,
+            Each archive can hold photos, stories, voice recordings,
             life lessons, and other meaningful memories that can be preserved
             and shared for future generations.
           </p>
@@ -116,7 +117,7 @@ export default async function CreateArchivePage({
                 <input
                   name="archiveName"
                   required
-                  placeholder="Sari Rae&apos;s Life Archive"
+                  placeholder="Dustin&apos;s Life Archive"
                   className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
                 />
               </label>
@@ -128,7 +129,7 @@ export default async function CreateArchivePage({
                 <input
                   name="personName"
                   required
-                  placeholder="Sari Rae"
+                  placeholder="Dustin Sigley"
                   className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
                 />
               </label>

@@ -138,7 +138,7 @@ export async function submitLegacyQuestionEntry(
       message: isComplete
         ? "Your first memory is saved. Check your email for the secure link to your archive."
         : isMediaPending
-          ? "Your memory is captured. Voice and video starter archives are pending secure media upload support."
+          ? "Voice and video recording is not ready for starter archives yet. Please share a written memory for now."
           : "Your memory is safely captured, but we could not send the email yet. We'll retry it."
     };
   } catch (error) {

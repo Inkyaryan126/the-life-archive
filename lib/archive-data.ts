@@ -61,7 +61,6 @@ const defaultProfilePhotoUrl =
   "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=900&q=80";
 
 const archiveSeedIds = {
-  sariRae: "9e1b0e95-1d3b-4e91-9c42-5b8bf6c8d501",
   dustinSigley: "f7d2eb3c-2c6c-4c11-b7f2-90c2d6c1c5be"
 } as const;
 
@@ -172,24 +171,8 @@ async function mapMemoryRowWithResolvedMedia(
 
 const seedArchives: LifeArchive[] = [
   {
-    id: archiveSeedIds.sariRae,
-    slug: "sari-rae",
-    archiveName: "Sari Rae's Life Archive",
-    personName: "Sari Rae",
-    bio: "Sari Rae is a devoted mother whose life centers on family, care, and the small moments that become lasting memories. With a background in cosmetology and a gift for making people feel their best, her archive holds the stories, lessons, and moments that reflect a warm, grounded life well lived.",
-    profilePhotoUrl: "/images/sari-rae.png",
-    visibility: "public",
-    memorialMode: false,
-    legacyActivationCode: null,
-    legacyCodeUsedAt: null,
-    legacyActivatedBy: null,
-    memorialActivatedAt: null,
-    relationshipToOwner: "other",
-    createdAt: "2026-06-01"
-  },
-  {
     id: archiveSeedIds.dustinSigley,
-    slug: "dustin-sigley",
+    slug: "dustin-sigley-2",
     archiveName: "Dustin Sigley's Life Archive",
     personName: "Dustin Sigley",
     bio: "Dustin Sigley is the founder of The Life Archive, built from the belief that a person deserves to leave behind more than a name, a date, and a few scattered memories. His archive preserves the ideas, lessons, music, and moments that shaped the beginning of the project.",
@@ -207,50 +190,8 @@ const seedArchives: LifeArchive[] = [
 
 const seedMemories: Memory[] = [
   {
-    id: "m-001",
-    archiveSlug: "sari-rae",
-    title: "The kitchen table rule",
-    type: "lesson",
-    content:
-      "Sari always said the best conversations happen after the dishes are cleared, when nobody is in a hurry and the family can just be together.",
-    date: "2021-11-24",
-    tags: ["family", "lesson", "home"]
-  },
-  {
-    id: "m-002",
-    archiveSlug: "sari-rae",
-    title: "A day at the salon",
-    type: "photo",
-    content:
-      "A moment from the salon, where Sari helped someone leave feeling a little lighter and a little more confident.",
-    mediaUrl: "/images/sari-rae.png",
-    date: "2019-07-12",
-    tags: ["cosmetology", "family"]
-  },
-  {
-    id: "m-003",
-    archiveSlug: "sari-rae",
-    title: "A letter for the first hard year",
-    type: "journal",
-    content:
-      "If you are reading this during a hard season, remember that love is often built in the ordinary things: a meal, a ride home, a calm voice, and showing up again tomorrow.",
-    date: "2024-01-02",
-    tags: ["future", "journal"]
-  },
-  {
-    id: "m-004",
-    archiveSlug: "sari-rae",
-    title: "Her Sunday playlist",
-    type: "song",
-    content:
-      "The songs that played while Sari cooked on Sunday mornings and the family drifted in one by one.",
-    mediaUrl: "https://open.spotify.com/",
-    date: "2020-03-08",
-    tags: ["music", "sunday"]
-  },
-  {
     id: "dustin-001",
-    archiveSlug: "dustin-sigley",
+    archiveSlug: "dustin-sigley-2",
     title: "The first version",
     type: "journal",
     content:
@@ -260,7 +201,7 @@ const seedMemories: Memory[] = [
   },
   {
     id: "dustin-002",
-    archiveSlug: "dustin-sigley",
+    archiveSlug: "dustin-sigley-2",
     title: "Preserve stories before they disappear",
     type: "lesson",
     content:
@@ -270,7 +211,7 @@ const seedMemories: Memory[] = [
   },
   {
     id: "dustin-003",
-    archiveSlug: "dustin-sigley",
+    archiveSlug: "dustin-sigley-2",
     title: "A song for the first scan",
     type: "song",
     content:

@@ -22,13 +22,13 @@ const modes: Array<{
   {
     id: "voice",
     label: "Record Your Voice",
-    description: "Preview only - voice uploads are not preserved yet.",
+    description: "Secure voice capture for this first-memory flow is being prepared.",
     disabled: true
   },
   {
     id: "video",
     label: "Record Video",
-    description: "Preview only - video uploads are not preserved yet.",
+    description: "Secure video capture for this first-memory flow is being prepared.",
     disabled: true
   }
 ];
@@ -540,7 +540,7 @@ export function MemoryCaptureWidget({
                   <span>Private by default. Nothing is posted publicly without your permission.</span>
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[#6f675d]">
-                  Text memories can become the first chapter in a starter archive. Voice and video uploads are coming later.
+                  Written memories can become the first chapter in a starter archive. Voice and video recording will return here when secure upload support is ready.
                 </p>
               </div>
             </div>
@@ -563,7 +563,7 @@ export function MemoryCaptureWidget({
                           Your browser does not support the audio element.
                         </audio>
                         <p className="mt-3 text-sm font-semibold text-[#f1d598]">
-                          Not uploaded yet.
+                          Preview only.
                         </p>
                       </div>
                     )}
@@ -578,7 +578,7 @@ export function MemoryCaptureWidget({
                           Your browser does not support the video element.
                         </video>
                         <p className="mt-3 text-sm font-semibold text-[#f1d598]">
-                          Not uploaded yet.
+                          Preview only.
                         </p>
                       </div>
                     )}
@@ -618,7 +618,7 @@ export function MemoryCaptureWidget({
                 Where should we send your secure link?
               </h3>
               <p className="mt-3 text-sm leading-6 text-[#5f554a]">
-                Text memories are saved into a private starter archive and linked to this email.
+                Written memories are saved into a private starter archive and linked to this email.
               </p>
 
               <div className="mt-5 grid gap-4">

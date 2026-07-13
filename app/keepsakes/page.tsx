@@ -30,17 +30,6 @@ type Keepsake = {
 
 type CheckoutType = "card" | "keychain" | "dogtag" | "plaque";
 
-const checkoutUrls: Record<CheckoutType, string | undefined> = {
-  card:
-    process.env.NEXT_PUBLIC_CHECKOUT_MEMORY_CARD ||
-    process.env.NEXT_PUBLIC_CHECKOUT_STORYKEEPER_CARD,
-  keychain: process.env.NEXT_PUBLIC_CHECKOUT_MEMORIAL_KEYCHAIN,
-  dogtag:
-    process.env.NEXT_PUBLIC_CHECKOUT_DOG_TAG ||
-    "https://buy.stripe.com/6oU14n69g5FgamLaii1sQ03",
-  plaque: process.env.NEXT_PUBLIC_CHECKOUT_QR_PLAQUE
-};
-
 function getCheckoutUrl(
   product: Pick<Keepsake, "checkoutType">,
   archiveSlug?: string | null
@@ -49,12 +38,9 @@ function getCheckoutUrl(
     return undefined;
   }
 
-  return (
-    checkoutUrls[product.checkoutType] ||
-    `/api/keepsakes/checkout?type=${product.checkoutType}${
-      archiveSlug ? `&archive=${encodeURIComponent(archiveSlug)}` : ""
-    }`
-  );
+  return `/api/keepsakes/checkout?type=${product.checkoutType}${
+    archiveSlug ? `&archive=${encodeURIComponent(archiveSlug)}` : ""
+  }`;
 }
 
 function CheckoutLink({
@@ -350,7 +336,16 @@ const storeSteps = [
   "Connect it to an archive",
   "Personalize name, message, or material",
   "Complete secure checkout",
-  "We confirm details before production"
+  "Approve the proof before production"
+];
+
+const productionSteps = [
+  "Order received",
+  "Archive and personalization confirmed",
+  "Proof prepared when needed",
+  "Customer approval",
+  "Production",
+  "Shipping or pickup"
 ];
 
 const trustPillars = [
@@ -676,7 +671,7 @@ export default async function KeepsakesPage() {
               Physical keys for the stories worth finding again.
             </h1>
             <p className="mt-7 max-w-2xl text-base leading-8 text-archive-ivory/72 sm:text-lg">
-              Choose the form that belongs with the archive, complete checkout, and we help align the QR, name, message, and material direction before production.
+              Choose the form that belongs with the archive, complete checkout, and we help align the QR, name, message, and material direction before a personalized item goes into production.
             </p>
             <p className="mt-3 text-sm font-semibold text-archive-gold sm:text-base">
               Secure checkout opens in a new tab.
@@ -717,6 +712,35 @@ export default async function KeepsakesPage() {
                 </p>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="border-t border-archive-gold/15 py-14 sm:py-16">
+          <div className="grid gap-8 lg:grid-cols-[0.72fr_1fr] lg:items-start">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.26em] text-archive-gold">
+                After Checkout
+              </p>
+              <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
+                Human review is part of the keepsake.
+              </h2>
+              <p className="mt-5 text-base leading-7 text-archive-ivory/66">
+                Personalized archive objects should be checked before engraving, printing, or production. The review step is intentional, especially when names, dates, materials, and QR placement matter.
+              </p>
+            </div>
+            <ol className="grid gap-4 md:grid-cols-2">
+              {productionSteps.map((step, index) => (
+                <li
+                  className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 text-base leading-7 text-archive-ivory/72"
+                  key={step}
+                >
+                  <span className="font-serif text-3xl text-archive-gold/60">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <p className="mt-3">{step}</p>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 

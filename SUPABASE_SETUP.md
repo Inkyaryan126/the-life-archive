@@ -164,7 +164,7 @@ supabase/seed.sql
 ```
 
 32. Run it.
-33. In **Table Editor**, confirm that `archives` contains `sari-rae` and `dustin-sigley`.
+33. In **Table Editor**, confirm that `archives` contains `dustin-sigley-2`.
 
 ## How To Run With Supabase CLI Later
 

@@ -1,8 +1,8 @@
 # Life Archive
 
-Life Archive is an MVP web app for creating a private or public digital archive of a person's life. An archive can hold journal entries, photos, videos, voice notes, songs, lessons, and other memories. Each archive has a QR page that points to a random-memory experience for physical keepsakes such as cards, plaques, frames, or memorial items.
+Life Archive is an MVP web app for creating a private or public digital archive of a person's life. An archive can hold journal entries, photos, voice notes, songs, lessons, and other memories. Each archive has a QR page that points to a random-memory experience for physical keepsakes such as cards, plaques, frames, or memorial items.
 
-This version uses local JSON persistence and does not include Supabase yet.
+This version can run locally with JSON persistence and uses Supabase for production storage.
 
 ## Local Development
 
@@ -39,10 +39,9 @@ http://localhost:3000
 Public example routes:
 
 ```text
-/archive/sari-rae
-/archive/dustin-sigley
-/archive/dustin-sigley/qr
-/archive/dustin-sigley/random
+/archive/dustin-sigley-2
+/archive/dustin-sigley-2/qr
+/archive/dustin-sigley-2/random
 ```
 
 ## Required Environment Variables
@@ -61,9 +60,9 @@ The MVP stores archives and memories in:
 data/life-archive.json
 ```
 
-The included example archives are protected reference profiles. Visitors can
-explore them through the public routes above, but regular accounts cannot edit
-or delete them.
+The included example archive is a protected reference profile. Visitors can
+explore it through the public routes above, but regular accounts cannot edit or
+delete it.
 
 ## Vercel Deployment Notes
 
@@ -89,9 +88,9 @@ www.thelifearchive.vip
 
 ```text
 https://thelifearchive.vip
-https://thelifearchive.vip/archive/sari-rae
-https://thelifearchive.vip/archive/dustin-sigley/qr
-https://thelifearchive.vip/archive/dustin-sigley/random
+https://thelifearchive.vip/archive/dustin-sigley-2
+https://thelifearchive.vip/archive/dustin-sigley-2/qr
+https://thelifearchive.vip/archive/dustin-sigley-2/random
 ```
 
 ## Production Caveat
