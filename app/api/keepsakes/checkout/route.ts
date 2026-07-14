@@ -2,19 +2,25 @@ import { NextResponse } from "next/server";
 import { getAccountContext } from "@/lib/account";
 import { createClient } from "@/lib/supabase/server";
 
-type CheckoutType = "card" | "keychain" | "dogtag" | "plaque";
+type CheckoutType = "member-card" | "card" | "keychain" | "dogtag" | "plaque";
 
 const products: Record<
   CheckoutType,
   {
     name: string;
     productId?: string;
-    unitAmount: number;
+    unitAmount?: number;
+    priceIdEnv?: string;
     requiresArchive: boolean;
   }
 > = {
+  "member-card": {
+    name: "The Life Archive Member Card",
+    priceIdEnv: "STRIPE_PRICE_MEMBER_CARD",
+    requiresArchive: true
+  },
   card: {
-    name: "The Life Archive Memory Card",
+    name: "The Life Archive Memorial Card",
     productId: "prod_Umoxxb4aF5MuPL",
     unitAmount: 1900,
     requiresArchive: true
@@ -169,16 +175,35 @@ export async function GET(request: Request) {
     success_url: `${origin}/keepsakes/thank-you?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/keepsakes`,
     "line_items[0][quantity]": "1",
-    "line_items[0][price_data][currency]": "usd",
-    "line_items[0][price_data][unit_amount]": String(product.unitAmount),
     "metadata[keepsake_type]": checkoutType,
+    "metadata[product_slug]": checkoutType,
     "metadata[product_name]": product.name
   });
 
-  if (product.productId) {
-    body.set("line_items[0][price_data][product]", product.productId);
+  if (product.priceIdEnv) {
+    const priceId = process.env[product.priceIdEnv];
+
+    if (!priceId) {
+      return redirectWithError(
+        request,
+        `${product.name} checkout is not configured yet. Missing ${product.priceIdEnv}.`
+      );
+    }
+
+    body.set("line_items[0][price]", priceId);
   } else {
-    body.set("line_items[0][price_data][product_data][name]", product.name);
+    if (typeof product.unitAmount !== "number") {
+      return redirectWithError(request, "Checkout is not configured yet.");
+    }
+
+    body.set("line_items[0][price_data][currency]", "usd");
+    body.set("line_items[0][price_data][unit_amount]", String(product.unitAmount));
+
+    if (product.productId) {
+      body.set("line_items[0][price_data][product]", product.productId);
+    } else {
+      body.set("line_items[0][price_data][product_data][name]", product.name);
+    }
   }
 
   if (archiveSlug) {

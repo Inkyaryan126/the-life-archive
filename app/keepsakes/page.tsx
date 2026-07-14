@@ -20,6 +20,7 @@ type Keepsake = {
   bestFor: string;
   visual: "card" | "keychain" | "tag" | "pendant" | "plaque" | "urn" | "frame" | "bench" | "nfc";
   checkoutType?: CheckoutType;
+  ctaLabel?: string;
   image?: {
     src: string;
     secondarySrc?: string;
@@ -28,7 +29,7 @@ type Keepsake = {
   };
 };
 
-type CheckoutType = "card" | "keychain" | "dogtag" | "plaque";
+type CheckoutType = "member-card" | "card" | "keychain" | "dogtag" | "plaque";
 
 function getCheckoutUrl(
   product: Pick<Keepsake, "checkoutType">,
@@ -74,26 +75,50 @@ function CheckoutLink({
 
 const keepsakes: Keepsake[] = [
   {
-    name: "The Life Archive Memory Card",
+    name: "The Life Archive Member Card",
+    price: "Price shown at checkout",
+    eyebrow: "Member Essential",
+    headline: "Your archive. Your identity. Your legacy - carried with you.",
+    story:
+      "A durable metal wallet card connected to your personal Life Archive. Scan the permanent QR code to revisit your memories, share your archive, or return to it whenever you choose. The reverse includes Legacy Activation instructions so the same card can continue serving your family if the living archive is later activated as a memorial archive.",
+    craftsmanship:
+      "Prepared from the existing Member Card engraving system with the archive QR, member details, and Legacy Activation instructions confirmed before production.",
+    materials: ["Engraved metal wallet card", "Permanent archive QR code", "Legacy Activation instructions"],
+    personalization: ["Member details", "Archive QR", "Living archive activation code"],
+    included: ["Custom engraved metal card", "Permanent archive QR code", "Member details", "Legacy Activation instructions"],
+    bestFor: "Living archive members, personal legacy planning, wallet carry, and meaningful gifting.",
+    visual: "card",
+    checkoutType: "member-card",
+    ctaLabel: "Order Member Card",
+    image: {
+      src: "/images/member-card/member-card-front.png",
+      secondarySrc: "/images/member-card/member-card-back.png",
+      alt: "Front of The Life Archive Member Card for a living archive owner",
+      secondaryAlt: "Back of The Life Archive Member Card with Legacy Activation instructions"
+    }
+  },
+  {
+    name: "The Life Archive Memorial Card",
     price: "$19",
     stripeProductId: "prod_Umoxxb4aF5MuPL",
-    eyebrow: "QR Card",
-    headline: "A quiet card that keeps their story within reach.",
+    eyebrow: "Memorial Keepsake",
+    headline: "A quiet memorial card that keeps their story within reach.",
     story:
-      "Designed for wallets, desk drawers, family files, and final-wishes folders, this card gives loved ones a clear path back to the archive when it matters.",
+      "Designed for memorial archives, remembrance displays, family sharing, funeral use, and final-wishes storage. This is a remembrance keepsake rather than the personal Member Card used by a living archive owner.",
     craftsmanship:
       "Each order is prepared as a personalized proof with the archive QR, front-facing name treatment, and a restrained finish that feels archival rather than promotional.",
     materials: ["Heavy matte card stock", "Archive QR code", "Ivory and gold print treatment"],
     personalization: ["Archive name", "Front-facing name", "Short message or date"],
     included: ["Personalized card proof", "Archive QR placement", "Production confirmation before printing"],
-    bestFor: "Everyday carrying, wallet storage, and final wishes backup.",
+    bestFor: "Memorial archives, remembrance displays, funeral sharing, and family keepsake storage.",
     visual: "card",
     checkoutType: "card",
+    ctaLabel: "Order Memorial Card",
     image: {
       src: "/images/keepsakes/flagships/wallet-card-front.png",
       secondarySrc: "/images/keepsakes/flagships/wallet-card-back.png",
-      alt: "Front of The Life Archive Memory Card",
-      secondaryAlt: "Back of The Life Archive Memory Card"
+      alt: "Front of The Life Archive Memorial Card",
+      secondaryAlt: "Back of The Life Archive Memorial Card"
     }
   },
   {
@@ -317,8 +342,9 @@ const keepsakes: Keepsake[] = [
 ];
 
 const launchProductNames = [
+  "The Life Archive Member Card",
   "The Life Archive Memorial Keychain",
-  "The Life Archive Memory Card",
+  "The Life Archive Memorial Card",
   "The Life Archive Memorial Dog Tag",
   "The Life Archive Memorial Plaque"
 ];
@@ -485,6 +511,7 @@ function ProductShowcase({
   reverse?: boolean;
 }) {
   const checkoutUrl = getCheckoutUrl(product, archiveSlug);
+  const ctaLabel = product.ctaLabel || "Order Now";
 
   return (
     <section className="grid gap-10 border-t border-archive-gold/15 py-16 lg:grid-cols-2 lg:items-center lg:gap-16 lg:py-24">
@@ -539,7 +566,7 @@ function ProductShowcase({
             checkoutUrl={isComingSoon ? undefined : checkoutUrl}
             className="rounded-full bg-archive-gold px-7 py-3 text-sm font-bold uppercase tracking-[0.18em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne sm:text-base"
           >
-            Order Now
+            {ctaLabel}
           </CheckoutLink>
           {!isComingSoon && checkoutUrl ? (
             <CheckoutLink
@@ -569,6 +596,7 @@ function ProductCard({
   const checkoutUrl = isComingSoon
     ? undefined
     : getCheckoutUrl(product, archiveSlug);
+  const ctaLabel = product.ctaLabel || "Order Now";
   const cardContent = (
     <>
       <ProductVisual image={product.image} type={product.visual} name={product.name} />
@@ -598,7 +626,7 @@ function ProductCard({
           {product.story}
         </p>
         <p className="mt-5 text-[0.75rem] font-bold uppercase tracking-[0.18em] text-archive-champagne">
-          {checkoutUrl && !isComingSoon ? "Order Now" : "Coming Soon"}
+          {checkoutUrl && !isComingSoon ? ctaLabel : "Coming Soon"}
         </p>
       </div>
     </>
@@ -633,7 +661,12 @@ function TrustPillar({ title, copy }: { title: string; copy: string }) {
   );
 }
 
-export default async function KeepsakesPage() {
+export default async function KeepsakesPage({
+  searchParams
+}: {
+  searchParams?: Promise<{ checkout_error?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
   const account = await getAccountContext();
   const isSignedIn = Boolean(account.user);
   const dashboardHref = isSignedIn ? "/dashboard" : "/login";
@@ -671,8 +704,13 @@ export default async function KeepsakesPage() {
               Physical keys for the stories worth finding again.
             </h1>
             <p className="mt-7 max-w-2xl text-base leading-8 text-archive-ivory/72 sm:text-lg">
-              Choose the form that belongs with the archive, complete checkout, and we help align the QR, name, message, and material direction before a personalized item goes into production.
+              Carry a living legacy now, or create something the family can hold onto later. Choose the form that belongs with the archive, complete checkout, and we help align the QR, name, message, and material direction before a personalized item goes into production.
             </p>
+            {resolvedSearchParams?.checkout_error ? (
+              <p className="mt-5 max-w-2xl rounded-2xl border border-red-300/25 bg-red-400/10 px-5 py-4 text-sm leading-6 text-red-100">
+                {resolvedSearchParams.checkout_error}
+              </p>
+            ) : null}
             <p className="mt-3 text-sm font-semibold text-archive-gold sm:text-base">
               Secure checkout opens in a new tab.
             </p>
@@ -695,7 +733,7 @@ export default async function KeepsakesPage() {
             <ProductVisual
               image={activeKeepsakes[0]?.image}
               type={activeKeepsakes[0]?.visual || "keychain"}
-              name={activeKeepsakes[0]?.name || "The Life Archive Memorial Keychain"}
+              name={activeKeepsakes[0]?.name || "The Life Archive Member Card"}
             />
           </div>
         </header>
@@ -750,7 +788,7 @@ export default async function KeepsakesPage() {
               Featured Collection
             </p>
             <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-              Start with the form the family will actually keep.
+              Start with the card or keepsake that fits the archive.
             </h2>
           </div>
           <div className="mt-10 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))]">
@@ -824,7 +862,7 @@ export default async function KeepsakesPage() {
             Order the launch keepsake that fits your archive.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-archive-ivory/68">
-            Start with the memorial keychain, memory card, memorial dog tag, or memorial plaque. After checkout, you will personalize the keepsake around the Life Archive it belongs to.
+            Start with the Member Card for a living archive, or choose a memorial keychain, memorial card, dog tag, or plaque for remembrance use. After checkout, you will personalize the keepsake around the Life Archive it belongs to.
           </p>
           <div className="mt-9 flex flex-wrap justify-center gap-4">
             <a
