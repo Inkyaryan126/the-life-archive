@@ -115,10 +115,8 @@ const keepsakes: Keepsake[] = [
     checkoutType: "card",
     ctaLabel: "Order Memorial Card",
     image: {
-      src: "/images/keepsakes/flagships/wallet-card-front.png",
-      secondarySrc: "/images/keepsakes/flagships/wallet-card-back.png",
-      alt: "Front of The Life Archive Memorial Card",
-      secondaryAlt: "Back of The Life Archive Memorial Card"
+      src: "/images/keepsakes/memory-card.png",
+      alt: "The Life Archive Memorial Card display with archive QR"
     }
   },
   {
