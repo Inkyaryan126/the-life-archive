@@ -1,10 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DeleteMemoryAction } from "@/components/DeleteMemoryAction";
 import { DesignBackdrop } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 import { formatMemoryDate, prettifyType } from "@/lib/format";
+import { deleteMemoryAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +15,14 @@ type MemoryPageProps = {
     slug: string;
     memoryId: string;
   }>;
+  searchParams?: Promise<{
+    deleteError?: string;
+  }>;
 };
 
-export default async function MemoryPage({ params }: MemoryPageProps) {
+export default async function MemoryPage({ params, searchParams }: MemoryPageProps) {
   const { slug, memoryId } = await params;
+  const resolvedSearchParams = await searchParams;
   const [archive, account, memories] = await Promise.all([
     getArchiveBySlug(slug),
     getAccountContext(),
@@ -36,6 +42,7 @@ export default async function MemoryPage({ params }: MemoryPageProps) {
   const canEdit = account.archives.some((item) => item.slug === archive.slug);
   const photoUrl = memory.type === "photo" ? memory.mediaUrl : undefined;
   const voiceUrl = memory.type === "voice" ? memory.mediaUrl : undefined;
+  const deleteFailed = resolvedSearchParams?.deleteError === "1";
 
   return (
     <main className="relative min-h-screen overflow-hidden px-5 py-6 text-archive-ivory sm:px-8">
@@ -72,6 +79,15 @@ export default async function MemoryPage({ params }: MemoryPageProps) {
         </header>
 
         <article className="grid gap-6 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
+          {deleteFailed ? (
+            <div className="rounded-2xl border border-red-900/35 bg-red-950/15 p-5">
+              <p className="text-sm font-semibold text-red-100">
+                We could not delete this memory. Nothing else was changed.
+                Please try again.
+              </p>
+            </div>
+          ) : null}
+
           {photoUrl ? (
             <div className="relative aspect-[5/3] overflow-hidden rounded-2xl border border-archive-gold/10">
               <Image
@@ -115,6 +131,16 @@ export default async function MemoryPage({ params }: MemoryPageProps) {
             </div>
           ) : null}
         </article>
+
+        {canEdit ? (
+          <section className="mt-6">
+            <DeleteMemoryAction
+              action={deleteMemoryAction}
+              archiveSlug={archive.slug}
+              memoryId={memory.id}
+            />
+          </section>
+        ) : null}
       </div>
     </main>
   );

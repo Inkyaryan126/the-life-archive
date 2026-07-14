@@ -115,6 +115,12 @@ type VoiceUploadDiagnosticStage =
   | "memory_path_update"
   | "cleanup";
 
+type MemoryDeleteDiagnosticStage =
+  | "ownership_check"
+  | "memory_lookup"
+  | "memory_row_delete"
+  | "storage_cleanup";
+
 function getSafeFileExtension(file?: File | null) {
   const filenameExtension = file?.name?.split(".").pop()?.toLowerCase();
 
@@ -179,6 +185,25 @@ function logArchiveVoiceUploadFailure(input: {
     mimeType: input.file?.type || null,
     fileSize: input.file?.size ?? null,
     fileExtension: getSafeFileExtension(input.file),
+    ...getErrorDiagnosticFields(input.error)
+  });
+}
+
+function logMemoryDeleteFailure(input: {
+  archiveId?: string | null;
+  archiveSlug: string;
+  error: unknown;
+  hasPhotoPath?: boolean;
+  memoryId?: string | null;
+  stage: MemoryDeleteDiagnosticStage;
+}) {
+  console.error({
+    event: "archive_memory_delete_failed",
+    stage: input.stage,
+    archiveSlug: input.archiveSlug,
+    ...(input.archiveId ? { archiveId: input.archiveId } : {}),
+    ...(input.memoryId ? { memoryId: input.memoryId } : {}),
+    hasPhotoPath: input.hasPhotoPath ?? null,
     ...getErrorDiagnosticFields(input.error)
   });
 }
@@ -1117,6 +1142,137 @@ export async function createMemory(input: CreateMemoryInput) {
   await writeStore(store);
 
   return memory;
+}
+
+export async function deleteMemoryForOwner(input: {
+  archiveSlug: string;
+  memoryId: string;
+}) {
+  if (useSupabase) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      logMemoryDeleteFailure({
+        archiveSlug: input.archiveSlug,
+        error: userError || new Error("Authentication required."),
+        memoryId: input.memoryId,
+        stage: "ownership_check"
+      });
+      throw new Error("You do not have permission to delete this memory.");
+    }
+
+    const { data: archive, error: archiveError } = await supabase
+      .from("archives")
+      .select("id, slug, owner_id")
+      .eq("slug", input.archiveSlug)
+      .maybeSingle();
+
+    if (archiveError || !archive) {
+      logMemoryDeleteFailure({
+        archiveSlug: input.archiveSlug,
+        error: archiveError || new Error("Archive not found."),
+        memoryId: input.memoryId,
+        stage: "ownership_check"
+      });
+      throw new Error("We could not delete this memory.");
+    }
+
+    if (archive.owner_id !== user.id) {
+      logMemoryDeleteFailure({
+        archiveId: archive.id,
+        archiveSlug: input.archiveSlug,
+        error: new Error("Signed-in user is not the archive owner."),
+        memoryId: input.memoryId,
+        stage: "ownership_check"
+      });
+      throw new Error("You do not have permission to delete this memory.");
+    }
+
+    const { data: memory, error: memoryError } = await supabase
+      .from("memories")
+      .select("id, archive_id, photo_path")
+      .eq("id", input.memoryId)
+      .eq("archive_id", archive.id)
+      .maybeSingle();
+
+    if (memoryError || !memory) {
+      logMemoryDeleteFailure({
+        archiveId: archive.id,
+        archiveSlug: input.archiveSlug,
+        error: memoryError || new Error("Memory not found."),
+        memoryId: input.memoryId,
+        stage: "memory_lookup"
+      });
+      throw new Error("We could not delete this memory.");
+    }
+
+    const hasPhotoPath = Boolean(memory.photo_path);
+    const { data: deletedMemory, error: deleteError } = await supabase
+      .from("memories")
+      .delete()
+      .eq("id", memory.id)
+      .eq("archive_id", archive.id)
+      .select("id")
+      .maybeSingle();
+
+    if (deleteError || !deletedMemory) {
+      logMemoryDeleteFailure({
+        archiveId: archive.id,
+        archiveSlug: input.archiveSlug,
+        error: deleteError || new Error("Memory row was not deleted."),
+        hasPhotoPath,
+        memoryId: input.memoryId,
+        stage: "memory_row_delete"
+      });
+      throw new Error("We could not delete this memory.");
+    }
+
+    if (memory.photo_path) {
+      const storageCleanupSucceeded = await deleteStorageObject(
+        memory.photo_path
+      );
+
+      if (!storageCleanupSucceeded) {
+        logMemoryDeleteFailure({
+          archiveId: archive.id,
+          archiveSlug: input.archiveSlug,
+          error: new Error("Memory storage object cleanup failed."),
+          hasPhotoPath,
+          memoryId: input.memoryId,
+          stage: "storage_cleanup"
+        });
+      }
+    }
+
+    return;
+  }
+
+  const store = await readStore();
+  const archiveExists = store.archives.some(
+    (archive) => archive.slug === input.archiveSlug
+  );
+
+  if (!archiveExists) {
+    throw new Error("We could not delete this memory.");
+  }
+
+  const nextMemories = store.memories.filter(
+    (memory) =>
+      memory.archiveSlug !== input.archiveSlug || memory.id !== input.memoryId
+  );
+
+  if (nextMemories.length === store.memories.length) {
+    throw new Error("We could not delete this memory.");
+  }
+
+  await writeStore({
+    ...store,
+    memories: nextMemories
+  });
 }
 
 export async function getVisitorMessages(archiveSlug: string): Promise<VisitorMessage[]> {

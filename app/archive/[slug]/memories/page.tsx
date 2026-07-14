@@ -17,6 +17,8 @@ type MemoriesPageProps = {
   }>;
   searchParams?: Promise<{
     created?: string;
+    deleted?: string;
+    deleteError?: string;
     type?: string;
   }>;
 };
@@ -100,6 +102,22 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
             eyebrow="Another chapter has been preserved"
             message="This memory is now part of the story and ready to be revisited."
           />
+        ) : null}
+
+        {resolvedSearchParams?.deleted === "1" ? (
+          <SuccessMessage
+            eyebrow="Memory deleted"
+            message="Memory deleted."
+          />
+        ) : null}
+
+        {resolvedSearchParams?.deleteError === "1" ? (
+          <div className="mb-8 rounded-[2rem] border border-red-900/35 bg-red-950/15 p-6 shadow-luxury">
+            <p className="text-sm font-semibold text-red-100">
+              We could not delete this memory. Nothing else was changed. Please
+              try again.
+            </p>
+          </div>
         ) : null}
 
         {filteredMemories.length > 0 ? (
