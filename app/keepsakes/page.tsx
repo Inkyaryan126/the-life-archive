@@ -188,15 +188,15 @@ const keepsakes: Keepsake[] = [
     price: "$79",
     stripeProductId: "prod_Ump23cb9KHhhNQ",
     eyebrow: "Placed With Care",
-    headline: "A permanent signpost for a life remembered in more than dates.",
+    headline: "A substantial slate memorial for the archive families return to.",
     story:
-      "A plaque can sit near a grave marker, home altar, shadow box, or family wall. It gives the archive a stable physical address.",
+      "A 12 x 8 natural black slate memorial plaque personalized with your loved one's name, dates, and archive-linked QR code. Selected engraved details receive an antique gold finish, then the piece is sealed with a matte protective coat and displayed on an included black metal stand.",
     craftsmanship:
-      "Proofing centers on proportion, material tone, and QR placement so the piece reads as a memorial object first and a scan point second.",
-    materials: ["Brass, bronze, or dark plaque direction", "Engraved or inset QR", "Indoor or outdoor placement review"],
-    personalization: ["Name", "Dates", "Short dedication"],
-    included: ["Plaque proof", "Placement consultation by email", "Archive QR setup"],
-    bestFor: "Grave markers, home altars, shadow boxes, or wall displays.",
+      "We confirm the archive, personalization, and design proof before engraving. Because each slate is natural stone, edges, texture, and tone may vary slightly.",
+    materials: ["12 x 8 natural black slate", "Antique gold detail finish", "Matte protective sealer"],
+    personalization: ["Name and dates", "Memorial information", "Archive-linked QR code"],
+    included: ["Custom engraved slate plaque", "Black metal display stand", "Archive QR setup"],
+    bestFor: "Home memorial displays, remembrance tables, shadow boxes, or family gathering spaces.",
     visual: "plaque",
     checkoutType: "plaque",
     image: {
