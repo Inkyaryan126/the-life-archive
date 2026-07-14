@@ -127,9 +127,17 @@ function getSafeFileExtension(file?: File | null) {
 }
 
 function sanitizeDiagnosticMessage(value: unknown) {
-  const message = value instanceof Error ? value.message : typeof value === "string" ? value : "Unknown error";
+  const record = typeof value === "object" && value !== null ? value as Record<string, unknown> : {};
+  const rawMessage =
+    value instanceof Error
+      ? value.message
+      : typeof record.message === "string"
+        ? record.message
+        : typeof value === "string"
+          ? value
+          : "Unknown error";
 
-  return message
+  return rawMessage
     .replace(/https?:\/\/\S+/g, "[url]")
     .replace(/[A-Za-z0-9+/=_-]{48,}/g, "[redacted]")
     .slice(0, 300);
@@ -140,13 +148,17 @@ function getErrorDiagnosticFields(error: unknown) {
   const code = typeof record.code === "string" || typeof record.code === "number" ? record.code : undefined;
   const status = typeof record.status === "string" || typeof record.status === "number" ? record.status : undefined;
   const statusCode = typeof record.statusCode === "string" || typeof record.statusCode === "number" ? record.statusCode : undefined;
+  const details = typeof record.details === "string" ? sanitizeDiagnosticMessage(record.details) : undefined;
+  const hint = typeof record.hint === "string" ? sanitizeDiagnosticMessage(record.hint) : undefined;
 
   return {
     errorName: error instanceof Error ? error.name : typeof error,
     errorMessage: sanitizeDiagnosticMessage(error),
     ...(code !== undefined ? { code } : {}),
     ...(status !== undefined ? { status } : {}),
-    ...(statusCode !== undefined ? { statusCode } : {})
+    ...(statusCode !== undefined ? { statusCode } : {}),
+    ...(details ? { details } : {}),
+    ...(hint ? { hint } : {})
   };
 }
 
@@ -945,94 +957,55 @@ export async function createMemory(input: CreateMemoryInput) {
       return null;
     }
 
-    const { data, error } = await supabase
-      .from("memories")
-      .insert({
-        archive_id: archive.id,
-        title: input.title,
-        type: input.type,
-        content: input.content,
-        media_url: mediaUrl || null,
-        photo_path: null,
-        memory_date: input.date || new Date().toISOString().slice(0, 10),
-        tags: input.tags,
-        created_at: new Date().toISOString(),
-        created_by: user.id
-      })
-      .select()
-      .single();
-
-    if (error || !data) {
-      const createError = error || new Error("Memory could not be created.");
-
-      if (input.type === "voice") {
-        logArchiveVoiceUploadFailure({
-          archiveId: archive.id,
-          archiveSlug: input.archiveSlug,
-          error: createError,
-          file: input.mediaFile,
-          stage: "memory_row_create"
-        });
-      }
-
-      throw createError;
-    }
-
-    let memoryRow = data as MemoryRow;
-    let filePath: string | null = null;
+    const memoryDate = input.date || new Date().toISOString().slice(0, 10);
+    const createdAt = new Date().toISOString();
+    let memoryRow: MemoryRow;
 
     if (input.mediaFile) {
+      const memoryId = randomUUID();
+      let filePath: string | null = null;
       let uploadStage: VoiceUploadDiagnosticStage = "storage_upload";
 
       try {
         if (input.type === "photo") {
           filePath = await uploadMemoryPhoto(
             archive.id,
-            memoryRow.id,
+            memoryId,
             input.mediaFile
           );
         } else if (input.type === "voice") {
           filePath = await uploadMemoryVoice(
             archive.id,
-            memoryRow.id,
+            memoryId,
             input.mediaFile
           );
         }
 
-        uploadStage = "memory_path_update";
+        uploadStage = "memory_row_create";
 
-        const { data: updatedMemory, error: updateError } = await supabase
+        const { data: mediaMemory, error: createError } = await supabase
           .from("memories")
-          .update({
-            ...(input.type === "photo" || input.type === "voice"
-              ? { photo_path: filePath }
-              : {}),
-            ...(input.type === "voice" ? { media_url: null } : {})
+          .insert({
+            id: memoryId,
+            archive_id: archive.id,
+            title: input.title,
+            type: input.type,
+            content: input.content,
+            media_url: input.type === "voice" ? null : mediaUrl || null,
+            photo_path: filePath,
+            memory_date: memoryDate,
+            tags: input.tags,
+            created_at: createdAt,
+            created_by: user.id
           })
-          .eq("id", memoryRow.id)
           .select()
           .single();
 
-        if (updateError || !updatedMemory) {
-          const pathUpdateError = updateError || new Error("Memory could not be created.");
-
-          const { error: deleteError } = await supabase.from("memories").delete().eq("id", memoryRow.id);
-
-          if (deleteError && input.type === "voice") {
-            logArchiveVoiceUploadFailure({
-              archiveId: archive.id,
-              archiveSlug: input.archiveSlug,
-              error: deleteError,
-              file: input.mediaFile,
-              memoryId: memoryRow.id,
-              stage: "cleanup"
-            });
-          }
-
-          throw pathUpdateError;
+        if (createError || !mediaMemory) {
+          throw createError || new Error("Memory could not be created.");
         }
 
-        memoryRow = updatedMemory as MemoryRow;
+        memoryRow = mediaMemory as MemoryRow;
       } catch (error) {
         if (input.type === "voice") {
           logArchiveVoiceUploadFailure({
@@ -1040,7 +1013,7 @@ export async function createMemory(input: CreateMemoryInput) {
             archiveSlug: input.archiveSlug,
             error,
             file: input.mediaFile,
-            memoryId: memoryRow.id,
+            memoryId,
             stage: uploadStage
           });
         }
@@ -1054,23 +1027,10 @@ export async function createMemory(input: CreateMemoryInput) {
               archiveSlug: input.archiveSlug,
               error: new Error("Uploaded storage object cleanup failed."),
               file: input.mediaFile,
-              memoryId: memoryRow.id,
+              memoryId,
               stage: "cleanup"
             });
           }
-        }
-
-        const { error: memoryCleanupError } = await supabase.from("memories").delete().eq("id", memoryRow.id);
-
-        if (memoryCleanupError && input.type === "voice") {
-          logArchiveVoiceUploadFailure({
-            archiveId: archive.id,
-            archiveSlug: input.archiveSlug,
-            error: memoryCleanupError,
-            file: input.mediaFile,
-            memoryId: memoryRow.id,
-            stage: "cleanup"
-          });
         }
 
         throw new Error(
@@ -1079,6 +1039,41 @@ export async function createMemory(input: CreateMemoryInput) {
             : "We couldn't save that photo. Please try again."
         );
       }
+    } else {
+      const { data, error } = await supabase
+        .from("memories")
+        .insert({
+          archive_id: archive.id,
+          title: input.title,
+          type: input.type,
+          content: input.content,
+          media_url: mediaUrl || null,
+          photo_path: null,
+          memory_date: memoryDate,
+          tags: input.tags,
+          created_at: createdAt,
+          created_by: user.id
+        })
+        .select()
+        .single();
+
+      if (error || !data) {
+        const createError = error || new Error("Memory could not be created.");
+
+        if (input.type === "voice") {
+          logArchiveVoiceUploadFailure({
+            archiveId: archive.id,
+            archiveSlug: input.archiveSlug,
+            error: createError,
+            file: input.mediaFile,
+            stage: "memory_row_create"
+          });
+        }
+
+        throw createError;
+      }
+
+      memoryRow = data as MemoryRow;
     }
 
     return {
