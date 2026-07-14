@@ -142,6 +142,7 @@ export type PublicDeliveredTimeCapsule =
           tags: string[];
         };
         personalNote: string | null;
+        timezone: string;
         scheduledFor: string;
         deliveredAt: string;
       };
@@ -1627,6 +1628,7 @@ export async function resolveDeliveredScheduledMemoryDeliveryByToken(
           tags: memory.tags ?? []
         },
         personalNote: row.personal_note,
+        timezone: row.timezone,
         scheduledFor: row.scheduled_for,
         deliveredAt: row.delivered_at
       }
