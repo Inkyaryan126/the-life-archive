@@ -1450,6 +1450,52 @@ export async function markScheduledMemoryDeliveryDelivered(input: {
   }
 }
 
+export async function recoverAcceptedScheduledMemoryDelivery(deliveryId: string) {
+  assertUuid(deliveryId, "Delivery");
+  const supabase = getAdminClient();
+
+  try {
+    const { data, error } = await supabase
+      .from("scheduled_memory_deliveries")
+      .select("id, resend_email_id")
+      .eq("id", deliveryId)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      throw new TimeCapsuleDomainError(
+        "delivery_not_found",
+        "Time capsule not found."
+      );
+    }
+
+    const resendEmailId = (data as { resend_email_id: string | null })
+      .resend_email_id;
+
+    if (!resendEmailId) {
+      throw new TimeCapsuleDomainError(
+        "delivery_not_accepted",
+        "This time capsule has not been accepted by the email provider yet."
+      );
+    }
+
+    return markScheduledMemoryDeliveryDelivered({
+      deliveryId,
+      resendEmailId
+    });
+  } catch (error) {
+    logTimeCapsuleFailure({
+      deliveryId,
+      error,
+      stage: "mark_delivered"
+    });
+    throw error;
+  }
+}
+
 export async function markScheduledMemoryDeliveryFailed(input: {
   deliveryId: string;
   errorCode: string;
