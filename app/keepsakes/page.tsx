@@ -365,10 +365,10 @@ const storeSteps = [
 
 const productionSteps = [
   "Order received",
-  "Archive and personalization confirmed",
-  "Proof prepared when needed",
-  "Customer approval",
-  "Production",
+  "Archive and details confirmed",
+  "Proof prepared",
+  "You approve it",
+  "We make it",
   "Shipping or pickup"
 ];
 
@@ -758,10 +758,10 @@ export default async function KeepsakesPage({
                 After Checkout
               </p>
               <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-                Human review is part of the keepsake.
+                Before we make it
               </h2>
               <p className="mt-5 text-base leading-7 text-archive-ivory/66">
-                Personalized archive objects should be checked before engraving, printing, or production. The review step is intentional, especially when names, dates, materials, and QR placement matter.
+                Every custom keepsake is checked by a real person. We confirm the archive, personalization, names, dates, QR code, and design proof before engraving or production begins.
               </p>
             </div>
             <ol className="grid gap-4 md:grid-cols-2">
