@@ -155,8 +155,7 @@ export default async function NewTimeCapsulePage() {
                   recipientEmail: "",
                   personalNote: "",
                   timezone: "",
-                  localDate: "",
-                  localTime: ""
+                  localDate: ""
                 }}
                 mode="create"
                 submitLabel="Schedule delivery"

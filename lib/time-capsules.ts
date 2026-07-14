@@ -23,13 +23,12 @@ export const timeCapsuleStatuses = [
 
 export type TimeCapsuleStatus = (typeof timeCapsuleStatuses)[number];
 
-export type ScheduleLocalTimeInput = {
+export type ScheduleDeliveryDateInput = {
   localDate: string;
-  localTime: string;
   timezone: string;
 };
 
-export type CreateScheduledMemoryDeliveryInput = ScheduleLocalTimeInput & {
+export type CreateScheduledMemoryDeliveryInput = ScheduleDeliveryDateInput & {
   archiveId: string;
   memoryId: string;
   recipientName: string;
@@ -37,7 +36,7 @@ export type CreateScheduledMemoryDeliveryInput = ScheduleLocalTimeInput & {
   personalNote?: string | null;
 };
 
-export type UpdateScheduledMemoryDeliveryInput = ScheduleLocalTimeInput & {
+export type UpdateScheduledMemoryDeliveryInput = ScheduleDeliveryDateInput & {
   deliveryId: string;
   recipientName: string;
   recipientEmail: string;
@@ -273,6 +272,7 @@ const maxResendEmailIdLength = 160;
 const maxErrorCodeLength = 80;
 const maxErrorMessageLength = 300;
 const tokenBytes = 32;
+const dateOnlyDeliveryHour = 9;
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const tokenPattern = /^[A-Za-z0-9_-]{32,128}$/;
@@ -460,30 +460,7 @@ function parseDateParts(localDate: string) {
   };
 }
 
-function parseTimeParts(localTime: string) {
-  const match = /^(\d{2}):(\d{2})$/.exec(localTime.trim());
-
-  if (!match) {
-    throw new TimeCapsuleDomainError(
-      "invalid_delivery_time",
-      "Enter a valid delivery time."
-    );
-  }
-
-  const hour = Number(match[1]);
-  const minute = Number(match[2]);
-
-  if (hour > 23 || minute > 59) {
-    throw new TimeCapsuleDomainError(
-      "invalid_delivery_time",
-      "Enter a valid delivery time."
-    );
-  }
-
-  return { hour, minute };
-}
-
-export function convertLocalDeliveryTimeToUtc(input: ScheduleLocalTimeInput) {
+export function convertLocalDeliveryDateToUtc(input: ScheduleDeliveryDateInput) {
   const timezone = input.timezone.trim();
 
   if (!timezone || timezone.length > maxTimezoneLength) {
@@ -495,12 +472,24 @@ export function convertLocalDeliveryTimeToUtc(input: ScheduleLocalTimeInput) {
 
   try {
     const dateParts = parseDateParts(input.localDate);
-    const timeParts = parseTimeParts(input.localTime);
+    const selectedDate = Temporal.PlainDate.from(dateParts);
+    const earliestDeliveryDate = Temporal.Now.zonedDateTimeISO(timezone)
+      .toPlainDate()
+      .add({ days: 1 });
+
+    if (Temporal.PlainDate.compare(selectedDate, earliestDeliveryDate) < 0) {
+      throw new TimeCapsuleDomainError(
+        "delivery_date_not_future",
+        "Choose a future delivery date."
+      );
+    }
+
     const zonedDateTime = Temporal.ZonedDateTime.from(
       {
         timeZone: timezone,
         ...dateParts,
-        ...timeParts,
+        hour: dateOnlyDeliveryHour,
+        minute: 0,
         second: 0,
         millisecond: 0,
         microsecond: 0,
@@ -509,13 +498,6 @@ export function convertLocalDeliveryTimeToUtc(input: ScheduleLocalTimeInput) {
       { disambiguation: "reject" }
     );
     const instant = zonedDateTime.toInstant();
-
-    if (Temporal.Instant.compare(instant, Temporal.Now.instant()) <= 0) {
-      throw new TimeCapsuleDomainError(
-        "delivery_time_in_past",
-        "Choose a future delivery date and time."
-      );
-    }
 
     return {
       scheduledFor: instant.toString(),
@@ -528,7 +510,7 @@ export function convertLocalDeliveryTimeToUtc(input: ScheduleLocalTimeInput) {
 
     throw new TimeCapsuleDomainError(
       "invalid_local_delivery_time",
-      "Choose a valid delivery date, time, and timezone."
+      "Choose a valid delivery date and timezone."
     );
   }
 }
@@ -807,7 +789,7 @@ export async function createScheduledMemoryDelivery(
     const recipientName = normalizeRecipientName(input.recipientName);
     const recipientEmail = normalizeRecipientEmail(input.recipientEmail);
     const personalNote = normalizePersonalNote(input.personalNote);
-    const { scheduledFor, timezone } = convertLocalDeliveryTimeToUtc(input);
+    const { scheduledFor, timezone } = convertLocalDeliveryDateToUtc(input);
 
     const { data, error } = await supabase
       .from("scheduled_memory_deliveries")
@@ -899,7 +881,7 @@ export async function updatePendingScheduledMemoryDelivery(
     const recipientName = normalizeRecipientName(input.recipientName);
     const recipientEmail = normalizeRecipientEmail(input.recipientEmail);
     const personalNote = normalizePersonalNote(input.personalNote);
-    const { scheduledFor, timezone } = convertLocalDeliveryTimeToUtc(input);
+    const { scheduledFor, timezone } = convertLocalDeliveryDateToUtc(input);
 
     const { data, error } = await admin
       .from("scheduled_memory_deliveries")

@@ -16,19 +16,12 @@ type TimeCapsuleEditPageProps = {
   }>;
 };
 
-function pad(value: number) {
-  return value.toString().padStart(2, "0");
-}
-
-function getLocalDateTimeValues(scheduledFor: string, timezone: string) {
+function getLocalDateValue(scheduledFor: string, timezone: string) {
   const zonedDateTime = Temporal.Instant.from(scheduledFor).toZonedDateTimeISO(
     timezone
   );
 
-  return {
-    localDate: zonedDateTime.toPlainDate().toString(),
-    localTime: `${pad(zonedDateTime.hour)}:${pad(zonedDateTime.minute)}`
-  };
+  return zonedDateTime.toPlainDate().toString();
 }
 
 export default async function EditTimeCapsulePage({
@@ -118,7 +111,7 @@ export default async function EditTimeCapsulePage({
     );
   }
 
-  const { localDate, localTime } = getLocalDateTimeValues(
+  const localDate = getLocalDateValue(
     delivery.scheduledFor,
     delivery.timezone
   );
@@ -163,7 +156,7 @@ export default async function EditTimeCapsulePage({
                 Edit Time Capsule
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-archive-ivory/62 sm:text-lg sm:leading-8">
-                Update the recipient, the note, or the delivery time before this memory reaches them.
+                Update the recipient, the note, or the delivery date before this memory reaches them.
               </p>
             </header>
 
@@ -178,8 +171,7 @@ export default async function EditTimeCapsulePage({
                   recipientEmail: delivery.recipientEmail,
                   personalNote: delivery.personalNote ?? "",
                   timezone: delivery.timezone,
-                  localDate,
-                  localTime
+                  localDate
                 }}
                 deliveryId={delivery.id}
                 mode="edit"

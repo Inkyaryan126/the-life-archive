@@ -16,13 +16,12 @@ export type TimeCapsuleArchiveOption = {
   memories: TimeCapsuleMemoryOption[];
 };
 
-export function formatTimeCapsuleLocalDateTime(
+export function formatTimeCapsuleLocalDate(
   scheduledFor: string,
   timezone: string
 ) {
   return new Intl.DateTimeFormat("en-US", {
     dateStyle: "long",
-    timeStyle: "short",
     timeZone: timezone
   }).format(new Date(scheduledFor));
 }
@@ -72,4 +71,3 @@ export function getMemoryOptionLabel(option: TimeCapsuleMemoryOption) {
 
   return parts.join(" · ");
 }
-

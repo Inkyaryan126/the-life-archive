@@ -59,15 +59,12 @@ function mapDomainErrorToState(
     case "invalid_delivery_date":
       fieldErrors.localDate = error.message;
       break;
-    case "invalid_delivery_time":
-      fieldErrors.localTime = error.message;
-      break;
-    case "delivery_time_in_past":
-      fieldErrors.localTime = error.message;
+    case "delivery_date_not_future":
+      fieldErrors.localDate = error.message;
       break;
     case "invalid_local_delivery_time":
       formError =
-        "That local time doesn’t exist or occurs twice because of daylight saving time. Choose a different time.";
+        "Choose a valid delivery date and timezone.";
       break;
     case "delivery_not_editable":
       formError = "This Time Capsule can no longer be edited.";
@@ -106,7 +103,6 @@ export async function createTimeCapsuleAction(
   const personalNote = readString(formData, "personalNote");
   const timezone = readString(formData, "timezone");
   const localDate = readString(formData, "localDate");
-  const localTime = readString(formData, "localTime");
 
   let deliveryId: string | null = null;
 
@@ -118,8 +114,7 @@ export async function createTimeCapsuleAction(
       recipientEmail,
       personalNote,
       timezone,
-      localDate,
-      localTime
+      localDate
     });
     deliveryId = delivery.id;
   } catch (error) {
@@ -152,7 +147,6 @@ export async function updateTimeCapsuleAction(
   const personalNote = readString(formData, "personalNote");
   const timezone = readString(formData, "timezone");
   const localDate = readString(formData, "localDate");
-  const localTime = readString(formData, "localTime");
 
   if (!deliveryId) {
     return {
@@ -170,8 +164,7 @@ export async function updateTimeCapsuleAction(
       recipientEmail,
       personalNote,
       timezone,
-      localDate,
-      localTime
+      localDate
     });
     updatedDeliveryId = delivery.id;
   } catch (error) {

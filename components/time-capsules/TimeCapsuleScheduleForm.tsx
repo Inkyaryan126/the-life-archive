@@ -9,7 +9,7 @@ import {
   type TimeCapsuleActionState
 } from "@/app/dashboard/time-capsules/state";
 import {
-  formatTimeCapsuleLocalDateTime,
+  formatTimeCapsuleLocalDate,
   getMemoryOptionLabel,
   type TimeCapsuleArchiveOption
 } from "@/app/dashboard/time-capsules/utils";
@@ -24,7 +24,6 @@ export type TimeCapsuleFormValues = {
   personalNote: string;
   timezone: string;
   localDate: string;
-  localTime: string;
 };
 
 type TimeCapsuleFormAction = (
@@ -95,42 +94,23 @@ function parseDateParts(localDate: string) {
   };
 }
 
-function parseTimeParts(localTime: string) {
-  const match = /^(\d{2}):(\d{2})$/.exec(localTime.trim());
-
-  if (!match) {
-    return null;
-  }
-
-  const hour = Number(match[1]);
-  const minute = Number(match[2]);
-
-  if (hour > 23 || minute > 59) {
-    return null;
-  }
-
-  return { hour, minute };
-}
-
 function getPreview(
   localDate: string,
-  localTime: string,
   timezone: string
 ): PreviewState {
-  if (!localDate || !localTime || !timezone) {
+  if (!localDate || !timezone) {
     return {
       kind: "needs-input",
-      message: "Choose a date, time, and timezone to preview the delivery."
+      message: "Choose a date and timezone to preview the delivery."
     };
   }
 
   const dateParts = parseDateParts(localDate);
-  const timeParts = parseTimeParts(localTime);
 
-  if (!dateParts || !timeParts) {
+  if (!dateParts) {
     return {
       kind: "invalid",
-      message: "Choose a valid date and time to preview the delivery."
+      message: "Choose a valid delivery date."
     };
   }
 
@@ -139,7 +119,8 @@ function getPreview(
       {
         timeZone: timezone,
         ...dateParts,
-        ...timeParts,
+        hour: 9,
+        minute: 0,
         second: 0,
         millisecond: 0,
         microsecond: 0,
@@ -147,60 +128,46 @@ function getPreview(
       },
       { disambiguation: "reject" }
     );
-    const display = formatTimeCapsuleLocalDateTime(
+    const display = formatTimeCapsuleLocalDate(
       zonedDateTime.toInstant().toString(),
       timezone
     );
 
     return {
       kind: "ready",
-      message: `This will arrive on ${display} (${timezone}).`
+      message: `Scheduled for ${display}`
     };
   } catch {
     return {
       kind: "invalid",
-      message:
-        "That local time doesn’t exist or occurs twice because of daylight saving time. Choose a different time."
+      message: "Choose a valid delivery date and timezone."
     };
   }
 }
 
 function getClientValidationError(
   localDate: string,
-  localTime: string,
   timezone: string
 ) {
   const dateParts = parseDateParts(localDate);
-  const timeParts = parseTimeParts(localTime);
 
-  if (!dateParts || !timeParts || !timezone) {
+  if (!dateParts || !timezone) {
     return null;
   }
 
   try {
-    const zonedDateTime = Temporal.ZonedDateTime.from(
-      {
-        timeZone: timezone,
-        ...dateParts,
-        ...timeParts,
-        second: 0,
-        millisecond: 0,
-        microsecond: 0,
-        nanosecond: 0
-      },
-      { disambiguation: "reject" }
-    );
+    const selectedDate = Temporal.PlainDate.from(dateParts);
+    const earliestDeliveryDate = Temporal.Now.zonedDateTimeISO(timezone)
+      .toPlainDate()
+      .add({ days: 1 });
 
-    if (
-      Temporal.Instant.compare(zonedDateTime.toInstant(), Temporal.Now.instant()) <=
-      0
-    ) {
-      return "Choose a future delivery date and time.";
+    if (Temporal.PlainDate.compare(selectedDate, earliestDeliveryDate) < 0) {
+      return "Choose a future delivery date.";
     }
 
     return null;
   } catch {
-    return "That local time doesn’t exist or occurs twice because of daylight saving time. Choose a different time.";
+    return "Choose a valid delivery date and timezone.";
   }
 }
 
@@ -240,7 +207,6 @@ export function TimeCapsuleScheduleForm({
   const [personalNote, setPersonalNote] = useState(initialValues.personalNote);
   const [timezone, setTimezone] = useState(initialValues.timezone);
   const [localDate, setLocalDate] = useState(initialValues.localDate);
-  const [localTime, setLocalTime] = useState(initialValues.localTime);
   const [clientError, setClientError] = useState("");
 
   const timezoneOptions = useMemo(() => getTimezoneOptions(), []);
@@ -249,8 +215,8 @@ export function TimeCapsuleScheduleForm({
   const selectedMemory =
     selectedArchive?.memories.find((memory) => memory.id === memoryId) ?? selectedArchive?.memories[0] ?? null;
   const preview = useMemo(
-    () => getPreview(localDate, localTime, timezone),
-    [localDate, localTime, timezone]
+    () => getPreview(localDate, timezone),
+    [localDate, timezone]
   );
   const formError = clientError || state.formError;
 
@@ -286,8 +252,7 @@ export function TimeCapsuleScheduleForm({
     recipientEmail,
     personalNote,
     timezone,
-    localDate,
-    localTime
+    localDate
   ]);
 
   const showCreateSelection = mode === "create";
@@ -306,7 +271,6 @@ export function TimeCapsuleScheduleForm({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     const clientValidationError = getClientValidationError(
       localDate,
-      localTime,
       timezone
     );
 
@@ -480,7 +444,10 @@ export function TimeCapsuleScheduleForm({
 
       <section className="grid gap-4">
         <SectionLabel>{scheduleStepLabel}</SectionLabel>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <p className="text-sm leading-6 text-archive-ivory/62">
+          Choose the day this memory should arrive.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
           <label className="grid gap-2 sm:col-span-1">
             <span className="text-sm font-semibold text-archive-ivory">
               Delivery date
@@ -494,22 +461,9 @@ export function TimeCapsuleScheduleForm({
               className="rounded-2xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 text-archive-ivory outline-none transition focus:border-archive-gold"
             />
             <FieldError message={state.fieldErrors.localDate} />
-          </label>
-
-          <label className="grid gap-2 sm:col-span-1">
-            <span className="text-sm font-semibold text-archive-ivory">
-              Delivery time
+            <span className="text-sm leading-6 text-archive-ivory/58">
+              We’ll deliver this memory on the selected day.
             </span>
-            <input
-              name="localTime"
-              type="time"
-              step={60}
-              required
-              value={localTime}
-              onChange={(event) => setLocalTime(event.target.value)}
-              className="rounded-2xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 text-archive-ivory outline-none transition focus:border-archive-gold"
-            />
-            <FieldError message={state.fieldErrors.localTime} />
           </label>
 
           <label className="grid gap-2 sm:col-span-1">
@@ -535,7 +489,7 @@ export function TimeCapsuleScheduleForm({
           </label>
         </div>
         <p className="text-sm leading-6 text-archive-ivory/60">
-          Use an IANA timezone like <span className="text-archive-ivory">America/New_York</span>. The delivery will be stored as a UTC instant and shown in that timezone.
+          Use an IANA timezone like <span className="text-archive-ivory">America/New_York</span>. We use that timezone to interpret the selected calendar date.
         </p>
       </section>
 
@@ -573,7 +527,7 @@ export function TimeCapsuleScheduleForm({
             </p>
             {preview.kind === "invalid" ? (
               <p className="mt-3 text-sm leading-6 text-red-100">
-                That local time will be checked again before we save it.
+                The delivery date will be checked again before we save it.
               </p>
             ) : null}
             {personalNote ? (
@@ -594,8 +548,8 @@ export function TimeCapsuleScheduleForm({
             </p>
             <p className="mt-3 text-sm leading-7 text-archive-ivory/66">
               {mode === "create"
-                ? "We’ll confirm the archive, memory, details, and delivery time before anything is sent."
-                : "We’ll save your changes and keep the delivery pending for the updated date and time."}
+                ? "We’ll confirm the archive, memory, details, and delivery date before anything is sent."
+                : "We’ll save your changes and keep the delivery pending for the updated date."}
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <FormButton

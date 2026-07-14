@@ -9,7 +9,7 @@ import { listOwnerScheduledMemoryDeliveries } from "@/lib/time-capsules";
 import {
   getTimeCapsuleStatusLabel,
   getTimeCapsuleStatusTone,
-  formatTimeCapsuleLocalDateTime
+  formatTimeCapsuleLocalDate
 } from "./utils";
 
 export const dynamic = "force-dynamic";
@@ -146,7 +146,7 @@ export default async function TimeCapsulesPage({
                             Recipient: {delivery.recipientName} · {delivery.recipientEmailDisplay}
                           </p>
                           <p className="mt-2 text-sm leading-7 text-archive-ivory/70">
-                            Sends on {formatTimeCapsuleLocalDateTime(delivery.scheduledFor, delivery.timezone)} · {delivery.timezone}
+                            Scheduled for {formatTimeCapsuleLocalDate(delivery.scheduledFor, delivery.timezone)} · {delivery.timezone}
                           </p>
                           {delivery.status === "failed" && delivery.lastErrorMessage ? (
                             <p className="mt-3 rounded-2xl border border-red-300/20 bg-red-400/10 px-4 py-3 text-sm leading-6 text-red-100">

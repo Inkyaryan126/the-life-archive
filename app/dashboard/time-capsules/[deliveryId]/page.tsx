@@ -9,7 +9,7 @@ import { cancelTimeCapsuleAction, retryTimeCapsuleAction } from "../actions";
 import { getOwnerScheduledMemoryDelivery } from "@/lib/time-capsules";
 import {
   formatTimeCapsuleCreatedAt,
-  formatTimeCapsuleLocalDateTime,
+  formatTimeCapsuleLocalDate,
   getTimeCapsuleStatusLabel,
   getTimeCapsuleStatusTone
 } from "../utils";
@@ -185,7 +185,7 @@ export default async function TimeCapsuleDetailPage({
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">Delivery</p>
                     <p className="mt-2 text-base font-semibold text-archive-ivory">
-                      {formatTimeCapsuleLocalDateTime(delivery.scheduledFor, delivery.timezone)}
+                      {formatTimeCapsuleLocalDate(delivery.scheduledFor, delivery.timezone)}
                     </p>
                     <p className="mt-1 text-sm text-archive-ivory/60">
                       {delivery.timezone}
