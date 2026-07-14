@@ -84,6 +84,21 @@ export function DesignBackdrop({ className }: DesignBackdropProps) {
   );
 }
 
+export function HeartbeatLogoDivider({ className }: { className?: string }) {
+  return (
+    <div aria-hidden="true" className={imageClassName("flex justify-center py-10 sm:py-12", className)}>
+      <Image
+        src="/images/site-design/heartbeat-logo-divider.png"
+        alt=""
+        width={1001}
+        height={163}
+        sizes="(min-width: 768px) 32rem, 80vw"
+        className="h-auto w-full max-w-[28rem] opacity-70"
+      />
+    </div>
+  );
+}
+
 export function DesignImageButtonLink({
   href,
   label,

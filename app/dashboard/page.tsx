@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SuccessMessage } from "@/components/SuccessMessage";
-import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
+import { DesignBackdrop, HeartbeatLogoDivider, SiteLogo } from "@/components/SiteDesign";
 import { regenerateLegacyActivationCodeAction } from "@/app/dashboard/actions";
 import { saveProfileAction } from "@/app/dashboard/settings/actions";
 import { signOutAction } from "@/app/login/actions";
@@ -11,7 +11,6 @@ import { getAccountContext, type AccountArchive } from "@/lib/account";
 import { getArchiveRelationshipLabel } from "@/lib/archive-relationships";
 import { getArchiveBySlug, getLegacyInstructionByArchiveSlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 import { legacyInstructionAccessLevelLabels } from "@/lib/legacy-instructions";
-import { formatMemoryDate } from "@/lib/format";
 import type { Memory, MemoryType } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -23,11 +22,6 @@ type ArchiveOverview = {
   loadFailed: boolean;
 };
 
-type MemoryWithArchive = Memory & {
-  archiveName: string;
-  archiveSlug: string;
-};
-
 type DashboardActionProps = {
   description: string;
   href: string;
@@ -37,6 +31,14 @@ type DashboardActionProps = {
 type MemoryBreakdownCardProps = {
   label: string;
   count: number;
+};
+
+type NextStep = {
+  title: string;
+  description: string;
+  status: "Complete" | "Next step" | "Not started";
+  href: string;
+  action: string;
 };
 
 const memoryBreakdownOrder: Array<{ type: MemoryType; label: string }> = [
@@ -100,25 +102,6 @@ function CompactArchiveRow({ archive, memoryCount }: { archive: AccountArchive; 
   );
 }
 
-function MemoryPreviewCard({ memory }: { memory: MemoryWithArchive }) {
-  const typeLabel =
-    memory.type === "voice" ? "Voice recording" : memory.type === "song" ? "Song" : memory.type === "lesson" ? "Lesson" : memory.type === "journal" ? "Journal entry" : memory.type === "video" ? "Video" : "Photo";
-
-  return (
-    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.03] p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-archive-gold">{typeLabel} · {formatMemoryDate(memory.date)}</p>
-          <h3 className="mt-2 font-serif text-xl leading-tight text-archive-ivory">{memory.title}</h3>
-        </div>
-        <Link href={`/archive/${memory.archiveSlug}/memories/${memory.id}`} className="shrink-0 text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline">Open</Link>
-      </div>
-      <p className="mt-2 line-clamp-2 text-sm leading-6 text-archive-ivory/62">{memory.content}</p>
-      <p className="mt-3 text-xs uppercase tracking-[0.16em] text-archive-ivory/42">{memory.archiveName}</p>
-    </article>
-  );
-}
-
 async function loadArchiveOverviews(archives: AccountArchive[]): Promise<ArchiveOverview[]> {
   const settled = await Promise.allSettled(
     archives.map(async (archive) => {
@@ -165,13 +148,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     : null;
   const passwordUpdated = resolvedSearchParams?.success === "password-updated";
 
-  const allMemories: MemoryWithArchive[] = archiveOverviews.flatMap((overview) =>
-    overview.memories.map((memory) => ({
-      ...memory,
-      archiveName: overview.archiveDetails?.personName ?? overview.archive.personName,
-      archiveSlug: overview.archive.slug
-    }))
-  );
+  const allMemories: Memory[] = archiveOverviews.flatMap((overview) => overview.memories);
   const totalMemories = allMemories.length;
   const memoryCounts = memoryBreakdownOrder.reduce<Record<MemoryType, number>>(
     (counts, { type }) => {
@@ -180,8 +157,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     },
     { photo: 0, video: 0, voice: 0, journal: 0, lesson: 0, song: 0 }
   );
-  const recentMemories = [...allMemories].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 4);
-
   const legacyInstructionLabel = legacyInstruction ? legacyInstructionAccessLevelLabels[legacyInstruction.accessLevel] : "Not started";
   const legacyInstructionSummary = legacyInstruction
     ? legacyInstruction.accessLevel === "released"
@@ -203,6 +178,77 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const activeArchivePhoto = activeArchiveDetails?.profilePhotoUrl ?? null;
   const activeArchiveBio = activeArchiveDetails?.bio ?? "This archive keeps together the memories, stories, and lessons that matter most.";
   const activeArchiveId = activeArchive?.slug ?? null;
+  const activeArchiveMemories = activeArchiveOverview?.archive.slug === activeArchiveId ? activeArchiveOverview.memories : [];
+  const activeMemoryTypes = new Set(activeArchiveMemories.map((memory) => memory.type));
+  const activeArchiveUsesDefaultLegacy = Boolean(defaultArchive && activeArchive?.slug === defaultArchive.slug);
+  const progressCandidates = activeArchive
+    ? [
+        {
+          title: "Add a photo",
+          description: "Give the archive one visual anchor people can recognize immediately.",
+          complete: activeMemoryTypes.has("photo"),
+          href: `/archive/${activeArchive.slug}/add-memory`,
+          action: "Add photo"
+        },
+        {
+          title: "Record a voice note",
+          description: "A short voice memory makes the archive feel personal and present.",
+          complete: activeMemoryTypes.has("voice"),
+          href: `/archive/${activeArchive.slug}/add-memory`,
+          action: "Record voice note"
+        },
+        {
+          title: "Write a journal or lesson",
+          description: "Add the kind of memory that gives context, guidance, or a story behind the facts.",
+          complete: activeMemoryTypes.has("journal") || activeMemoryTypes.has("lesson"),
+          href: `/archive/${activeArchive.slug}/add-memory`,
+          action: "Write memory"
+        },
+        {
+          title: "Share or print the QR",
+          description: activeArchive.visibility === "public" ? "The archive is public. Keep the QR ready for the people who should have it." : "Use the QR tools when you are ready to share this archive.",
+          complete: activeArchive.visibility === "public",
+          href: `/archive/${activeArchive.slug}/qr`,
+          action: "Open QR tools"
+        },
+        ...(activeArchiveUsesDefaultLegacy
+          ? [
+              {
+                title: "Add legacy instructions",
+                description: "Keep practical guidance and personal wishes in one place.",
+                complete: Boolean(legacyInstruction),
+                href: `/archive/${activeArchive.slug}/legacy-instructions`,
+                action: legacyInstruction ? "Review instructions" : "Add instructions"
+              },
+              ...(livingDefaultArchive
+                ? [
+                    {
+                      title: "Keep activation ready",
+                      description: livingDefaultArchive.legacyActivationCode ? "The private activation code is available when it needs to be reviewed." : "Create or review the activation path for memorial access.",
+                      complete: Boolean(livingDefaultArchive.legacyActivationCode && !livingDefaultArchive.legacyCodeUsedAt),
+                      href: "/activate-legacy",
+                      action: "Open activation page"
+                    }
+                  ]
+                : [])
+            ]
+          : [])
+      ]
+    : [];
+  let hasAssignedNextStep = false;
+  const nextSteps: NextStep[] = progressCandidates.map(({ complete, ...step }) => {
+    if (complete) {
+      return { ...step, status: "Complete" };
+    }
+
+    if (!hasAssignedNextStep) {
+      hasAssignedNextStep = true;
+      return { ...step, status: "Next step" };
+    }
+
+    return { ...step, status: "Not started" };
+  });
+  const completedNextSteps = nextSteps.filter((step) => step.status === "Complete").length;
   const otherArchiveOverviews = archiveOverviews.filter((overview) => overview.archive.slug !== activeArchiveId);
   const sidebarArchiveSlug = sidebarArchive?.archiveDetails?.slug ?? sidebarArchive?.archive.slug ?? null;
   const sidebarArchiveName = sidebarArchive?.archiveDetails?.archiveName ?? sidebarArchive?.archive.archiveName ?? null;
@@ -356,32 +402,73 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                   </article>
                 </section>
 
-                <section className="mt-10 grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.55fr)]">
-                  <div>
-                    <div className="flex flex-wrap items-end justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">Recent memories</p>
-                        <h2 className="mt-2 font-serif text-3xl sm:text-4xl">Latest activity</h2>
-                      </div>
-                      {activeArchive ? (
-                        <Link href={`/archive/${activeArchive.slug}/memories`} className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline">View all →</Link>
-                      ) : null}
-                    </div>
-                    {recentMemories.length > 0 ? (
-                      <div className="mt-5 grid gap-3">
-                        {recentMemories.slice(0, 3).map((memory) => <MemoryPreviewCard key={memory.id} memory={memory} />)}
-                      </div>
-                    ) : (
-                      <div className="mt-5 rounded-2xl border border-archive-gold/14 bg-white/[0.03] p-5 text-sm leading-7 text-archive-ivory/62">
-                        No memories yet. Add the first photo, lesson, voice note, or journal entry when you are ready.
-                      </div>
-                    )}
-                  </div>
+                <HeartbeatLogoDivider />
 
-                  {defaultArchive ? (
-                    <aside className="rounded-[2rem] border border-archive-gold/16 bg-white/[0.03] p-5">
-                      <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">Legacy status</p>
-                      <div className="mt-5 grid gap-3">
+                {activeArchive ? (
+                  <section className="rounded-[2rem] border border-archive-gold/16 bg-white/[0.032] p-6 shadow-luxury sm:p-8">
+                    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                      <div className="max-w-3xl">
+                        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-archive-gold">Build your archive</p>
+                        <h2 className="mt-2 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">What to add next</h2>
+                        <p className="mt-3 max-w-2xl text-base leading-7 text-archive-ivory/62">
+                          A focused checklist based on what this archive already contains. Complete the essentials first, then keep adding in your own rhythm.
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-archive-gold/16 bg-archive-obsidian/42 px-5 py-4 text-left lg:min-w-[13rem]">
+                        <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-archive-gold">Progress</p>
+                        <p className="mt-2 font-serif text-3xl text-archive-ivory">{completedNextSteps}/{nextSteps.length}</p>
+                        <p className="mt-1 text-sm text-archive-ivory/54">essentials complete</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-7 grid gap-3 lg:grid-cols-2">
+                      {nextSteps.map((step) => (
+                        <article key={step.title} className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/38 p-4">
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <p className="font-serif text-xl leading-tight text-archive-ivory">{step.title}</p>
+                              <p className="mt-2 text-sm leading-6 text-archive-ivory/58">{step.description}</p>
+                            </div>
+                            <span
+                              className={`rounded-full border px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] ${
+                                step.status === "Complete"
+                                  ? "border-archive-gold/20 bg-archive-gold/10 text-archive-champagne"
+                                  : step.status === "Next step"
+                                    ? "border-archive-gold/34 bg-white/[0.055] text-archive-ivory"
+                                    : "border-white/10 bg-white/[0.025] text-archive-ivory/48"
+                              }`}
+                            >
+                              {step.status}
+                            </span>
+                          </div>
+                          <Link href={step.href} className="mt-4 inline-flex text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline">
+                            {step.action} →
+                          </Link>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+
+                {defaultArchive ? (
+                  <>
+                    <HeartbeatLogoDivider className="py-8 sm:py-10" />
+
+                    <section id="legacy-status" className="rounded-[2rem] border border-archive-gold/14 bg-white/[0.026] p-6 sm:p-7">
+                      <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+                        <div className="max-w-3xl">
+                          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-archive-gold">Legacy status</p>
+                          <h2 className="mt-2 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">Keep the important details ready</h2>
+                          <p className="mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/58">
+                            Legacy tools stay available without becoming the center of the dashboard.
+                          </p>
+                        </div>
+                        <Link href={`/archive/${defaultArchive.slug}/legacy-instructions`} className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]">
+                          {legacyInstruction ? "Manage Legacy" : "Add Legacy Instructions"}
+                        </Link>
+                      </div>
+
+                      <div className="mt-6 grid gap-3 lg:grid-cols-2">
                         <div className="rounded-2xl border border-archive-gold/14 bg-archive-obsidian/45 p-4">
                           <div className="flex items-center justify-between gap-3">
                             <p className="text-sm font-semibold text-archive-ivory">Legacy Instructions</p>
@@ -412,12 +499,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                           </div>
                         ) : null}
                       </div>
-                    </aside>
-                  ) : null}
-                </section>
+                    </section>
+                  </>
+                ) : null}
 
                 {otherArchiveOverviews.length > 0 ? (
-                  <section className="mt-10">
+                  <section className="mt-12">
                     <div className="flex flex-wrap items-end justify-between gap-4">
                       <div>
                         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">Other archives</p>
