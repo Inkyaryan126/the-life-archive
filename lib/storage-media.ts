@@ -1,11 +1,15 @@
 import "server-only";
 
 import { createAdminClient } from "./supabase/admin";
+import {
+  acceptedAudioFormatLabel,
+  acceptedAudioMimeTypes,
+  maxAudioUploadBytes,
+  maxAudioUploadMegabytes,
+  maxImageUploadBytes
+} from "./media-upload-constants";
 
 export const archiveMediaBucket = "archive-media";
-
-const maxImageUploadBytes = 10 * 1024 * 1024;
-const maxAudioUploadBytes = 50 * 1024 * 1024;
 
 const imageExtensionByMimeType: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -28,7 +32,7 @@ const audioExtensionByMimeType: Record<string, string> = {
   "audio/x-m4a": "m4a",
   "audio/aac": "aac"
 };
-const allowedAudioMimeTypes = new Set(Object.keys(audioExtensionByMimeType));
+const allowedAudioMimeTypes = new Set<string>(acceptedAudioMimeTypes);
 
 function normalizeMimeType(value: string) {
   return value.toLowerCase().split(";")[0].trim();
@@ -63,12 +67,12 @@ export function validateImageUpload(file: File, fieldName: string) {
 export function validateAudioUpload(file: File, fieldName: string) {
   if (!allowedAudioMimeTypes.has(normalizeMimeType(file.type))) {
     throw new Error(
-      `${fieldName} must be an MP3, WAV, M4A, AAC, OGG, or WebM audio file.`
+      `${fieldName} must be a supported audio file: ${acceptedAudioFormatLabel}.`
     );
   }
 
   if (file.size > maxAudioUploadBytes) {
-    throw new Error(`${fieldName} must be smaller than 50 MB.`);
+    throw new Error(`${fieldName} must be smaller than ${maxAudioUploadMegabytes} MB.`);
   }
 }
 
@@ -140,6 +144,8 @@ export async function uploadMemoryVoice(
   memoryId: string,
   file: File
 ) {
+  validateAudioUpload(file, "Voice memory");
+
   const storage = createAdminClient().storage;
   const path = buildMemoryVoicePath(archiveId, memoryId, file);
   const bytes = await getArrayBuffer(file);

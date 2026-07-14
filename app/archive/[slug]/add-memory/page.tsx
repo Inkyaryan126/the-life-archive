@@ -9,6 +9,7 @@ import {
   DesignBackdrop,
   SiteLogo
 } from "@/components/SiteDesign";
+import { AddMemoryForm } from "./AddMemoryForm";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,13 @@ type AddMemoryPageProps = {
     slug: string;
   }>;
   searchParams?: Promise<{
+    content?: string;
+    date?: string;
     error?: string;
+    mediaUrl?: string;
+    tags?: string;
+    title?: string;
+    type?: string;
   }>;
 };
 
@@ -83,6 +90,9 @@ export default async function AddMemoryPage({
   }
 
   const saveMemory = addMemoryAction.bind(null, archive.slug);
+  const defaultType = resolvedSearchParams?.type && memoryTypes.includes(resolvedSearchParams.type as (typeof memoryTypes)[number])
+    ? resolvedSearchParams.type
+    : "journal";
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-12 text-archive-ivory sm:px-8">
@@ -106,15 +116,16 @@ export default async function AddMemoryPage({
           </h1>
         </header>
 
-        <form
-          action={saveMemory}
-          encType="multipart/form-data"
-          className="grid gap-6 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-8 shadow-luxury"
-        >
+        <AddMemoryForm action={saveMemory}>
           {resolvedSearchParams?.error ? (
-            <p className="rounded-md border border-archive-gold/20 bg-archive-gold/10 px-4 py-3 text-sm font-semibold text-archive-gold">
-              {resolvedSearchParams.error}
-            </p>
+            <div className="rounded-2xl border border-archive-gold/24 bg-archive-gold/10 px-4 py-4 text-archive-ivory">
+              <p className="font-serif text-xl leading-tight text-archive-ivory">
+                Your recording could not be uploaded
+              </p>
+              <p className="mt-2 text-sm leading-6 text-archive-ivory/70">
+                {resolvedSearchParams.error}
+              </p>
+            </div>
           ) : null}
           <div className="grid gap-5">
             <label className="grid gap-2">
@@ -124,6 +135,7 @@ export default async function AddMemoryPage({
               <input
                 name="title"
                 required
+                defaultValue={resolvedSearchParams?.title ?? ""}
                 placeholder="The kitchen table rule"
                 className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
               />
@@ -135,6 +147,7 @@ export default async function AddMemoryPage({
               </span>
               <select
                 name="type"
+                defaultValue={defaultType}
                 className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
               >
                 {memoryTypes.map((type) => (
@@ -152,6 +165,7 @@ export default async function AddMemoryPage({
               <textarea
                 name="content"
                 rows={6}
+                defaultValue={resolvedSearchParams?.content ?? ""}
                 placeholder="Write the memory, lesson, journal entry, or context for this media."
                 className="resize-y rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
               />
@@ -179,6 +193,7 @@ export default async function AddMemoryPage({
                 <input
                   name="mediaUrl"
                   type="url"
+                  defaultValue={resolvedSearchParams?.mediaUrl ?? ""}
                   placeholder="Paste an Unsplash photo link, a hosted voice file, or Spotify song link"
                   className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
                 />
@@ -198,6 +213,7 @@ export default async function AddMemoryPage({
                 <input
                   name="date"
                   type="date"
+                  defaultValue={resolvedSearchParams?.date ?? ""}
                   className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
                 />
               </label>
@@ -208,6 +224,7 @@ export default async function AddMemoryPage({
                 </span>
                 <input
                   name="tags"
+                  defaultValue={resolvedSearchParams?.tags ?? ""}
                   placeholder="family, lesson, home"
                   className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
                 />
@@ -226,7 +243,7 @@ export default async function AddMemoryPage({
               This chapter will become part of their story.
             </p>
           </div>
-        </form>
+        </AddMemoryForm>
       </div>
     </main>
   );

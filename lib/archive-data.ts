@@ -10,6 +10,7 @@ import {
   deleteStorageObject,
   resolveStorageImageUrl,
   uploadMemoryVoice,
+  validateAudioUpload,
   validateImageUpload,
   uploadArchiveCoverImage,
   uploadMemoryPhoto
@@ -841,7 +842,7 @@ export async function createMemory(input: CreateMemoryInput) {
   }
 
   if (input.mediaFile && input.type === "voice") {
-    // audio validation happens with the upload helper
+    validateAudioUpload(input.mediaFile, "Voice memory");
   }
 
   if (input.mediaFile && input.type !== "photo" && input.type !== "voice") {

@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "55mb"
+    }
+  },
   outputFileTracingIncludes: {
     "/admin/member-cards": ["./assets/fonts/**/*.woff"],
     "/admin/member-cards/[archiveId]/front": ["./assets/fonts/**/*.woff"],
