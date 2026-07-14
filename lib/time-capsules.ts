@@ -50,6 +50,7 @@ export type OwnerTimeCapsuleListItem = {
     id: string;
     name: string;
     slug: string;
+    personName: string;
   };
   memory: {
     id: string;
@@ -743,7 +744,8 @@ async function hydrateOwnerDeliveryRows(
       archive: {
         id: row.archive_id,
         name: archive?.archive_name ?? "Archive unavailable",
-        slug: archive?.slug ?? ""
+        slug: archive?.slug ?? "",
+        personName: archive?.person_name ?? ""
       },
       memory: memory
         ? {

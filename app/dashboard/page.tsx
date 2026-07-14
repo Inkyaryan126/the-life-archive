@@ -267,6 +267,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <div className="flex flex-wrap items-center gap-4 sm:justify-end sm:gap-6">
                 <Link href="/keepsakes" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">Keepsakes</Link>
                 <Link href="/dashboard/settings" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">Profile Settings</Link>
+                <Link href="/dashboard/time-capsules" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">Time Capsules</Link>
                 {livingDefaultArchive ? <Link href="/member-card" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">Member Card</Link> : null}
                 <form action={signOutAction}><button type="submit" className="rounded-full border border-archive-gold/35 px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/5 sm:text-base">Sign Out</button></form>
               </div>
@@ -300,6 +301,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                       Create Archive
                     </Link>
                   ) : null}
+                  <Link href="/dashboard/time-capsules" className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]">
+                    Time Capsules
+                  </Link>
                   <Link href="/dashboard/settings" className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]">
                     Settings
                   </Link>
