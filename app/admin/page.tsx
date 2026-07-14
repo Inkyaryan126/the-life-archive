@@ -364,6 +364,9 @@ export default async function AdminPage({
             >
               Member Card Engraving
             </Link>
+            <Link href="/admin/users" className="underline-offset-4 hover:underline">
+              Users & Archives
+            </Link>
           </div>
         </nav>
 
