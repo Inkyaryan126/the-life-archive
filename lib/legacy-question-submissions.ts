@@ -263,6 +263,8 @@ export async function updateLegacyQuestionSubmission(input: {
 export async function updateLegacyQuestionProcessing(
   submissionId: string,
   values: Partial<{
+    mediaStoragePath: string | null;
+    mediaMimeType: string | null;
     starterArchiveId: string | null;
     starterArchiveSlug: string | null;
     firstMemoryId: string | null;
@@ -280,6 +282,14 @@ export async function updateLegacyQuestionProcessing(
 ) {
   const supabase = getAdminClient();
   const update: Record<string, string | number | null> = {};
+
+  if ("mediaStoragePath" in values) {
+    update.media_storage_path = values.mediaStoragePath ?? null;
+  }
+
+  if ("mediaMimeType" in values) {
+    update.media_mime_type = values.mediaMimeType ?? null;
+  }
 
   if ("starterArchiveId" in values) {
     update.starter_archive_id = values.starterArchiveId ?? null;

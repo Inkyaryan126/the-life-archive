@@ -44,7 +44,7 @@ const faqs = [
   },
   {
     q: "Can I add photos, writing, audio, and video?",
-    a: "Archive chapters support writing, photos, songs, and uploaded voice files. The Legacy Question starter flow currently saves written memories; voice and video recording for that first-memory flow is not yet wired for secure upload."
+    a: "Archive chapters support writing, photos, songs, and uploaded voice files. The Legacy Question starter flow can save written answers and voice memories; video recording is not available for starter archives yet."
   },
   {
     q: "Can I edit or delete my archive?",

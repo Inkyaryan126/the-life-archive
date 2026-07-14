@@ -7,6 +7,7 @@ import {
   type LegacyQuestionEntryType
 } from "@/lib/legacy-question-submissions";
 import { processLegacyQuestionSubmission } from "@/lib/legacy-question-onboarding";
+import { validateAudioUpload } from "@/lib/storage-media";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const textMinLength = 20;
@@ -61,8 +62,44 @@ function normalizeDuration(value: number | null | undefined) {
   return Math.max(0, Math.min(60, Math.round(value)));
 }
 
+function readString(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return typeof value === "string" ? value : "";
+}
+
+function readBoolean(formData: FormData, key: string) {
+  return formData.get(key) === "true";
+}
+
+function readOptionalAudioFile(formData: FormData) {
+  const value = formData.get("audioFile");
+  return value instanceof File && value.size > 0 ? value : null;
+}
+
+function parseDuration(value: string) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+export async function submitLegacyQuestionEntryForm(
+  formData: FormData
+): Promise<LegacyQuestionSubmitResult> {
+  return submitLegacyQuestionEntry({
+    email: readString(formData, "email"),
+    firstName: readString(formData, "firstName"),
+    wantsReminders: readBoolean(formData, "wantsReminders"),
+    entryType: readString(formData, "entryType"),
+    textContent: readString(formData, "textContent"),
+    durationSeconds: parseDuration(readString(formData, "durationSeconds")),
+    source: readString(formData, "source"),
+    cardBatch: readString(formData, "cardBatch"),
+    mediaMimeType: readString(formData, "mediaMimeType"),
+    audioFile: readOptionalAudioFile(formData)
+  });
+}
+
 export async function submitLegacyQuestionEntry(
-  input: LegacyQuestionSubmitInput
+  input: LegacyQuestionSubmitInput & { audioFile?: File | null }
 ): Promise<LegacyQuestionSubmitResult> {
   const email = input.email.trim().toLowerCase();
   const firstName = trimToNull(input.firstName);
@@ -103,6 +140,44 @@ export async function submitLegacyQuestionEntry(
     }
   }
 
+  const durationSeconds = normalizeDuration(input.durationSeconds);
+  const audioFile = input.audioFile ?? null;
+
+  if (entryType === "voice") {
+    if (!audioFile) {
+      return {
+        success: false,
+        message: "Record a voice memory before sending."
+      };
+    }
+
+    try {
+      validateAudioUpload(audioFile, "Voice memory");
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : "That voice file is not supported."
+      };
+    }
+
+    if (!durationSeconds || durationSeconds > 60) {
+      return {
+        success: false,
+        message: "Keep voice memories to 60 seconds or less."
+      };
+    }
+  }
+
+  if (entryType === "video") {
+    return {
+      success: false,
+      message: "Video is not ready for starter archives yet. Please write a memory or record a voice answer."
+    };
+  }
+
   const requestHeaders = await headers();
   const referrer = trimToNull(requestHeaders.get("referer"))?.slice(0, 500) ?? null;
   const userAgent = trimToNull(requestHeaders.get("user-agent"))?.slice(0, 500) ?? null;
@@ -117,8 +192,8 @@ export async function submitLegacyQuestionEntry(
       entryType,
       textContent: entryType === "text" ? textContent : null,
       mediaStoragePath: null,
-      mediaMimeType,
-      durationSeconds: normalizeDuration(input.durationSeconds),
+      durationSeconds,
+      mediaMimeType: entryType === "voice" && audioFile ? audioFile.type : mediaMimeType,
       source,
       cardBatch,
       referrer,
@@ -127,10 +202,19 @@ export async function submitLegacyQuestionEntry(
 
     createdSubmissionId = created.id;
 
-    const processed = await processLegacyQuestionSubmission(created.id);
+    const processed = await processLegacyQuestionSubmission(created.id, {
+      mediaFile: entryType === "voice" ? audioFile : null
+    });
     const processingStatus = processed?.processingStatus ?? "failed";
     const isComplete = processingStatus === "email_sent";
     const isMediaPending = processingStatus === "media_pending";
+
+    if (!isComplete && entryType === "voice" && !processed?.firstMemoryId) {
+      return {
+        success: false,
+        message: "We couldn't save that voice recording. Please try again, or write your memory for now."
+      };
+    }
 
     return {
       success: true,
@@ -138,14 +222,14 @@ export async function submitLegacyQuestionEntry(
       message: isComplete
         ? "Your first memory is saved. Check your email for the secure link to your archive."
         : isMediaPending
-          ? "Voice and video recording is not ready for starter archives yet. Please share a written memory for now."
+          ? "That recording was captured, but secure upload is not ready. Please try again or write your memory for now."
           : "Your memory is safely captured, but we could not send the email yet. We'll retry it."
     };
   } catch (error) {
     const readableError =
       error instanceof Error ? error.message : "Unable to save your memory right now.";
 
-    if (createdSubmissionId) {
+    if (createdSubmissionId && entryType !== "voice") {
       return {
         success: true,
         submissionId: createdSubmissionId,

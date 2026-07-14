@@ -2,7 +2,7 @@
 
 import type { FormEvent, KeyboardEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { submitLegacyQuestionEntry } from "@/app/legacy-question/actions";
+import { submitLegacyQuestionEntryForm } from "@/app/legacy-question/actions";
 
 type CaptureMode = "voice" | "text" | "video";
 type RecorderState = "idle" | "requesting" | "recording" | "recorded" | "error";
@@ -22,8 +22,7 @@ const modes: Array<{
   {
     id: "voice",
     label: "Record Your Voice",
-    description: "Secure voice capture for this first-memory flow is being prepared.",
-    disabled: true
+    description: "Record a voice memory that becomes the first chapter in your starter archive."
   },
   {
     id: "video",
@@ -36,6 +35,13 @@ const modes: Array<{
 const maxRecordingSeconds = 60;
 const textMinLength = 20;
 const textMaxLength = 2000;
+const audioMimeCandidates = [
+  "audio/mp4",
+  "audio/webm;codecs=opus",
+  "audio/webm",
+  "audio/ogg;codecs=opus",
+  "audio/ogg"
+];
 
 function formatElapsed(seconds: number) {
   const minutes = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -46,6 +52,34 @@ function formatElapsed(seconds: number) {
 
 function isEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
+function getSupportedAudioMimeType() {
+  if (typeof MediaRecorder === "undefined") {
+    return undefined;
+  }
+
+  return audioMimeCandidates.find((mimeType) =>
+    MediaRecorder.isTypeSupported(mimeType)
+  );
+}
+
+function getAudioExtension(mimeType: string) {
+  const normalized = mimeType.toLowerCase().split(";")[0].trim();
+
+  if (normalized === "audio/mp4" || normalized === "audio/x-m4a") {
+    return "m4a";
+  }
+
+  if (normalized === "audio/ogg") {
+    return "ogg";
+  }
+
+  if (normalized === "audio/aac") {
+    return "aac";
+  }
+
+  return "webm";
 }
 
 export function MemoryCaptureWidget({
@@ -209,7 +243,10 @@ export function MemoryCaptureWidget({
       setState("requesting");
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      const recorder = new MediaRecorder(stream);
+      const audioMimeType = mode === "voice" ? getSupportedAudioMimeType() : undefined;
+      const recorder = audioMimeType
+        ? new MediaRecorder(stream, { mimeType: audioMimeType })
+        : new MediaRecorder(stream);
 
       streamRef.current = stream;
       recorderRef.current = recorder;
@@ -356,22 +393,34 @@ export function MemoryCaptureWidget({
     });
 
     try {
-      const result = await submitLegacyQuestionEntry({
-        email,
-        firstName,
-        wantsReminders: wantsReminder,
-        entryType: selectedMode,
-        textContent: selectedMode === "text" ? textMemory.trim() : undefined,
-        durationSeconds: selectedMode === "text" ? null : elapsedSeconds,
-        source: initialSource,
-        cardBatch: initialCardBatch,
-        mediaMimeType:
-          selectedMode === "voice"
-            ? audioBlob?.type ?? null
-            : selectedMode === "video"
-              ? videoBlob?.type ?? null
-              : null
-      });
+      const formData = new FormData();
+      formData.set("email", email);
+      formData.set("firstName", firstName);
+      formData.set("wantsReminders", String(wantsReminder));
+      formData.set("entryType", selectedMode);
+      formData.set("textContent", selectedMode === "text" ? textMemory.trim() : "");
+      formData.set("durationSeconds", selectedMode === "text" ? "" : String(elapsedSeconds));
+      formData.set("source", initialSource);
+      formData.set("cardBatch", initialCardBatch ?? "");
+
+      if (selectedMode === "voice" && audioBlob) {
+        const mimeType = audioBlob.type || "audio/mp4";
+        const audioFileBlob = audioBlob.type
+          ? audioBlob
+          : new Blob([audioBlob], { type: mimeType });
+        formData.set("mediaMimeType", mimeType);
+        formData.set(
+          "audioFile",
+          audioFileBlob,
+          `legacy-question-voice.${getAudioExtension(mimeType)}`
+        );
+      }
+
+      if (selectedMode === "video") {
+        formData.set("mediaMimeType", videoBlob?.type ?? "");
+      }
+
+      const result = await submitLegacyQuestionEntryForm(formData);
 
       if (!result.success) {
         setSubmissionStatus("idle");
@@ -540,7 +589,7 @@ export function MemoryCaptureWidget({
                   <span>Private by default. Nothing is posted publicly without your permission.</span>
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[#6f675d]">
-                  Written memories can become the first chapter in a starter archive. Voice and video recording will return here when secure upload support is ready.
+                  Written answers and voice memories can become the first chapter in a starter archive. Video recording is not available for starter archives yet.
                 </p>
               </div>
             </div>
@@ -563,7 +612,7 @@ export function MemoryCaptureWidget({
                           Your browser does not support the audio element.
                         </audio>
                         <p className="mt-3 text-sm font-semibold text-[#f1d598]">
-                          Preview only.
+                          This voice memory will be saved with your starter archive.
                         </p>
                       </div>
                     )}
@@ -597,7 +646,7 @@ export function MemoryCaptureWidget({
                     Preview your memory
                   </h3>
                   <p className="mt-3 leading-7 text-[#efe3d1]/82">
-                    Your written memory will appear here before you save it.
+                    Your memory will appear here before you save it.
                   </p>
                 </div>
               )}
@@ -618,7 +667,7 @@ export function MemoryCaptureWidget({
                 Where should we send your secure link?
               </h3>
               <p className="mt-3 text-sm leading-6 text-[#5f554a]">
-                Written memories are saved into a private starter archive and linked to this email.
+                Written answers and voice memories are saved into a private starter archive and linked to this email.
               </p>
 
               <div className="mt-5 grid gap-4">
@@ -669,7 +718,13 @@ export function MemoryCaptureWidget({
 
               <button
                 className="mt-5 w-full rounded-full bg-[#c9a45c] px-6 py-4 text-base font-bold text-[#11100e] shadow-[0_16px_38px_rgba(201,164,92,0.24)] transition hover:bg-[#e5cf9a] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/35 disabled:cursor-not-allowed disabled:opacity-70"
-                disabled={submissionStatus === "saving"}
+                disabled={
+                  submissionStatus === "saving" ||
+                  audioState === "recording" ||
+                  audioState === "requesting" ||
+                  videoState === "recording" ||
+                  videoState === "requesting"
+                }
                 type="submit"
               >
                 {submissionStatus === "saving" ? "Saving..." : "Save My First Memory"}

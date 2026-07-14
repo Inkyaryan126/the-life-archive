@@ -30,8 +30,12 @@ const audioExtensionByMimeType: Record<string, string> = {
 };
 const allowedAudioMimeTypes = new Set(Object.keys(audioExtensionByMimeType));
 
+function normalizeMimeType(value: string) {
+  return value.toLowerCase().split(";")[0].trim();
+}
+
 function getExtensionFromFile(file: File) {
-  const mimeExtension = imageExtensionByMimeType[file.type.toLowerCase()];
+  const mimeExtension = imageExtensionByMimeType[normalizeMimeType(file.type)];
 
   if (mimeExtension) {
     return mimeExtension;
@@ -45,7 +49,7 @@ function getArrayBuffer(file: File) {
 }
 
 export function validateImageUpload(file: File, fieldName: string) {
-  if (!allowedImageMimeTypes.has(file.type.toLowerCase())) {
+  if (!allowedImageMimeTypes.has(normalizeMimeType(file.type))) {
     throw new Error(
       `${fieldName} must be a JPG, PNG, WebP, GIF, or AVIF image.`
     );
@@ -57,7 +61,7 @@ export function validateImageUpload(file: File, fieldName: string) {
 }
 
 export function validateAudioUpload(file: File, fieldName: string) {
-  if (!allowedAudioMimeTypes.has(file.type.toLowerCase())) {
+  if (!allowedAudioMimeTypes.has(normalizeMimeType(file.type))) {
     throw new Error(
       `${fieldName} must be an MP3, WAV, M4A, AAC, OGG, or WebM audio file.`
     );
@@ -77,7 +81,7 @@ export function buildMemoryPhotoPath(archiveId: string, memoryId: string, file: 
 }
 
 function getAudioExtension(file: File) {
-  const mimeExtension = audioExtensionByMimeType[file.type.toLowerCase()];
+  const mimeExtension = audioExtensionByMimeType[normalizeMimeType(file.type)];
 
   if (mimeExtension) {
     return mimeExtension;

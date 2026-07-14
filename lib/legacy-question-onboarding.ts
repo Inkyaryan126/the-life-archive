@@ -7,6 +7,11 @@ import { sendEmail } from "@/lib/resend-email";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { issueLegacyQuestionClaimToken } from "@/lib/legacy-question-claims";
 import {
+  deleteStorageObject,
+  uploadMemoryVoice,
+  validateAudioUpload
+} from "@/lib/storage-media";
+import {
   getLegacyQuestionSubmission,
   updateLegacyQuestionProcessing,
   type LegacyQuestionSubmission
@@ -169,6 +174,7 @@ async function ensureFirstMemory(input: {
   submission: LegacyQuestionSubmission;
   archive: ArchiveResult;
   ownerId: string;
+  mediaFile?: File | null;
 }) {
   const supabase = getAdminClient();
 
@@ -202,18 +208,31 @@ async function ensureFirstMemory(input: {
     return { id: bySubmission.id as string };
   }
 
-  if (!input.submission.textContent) {
+  if (input.submission.entryType === "voice" && !input.mediaFile) {
+    throw new Error("Voice content is required to create the first memory.");
+  }
+
+  if (input.submission.entryType === "video") {
+    throw new Error("Video starter memories are not ready yet.");
+  }
+
+  if (input.submission.entryType === "text" && !input.submission.textContent) {
     throw new Error("Text content is required to create the first memory.");
   }
 
   const now = new Date().toISOString();
+  const isVoice = input.submission.entryType === "voice";
+  const memoryContent = isVoice
+    ? "Voice answer recorded from the Legacy Question."
+    : input.submission.textContent;
+
   const { data, error } = await supabase
     .from("memories")
     .insert({
       archive_id: input.archive.id,
-      title: "My first preserved memory",
-      type: "journal",
-      content: input.submission.textContent,
+      title: isVoice ? "My first voice memory" : "My first preserved memory",
+      type: isVoice ? "voice" : "journal",
+      content: memoryContent,
       media_url: null,
       photo_path: null,
       memory_date: now.slice(0, 10),
@@ -230,10 +249,57 @@ async function ensureFirstMemory(input: {
     throw new Error(error?.message || "Unable to create first memory.");
   }
 
-  return { id: data.id as string };
+  const memoryId = data.id as string;
+
+  if (!isVoice) {
+    return { id: memoryId };
+  }
+
+  const mediaFile = input.mediaFile;
+
+  if (!mediaFile) {
+    await supabase.from("memories").delete().eq("id", memoryId);
+    throw new Error("Voice content is required to create the first memory.");
+  }
+
+  let filePath: string | null = null;
+
+  try {
+    validateAudioUpload(mediaFile, "Voice memory");
+    filePath = await uploadMemoryVoice(input.archive.id, memoryId, mediaFile);
+
+    const { data: updatedMemory, error: updateError } = await supabase
+      .from("memories")
+      .update({
+        photo_path: filePath,
+        media_url: null
+      })
+      .eq("id", memoryId)
+      .select("id")
+      .single();
+
+    if (updateError || !updatedMemory) {
+      throw updateError || new Error("Memory could not be created.");
+    }
+  } catch (error) {
+    if (filePath) {
+      await deleteStorageObject(filePath);
+    }
+
+    await supabase.from("memories").delete().eq("id", memoryId);
+
+    throw error instanceof Error
+      ? error
+      : new Error("We couldn't save that voice file. Please try again.");
+  }
+
+  return { id: memoryId, mediaStoragePath: filePath, mediaMimeType: mediaFile.type };
 }
 
-export async function processLegacyQuestionSubmission(submissionId: string) {
+export async function processLegacyQuestionSubmission(
+  submissionId: string,
+  options: { mediaFile?: File | null } = {}
+) {
   const submission = await getLegacyQuestionSubmission(submissionId);
 
   if (!submission) {
@@ -258,12 +324,12 @@ export async function processLegacyQuestionSubmission(submissionId: string) {
     processingError: null
   });
 
-  if (submission.entryType !== "text") {
+  if (submission.entryType === "video") {
     await updateLegacyQuestionProcessing(submission.id, {
       processingStatus: "media_pending",
       processingStage: "media_pending",
       processingError:
-        "Voice and video submissions are captured, but starter archive media upload support is not wired yet."
+        "Video submissions are captured, but starter archive media upload support is not wired yet."
     });
     return getLegacyQuestionSubmission(submission.id);
   }
@@ -316,7 +382,8 @@ export async function processLegacyQuestionSubmission(submissionId: string) {
     const memory = await ensureFirstMemory({
       submission: refreshedAfterArchive,
       archive,
-      ownerId: owner.userId
+      ownerId: owner.userId,
+      mediaFile: options.mediaFile ?? null
     });
     const firstMemoryCreatedAt =
       refreshedAfterArchive.firstMemoryCreatedAt || new Date().toISOString();
@@ -324,6 +391,8 @@ export async function processLegacyQuestionSubmission(submissionId: string) {
     currentStage = "memory_created";
     await updateLegacyQuestionProcessing(submission.id, {
       firstMemoryId: memory.id,
+      mediaStoragePath: memory.mediaStoragePath ?? refreshedAfterArchive.mediaStoragePath,
+      mediaMimeType: memory.mediaMimeType ?? refreshedAfterArchive.mediaMimeType,
       firstMemoryCreatedAt,
       processingStatus: "memory_created",
       processingStage: currentStage

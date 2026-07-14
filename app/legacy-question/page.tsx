@@ -7,13 +7,13 @@ import { publicSupportEmail } from "@/lib/site-config";
 export const metadata: Metadata = {
   title: "Share One Memory | The Life Archive",
   description:
-    "Share one private written memory or story and begin a free Life Archive starter."
+    "Share one private written or voice memory and begin a free Life Archive starter."
 };
 
 const howItWorksSteps = [
   {
     title: "You share one memory",
-    copy: "Start with one written memory, story, lesson, or message."
+    copy: "Start with one written answer or voice memory."
   },
   {
     title: "We send it back to you",
@@ -219,7 +219,7 @@ function PrivacyConsentSection() {
             ))}
           </ul>
           <p className="mt-6 rounded-2xl border border-[#c9a45c]/20 bg-black/20 p-4 text-sm leading-6 text-[#efe3d1]/72">
-            Written Legacy Question memories are saved privately into a starter archive. Voice and video recording will return here when secure upload support is ready.
+            Written answers and voice memories are saved privately into a starter archive. Video recording is not available for starter archives yet.
           </p>
         </div>
       </div>
