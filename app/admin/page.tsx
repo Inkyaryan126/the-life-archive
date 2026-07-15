@@ -74,20 +74,29 @@ function SiteVisitSection({ stats }: { stats: SiteVisitStats }) {
             Visitor Activity
           </p>
           <h2 className="mt-3 font-serif text-3xl text-archive-ivory">
-            Public site visits
+            Human site activity
           </h2>
         </div>
       </div>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Total public visits" value={stats.totalPublicVisits} />
-        <StatCard label="Visits today" value={stats.visitsToday} />
-        <StatCard label="Last 7 days" value={stats.visitsLast7Days} />
+        <StatCard
+          label="Human page views"
+          value={stats.totalPublicVisits}
+        />
+        <StatCard
+          label="Human page views today"
+          value={stats.humanPageViewsToday}
+        />
+        <StatCard
+          label="Human page views last 7 days"
+          value={stats.humanPageViewsLast7Days}
+        />
       </div>
 
       <div className="mt-5 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
         <h3 className="font-serif text-2xl text-archive-ivory">
-          Top visited paths
+          Top human paths
         </h3>
         {stats.topPaths.length > 0 ? (
           <div className="mt-4 divide-y divide-archive-gold/10">
@@ -322,11 +331,18 @@ export default async function AdminPage({
     visitsToday: 0,
     visitsLast7Days: 0,
     visitsLast30Days: 0,
-    uniqueVisitorsLast30Days: 0,
+    humanPageViewsToday: 0,
+    humanPageViewsLast7Days: 0,
+    humanPageViewsLast30Days: 0,
+    uniqueVisitorsSinceTrackingBegan: 0,
     newVisitorsLast30Days: 0,
     returningVisitorsLast30Days: 0,
+    botProbeRequestsLast30Days: 0,
+    adminRequestsLast30Days: 0,
+    visitorIdTrackingStartedAt: null,
     mostRecentVisit: null,
     recentVisits: [],
+    recentBotProbeVisits: [],
     topPaths: []
   };
   let loadError: string | null = null;
@@ -379,7 +395,7 @@ export default async function AdminPage({
             >
               Visitors
               <span className="rounded-full border border-archive-gold/25 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-archive-ivory/60">
-                {siteVisitStats.visitsToday.toLocaleString("en-US")} today
+                {siteVisitStats.humanPageViewsToday.toLocaleString("en-US")} today
               </span>
             </Link>
           </div>

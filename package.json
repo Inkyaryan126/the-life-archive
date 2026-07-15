@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "next lint",
-    "test": "for test_file in tests/*.test.ts; do ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' \"$test_file\"; done"
+    "test": "set -e; for test_file in tests/*.test.ts; do ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' \"$test_file\"; done"
   },
   "dependencies": {
     "@fontsource/noto-sans-mono": "^5.2.10",

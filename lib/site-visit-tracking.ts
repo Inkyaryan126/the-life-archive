@@ -40,6 +40,10 @@ function getSiteVisitInsertClient(
   return siteVisitInsertClient;
 }
 
+export function getSiteVisitAdminFlag(userEmail: string | null | undefined) {
+  return isConfiguredAdminEmail(userEmail);
+}
+
 export async function recordSiteVisit(input: {
   request: NextRequest;
   response: NextResponse;
@@ -71,7 +75,7 @@ export async function recordSiteVisit(input: {
   const visitorId = isValidVisitorId(existingVisitorId)
     ? existingVisitorId
     : createVisitorId();
-  const isAdmin = isConfiguredAdminEmail(input.userEmail);
+  const isAdmin = getSiteVisitAdminFlag(input.userEmail);
 
   const { error } = await getSiteVisitInsertClient(input.supabase)
     .from("site_visits")

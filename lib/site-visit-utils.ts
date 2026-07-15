@@ -9,10 +9,38 @@ const PUBLIC_FILE_PATTERN =
   /\.(?:css|js|map|ico|svg|png|jpg|jpeg|gif|webp|avif|txt|xml|json|woff|woff2|ttf|otf)$/i;
 
 const BOT_USER_AGENT_PATTERN =
-  /\b(bot|crawler|spider|crawling|preview|facebookexternalhit|slurp|bingbot|googlebot|duckduckbot|yandex|baiduspider|semrush|ahrefs|pingdom|uptimerobot)\b/i;
+  /\b(bot|crawler|spider|crawling|preview|facebookexternalhit|slurp|bingbot|googlebot|duckduckbot|yandex|baiduspider|semrush|ahrefs|pingdom|uptimerobot|zgrab|masscan|nmap|nikto|sqlmap|acunetix|nessus|openvas|wpscan|dirbuster|gobuster|python-requests|curl|wget)\b/i;
+
+const PROBE_PATH_PATTERNS = [
+  /^\/wp-admin(?:\/|$)/i,
+  /^\/wp-login\.php$/i,
+  /^\/xmlrpc\.php$/i,
+  /^\/\.env(?:\.|\/|$)/i,
+  /^\/\.git(?:\/|$)/i,
+  /^\/phpmyadmin(?:\/|$)/i,
+  /^\/pma(?:\/|$)/i,
+  /^\/administrator(?:\/|$)/i,
+  /^\/admin\.php$/i,
+  /^\/wp(?:\/|$)/i,
+  /^\/wordpress(?:\/|$)/i,
+  /^\/wp-admin\/install\.php$/i,
+  /^\/wp-admin\/setup-config\.php$/i,
+  /^\/wp-content(?:\/|$)/i,
+  /^\/wp-includes(?:\/|$)/i,
+  /^\/setup-config\.php$/i,
+  /^\/install\.php$/i
+];
 
 export type DeviceType = "mobile" | "tablet" | "desktop";
 export type VisitorStatus = "new" | "returning" | "unknown";
+export type VisitTrafficType = "human" | "admin" | "bot_probe" | "ignored";
+
+export type ClassifiableVisit = {
+  path: string;
+  userAgent?: string | null;
+  referrer?: string | null;
+  isAdmin?: boolean;
+};
 
 export function createVisitorId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -77,13 +105,66 @@ export function shouldRecordSiteVisit(input: {
     return false;
   }
 
-  const userAgent = input.headers.get("user-agent");
-
-  if (userAgent && BOT_USER_AGENT_PATTERN.test(userAgent)) {
+  if (
+    classifyVisitTraffic({
+      path: input.path,
+      userAgent: input.headers.get("user-agent"),
+      referrer: input.headers.get("referer")
+    }) !== "human"
+  ) {
     return false;
   }
 
   return true;
+}
+
+export function isKnownBotUserAgent(userAgent: string | null | undefined) {
+  const value = getSafeHeaderValue(userAgent, 500);
+
+  return Boolean(value && BOT_USER_AGENT_PATTERN.test(value));
+}
+
+export function isProbePath(path: string | null | undefined) {
+  if (!path) {
+    return false;
+  }
+
+  const normalizedPath = path.split("?")[0]?.toLowerCase() ?? "";
+
+  return PROBE_PATH_PATTERNS.some((pattern) => pattern.test(normalizedPath));
+}
+
+export function isIgnoredInternalPath(path: string | null | undefined) {
+  if (!path) {
+    return true;
+  }
+
+  return (
+    path === "/favicon.ico" ||
+    path === "/robots.txt" ||
+    path === "/sitemap.xml" ||
+    path === "/health" ||
+    path.startsWith("/admin") ||
+    path.startsWith("/api") ||
+    path.startsWith("/_next") ||
+    PUBLIC_FILE_PATTERN.test(path)
+  );
+}
+
+export function classifyVisitTraffic(input: ClassifiableVisit): VisitTrafficType {
+  if (input.isAdmin) {
+    return "admin";
+  }
+
+  if (isIgnoredInternalPath(input.path)) {
+    return "ignored";
+  }
+
+  if (isProbePath(input.path) || isKnownBotUserAgent(input.userAgent)) {
+    return "bot_probe";
+  }
+
+  return "human";
 }
 
 export function createLastVisitSignature(path: string, now = new Date()) {
