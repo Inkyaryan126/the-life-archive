@@ -47,6 +47,7 @@ supabase/migrations/20260714120000_allow_memory_photo_path_content_check.sql
 supabase/migrations/20260714130000_create_scheduled_memory_deliveries.sql
 supabase/migrations/20260715160000_recover_stale_time_capsule_processing.sql
 supabase/migrations/20260715173000_schedule_time_capsule_supabase_cron.sql
+supabase/migrations/20260715190000_add_site_visit_visitor_id.sql
 ```
 
 It creates:
@@ -68,6 +69,7 @@ It creates:
 - `archives.legacy_activation_code`
 - `legacy_activation_requests`
 - `site_visits`
+- `site_visits.anonymous_visitor_id`
 - `scheduled_memory_deliveries`
 
 ## Time Capsule Cron

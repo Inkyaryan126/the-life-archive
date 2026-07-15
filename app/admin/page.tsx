@@ -321,6 +321,12 @@ export default async function AdminPage({
     totalPublicVisits: 0,
     visitsToday: 0,
     visitsLast7Days: 0,
+    visitsLast30Days: 0,
+    uniqueVisitorsLast30Days: 0,
+    newVisitorsLast30Days: 0,
+    returningVisitorsLast30Days: 0,
+    mostRecentVisit: null,
+    recentVisits: [],
     topPaths: []
   };
   let loadError: string | null = null;
@@ -366,6 +372,15 @@ export default async function AdminPage({
             </Link>
             <Link href="/admin/users" className="underline-offset-4 hover:underline">
               Users & Archives
+            </Link>
+            <Link
+              href="/admin/visitors"
+              className="inline-flex items-center gap-2 underline-offset-4 hover:underline"
+            >
+              Visitors
+              <span className="rounded-full border border-archive-gold/25 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-archive-ivory/60">
+                {siteVisitStats.visitsToday.toLocaleString("en-US")} today
+              </span>
             </Link>
           </div>
         </nav>

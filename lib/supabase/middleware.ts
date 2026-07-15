@@ -38,6 +38,7 @@ export async function updateSession(request: NextRequest) {
 
   await recordSiteVisit({
     request,
+    response,
     supabase,
     userEmail: user?.email ?? null
   });
