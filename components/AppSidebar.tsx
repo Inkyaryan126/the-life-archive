@@ -8,6 +8,7 @@ type AppSidebarProps = {
     | "settings"
     | "member-card"
     | "keepsakes"
+    | "time-capsules"
     | "add-memory"
     | "edit"
     | "qr"
@@ -81,6 +82,7 @@ export function AppSidebar({
           </p>
           <SidebarLink href="/dashboard" label="My Archives" active={active === "dashboard"} />
           <SidebarLink href="/dashboard/settings" label="Profile Settings" active={active === "settings"} />
+          <SidebarLink href="/dashboard/time-capsules" label="Time Capsules" active={active === "time-capsules"} />
           <SidebarLink href="/member-card" label="Member Card" active={active === "member-card"} />
           <SidebarLink href="/keepsakes" label="Keepsake Store" active={active === "keepsakes"} />
         </div>

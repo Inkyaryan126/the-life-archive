@@ -62,9 +62,12 @@ function mapDomainErrorToState(
     case "delivery_date_not_future":
       fieldErrors.localDate = error.message;
       break;
+    case "invalid_delivery_time":
+      fieldErrors.localTime = error.message;
+      break;
     case "invalid_local_delivery_time":
       formError =
-        "Choose a valid delivery date and timezone.";
+        "Choose a valid delivery date, time, and timezone.";
       break;
     case "delivery_not_editable":
       formError = "This Time Capsule can no longer be edited.";
@@ -103,6 +106,7 @@ export async function createTimeCapsuleAction(
   const personalNote = readString(formData, "personalNote");
   const timezone = readString(formData, "timezone");
   const localDate = readString(formData, "localDate");
+  const localTime = readString(formData, "localTime");
 
   let deliveryId: string | null = null;
 
@@ -114,7 +118,8 @@ export async function createTimeCapsuleAction(
       recipientEmail,
       personalNote,
       timezone,
-      localDate
+      localDate,
+      localTime
     });
     deliveryId = delivery.id;
   } catch (error) {
@@ -147,6 +152,7 @@ export async function updateTimeCapsuleAction(
   const personalNote = readString(formData, "personalNote");
   const timezone = readString(formData, "timezone");
   const localDate = readString(formData, "localDate");
+  const localTime = readString(formData, "localTime");
 
   if (!deliveryId) {
     return {
@@ -164,7 +170,8 @@ export async function updateTimeCapsuleAction(
       recipientEmail,
       personalNote,
       timezone,
-      localDate
+      localDate,
+      localTime
     });
     updatedDeliveryId = delivery.id;
   } catch (error) {

@@ -14,10 +14,12 @@ SUPABASE_SERVICE_ROLE_KEY=server-only-service-role-key
 ADMIN_EMAILS=you@example.com
 RESEND_API_KEY=server-only-resend-api-key
 TLA_FROM_EMAIL="The Life Archive <hello@thelifearchive.vip>"
+CRON_SECRET=long-random-cron-secret
 ```
 
 Do not expose `SUPABASE_SERVICE_ROLE_KEY` to the browser. It should only be used in trusted server-side scripts or admin-only maintenance tasks.
 Do not expose `RESEND_API_KEY` to the browser. It is used only by server-side onboarding email code.
+Do not expose `CRON_SECRET` to the browser. Vercel Cron must send it as `Authorization: Bearer <CRON_SECRET>` when calling `/api/cron/time-capsules`.
 
 Phase 1 storage-backed image uploads also require the service role key so the server can upload private archive images and generate signed image URLs.
 
@@ -35,6 +37,14 @@ supabase/migrations/20260624000000_create_visitor_messages.sql
 supabase/migrations/20260628120000_create_keepsake_orders.sql
 supabase/migrations/20260701120000_add_legacy_activation_codes.sql
 supabase/migrations/20260708120000_create_site_visits.sql
+supabase/migrations/20260709120000_create_legacy_question_submissions.sql
+supabase/migrations/20260710120000_wire_legacy_question_onboarding.sql
+supabase/migrations/20260711120000_refine_legacy_question_pipeline_status.sql
+supabase/migrations/20260711123000_restore_legacy_question_test_delete_rpc.sql
+supabase/migrations/20260711140000_add_legacy_question_claim_tokens.sql
+supabase/migrations/20260711150000_add_profiles.sql
+supabase/migrations/20260714120000_allow_memory_photo_path_content_check.sql
+supabase/migrations/20260714130000_create_scheduled_memory_deliveries.sql
 ```
 
 It creates:
@@ -56,6 +66,15 @@ It creates:
 - `archives.legacy_activation_code`
 - `legacy_activation_requests`
 - `site_visits`
+- `scheduled_memory_deliveries`
+
+## Vercel Cron
+
+`vercel.json` schedules `/api/cron/time-capsules` every five minutes. Configure `CRON_SECRET` in Vercel and set the cron request authorization header to:
+
+```text
+Authorization: Bearer <CRON_SECRET>
+```
 
 ## Seed File
 

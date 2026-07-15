@@ -87,11 +87,14 @@ function getEmailErrorCode(error: unknown) {
 export function buildTimeCapsuleDeliveryEmail(input: TimeCapsuleEmailInput) {
   const senderName = getSenderName(input.delivery);
   const archiveIdentity = getArchiveIdentity(input.delivery);
+  const recipientName =
+    normalizeDisplayValue(input.delivery.recipientName) || "there";
   const memoryTitle =
     normalizeDisplayValue(input.delivery.memory.title) || "Untitled memory";
   const personalNote = input.delivery.personalNote?.trim() || "";
   const subject = `A memory from ${safeSubjectName(senderName)} is waiting for you`;
   const escapedSenderName = escapeHtml(senderName);
+  const escapedRecipientName = escapeHtml(recipientName);
   const escapedArchiveIdentity = escapeHtml(archiveIdentity);
   const escapedMemoryTitle = escapeHtml(memoryTitle);
   const escapedDeliveryUrl = escapeHtml(input.deliveryUrl);
@@ -121,7 +124,7 @@ export function buildTimeCapsuleDeliveryEmail(input: TimeCapsuleEmailInput) {
               <td style="padding:30px 28px;">
                 <p style="margin:0 0 18px;color:#c6a15b;font-size:12px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;">The Life Archive</p>
                 <h1 style="margin:0;color:#f5eddc;font-family:Georgia,Times,serif;font-size:32px;line-height:1.18;font-weight:400;">A memory has been scheduled for you</h1>
-                <p style="margin:18px 0 0;color:#cfc4ad;font-size:16px;line-height:1.7;">${escapedSenderName} prepared a memory for you through The Life Archive.</p>
+                <p style="margin:18px 0 0;color:#cfc4ad;font-size:16px;line-height:1.7;">Hi ${escapedRecipientName}, ${escapedSenderName} prepared a memory for you through The Life Archive.</p>
 
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:22px;border-top:1px solid rgba(198,161,91,0.22);border-bottom:1px solid rgba(198,161,91,0.22);">
                   <tr>
@@ -157,6 +160,8 @@ export function buildTimeCapsuleDeliveryEmail(input: TimeCapsuleEmailInput) {
     "The Life Archive",
     "",
     "A memory has been scheduled for you",
+    "",
+    `Hi ${recipientName},`,
     "",
     `${senderName} prepared a memory for you through The Life Archive.`,
     "",

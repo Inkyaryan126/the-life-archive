@@ -43,7 +43,7 @@ export default async function TimeCapsulesPage({
 
       <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
         <AppSidebar
-          active="dashboard"
+          active="time-capsules"
           archiveSlug={account.defaultArchive?.slug ?? null}
           archiveName={account.defaultArchive?.archiveName ?? null}
           archivePersonName={account.defaultArchive?.personName ?? null}
@@ -159,6 +159,11 @@ export default async function TimeCapsulesPage({
                           <Link href={`/dashboard/time-capsules/${delivery.id}`} className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]">
                             View
                           </Link>
+                          {delivery.archive.slug && delivery.memory ? (
+                            <Link href={`/archive/${delivery.archive.slug}/memories/${delivery.memory.id}`} className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]">
+                              Open memory
+                            </Link>
+                          ) : null}
                           {delivery.status === "scheduled" ? (
                             <Link href={`/dashboard/time-capsules/${delivery.id}/edit`} className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]">
                               Edit

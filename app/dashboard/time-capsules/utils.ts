@@ -22,6 +22,7 @@ export function formatTimeCapsuleLocalDate(
 ) {
   return new Intl.DateTimeFormat("en-US", {
     dateStyle: "long",
+    timeStyle: "short",
     timeZone: timezone
   }).format(new Date(scheduledFor));
 }

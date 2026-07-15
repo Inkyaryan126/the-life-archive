@@ -24,6 +24,7 @@ export type TimeCapsuleFormValues = {
   personalNote: string;
   timezone: string;
   localDate: string;
+  localTime: string;
 };
 
 type TimeCapsuleFormAction = (
@@ -94,23 +95,45 @@ function parseDateParts(localDate: string) {
   };
 }
 
+function parseTimeParts(localTime: string) {
+  const match = /^(\d{2}):(\d{2})$/.exec(localTime.trim());
+
+  if (!match) {
+    return null;
+  }
+
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+
+  if (hour > 23 || minute > 59) {
+    return null;
+  }
+
+  return {
+    hour,
+    minute
+  };
+}
+
 function getPreview(
   localDate: string,
+  localTime: string,
   timezone: string
 ): PreviewState {
-  if (!localDate || !timezone) {
+  if (!localDate || !localTime || !timezone) {
     return {
       kind: "needs-input",
-      message: "Choose a date and timezone to preview the delivery."
+      message: "Choose a date, time, and timezone to preview the delivery."
     };
   }
 
   const dateParts = parseDateParts(localDate);
+  const timeParts = parseTimeParts(localTime);
 
-  if (!dateParts) {
+  if (!dateParts || !timeParts) {
     return {
       kind: "invalid",
-      message: "Choose a valid delivery date."
+      message: "Choose a valid delivery date and time."
     };
   }
 
@@ -119,8 +142,7 @@ function getPreview(
       {
         timeZone: timezone,
         ...dateParts,
-        hour: 9,
-        minute: 0,
+        ...timeParts,
         second: 0,
         millisecond: 0,
         microsecond: 0,
@@ -140,34 +162,44 @@ function getPreview(
   } catch {
     return {
       kind: "invalid",
-      message: "Choose a valid delivery date and timezone."
+      message: "Choose a valid delivery date, time, and timezone."
     };
   }
 }
 
 function getClientValidationError(
   localDate: string,
+  localTime: string,
   timezone: string
 ) {
   const dateParts = parseDateParts(localDate);
+  const timeParts = parseTimeParts(localTime);
 
-  if (!dateParts || !timezone) {
+  if (!dateParts || !timeParts || !timezone) {
     return null;
   }
 
   try {
-    const selectedDate = Temporal.PlainDate.from(dateParts);
-    const earliestDeliveryDate = Temporal.Now.zonedDateTimeISO(timezone)
-      .toPlainDate()
-      .add({ days: 1 });
+    const selected = Temporal.ZonedDateTime.from(
+      {
+        timeZone: timezone,
+        ...dateParts,
+        ...timeParts,
+        second: 0,
+        millisecond: 0,
+        microsecond: 0,
+        nanosecond: 0
+      },
+      { disambiguation: "reject" }
+    ).toInstant();
 
-    if (Temporal.PlainDate.compare(selectedDate, earliestDeliveryDate) < 0) {
-      return "Choose a future delivery date.";
+    if (Temporal.Instant.compare(selected, Temporal.Now.instant()) <= 0) {
+      return "Choose a future delivery date and time.";
     }
 
     return null;
   } catch {
-    return "Choose a valid delivery date and timezone.";
+    return "Choose a valid delivery date, time, and timezone.";
   }
 }
 
@@ -207,6 +239,7 @@ export function TimeCapsuleScheduleForm({
   const [personalNote, setPersonalNote] = useState(initialValues.personalNote);
   const [timezone, setTimezone] = useState(initialValues.timezone);
   const [localDate, setLocalDate] = useState(initialValues.localDate);
+  const [localTime, setLocalTime] = useState(initialValues.localTime);
   const [clientError, setClientError] = useState("");
 
   const timezoneOptions = useMemo(() => getTimezoneOptions(), []);
@@ -215,8 +248,8 @@ export function TimeCapsuleScheduleForm({
   const selectedMemory =
     selectedArchive?.memories.find((memory) => memory.id === memoryId) ?? selectedArchive?.memories[0] ?? null;
   const preview = useMemo(
-    () => getPreview(localDate, timezone),
-    [localDate, timezone]
+    () => getPreview(localDate, localTime, timezone),
+    [localDate, localTime, timezone]
   );
   const formError = clientError || state.formError;
 
@@ -252,7 +285,8 @@ export function TimeCapsuleScheduleForm({
     recipientEmail,
     personalNote,
     timezone,
-    localDate
+    localDate,
+    localTime
   ]);
 
   const showCreateSelection = mode === "create";
@@ -271,6 +305,7 @@ export function TimeCapsuleScheduleForm({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     const clientValidationError = getClientValidationError(
       localDate,
+      localTime,
       timezone
     );
 
@@ -445,7 +480,7 @@ export function TimeCapsuleScheduleForm({
       <section className="grid gap-4">
         <SectionLabel>{scheduleStepLabel}</SectionLabel>
         <p className="text-sm leading-6 text-archive-ivory/62">
-          Choose the day this memory should arrive.
+          Choose the day and time this memory should arrive.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="grid gap-2 sm:col-span-1">
@@ -468,6 +503,24 @@ export function TimeCapsuleScheduleForm({
 
           <label className="grid gap-2 sm:col-span-1">
             <span className="text-sm font-semibold text-archive-ivory">
+              Delivery time
+            </span>
+            <input
+              name="localTime"
+              type="time"
+              required
+              value={localTime}
+              onChange={(event) => setLocalTime(event.target.value)}
+              className="rounded-2xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 text-archive-ivory outline-none transition focus:border-archive-gold"
+            />
+            <FieldError message={state.fieldErrors.localTime} />
+            <span className="text-sm leading-6 text-archive-ivory/58">
+              Use the recipient’s local delivery time when you know it.
+            </span>
+          </label>
+
+          <label className="grid gap-2 sm:col-span-2">
+            <span className="text-sm font-semibold text-archive-ivory">
               Timezone
             </span>
             <input
@@ -489,7 +542,7 @@ export function TimeCapsuleScheduleForm({
           </label>
         </div>
         <p className="text-sm leading-6 text-archive-ivory/60">
-          Use an IANA timezone like <span className="text-archive-ivory">America/New_York</span>. We use that timezone to interpret the selected calendar date.
+          Use an IANA timezone like <span className="text-archive-ivory">America/New_York</span>. We use that timezone to interpret the selected calendar date and time.
         </p>
       </section>
 

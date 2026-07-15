@@ -46,7 +46,7 @@ export default async function NewTimeCapsulePage() {
         <DesignBackdrop />
         <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
           <AppSidebar
-            active="dashboard"
+            active="time-capsules"
             archiveSlug={account.defaultArchive?.slug ?? null}
             archiveName={account.defaultArchive?.archiveName ?? null}
             archivePersonName={account.defaultArchive?.personName ?? null}
@@ -106,7 +106,7 @@ export default async function NewTimeCapsulePage() {
 
       <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
         <AppSidebar
-          active="dashboard"
+          active="time-capsules"
           archiveSlug={account.defaultArchive?.slug ?? null}
           archiveName={account.defaultArchive?.archiveName ?? null}
           archivePersonName={account.defaultArchive?.personName ?? null}
@@ -155,7 +155,8 @@ export default async function NewTimeCapsulePage() {
                   recipientEmail: "",
                   personalNote: "",
                   timezone: "",
-                  localDate: ""
+                  localDate: "",
+                  localTime: "09:00"
                 }}
                 mode="create"
                 submitLabel="Schedule delivery"

@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/time-capsules",
-      "schedule": "0 9 * * *"
+      "schedule": "*/5 * * * *"
     }
   ]
 }

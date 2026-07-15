@@ -24,6 +24,16 @@ function getLocalDateValue(scheduledFor: string, timezone: string) {
   return zonedDateTime.toPlainDate().toString();
 }
 
+function getLocalTimeValue(scheduledFor: string, timezone: string) {
+  const zonedDateTime = Temporal.Instant.from(scheduledFor).toZonedDateTimeISO(
+    timezone
+  );
+
+  return zonedDateTime.toPlainTime().toString({
+    smallestUnit: "minute"
+  });
+}
+
 export default async function EditTimeCapsulePage({
   params
 }: TimeCapsuleEditPageProps) {
@@ -59,7 +69,7 @@ export default async function EditTimeCapsulePage({
 
         <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
           <AppSidebar
-            active="dashboard"
+            active="time-capsules"
             archiveSlug={account.defaultArchive?.slug ?? null}
             archiveName={account.defaultArchive?.archiveName ?? null}
             archivePersonName={account.defaultArchive?.personName ?? null}
@@ -115,6 +125,10 @@ export default async function EditTimeCapsulePage({
     delivery.scheduledFor,
     delivery.timezone
   );
+  const localTime = getLocalTimeValue(
+    delivery.scheduledFor,
+    delivery.timezone
+  );
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
@@ -122,7 +136,7 @@ export default async function EditTimeCapsulePage({
 
       <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
         <AppSidebar
-          active="dashboard"
+          active="time-capsules"
           archiveSlug={account.defaultArchive?.slug ?? null}
           archiveName={account.defaultArchive?.archiveName ?? null}
           archivePersonName={account.defaultArchive?.personName ?? null}
@@ -171,7 +185,8 @@ export default async function EditTimeCapsulePage({
                   recipientEmail: delivery.recipientEmail,
                   personalNote: delivery.personalNote ?? "",
                   timezone: delivery.timezone,
-                  localDate
+                  localDate,
+                  localTime
                 }}
                 deliveryId={delivery.id}
                 mode="edit"

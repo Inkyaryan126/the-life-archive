@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' tests/time-capsule-scheduling.test.ts"
   },
   "dependencies": {
     "@fontsource/noto-sans-mono": "^5.2.10",

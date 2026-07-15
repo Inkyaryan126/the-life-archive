@@ -84,7 +84,7 @@ export default async function TimeCapsuleDetailPage({
 
       <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
         <AppSidebar
-          active="dashboard"
+          active="time-capsules"
           archiveSlug={account.defaultArchive?.slug ?? null}
           archiveName={account.defaultArchive?.archiveName ?? null}
           archivePersonName={account.defaultArchive?.personName ?? null}
@@ -147,6 +147,11 @@ export default async function TimeCapsuleDetailPage({
                 {canEdit ? (
                   <Link href={`/dashboard/time-capsules/${delivery.id}/edit`} className="rounded-full bg-archive-gold px-5 py-3 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne">
                     Edit
+                  </Link>
+                ) : null}
+                {delivery.archive.slug && delivery.memory ? (
+                  <Link href={`/archive/${delivery.archive.slug}/memories/${delivery.memory.id}`} className="rounded-full border border-archive-gold/28 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]">
+                    Open memory
                   </Link>
                 ) : null}
               </div>

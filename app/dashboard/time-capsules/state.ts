@@ -5,7 +5,8 @@ export type TimeCapsuleFieldName =
   | "recipientEmail"
   | "personalNote"
   | "timezone"
-  | "localDate";
+  | "localDate"
+  | "localTime";
 
 export type TimeCapsuleActionState = {
   fieldErrors: Partial<Record<TimeCapsuleFieldName, string>>;

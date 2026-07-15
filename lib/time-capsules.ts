@@ -2,14 +2,25 @@ import "server-only";
 
 import crypto from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { Temporal } from "@js-temporal/polyfill";
 import { maskEmailAddress } from "@/lib/auth-passwords";
 import { getFallbackDisplayName, loadProfileByUserId } from "@/lib/profiles";
 import { validateMemoryMediaUrl } from "@/lib/safe-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { resolveStorageImageUrl } from "@/lib/storage-media";
+import {
+  convertLocalDeliveryDateToUtc,
+  TimeCapsuleDomainError,
+  type ScheduleDeliveryDateInput
+} from "@/lib/time-capsule-scheduling";
 import type { MemoryType } from "@/lib/types";
+
+export {
+  convertLocalDeliveryDateToUtc,
+  parseTimeCapsuleDateParts,
+  parseTimeCapsuleTimeParts,
+  TimeCapsuleDomainError
+} from "@/lib/time-capsule-scheduling";
 
 type PublicClient = SupabaseClient<any, "public", any>;
 
@@ -22,11 +33,6 @@ export const timeCapsuleStatuses = [
 ] as const;
 
 export type TimeCapsuleStatus = (typeof timeCapsuleStatuses)[number];
-
-export type ScheduleDeliveryDateInput = {
-  localDate: string;
-  timezone: string;
-};
 
 export type CreateScheduledMemoryDeliveryInput = ScheduleDeliveryDateInput & {
   archiveId: string;
@@ -131,6 +137,7 @@ export type PublicDeliveredTimeCapsule =
           personName: string;
         };
         ownerDisplayName: string;
+        recipientName: string;
         memory: {
           id: string;
           title: string;
@@ -267,26 +274,14 @@ const memoryDeliveryColumns =
 const maxRecipientNameLength = 120;
 const maxRecipientEmailLength = 320;
 const maxPersonalNoteLength = 500;
-const maxTimezoneLength = 100;
 const maxResendEmailIdLength = 160;
 const maxErrorCodeLength = 80;
 const maxErrorMessageLength = 300;
 const tokenBytes = 32;
-const dateOnlyDeliveryHour = 9;
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const tokenPattern = /^[A-Za-z0-9_-]{32,128}$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export class TimeCapsuleDomainError extends Error {
-  code: string;
-
-  constructor(code: string, message: string) {
-    super(message);
-    this.name = "TimeCapsuleDomainError";
-    this.code = code;
-  }
-}
 
 function getAdminClient() {
   return createAdminClient() as PublicClient;
@@ -441,78 +436,6 @@ function normalizePersonalNote(value?: string | null) {
   }
 
   return normalized;
-}
-
-function parseDateParts(localDate: string) {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(localDate.trim());
-
-  if (!match) {
-    throw new TimeCapsuleDomainError(
-      "invalid_delivery_date",
-      "Enter a valid delivery date."
-    );
-  }
-
-  return {
-    year: Number(match[1]),
-    month: Number(match[2]),
-    day: Number(match[3])
-  };
-}
-
-export function convertLocalDeliveryDateToUtc(input: ScheduleDeliveryDateInput) {
-  const timezone = input.timezone.trim();
-
-  if (!timezone || timezone.length > maxTimezoneLength) {
-    throw new TimeCapsuleDomainError(
-      "invalid_timezone",
-      "Choose a valid timezone."
-    );
-  }
-
-  try {
-    const dateParts = parseDateParts(input.localDate);
-    const selectedDate = Temporal.PlainDate.from(dateParts);
-    const earliestDeliveryDate = Temporal.Now.zonedDateTimeISO(timezone)
-      .toPlainDate()
-      .add({ days: 1 });
-
-    if (Temporal.PlainDate.compare(selectedDate, earliestDeliveryDate) < 0) {
-      throw new TimeCapsuleDomainError(
-        "delivery_date_not_future",
-        "Choose a future delivery date."
-      );
-    }
-
-    const zonedDateTime = Temporal.ZonedDateTime.from(
-      {
-        timeZone: timezone,
-        ...dateParts,
-        hour: dateOnlyDeliveryHour,
-        minute: 0,
-        second: 0,
-        millisecond: 0,
-        microsecond: 0,
-        nanosecond: 0
-      },
-      { disambiguation: "reject" }
-    );
-    const instant = zonedDateTime.toInstant();
-
-    return {
-      scheduledFor: instant.toString(),
-      timezone
-    };
-  } catch (error) {
-    if (error instanceof TimeCapsuleDomainError) {
-      throw error;
-    }
-
-    throw new TimeCapsuleDomainError(
-      "invalid_local_delivery_time",
-      "Choose a valid delivery date and timezone."
-    );
-  }
 }
 
 function hashTimeCapsuleToken(rawToken: string) {
@@ -1646,6 +1569,7 @@ export async function resolveDeliveredScheduledMemoryDeliveryByToken(
           row.owner_id,
           archive.person_name
         ),
+        recipientName: row.recipient_name,
         memory: {
           id: memory.id,
           title: memory.title,

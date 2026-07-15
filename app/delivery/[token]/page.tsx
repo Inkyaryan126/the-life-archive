@@ -61,13 +61,21 @@ function DeliveredSummary({
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
+            Delivered to
+          </p>
+          <p className="mt-2 font-serif text-2xl text-archive-ivory">
+            {delivery.recipientName}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
             Prepared by
           </p>
           <p className="mt-2 font-serif text-2xl text-archive-ivory">
             {delivery.ownerDisplayName}
           </p>
         </div>
-        <div>
+        <div className="sm:col-span-2">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">
             Archive
           </p>
