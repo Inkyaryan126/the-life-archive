@@ -1,8 +1,19 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { recordSiteVisit } from "@/lib/site-visit-tracking";
+import { getCanonicalHostRedirectUrl } from "@/lib/site-visit-utils";
 
 export async function updateSession(request: NextRequest) {
+  const canonicalRedirectUrl = getCanonicalHostRedirectUrl({
+    requestUrl: request.url,
+    hostHeader: request.headers.get("host"),
+    siteUrl: process.env.NEXT_PUBLIC_SITE_URL
+  });
+
+  if (canonicalRedirectUrl) {
+    return NextResponse.redirect(canonicalRedirectUrl, 308);
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
