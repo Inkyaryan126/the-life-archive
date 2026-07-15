@@ -275,3 +275,39 @@ const freshProcessingStartedAt = "2026-07-15T15:50:00.000Z";
 }
 
 console.log("time-capsule-recovery tests passed");
+
+{
+  const vercelConfig = JSON.parse(readFileSync("vercel.json", "utf8")) as {
+    crons?: Array<{ path?: string; schedule?: string }>;
+  };
+
+  assert.equal(
+    vercelConfig.crons?.some(
+      (cron) =>
+        cron.path === "/api/cron/time-capsules" &&
+        cron.schedule === "*/5 * * * *"
+    ) ?? false,
+    false
+  );
+}
+
+{
+  const migration = readFileSync(
+    "supabase/migrations/20260715173000_schedule_time_capsule_supabase_cron.sql",
+    "utf8"
+  );
+
+  assert.match(migration, /create extension if not exists pg_cron/);
+  assert.match(migration, /create extension if not exists pg_net/);
+  assert.match(migration, /create extension if not exists supabase_vault/);
+  assert.match(migration, /from vault\.decrypted_secrets/);
+  assert.match(migration, /where name = 'CRON_SECRET'/);
+  assert.match(migration, /net\.http_get/);
+  assert.match(migration, /https:\/\/thelifearchive\.vip\/api\/cron\/time-capsules/);
+  assert.match(migration, /'Authorization'/);
+  assert.match(migration, /'Bearer ' \|\| cron_secret/);
+  assert.match(migration, /cron\.unschedule\('time-capsule-deliveries-every-five-minutes'\)/);
+  assert.match(migration, /cron\.schedule\(\s*'time-capsule-deliveries-every-five-minutes',\s*'\*\/5 \* \* \* \*'/);
+}
+
+console.log("time-capsule-cron-config tests passed");

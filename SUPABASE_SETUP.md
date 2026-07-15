@@ -19,7 +19,7 @@ CRON_SECRET=long-random-cron-secret
 
 Do not expose `SUPABASE_SERVICE_ROLE_KEY` to the browser. It should only be used in trusted server-side scripts or admin-only maintenance tasks.
 Do not expose `RESEND_API_KEY` to the browser. It is used only by server-side onboarding email code.
-Do not expose `CRON_SECRET` to the browser. Vercel Cron must send it as `Authorization: Bearer <CRON_SECRET>` when calling `/api/cron/time-capsules`.
+Do not expose `CRON_SECRET` to the browser. Time Capsule delivery cron calls must send it as `Authorization: Bearer <CRON_SECRET>` when calling `/api/cron/time-capsules`.
 
 Phase 1 storage-backed image uploads also require the service role key so the server can upload private archive images and generate signed image URLs.
 
@@ -45,6 +45,8 @@ supabase/migrations/20260711140000_add_legacy_question_claim_tokens.sql
 supabase/migrations/20260711150000_add_profiles.sql
 supabase/migrations/20260714120000_allow_memory_photo_path_content_check.sql
 supabase/migrations/20260714130000_create_scheduled_memory_deliveries.sql
+supabase/migrations/20260715160000_recover_stale_time_capsule_processing.sql
+supabase/migrations/20260715173000_schedule_time_capsule_supabase_cron.sql
 ```
 
 It creates:
@@ -68,13 +70,42 @@ It creates:
 - `site_visits`
 - `scheduled_memory_deliveries`
 
-## Vercel Cron
+## Time Capsule Cron
 
-`vercel.json` schedules `/api/cron/time-capsules` every five minutes. Configure `CRON_SECRET` in Vercel and set the cron request authorization header to:
+Vercel Hobby does not support five-minute cron schedules. Time Capsule delivery cadence is owned by Supabase Cron through:
+
+```text
+supabase/migrations/20260715173000_schedule_time_capsule_supabase_cron.sql
+```
+
+The cron job runs every five minutes and calls:
+
+```text
+GET https://thelifearchive.vip/api/cron/time-capsules
+```
+
+with:
 
 ```text
 Authorization: Bearer <CRON_SECRET>
 ```
+
+The secret value is not stored in the repository. The migration enables Vault if needed and the cron function safely skips HTTP calls while the secret is missing. After applying the Supabase Cron migration, store the same production `CRON_SECRET` value in Supabase Vault under the name `CRON_SECRET` before relying on the five-minute job:
+
+```sql
+select vault.create_secret(
+  '<paste the existing production CRON_SECRET value here>',
+  'CRON_SECRET',
+  'Authorizes Supabase Cron calls to The Life Archive Time Capsule endpoint'
+)
+where not exists (
+  select 1
+  from vault.decrypted_secrets
+  where name = 'CRON_SECRET'
+);
+```
+
+If a `CRON_SECRET` Vault secret already exists and needs to be rotated to match Vercel Production, update it in the Supabase Dashboard Vault UI rather than committing the value.
 
 ## Seed File
 
