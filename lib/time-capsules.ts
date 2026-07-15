@@ -9,10 +9,15 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { resolveStorageImageUrl } from "@/lib/storage-media";
 import {
+  isPlausibleTimeCapsuleDeliveryToken,
+  shouldExposeDeliveredMemory
+} from "@/lib/time-capsule-public-access";
+import {
   convertLocalDeliveryDateToUtc,
   TimeCapsuleDomainError,
   type ScheduleDeliveryDateInput
 } from "@/lib/time-capsule-scheduling";
+import { getRetryDelayMinutes } from "@/lib/time-capsule-recovery";
 import type { MemoryType } from "@/lib/types";
 
 export {
@@ -280,7 +285,6 @@ const maxErrorMessageLength = 300;
 const tokenBytes = 32;
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const tokenPattern = /^[A-Za-z0-9_-]{32,128}$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function getAdminClient() {
@@ -497,14 +501,6 @@ function sanitizeErrorCode(value: string) {
 
 function sanitizeErrorMessage(value: string) {
   return sanitizeDiagnosticMessage(value).slice(0, maxErrorMessageLength);
-}
-
-function getRetryDelayMinutes(row: Pick<DeliveryRow, "attempt_count" | "max_attempts">) {
-  if (row.attempt_count >= row.max_attempts) {
-    return null;
-  }
-
-  return row.attempt_count <= 1 ? 15 : 60;
 }
 
 async function loadOwnedArchive(
@@ -1465,7 +1461,10 @@ export async function markScheduledMemoryDeliveryFailed(input: {
       );
     }
 
-    const retryDelayMinutes = getRetryDelayMinutes(row);
+    const retryDelayMinutes = getRetryDelayMinutes({
+      attemptCount: row.attempt_count,
+      maxAttempts: row.max_attempts
+    });
     const nextAttemptAt =
       retryDelayMinutes === null
         ? null
@@ -1506,7 +1505,7 @@ export async function resolveDeliveredScheduledMemoryDeliveryByToken(
 ): Promise<PublicDeliveredTimeCapsule> {
   const normalizedToken = rawToken.trim();
 
-  if (!tokenPattern.test(normalizedToken)) {
+  if (!isPlausibleTimeCapsuleDeliveryToken(normalizedToken)) {
     return { status: "unavailable" };
   }
 
@@ -1531,22 +1530,50 @@ export async function resolveDeliveredScheduledMemoryDeliveryByToken(
     const row = mapDeliveryRow(data as DeliveryRow);
 
     if (
-      !row.token_hash ||
-      !safeTokenHashCompare(row.token_hash, tokenHash) ||
-      row.status !== "delivered" ||
-      !row.delivered_at ||
-      row.canceled_at ||
-      !row.memory_id
+      !shouldExposeDeliveredMemory({
+        archiveId: row.archive_id,
+        canceledAt: row.canceled_at,
+        deliveredAt: row.delivered_at,
+        memoryArchiveId: null,
+        memoryId: row.memory_id,
+        status: row.status,
+        tokenHashMatches: Boolean(
+          row.token_hash && safeTokenHashCompare(row.token_hash, tokenHash)
+        ),
+        tokenHashPresent: Boolean(row.token_hash)
+      })
     ) {
+      return { status: "unavailable" };
+    }
+
+    const memoryId = row.memory_id;
+    const deliveredAt = row.delivered_at;
+
+    if (!memoryId || !deliveredAt) {
       return { status: "unavailable" };
     }
 
     const [archive, memory] = await Promise.all([
       loadArchiveIdentityById(supabase, row.archive_id),
-      loadMemoryDeliveryById(supabase, row.memory_id)
+      loadMemoryDeliveryById(supabase, memoryId)
     ]);
 
-    if (!archive || !memory || memory.archive_id !== row.archive_id) {
+    if (
+      !archive ||
+      !memory ||
+      !shouldExposeDeliveredMemory({
+        archiveId: row.archive_id,
+        canceledAt: row.canceled_at,
+        deliveredAt: row.delivered_at,
+        memoryArchiveId: memory.archive_id,
+        memoryId: row.memory_id,
+        status: row.status,
+        tokenHashMatches: Boolean(
+          row.token_hash && safeTokenHashCompare(row.token_hash, tokenHash)
+        ),
+        tokenHashPresent: Boolean(row.token_hash)
+      })
+    ) {
       return { status: "unavailable" };
     }
 
@@ -1582,7 +1609,7 @@ export async function resolveDeliveredScheduledMemoryDeliveryByToken(
         personalNote: row.personal_note,
         timezone: row.timezone,
         scheduledFor: row.scheduled_for,
-        deliveredAt: row.delivered_at
+        deliveredAt
       }
     };
   } catch (error) {
