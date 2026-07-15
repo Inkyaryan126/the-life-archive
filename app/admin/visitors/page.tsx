@@ -352,10 +352,6 @@ export default async function AdminVisitorsPage() {
             with `anonymous_visitor_id`. Bot/probe traffic and configured admin
             traffic are excluded from human totals.
           </p>
-          <p className="mt-3">
-            Page views are not people. One browser can create many page views
-            across login, create, archive, and keepsake pages.
-          </p>
         </section>
 
         <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">

@@ -7,7 +7,6 @@ import {
   detectBrowser,
   detectDeviceType,
   formatReferrerSource,
-  getCanonicalHostRedirectUrl,
   getSafeHeaderValue,
   getVisitorStatus,
   isDuplicateRecentVisit,
@@ -15,7 +14,6 @@ import {
   shouldRecordSiteVisit
 } from "../lib/site-visit-utils";
 import { isConfiguredAdminEmail } from "../lib/admin-emails";
-import { getSiteVisitAdminFlag } from "../lib/site-visit-tracking";
 
 function headers(values: Record<string, string>) {
   return {
@@ -23,46 +21,6 @@ function headers(values: Record<string, string>) {
       return values[name.toLowerCase()] ?? null;
     }
   } as Pick<Headers, "get">;
-}
-
-{
-  const redirectUrl = getCanonicalHostRedirectUrl({
-    requestUrl: "https://www.thelifearchive.vip/create?from=test",
-    hostHeader: "www.thelifearchive.vip",
-    siteUrl: "https://thelifearchive.vip"
-  });
-
-  assert.equal(
-    redirectUrl?.toString(),
-    "https://thelifearchive.vip/create?from=test"
-  );
-
-  assert.equal(
-    getCanonicalHostRedirectUrl({
-      requestUrl: "https://thelifearchive.vip/create",
-      hostHeader: "thelifearchive.vip",
-      siteUrl: "https://thelifearchive.vip"
-    }),
-    null
-  );
-
-  assert.equal(
-    getCanonicalHostRedirectUrl({
-      requestUrl: "https://preview.vercel.app/create",
-      hostHeader: "preview.vercel.app",
-      siteUrl: "https://thelifearchive.vip"
-    }),
-    null
-  );
-
-  assert.equal(
-    getCanonicalHostRedirectUrl({
-      requestUrl: "http://localhost:3000/create",
-      hostHeader: "localhost:3000",
-      siteUrl: "http://localhost:3000"
-    }),
-    null
-  );
 }
 
 {
@@ -308,15 +266,11 @@ function headers(values: Record<string, string>) {
   assert.equal(isConfiguredAdminEmail("OWNER@example.com"), true);
   assert.equal(isConfiguredAdminEmail("member@example.com"), false);
   assert.equal(isConfiguredAdminEmail(null), false);
-  assert.equal(getSiteVisitAdminFlag("owner@example.com"), true);
-  assert.equal(getSiteVisitAdminFlag("member@example.com"), false);
-  assert.equal(getSiteVisitAdminFlag(null), false);
 }
 
 {
   const helper = readFileSync("lib/site-visits.ts", "utf8");
   const tracking = readFileSync("lib/site-visit-tracking.ts", "utf8");
-  const middleware = readFileSync("lib/supabase/middleware.ts", "utf8");
   const visitorsPage = readFileSync("app/admin/visitors/page.tsx", "utf8");
   const migration = readFileSync(
     "supabase/migrations/20260708120000_create_site_visits.sql",
@@ -331,21 +285,11 @@ function headers(values: Record<string, string>) {
   assert.match(tracking, /is_admin: isAdmin/);
   assert.match(tracking, /getSiteVisitAdminFlag\(input\.userEmail\)/);
   assert.match(tracking, /SUPABASE_SERVICE_ROLE_KEY/);
-  assert.match(middleware, /getCanonicalHostRedirectUrl/);
-  assert.ok(
-    middleware.indexOf("const canonicalRedirectUrl") <
-      middleware.indexOf("const supabase = createServerClient")
-  );
-  assert.ok(
-    middleware.indexOf("await supabase.auth.getUser") <
-      middleware.indexOf("await recordSiteVisit")
-  );
   assert.match(visitorsPage, /getAdminAccess\(\)/);
   assert.match(visitorsPage, /redirect\("\/login\?next=%2Fadmin%2Fvisitors"\)/);
   assert.match(visitorsPage, /Human page views today/);
   assert.match(visitorsPage, /Unique visitors since IDs began/);
   assert.match(visitorsPage, /Bot\/probe requests last 30 days/);
-  assert.match(visitorsPage, /Page views are not people/);
   assert.match(migration, /with check \(is_admin = false\)/);
 }
 

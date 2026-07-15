@@ -42,53 +42,6 @@ export type ClassifiableVisit = {
   isAdmin?: boolean;
 };
 
-export function getCanonicalHostRedirectUrl(input: {
-  requestUrl: string;
-  hostHeader: string | null;
-  siteUrl?: string | null;
-}) {
-  if (!input.siteUrl) {
-    return null;
-  }
-
-  let canonicalUrl: URL;
-  let requestUrl: URL;
-
-  try {
-    canonicalUrl = new URL(input.siteUrl);
-    requestUrl = new URL(input.requestUrl);
-  } catch {
-    return null;
-  }
-
-  const canonicalHost = canonicalUrl.hostname.toLowerCase();
-  const currentHost = (input.hostHeader ?? requestUrl.host)
-    .split(":")[0]
-    .toLowerCase();
-
-  if (
-    !canonicalHost.includes(".") ||
-    canonicalHost.endsWith(".vercel.app") ||
-    currentHost === canonicalHost
-  ) {
-    return null;
-  }
-
-  const alternateHost = canonicalHost.startsWith("www.")
-    ? canonicalHost.slice(4)
-    : `www.${canonicalHost}`;
-
-  if (currentHost !== alternateHost) {
-    return null;
-  }
-
-  requestUrl.protocol = canonicalUrl.protocol;
-  requestUrl.hostname = canonicalHost;
-  requestUrl.port = canonicalUrl.port;
-
-  return requestUrl;
-}
-
 export function createVisitorId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();

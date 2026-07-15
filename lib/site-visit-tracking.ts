@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 import type { NextRequest } from "next/server";
 import type { NextResponse } from "next/server";
-import { isConfiguredAdminEmail } from "./admin-emails";
+import { isConfiguredAdminEmail } from "@/lib/admin-emails";
 import {
   createLastVisitSignature,
   createVisitorId,
@@ -14,7 +14,7 @@ import {
   shouldRecordSiteVisit,
   VISITOR_ID_COOKIE_NAME,
   VISITOR_ID_MAX_AGE_SECONDS
-} from "./site-visit-utils";
+} from "@/lib/site-visit-utils";
 
 let siteVisitInsertClient: SupabaseClient<any, "public", any> | null = null;
 
