@@ -6,8 +6,13 @@ import {
   createLastVisitSignature,
   detectBrowser,
   detectDeviceType,
+  formatVisitorLocation,
+  formatVisitorAnalyticsDateTime,
+  formatVisitorAnalyticsRelativeTime,
   formatReferrerSource,
+  getApproximateVisitorLocation,
   getSafeHeaderValue,
+  getVisitorDisplayName,
   getVisitorStatus,
   isDuplicateRecentVisit,
   isProbePath,
@@ -20,7 +25,74 @@ function headers(values: Record<string, string>) {
     get(name: string) {
       return values[name.toLowerCase()] ?? null;
     }
-  } as Pick<Headers, "get">;
+} as Pick<Headers, "get">;
+}
+
+{
+  const locationHeaders = headers({
+    "x-vercel-ip-city": "Columbus",
+    "x-vercel-ip-country-region": "OH",
+    "x-vercel-ip-country": "US"
+  });
+  const location = getApproximateVisitorLocation(locationHeaders);
+
+  assert.deepEqual(location, {
+    city: "Columbus",
+    region: "OH",
+    country: "US"
+  });
+  assert.equal(formatVisitorLocation(location), "Columbus, OH, US");
+  assert.equal(
+    formatVisitorLocation({ city: null, region: null, country: null }),
+    "Unknown location"
+  );
+  assert.equal(
+    getVisitorDisplayName("550e8400-e29b-41d4-a716-446655440000"),
+    "Visitor 440000"
+  );
+  assert.equal(getVisitorDisplayName(null), "Visitor unknown");
+}
+
+{
+  const summerDisplay = formatVisitorAnalyticsDateTime(
+    "2026-07-16T01:13:00Z"
+  );
+
+  assert.match(summerDisplay, /July 15, 2026/);
+  assert.match(summerDisplay, /9:13 PM/);
+  assert.match(summerDisplay, /EDT/);
+  assert.doesNotMatch(summerDisplay, /July 16/);
+
+  const winterDisplay = formatVisitorAnalyticsDateTime(
+    "2026-01-16T01:13:00Z"
+  );
+
+  assert.match(winterDisplay, /January 15, 2026/);
+  assert.match(winterDisplay, /8:13 PM/);
+  assert.match(winterDisplay, /EST/);
+
+  const rolloverDisplay = formatVisitorAnalyticsDateTime(
+    "2026-07-16T03:30:00Z"
+  );
+
+  assert.match(rolloverDisplay, /July 15, 2026/);
+  assert.match(rolloverDisplay, /11:30 PM/);
+  assert.match(rolloverDisplay, /EDT/);
+
+  const now = new Date("2026-07-16T01:27:00Z");
+
+  assert.equal(
+    formatVisitorAnalyticsRelativeTime("2026-07-16T01:27:00Z", now),
+    "just now"
+  );
+  assert.equal(
+    formatVisitorAnalyticsRelativeTime("2026-07-16T01:13:00Z", now),
+    "14m ago"
+  );
+  assert.equal(
+    formatVisitorAnalyticsRelativeTime("2026-07-16T00:13:00Z", now),
+    "1h ago"
+  );
 }
 
 {
@@ -271,7 +343,12 @@ function headers(values: Record<string, string>) {
 {
   const helper = readFileSync("lib/site-visits.ts", "utf8");
   const tracking = readFileSync("lib/site-visit-tracking.ts", "utf8");
+  const setup = readFileSync("SUPABASE_SETUP.md", "utf8");
   const visitorsPage = readFileSync("app/admin/visitors/page.tsx", "utf8");
+  const locationMigration = readFileSync(
+    "supabase/migrations/20260715200000_add_site_visit_location_fields.sql",
+    "utf8"
+  );
   const migration = readFileSync(
     "supabase/migrations/20260708120000_create_site_visits.sql",
     "utf8"
@@ -282,7 +359,19 @@ function headers(values: Record<string, string>) {
   assert.match(helper, /getTopHumanPaths\(recentHumanRows\)/);
   assert.match(helper, /recentBotProbeRows/);
   assert.match(helper, /anonymous_visitor_id/);
+  assert.match(helper, /visitor_city/);
+  assert.match(helper, /visitorJourneys/);
+  assert.match(helper, /getVisitorDisplayName/);
+  assert.match(helper, /BASE_SITE_VISIT_SELECT/);
+  assert.match(helper, /LOCATION_SITE_VISIT_SELECT/);
+  assert.match(helper, /selectSiteVisitRows/);
+  assert.match(helper, /normalizeSiteVisitRows/);
+  assert.match(helper, /isMissingVisitorLocationColumnError/);
   assert.match(tracking, /is_admin: isAdmin/);
+  assert.match(tracking, /getApproximateVisitorLocation/);
+  assert.match(tracking, /baseInsert/);
+  assert.match(tracking, /fallbackError/);
+  assert.doesNotMatch(tracking, /x-forwarded-for/i);
   assert.match(tracking, /getSiteVisitAdminFlag\(input\.userEmail\)/);
   assert.match(tracking, /SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(visitorsPage, /getAdminAccess\(\)/);
@@ -290,6 +379,13 @@ function headers(values: Record<string, string>) {
   assert.match(visitorsPage, /Human page views today/);
   assert.match(visitorsPage, /Unique visitors since IDs began/);
   assert.match(visitorsPage, /Bot\/probe requests last 30 days/);
+  assert.match(visitorsPage, /formatVisitorAnalyticsDateTime/);
+  assert.match(visitorsPage, /formatVisitorAnalyticsRelativeTime/);
+  assert.match(visitorsPage, /VisitorJourneys/);
+  assert.match(visitorsPage, /Approximate location/);
+  assert.match(setup, /20260715200000_add_site_visit_location_fields\.sql/);
+  assert.match(locationMigration, /visitor_city/);
+  assert.match(locationMigration, /Raw IP addresses are intentionally not stored/);
   assert.match(migration, /with check \(is_admin = false\)/);
 }
 

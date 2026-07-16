@@ -6,6 +6,7 @@ import { isConfiguredAdminEmail } from "@/lib/admin-emails";
 import {
   createLastVisitSignature,
   createVisitorId,
+  getApproximateVisitorLocation,
   getSafeHeaderValue,
   isDuplicateRecentVisit,
   isValidVisitorId,
@@ -76,20 +77,39 @@ export async function recordSiteVisit(input: {
     ? existingVisitorId
     : createVisitorId();
   const isAdmin = getSiteVisitAdminFlag(input.userEmail);
+  const location = getApproximateVisitorLocation(input.request.headers);
+  const baseInsert = {
+    path,
+    referrer: getSafeHeaderValue(input.request.headers.get("referer"), 500),
+    user_agent: getSafeHeaderValue(input.request.headers.get("user-agent"), 500),
+    is_admin: isAdmin,
+    anonymous_visitor_id: visitorId
+  };
+  const supabase = getSiteVisitInsertClient(input.supabase);
 
-  const { error } = await getSiteVisitInsertClient(input.supabase)
+  const { error } = await supabase
     .from("site_visits")
     .insert({
-      path,
-      referrer: getSafeHeaderValue(input.request.headers.get("referer"), 500),
-      user_agent: getSafeHeaderValue(input.request.headers.get("user-agent"), 500),
-      is_admin: isAdmin,
-      anonymous_visitor_id: visitorId
+      ...baseInsert,
+      visitor_city: location.city,
+      visitor_region: location.region,
+      visitor_country: location.country
     });
 
   if (error) {
-    console.error("Unable to record site visit:", error.message);
-    return;
+    if (!isMissingVisitorLocationColumnError(error)) {
+      console.error("Unable to record site visit:", error.message);
+      return;
+    }
+
+    const { error: fallbackError } = await supabase
+      .from("site_visits")
+      .insert(baseInsert);
+
+    if (fallbackError) {
+      console.error("Unable to record site visit:", fallbackError.message);
+      return;
+    }
   }
 
   input.response.cookies.set(VISITOR_ID_COOKIE_NAME, visitorId, {
@@ -107,4 +127,15 @@ export async function recordSiteVisit(input: {
     secure: process.env.NODE_ENV === "production",
     path: "/"
   });
+}
+
+function isMissingVisitorLocationColumnError(error: {
+  code?: string;
+  message?: string;
+}) {
+  return (
+    error.code === "42703" ||
+    error.code === "PGRST204" ||
+    /visitor_(city|region|country)/i.test(error.message ?? "")
+  );
 }

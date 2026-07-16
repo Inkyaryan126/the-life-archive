@@ -48,6 +48,7 @@ supabase/migrations/20260714130000_create_scheduled_memory_deliveries.sql
 supabase/migrations/20260715160000_recover_stale_time_capsule_processing.sql
 supabase/migrations/20260715173000_schedule_time_capsule_supabase_cron.sql
 supabase/migrations/20260715190000_add_site_visit_visitor_id.sql
+supabase/migrations/20260715200000_add_site_visit_location_fields.sql
 ```
 
 It creates:
@@ -70,6 +71,9 @@ It creates:
 - `legacy_activation_requests`
 - `site_visits`
 - `site_visits.anonymous_visitor_id`
+- `site_visits.visitor_city`
+- `site_visits.visitor_region`
+- `site_visits.visitor_country`
 - `scheduled_memory_deliveries`
 
 ## Time Capsule Cron

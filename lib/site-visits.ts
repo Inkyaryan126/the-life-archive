@@ -7,14 +7,21 @@ import {
   classifyVisitTraffic,
   detectBrowser,
   detectDeviceType,
+  formatVisitorLocation,
+  getVisitorDisplayName,
   formatReferrerSource,
   getVisitorStatus,
   type DeviceType,
+  type VisitorLocation,
   type VisitTrafficType,
   type VisitorStatus
 } from "@/lib/site-visit-utils";
 
 const MAX_ANALYTICS_ROWS = 10_000;
+const BASE_SITE_VISIT_SELECT =
+  "id,path,referrer,user_agent,anonymous_visitor_id,is_admin,created_at";
+const LOCATION_SITE_VISIT_SELECT =
+  "id,path,referrer,user_agent,anonymous_visitor_id,is_admin,visitor_city,visitor_region,visitor_country,created_at";
 
 export type RecentSiteVisit = {
   id: string;
@@ -31,6 +38,24 @@ export type BotProbeVisit = {
   path: string;
   browser: string;
   createdAt: string;
+};
+
+export type VisitorJourney = {
+  visitorId: string;
+  displayName: string;
+  location: string;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  totalPageViews: number;
+  deviceType: DeviceType;
+  browser: string;
+  referrerSource: string;
+  visitorStatus: VisitorStatus;
+  recentPages: Array<{
+    id: string;
+    path: string;
+    createdAt: string;
+  }>;
 };
 
 export type SiteVisitStats = {
@@ -50,6 +75,7 @@ export type SiteVisitStats = {
   mostRecentVisit: RecentSiteVisit | null;
   recentVisits: RecentSiteVisit[];
   recentBotProbeVisits: BotProbeVisit[];
+  visitorJourneys: VisitorJourney[];
   topPaths: Array<{
     path: string;
     visitCount: number;
@@ -63,8 +89,19 @@ export type SiteVisitRow = {
   user_agent: string | null;
   anonymous_visitor_id: string | null;
   is_admin: boolean;
+  visitor_city: string | null;
+  visitor_region: string | null;
+  visitor_country: string | null;
   created_at: string;
 };
+
+type RawSiteVisitRow = Omit<
+  SiteVisitRow,
+  "visitor_city" | "visitor_region" | "visitor_country"
+> &
+  Partial<
+    Pick<SiteVisitRow, "visitor_city" | "visitor_region" | "visitor_country">
+  >;
 
 function getSiteVisitClient() {
   return createAdminClient() as SupabaseClient<any, "public", any>;
@@ -114,6 +151,14 @@ function toBotProbeVisit(row: SiteVisitRow): BotProbeVisit {
     path: row.path,
     browser: detectBrowser(row.user_agent),
     createdAt: row.created_at
+  };
+}
+
+function getRowLocation(row: SiteVisitRow): VisitorLocation {
+  return {
+    city: row.visitor_city,
+    region: row.visitor_region,
+    country: row.visitor_country
   };
 }
 
@@ -174,6 +219,7 @@ export function summarizeSiteVisitRows(input: {
       .slice(0, 25)
       .map((row) => toRecentVisit(row, firstVisitByVisitorId)),
     recentBotProbeVisits: recentBotProbeRows.slice(0, 8).map(toBotProbeVisit),
+    visitorJourneys: getVisitorJourneys(allHumanRows, firstVisitByVisitorId),
     topPaths: getTopHumanPaths(recentHumanRows)
   };
 }
@@ -183,32 +229,69 @@ export async function getSiteVisitStats(): Promise<SiteVisitStats> {
   const last30Days = new Date();
   last30Days.setDate(last30Days.getDate() - 30);
 
-  const [allRowsResult, recentRowsResult] = await Promise.all([
-    supabase
-      .from("site_visits")
-      .select("id,path,referrer,user_agent,anonymous_visitor_id,is_admin,created_at")
-      .order("created_at", { ascending: false })
-      .limit(MAX_ANALYTICS_ROWS),
-    supabase
-      .from("site_visits")
-      .select("id,path,referrer,user_agent,anonymous_visitor_id,is_admin,created_at")
-      .gte("created_at", last30Days.toISOString())
-      .order("created_at", { ascending: false })
-      .limit(MAX_ANALYTICS_ROWS)
+  const [allRows, recentRows] = await Promise.all([
+    selectSiteVisitRows(supabase),
+    selectSiteVisitRows(supabase, last30Days.toISOString())
   ]);
 
-  if (allRowsResult.error) {
-    throw new Error(allRowsResult.error.message);
-  }
-
-  if (recentRowsResult.error) {
-    throw new Error(recentRowsResult.error.message);
-  }
-
   return summarizeSiteVisitRows({
-    allRows: (allRowsResult.data ?? []) as SiteVisitRow[],
-    recentRows: (recentRowsResult.data ?? []) as SiteVisitRow[]
+    allRows,
+    recentRows
   });
+}
+
+async function selectSiteVisitRows(
+  supabase: SupabaseClient<any, "public", any>,
+  since?: string
+) {
+  const query = supabase
+    .from("site_visits")
+    .select(LOCATION_SITE_VISIT_SELECT)
+    .order("created_at", { ascending: false })
+    .limit(MAX_ANALYTICS_ROWS);
+  const result = since ? await query.gte("created_at", since) : await query;
+
+  if (!result.error) {
+    return normalizeSiteVisitRows((result.data ?? []) as RawSiteVisitRow[]);
+  }
+
+  if (!isMissingVisitorLocationColumnError(result.error)) {
+    throw new Error(result.error.message);
+  }
+
+  const fallbackQuery = supabase
+    .from("site_visits")
+    .select(BASE_SITE_VISIT_SELECT)
+    .order("created_at", { ascending: false })
+    .limit(MAX_ANALYTICS_ROWS);
+  const fallbackResult = since
+    ? await fallbackQuery.gte("created_at", since)
+    : await fallbackQuery;
+
+  if (fallbackResult.error) {
+    throw new Error(fallbackResult.error.message);
+  }
+
+  return normalizeSiteVisitRows(
+    (fallbackResult.data ?? []) as RawSiteVisitRow[]
+  );
+}
+
+function normalizeSiteVisitRows(rows: RawSiteVisitRow[]): SiteVisitRow[] {
+  return rows.map((row) => ({
+    ...row,
+    visitor_city: row.visitor_city ?? null,
+    visitor_region: row.visitor_region ?? null,
+    visitor_country: row.visitor_country ?? null
+  }));
+}
+
+function isMissingVisitorLocationColumnError(error: { code?: string; message?: string }) {
+  return (
+    error.code === "42703" ||
+    error.code === "PGRST204" ||
+    /visitor_(city|region|country)/i.test(error.message ?? "")
+  );
 }
 
 function getFirstVisitByVisitorId(rows: SiteVisitRow[]) {
@@ -275,4 +358,63 @@ function getTopHumanPaths(rows: SiteVisitRow[]) {
     .map(([path, visitCount]) => ({ path, visitCount }))
     .sort((a, b) => b.visitCount - a.visitCount || a.path.localeCompare(b.path))
     .slice(0, 5);
+}
+
+function getVisitorJourneys(
+  rows: SiteVisitRow[],
+  firstVisitByVisitorId: Map<string, string>
+) {
+  const rowsByVisitorId = new Map<string, SiteVisitRow[]>();
+
+  for (const row of rows) {
+    if (!row.anonymous_visitor_id) {
+      continue;
+    }
+
+    rowsByVisitorId.set(row.anonymous_visitor_id, [
+      ...(rowsByVisitorId.get(row.anonymous_visitor_id) ?? []),
+      row
+    ]);
+  }
+
+  return Array.from(rowsByVisitorId.entries())
+    .map(([visitorId, visitorRows]) => {
+      const sortedRows = [...visitorRows].sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      const latestRow = sortedRows[0];
+      const oldestRow = sortedRows[sortedRows.length - 1];
+
+      return {
+        visitorId,
+        displayName: getVisitorDisplayName(visitorId),
+        location: latestRow
+          ? formatVisitorLocation(getRowLocation(latestRow))
+          : "Unknown location",
+        firstSeenAt: oldestRow?.created_at ?? latestRow?.created_at ?? "",
+        lastSeenAt: latestRow?.created_at ?? "",
+        totalPageViews: visitorRows.length,
+        deviceType: detectDeviceType(latestRow?.user_agent),
+        browser: detectBrowser(latestRow?.user_agent),
+        referrerSource: formatReferrerSource(latestRow?.referrer),
+        visitorStatus: latestRow
+          ? getVisitorStatus({
+              visitorId,
+              createdAt: latestRow.created_at,
+              firstVisitByVisitorId
+            })
+          : "unknown",
+        recentPages: sortedRows.slice(0, 6).map((row) => ({
+          id: row.id,
+          path: row.path,
+          createdAt: row.created_at
+        }))
+      };
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime()
+    )
+    .slice(0, 20);
 }

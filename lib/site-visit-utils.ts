@@ -1,5 +1,6 @@
 export const VISITOR_ID_COOKIE_NAME = "tla_visitor_id";
 export const LAST_VISIT_COOKIE_NAME = "tla_last_visit";
+export const VISITOR_ANALYTICS_TIME_ZONE = "America/New_York";
 
 export const VISITOR_ID_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 export const LAST_VISIT_MAX_AGE_SECONDS = 60;
@@ -34,6 +35,11 @@ const PROBE_PATH_PATTERNS = [
 export type DeviceType = "mobile" | "tablet" | "desktop";
 export type VisitorStatus = "new" | "returning" | "unknown";
 export type VisitTrafficType = "human" | "admin" | "bot_probe" | "ignored";
+export type VisitorLocation = {
+  city: string | null;
+  region: string | null;
+  country: string | null;
+};
 
 export type ClassifiableVisit = {
   path: string;
@@ -41,6 +47,30 @@ export type ClassifiableVisit = {
   referrer?: string | null;
   isAdmin?: boolean;
 };
+
+const visitorDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: VISITOR_ANALYTICS_TIME_ZONE,
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  timeZoneName: "short"
+});
+
+function getDecodedLocationValue(value: string | null | undefined, maxLength = 120) {
+  const safeValue = getSafeHeaderValue(value, maxLength);
+
+  if (!safeValue) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(safeValue).slice(0, maxLength);
+  } catch {
+    return safeValue;
+  }
+}
 
 export function createVisitorId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -309,4 +339,63 @@ export function calculateVisitorWindowSummary(input: {
     newVisitors: uniqueVisitorIds.size - returningVisitors,
     returningVisitors
   };
+}
+
+export function formatVisitorAnalyticsDateTime(value: string | Date) {
+  return visitorDateTimeFormatter.format(new Date(value));
+}
+
+export function formatVisitorAnalyticsRelativeTime(
+  value: string | Date,
+  now = new Date()
+) {
+  const differenceMs = now.getTime() - new Date(value).getTime();
+  const minutes = Math.max(0, Math.floor(differenceMs / 60_000));
+
+  if (minutes < 1) {
+    return "just now";
+  }
+
+  if (minutes < 60) {
+    return `${minutes}m ago`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+
+  if (hours < 24) {
+    return `${hours}h ago`;
+  }
+
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
+export function getApproximateVisitorLocation(
+  headers: Pick<Headers, "get">
+): VisitorLocation {
+  return {
+    city: getDecodedLocationValue(headers.get("x-vercel-ip-city")),
+    region: getDecodedLocationValue(headers.get("x-vercel-ip-country-region")),
+    country: getDecodedLocationValue(
+      headers.get("x-vercel-ip-country") ?? headers.get("cf-ipcountry"),
+      80
+    )
+  };
+}
+
+export function formatVisitorLocation(location: VisitorLocation) {
+  const parts = [location.city, location.region, location.country].filter(
+    (part): part is string => Boolean(part)
+  );
+
+  return parts.length > 0 ? parts.join(", ") : "Unknown location";
+}
+
+export function getVisitorDisplayName(visitorId: string | null | undefined) {
+  if (!visitorId) {
+    return "Visitor unknown";
+  }
+
+  const suffix = visitorId.replace(/[^a-zA-Z0-9]/g, "").slice(-6);
+
+  return suffix ? `Visitor ${suffix.toUpperCase()}` : "Visitor unknown";
 }

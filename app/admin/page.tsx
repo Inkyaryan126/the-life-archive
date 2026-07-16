@@ -15,6 +15,10 @@ import {
   type LegacyActivationRequest
 } from "@/lib/legacy-activation";
 import { getSiteVisitStats, type SiteVisitStats } from "@/lib/site-visits";
+import {
+  formatVisitorAnalyticsDateTime,
+  formatVisitorAnalyticsRelativeTime
+} from "@/lib/site-visit-utils";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 
 export const dynamic = "force-dynamic";
@@ -66,6 +70,12 @@ function StatCard({ label, value }: { label: string; value: number }) {
 }
 
 function SiteVisitSection({ stats }: { stats: SiteVisitStats }) {
+  const latestHumanVisit = stats.mostRecentVisit
+    ? `${formatVisitorAnalyticsRelativeTime(
+        stats.mostRecentVisit.createdAt
+      )} · ${formatVisitorAnalyticsDateTime(stats.mostRecentVisit.createdAt)}`
+    : "No human page views yet.";
+
   return (
     <section className="mb-10">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -76,6 +86,9 @@ function SiteVisitSection({ stats }: { stats: SiteVisitStats }) {
           <h2 className="mt-3 font-serif text-3xl text-archive-ivory">
             Human site activity
           </h2>
+          <p className="mt-2 text-sm text-archive-ivory/58">
+            Most recent human visit: {latestHumanVisit}
+          </p>
         </div>
       </div>
 
@@ -343,6 +356,7 @@ export default async function AdminPage({
     mostRecentVisit: null,
     recentVisits: [],
     recentBotProbeVisits: [],
+    visitorJourneys: [],
     topPaths: []
   };
   let loadError: string | null = null;

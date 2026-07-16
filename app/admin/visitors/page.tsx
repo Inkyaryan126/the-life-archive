@@ -6,41 +6,15 @@ import {
   type BotProbeVisit,
   getSiteVisitStats,
   type RecentSiteVisit,
-  type SiteVisitStats
+  type SiteVisitStats,
+  type VisitorJourney
 } from "@/lib/site-visits";
+import {
+  formatVisitorAnalyticsDateTime,
+  formatVisitorAnalyticsRelativeTime
+} from "@/lib/site-visit-utils";
 
 export const dynamic = "force-dynamic";
-
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit"
-  }).format(new Date(value));
-}
-
-function formatRelativeTime(value: string) {
-  const differenceMs = Date.now() - new Date(value).getTime();
-  const minutes = Math.max(0, Math.floor(differenceMs / 60_000));
-
-  if (minutes < 1) {
-    return "just now";
-  }
-
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-
-  if (hours < 24) {
-    return `${hours}h ago`;
-  }
-
-  return `${Math.floor(hours / 24)}d ago`;
-}
 
 function StatCard({
   label,
@@ -86,10 +60,10 @@ function RecentVisitRow({ visit }: { visit: RecentSiteVisit }) {
     <article className="grid gap-3 border-t border-archive-gold/10 py-4 text-sm md:grid-cols-[10rem_minmax(0,1fr)_8rem_8rem_7rem] md:items-center">
       <div>
         <p className="font-semibold text-archive-ivory">
-          {formatRelativeTime(visit.createdAt)}
+          {formatVisitorAnalyticsRelativeTime(visit.createdAt)}
         </p>
         <p className="mt-1 text-xs text-archive-ivory/48">
-          {formatDateTime(visit.createdAt)}
+          {formatVisitorAnalyticsDateTime(visit.createdAt)}
         </p>
       </div>
       <div className="min-w-0">
@@ -177,6 +151,99 @@ function RecentVisitorFeed({ visits }: { visits: RecentSiteVisit[] }) {
   );
 }
 
+function VisitorJourneyCard({ journey }: { journey: VisitorJourney }) {
+  return (
+    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-archive-gold/25 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-archive-champagne">
+              {journey.displayName}
+            </span>
+            <span className="rounded-full border border-archive-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-archive-ivory/50">
+              {journey.visitorStatus}
+            </span>
+          </div>
+          <h3 className="mt-4 font-serif text-2xl text-archive-ivory">
+            {journey.location}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
+            {journey.totalPageViews.toLocaleString("en-US")} human page views ·{" "}
+            {journey.deviceType} · {journey.browser}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-archive-ivory/48">
+            First seen {formatVisitorAnalyticsDateTime(journey.firstSeenAt)} ·
+            Last seen {formatVisitorAnalyticsRelativeTime(journey.lastSeenAt)}
+          </p>
+        </div>
+        <div className="text-sm text-archive-ivory/58 lg:text-right">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-archive-gold">
+            Source
+          </p>
+          <p className="mt-2 break-all">{journey.referrerSource}</p>
+        </div>
+      </div>
+
+      <div className="mt-5 border-t border-archive-gold/10 pt-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-archive-gold">
+          Recent path
+        </p>
+        <div className="mt-3 grid gap-2">
+          {journey.recentPages.map((page) => (
+            <div
+              key={page.id}
+              className="flex flex-col gap-1 rounded-xl border border-archive-gold/10 bg-archive-obsidian/45 px-3 py-2 text-xs sm:flex-row sm:items-center sm:justify-between"
+            >
+              <span className="break-all font-semibold text-archive-champagne">
+                {page.path}
+              </span>
+              <span className="shrink-0 text-archive-ivory/48">
+                {formatVisitorAnalyticsRelativeTime(page.createdAt)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function VisitorJourneys({ journeys }: { journeys: VisitorJourney[] }) {
+  return (
+    <section className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+            Visitor journeys
+          </p>
+          <h2 className="mt-3 font-serif text-2xl text-archive-ivory">
+            Latest anonymous visitors
+          </h2>
+        </div>
+        <span className="text-xs text-archive-ivory/48">
+          Last {Math.min(journeys.length, 20).toLocaleString("en-US")} visitors
+        </span>
+      </div>
+      <p className="mt-3 text-sm leading-7 text-archive-ivory/60">
+        Names are assigned from the anonymous visitor ID. Approximate location
+        comes from hosting geo headers; raw IP addresses are not shown.
+      </p>
+
+      {journeys.length > 0 ? (
+        <div className="mt-5 grid gap-4">
+          {journeys.map((journey) => (
+            <VisitorJourneyCard key={journey.visitorId} journey={journey} />
+          ))}
+        </div>
+      ) : (
+        <p className="mt-4 text-sm leading-7 text-archive-ivory/64">
+          No anonymous human visitor journeys are available yet.
+        </p>
+      )}
+    </section>
+  );
+}
+
 function BotProbeSummary({ visits }: { visits: BotProbeVisit[] }) {
   return (
     <section className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
@@ -192,10 +259,11 @@ function BotProbeSummary({ visits }: { visits: BotProbeVisit[] }) {
                   {visit.path}
                 </span>
                 <span className="text-xs text-archive-ivory/48">
-                  {formatRelativeTime(visit.createdAt)}
+                  {formatVisitorAnalyticsRelativeTime(visit.createdAt)}
                 </span>
               </div>
               <p className="mt-1 text-xs text-archive-ivory/52">
+                {formatVisitorAnalyticsDateTime(visit.createdAt)} ·{" "}
                 {visit.browser}
               </p>
             </div>
@@ -247,10 +315,17 @@ export default async function AdminVisitorsPage() {
 
   const stats = await getSiteVisitStats();
   const latestDetail = stats.mostRecentVisit
-    ? `Latest human visit ${formatRelativeTime(stats.mostRecentVisit.createdAt)}`
+    ? `Latest human visit ${formatVisitorAnalyticsRelativeTime(
+        stats.mostRecentVisit.createdAt
+      )} · ${formatVisitorAnalyticsDateTime(stats.mostRecentVisit.createdAt)}`
     : "No human activity yet";
+  const latestVisitDetail = stats.mostRecentVisit
+    ? `${stats.mostRecentVisit.path} · ${formatVisitorAnalyticsDateTime(
+        stats.mostRecentVisit.createdAt
+      )}`
+    : latestDetail;
   const trackingStart = stats.visitorIdTrackingStartedAt
-    ? formatDateTime(stats.visitorIdTrackingStartedAt)
+    ? formatVisitorAnalyticsDateTime(stats.visitorIdTrackingStartedAt)
     : "Not started yet";
 
   return (
@@ -313,10 +388,12 @@ export default async function AdminVisitorsPage() {
             label="Most recent human visit"
             value={
               stats.mostRecentVisit
-                ? formatRelativeTime(stats.mostRecentVisit.createdAt)
+                ? formatVisitorAnalyticsRelativeTime(
+                    stats.mostRecentVisit.createdAt
+                  )
                 : "None"
             }
-            detail={stats.mostRecentVisit?.path ?? latestDetail}
+            detail={latestVisitDetail}
           />
         </section>
 
@@ -360,6 +437,10 @@ export default async function AdminVisitorsPage() {
             <BotProbeSummary visits={stats.recentBotProbeVisits} />
           </div>
           <RecentVisitorFeed visits={stats.recentVisits} />
+        </div>
+
+        <div className="mt-8">
+          <VisitorJourneys journeys={stats.visitorJourneys} />
         </div>
       </div>
     </main>
