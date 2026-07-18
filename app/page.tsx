@@ -30,14 +30,20 @@ type DirectoryEntry = {
   featured?: boolean;
 };
 
-function positionStyle(entry: DirectoryEntry) {
-  return {
-    left: `${entry.position.left}%`,
-    top: `${entry.position.top}%`,
-    width: `${entry.position.width}%`,
-    height: `${entry.position.height}%`
-  };
-}
+type DesktopDirectoryEntry = {
+  title: string;
+  subtitle: string;
+  href: string;
+  ariaLabel: string;
+  featured?: boolean;
+};
+
+const desktopDirectoryRegion = {
+  left: 40.79,
+  top: 30.39,
+  width: 18.9,
+  height: 55.37
+};
 
 function PrimaryCta({
   href,
@@ -170,7 +176,11 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#070605] text-archive-ivory">
-      <GrandHallHero entries={directoryEntries} myArchivesHref={myArchivesHref} />
+      <GrandHallHero
+        entries={directoryEntries}
+        myArchivesHref={myArchivesHref}
+        timeCapsulesHref={timeCapsulesHref}
+      />
       <BelowDirectoryContent timeCapsulesHref={timeCapsulesHref} />
       <GrandHallFooter
         myArchivesHref={myArchivesHref}
@@ -182,11 +192,59 @@ export default async function HomePage() {
 
 function GrandHallHero({
   entries,
-  myArchivesHref
+  myArchivesHref,
+  timeCapsulesHref
 }: {
   entries: DirectoryEntry[];
   myArchivesHref: string;
+  timeCapsulesHref: string;
 }) {
+  const desktopEntries: DesktopDirectoryEntry[] = [
+    {
+      title: "The Legacy Question",
+      subtitle: "Leave words that matter.",
+      href: "/legacy-question",
+      ariaLabel: "Start with The Legacy Question. Leave words that matter.",
+      featured: true
+    },
+    {
+      title: "My Archives",
+      subtitle: "Manage your archives.",
+      href: myArchivesHref,
+      ariaLabel: "Open My Archives. Manage your archives."
+    },
+    {
+      title: "Create an Archive",
+      subtitle: "Begin a new life story.",
+      href: "/create",
+      ariaLabel: "Create an Archive. Begin a new life story."
+    },
+    {
+      title: "Time Capsules",
+      subtitle: "Send memories into the future.",
+      href: timeCapsulesHref,
+      ariaLabel: "Open Time Capsules. Send memories into the future."
+    },
+    {
+      title: "Keepsakes",
+      subtitle: "Keep their story close.",
+      href: "/keepsakes",
+      ariaLabel: "Visit Keepsakes. Keep their story close."
+    },
+    {
+      title: "Support After a Loss",
+      subtitle: "Guidance when someone is gone.",
+      href: "/after-a-loss",
+      ariaLabel: "Open Support After a Loss. Guidance when someone is gone."
+    },
+    {
+      title: "Help, Privacy & Information",
+      subtitle: "Help, privacy and support.",
+      href: "#information",
+      ariaLabel: "Open Help, Privacy and Information. Help, privacy and support."
+    }
+  ];
+
   return (
     <header className="relative overflow-hidden bg-black px-4 pb-16 pt-5 sm:px-6 lg:px-8">
       <div
@@ -220,17 +278,6 @@ function GrandHallHero({
       </nav>
 
       <section className="relative z-10 mx-auto mt-10 w-full max-w-[1280px]">
-        <div className="mx-auto mb-8 max-w-3xl text-center">
-          <Eyebrow>The Grand Hall</Eyebrow>
-          <h1 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-6xl">
-            Where should the story begin?
-          </h1>
-          <p className="mt-5 text-base leading-8 text-archive-ivory/72 sm:text-lg">
-            Choose the doorway you need. The Life Archive keeps the first step
-            simple, calm, and free to use.
-          </p>
-        </div>
-
         <div className="hidden lg:block">
           <div className="relative mx-auto aspect-[1672/941] w-full overflow-hidden shadow-[0_40px_140px_rgba(0,0,0,0.74)]">
             <Image
@@ -245,14 +292,23 @@ function GrandHallHero({
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(237,190,98,0.1),transparent_26%),linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.14))]"
             />
-            <div className="absolute left-[41.1%] top-[23.1%] w-[18.4%] text-center">
-              <p className="font-serif text-[clamp(0.95rem,1.45vw,1.6rem)] uppercase tracking-[0.16em] text-archive-champagne drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
-                The Life Archive
-              </p>
+            <div
+              className="absolute flex min-w-0 flex-col overflow-hidden px-[0.55%] py-[0.62%]"
+              style={{
+                left: `${desktopDirectoryRegion.left}%`,
+                top: `${desktopDirectoryRegion.top}%`,
+                width: `${desktopDirectoryRegion.width}%`,
+                height: `${desktopDirectoryRegion.height}%`
+              }}
+            >
+              {desktopEntries.map((entry, index) => (
+                <DesktopDirectoryRow
+                  entry={entry}
+                  isLast={index === desktopEntries.length - 1}
+                  key={entry.title}
+                />
+              ))}
             </div>
-            {entries.map((entry) => (
-              <DirectoryBoardLink key={entry.title} entry={entry} />
-            ))}
           </div>
         </div>
 
@@ -279,51 +335,47 @@ function GrandHallHero({
   );
 }
 
-function DirectoryBoardLink({ entry }: { entry: DirectoryEntry }) {
+function DesktopDirectoryRow({
+  entry,
+  isLast
+}: {
+  entry: DesktopDirectoryEntry;
+  isLast: boolean;
+}) {
   return (
-    <Link
-      href={entry.href}
-      aria-label={entry.ariaLabel}
-      className={`group absolute flex min-w-0 flex-col justify-center overflow-hidden border border-archive-gold/0 px-[0.55vw] text-center transition duration-300 focus:outline-none focus:ring-2 focus:ring-archive-gold/80 ${
-        entry.featured
-          ? "bg-archive-gold/[0.055] shadow-[0_0_34px_rgba(212,171,88,0.18)] hover:bg-archive-gold/[0.11]"
-          : "hover:bg-archive-gold/[0.055]"
-      }`}
-      style={positionStyle(entry)}
-    >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-2 bottom-0 h-px bg-archive-gold/28"
-      />
-      {entry.label ? (
-        <span className="text-[clamp(0.42rem,0.52vw,0.62rem)] font-bold uppercase tracking-[0.17em] text-archive-gold">
-          {entry.label}
-        </span>
-      ) : null}
-      <span
-        className={`mt-0.5 block font-serif uppercase tracking-[0.1em] text-archive-ivory drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] ${
+    <div className="relative flex min-h-0 flex-1">
+      <Link
+        href={entry.href}
+        aria-label={entry.ariaLabel}
+        className={`group flex min-h-0 w-full flex-col justify-center overflow-hidden px-[4.5%] py-[1.6%] text-center transition duration-300 focus:outline-none focus:ring-2 focus:ring-archive-gold/75 ${
           entry.featured
-            ? "text-[clamp(0.78rem,0.98vw,1.1rem)]"
-            : "text-[clamp(0.48rem,0.63vw,0.78rem)]"
+            ? "bg-archive-gold/[0.07] shadow-[0_0_28px_rgba(202,164,92,0.16)] hover:bg-archive-gold/[0.12]"
+            : "hover:bg-archive-gold/[0.055]"
         }`}
       >
-        {entry.title}
-      </span>
-      <span
-        className={`mx-auto mt-1 block max-w-[15rem] leading-snug text-archive-ivory/66 ${
-          entry.featured
-            ? "text-[clamp(0.43rem,0.55vw,0.68rem)]"
-            : "text-[clamp(0.36rem,0.46vw,0.55rem)]"
-        }`}
-      >
-        {entry.description}
-      </span>
-      {entry.note ? (
-        <span className="mx-auto mt-1 block max-w-[16rem] text-[clamp(0.36rem,0.43vw,0.5rem)] font-semibold leading-snug text-archive-champagne/78">
-          {entry.note}
+        {entry.featured ? (
+          <span className="mb-[1.5%] text-[clamp(0.42rem,0.5vw,0.58rem)] font-bold uppercase tracking-[0.16em] text-archive-gold">
+            Start here
+          </span>
+        ) : null}
+        <span className="block truncate font-serif text-[clamp(0.56rem,0.78vw,0.94rem)] uppercase tracking-[0.08em] text-archive-ivory drop-shadow-[0_2px_8px_rgba(0,0,0,0.92)]">
+          {entry.title}
         </span>
+        <span className="mx-auto mt-[1.7%] line-clamp-2 max-w-full text-[clamp(0.42rem,0.52vw,0.62rem)] leading-snug text-archive-ivory/68">
+          {entry.subtitle}
+        </span>
+      </Link>
+      {!isLast ? (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 left-1/2 h-px w-[86%] -translate-x-1/2"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(202, 164, 92, 0.55), transparent)"
+          }}
+        />
       ) : null}
-    </Link>
+    </div>
   );
 }
 
