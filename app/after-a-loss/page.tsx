@@ -6,8 +6,46 @@ import { publicSupportEmail } from "@/lib/site-config";
 export const metadata: Metadata = {
   title: "Support After A Loss - The Life Archive",
   description:
-    "A calm, practical guide for the first hours and days after someone dies, including who to contact, how to support children, preserving memories, and crisis resources."
+    "How The Life Archive can help families create a memorial archive, organize memories, collect contributions, and prepare funeral or memorial keepsakes after someone dies."
 };
+
+const waysWeCanHelp = [
+  {
+    title: "Create a Memorial Archive",
+    copy:
+      "Create a lasting digital home for their photographs, videos, voice recordings, music, stories, lessons, and memories."
+  },
+  {
+    title: "Funeral and Memorial Keepsakes",
+    copy:
+      "Prepare scannable memorial cards, keychains, metal remembrance cards, plaques, guest-table signs, and QR inserts that connect directly to their archive."
+  },
+  {
+    title: "Collect Memories from Others",
+    copy:
+      "Give friends and relatives one link or QR code where they can contribute photographs, written stories, videos, and voice messages."
+  },
+  {
+    title: "Organize What They Left Behind",
+    copy:
+      "Bring together memories scattered across phones, albums, recordings, social media, and family members into one organized place."
+  },
+  {
+    title: "Preserve Their Voice",
+    copy:
+      "Save existing voicemails, videos, interviews, recordings, and spoken stories so future generations can still hear them."
+  },
+  {
+    title: "Create a Tribute for the Service",
+    copy:
+      "Use the archive for their obituary, life story, photographs, music, memorial details, tribute videos, and messages from loved ones."
+  },
+  {
+    title: "Continue After the Funeral",
+    copy:
+      "Allow the family to keep adding memories and creating keepsakes whenever they are ready. The archive does not end when the service does."
+  }
+];
 
 const firstHours = [
   "If the death was expected, contact the hospice nurse, physician, or service already involved in their care.",
@@ -104,7 +142,34 @@ function BulletList({ items }: { items: string[] }) {
   );
 }
 
+function ActionLink({
+  href,
+  children,
+  variant = "secondary"
+}: {
+  href: string;
+  children: React.ReactNode;
+  variant?: "primary" | "secondary";
+}) {
+  return (
+    <Link
+      href={href}
+      className={
+        variant === "primary"
+          ? "inline-flex min-h-12 items-center justify-center rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
+          : "inline-flex min-h-12 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
+      }
+    >
+      {children}
+    </Link>
+  );
+}
+
 export default function AfterALossPage() {
+  const tellUsHref = `mailto:${publicSupportEmail}?subject=${encodeURIComponent(
+    "Tell us about my loved one"
+  )}`;
+
   return (
     <main className="min-h-screen bg-[#080706] text-archive-ivory">
       <nav className="mx-auto flex w-full max-w-[1180px] flex-col gap-5 border-b border-archive-gold/14 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-0">
@@ -133,25 +198,81 @@ export default function AfterALossPage() {
             Support After A Loss
           </p>
           <h1 className="mt-5 font-serif text-5xl leading-tight text-archive-ivory sm:text-7xl">
-            You do not have to solve everything today.
+            Help When Someone Becomes a Memory
           </h1>
         </div>
         <div className="text-lg leading-8 text-archive-ivory/72">
           <p>
-            Grief can make ordinary decisions feel impossible. Start with the
-            next necessary thing, not everything at once.
+            When someone dies, families are expected to make countless
+            decisions while carrying the heaviest grief of their lives. You
+            don&apos;t have to figure all of it out alone.
           </p>
           <p className="mt-5">
+            The Life Archive can help preserve their story, organize the
+            memories they left behind, and create meaningful ways for family and
+            friends to remember them.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <ActionLink href={tellUsHref} variant="primary">
+              Tell Us About Your Loved One
+            </ActionLink>
+            <ActionLink href="/create">Begin a Memorial Archive</ActionLink>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto w-full max-w-[980px] px-5 pb-20 sm:px-8 lg:px-0">
+        <Section title="Ways We Can Help">
+          <div className="grid gap-5 md:grid-cols-2">
+            {waysWeCanHelp.map((item) => (
+              <article
+                key={item.title}
+                className="border border-archive-gold/16 bg-white/[0.03] p-5"
+              >
+                <h3 className="font-serif text-2xl leading-tight text-archive-champagne">
+                  {item.title}
+                </h3>
+                <p className="mt-4 text-sm leading-7 text-archive-ivory/68">
+                  {item.copy}
+                </p>
+              </article>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="We Can Help Build It With You">
+          <div className="grid gap-8 lg:grid-cols-[1fr_0.82fr] lg:items-center">
+            <div>
+              <p>
+                You don&apos;t need to have everything organized before reaching
+                out. Bring us what you have, even if it is scattered,
+                unfinished, or overwhelming.
+              </p>
+              <p className="mt-5">
+                We&apos;ll help your family choose the right first step and
+                build something meaningful at a pace you can handle.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <ActionLink href={tellUsHref} variant="primary">
+                  Tell Us About Your Loved One
+                </ActionLink>
+                <ActionLink href="/create">Begin a Memorial Archive</ActionLink>
+              </div>
+            </div>
+            <blockquote className="border-l border-archive-gold/45 bg-white/[0.035] p-6 font-serif text-2xl leading-tight text-archive-champagne">
+              &ldquo;A funeral honors the day they leave. An archive protects
+              everything they left behind.&rdquo;
+            </blockquote>
+          </div>
+        </Section>
+
+        <Section title="What to do during the first few hours">
+          <p className="mb-5">
             This guide is practical support, not medical, legal, financial, or
             emergency advice. When a decision carries legal, financial, medical,
             or safety consequences, contact the appropriate professional or
             emergency service.
           </p>
-        </div>
-      </header>
-
-      <div className="mx-auto w-full max-w-[980px] px-5 pb-20 sm:px-8 lg:px-0">
-        <Section title="What to do during the first few hours">
           <BulletList items={firstHours} />
         </Section>
 
@@ -253,18 +374,12 @@ export default function AfterALossPage() {
           </p>
           <BulletList items={preserveItems} />
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/create"
-              className="inline-flex min-h-12 items-center justify-center rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
-            >
+            <ActionLink href="/create" variant="primary">
               Create an Archive
-            </Link>
-            <Link
-              href="/legacy-question"
-              className="inline-flex min-h-12 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
-            >
+            </ActionLink>
+            <ActionLink href="/legacy-question">
               Answer the Legacy Question
-            </Link>
+            </ActionLink>
           </div>
         </Section>
 
