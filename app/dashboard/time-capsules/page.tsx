@@ -2,8 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
 import { DesignBackdrop, HeartbeatLogoDivider, SiteLogo } from "@/components/SiteDesign";
+import {
+  ArchiveBuildingShell,
+  ArchiveHotspot,
+  ArchiveOverlayRegion
+} from "@/components/archive-building/ArchiveBuildingShell";
 import { TimeCapsuleConfirmAction } from "@/components/time-capsules/TimeCapsuleConfirmAction";
 import { getAccountContext } from "@/lib/account";
+import { archiveBuildingScenes } from "@/lib/archive-building-scenes";
 import { cancelTimeCapsuleAction, retryTimeCapsuleAction } from "./actions";
 import { listOwnerScheduledMemoryDeliveries } from "@/lib/time-capsules";
 import {
@@ -38,7 +44,91 @@ export default async function TimeCapsulesPage({
   const failedCount = deliveries.filter((delivery) => delivery.status === "failed").length;
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
+    <>
+      <ArchiveBuildingShell
+        image={{ ...archiveBuildingScenes.timeCapsules, priority: true }}
+        active="time-capsules"
+        archiveSlug={account.defaultArchive?.slug ?? null}
+        archiveName={account.defaultArchive?.archiveName ?? null}
+        archivePersonName={account.defaultArchive?.personName ?? null}
+        showArchiveActions={Boolean(account.defaultArchive?.slug)}
+        sceneLabel="Time Capsules archive-building scene"
+      >
+        <ArchiveOverlayRegion
+          region={{ left: 19.14, top: 76.83, width: 74.22, height: 16.26 }}
+          className="p-4 text-archive-ivory"
+          ariaLabel="Time Capsule status and records"
+        >
+          <div className="grid h-full grid-cols-[0.72fr_1fr] gap-5">
+            <div className="min-w-0">
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  ["Scheduled", scheduledCount],
+                  ["Processing", processingCount],
+                  ["Delivered", deliveredCount],
+                  ["Failed", failedCount]
+                ].map(([label, count]) => (
+                  <div key={label} className="min-w-0">
+                    <p className="font-serif text-[clamp(1rem,1.3vw,1.45rem)] leading-none text-archive-ivory">
+                      {count}
+                    </p>
+                    <p className="mt-1 truncate text-[0.52rem] font-semibold uppercase tracking-[0.12em] text-archive-gold/72">
+                      {label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 line-clamp-2 text-xs leading-5 text-archive-ivory/62">
+                Choose a preserved memory, select who should receive it, and decide when it should be delivered.
+              </p>
+            </div>
+
+            <div className="min-w-0 border-l border-archive-gold/14 pl-5">
+              {deliveries.length > 0 ? (
+                <div className="grid h-full content-start gap-1.5">
+                  {deliveries.slice(0, 3).map((delivery) => (
+                    <Link
+                      key={delivery.id}
+                      href={`/dashboard/time-capsules/${delivery.id}`}
+                      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-archive-gold/12 pb-1.5 transition hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/60"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate font-serif text-sm text-archive-ivory">
+                          {delivery.memory?.title ?? "Memory unavailable"}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[0.62rem] text-archive-ivory/54">
+                          {delivery.recipientName} · {formatTimeCapsuleLocalDate(delivery.scheduledFor, delivery.timezone)}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-[0.54rem] font-bold uppercase tracking-[0.1em] text-archive-gold/78">
+                        {getTimeCapsuleStatusLabel(delivery.status)}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex h-full flex-col justify-center">
+                  <h2 className="font-serif text-[clamp(1rem,1.35vw,1.45rem)] text-archive-ivory">
+                    No time capsules scheduled yet.
+                  </h2>
+                  <p className="mt-1 text-xs leading-5 text-archive-ivory/58">
+                    Use the vault door above to preserve a memory for future delivery.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </ArchiveOverlayRegion>
+
+        <ArchiveHotspot
+          region={{ left: 55.14, top: 33.16, width: 14.83, height: 8.61 }}
+          href="/dashboard/time-capsules/new"
+          label="Schedule a Time Capsule"
+          className="rounded-full"
+        />
+      </ArchiveBuildingShell>
+
+      <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:hidden lg:px-12 xl:px-16 sm:py-8">
       <DesignBackdrop />
 
       <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
@@ -229,6 +319,7 @@ export default async function TimeCapsulesPage({
           </div>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

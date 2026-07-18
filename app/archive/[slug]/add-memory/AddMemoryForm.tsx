@@ -11,6 +11,7 @@ import {
 type AddMemoryFormProps = {
   action: (formData: FormData) => void | Promise<void>;
   children: ReactNode;
+  className?: string;
 };
 
 function normalizeMimeType(value: string) {
@@ -31,7 +32,7 @@ function getAudioPreflightError(file: File) {
   return "";
 }
 
-export function AddMemoryForm({ action, children }: AddMemoryFormProps) {
+export function AddMemoryForm({ action, children, className }: AddMemoryFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -67,9 +68,9 @@ export function AddMemoryForm({ action, children }: AddMemoryFormProps) {
       action={action}
       encType="multipart/form-data"
       onSubmit={handleSubmit}
-      className="grid gap-6 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-8 shadow-luxury"
+      className={className ?? "grid gap-6 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-8 shadow-luxury"}
     >
-      {errorMessage ? (
+      {errorMessage && className !== "contents" ? (
         <div className="rounded-2xl border border-archive-gold/24 bg-archive-gold/10 px-4 py-4 text-archive-ivory">
           <p className="font-serif text-xl leading-tight text-archive-ivory">
             Your recording could not be uploaded

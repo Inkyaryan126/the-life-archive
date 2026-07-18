@@ -12,8 +12,41 @@ import { getAccountContext } from "@/lib/account";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import { AccessPrompt } from "@/components/AccessPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
+import {
+  ArchiveBuildingShell,
+  ArchiveOverlayRegion
+} from "@/components/archive-building/ArchiveBuildingShell";
+import { archiveBuildingScenes } from "@/lib/archive-building-scenes";
 
 export const dynamic = "force-dynamic";
+
+const memberCardSideNavRegion = {
+  left: 2.67,
+  top: 26.17,
+  width: 12.96,
+  height: 66.99
+};
+
+const memberCardPreviewRegion = {
+  left: 39.54,
+  top: 29.98,
+  width: 33.03,
+  height: 26.17
+};
+
+const memberCardControlsRegion = {
+  left: 39.15,
+  top: 56.84,
+  width: 33.75,
+  height: 26.86
+};
+
+const memberCardActionRegion = {
+  left: 32.12,
+  top: 87.7,
+  width: 47.88,
+  height: 6.84
+};
 
 type MemberCardPageProps = {
   searchParams?: Promise<{
@@ -96,7 +129,66 @@ export default async function MemberCardPage({
   }
 
   return (
-    <main className="member-card-page relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
+    <>
+      <ArchiveBuildingShell
+        image={{ ...archiveBuildingScenes.memberCard, priority: true }}
+        active="member-card"
+        archiveSlug={livingArchive.slug}
+        archiveName={livingArchive.archiveName}
+        archivePersonName={livingArchive.personName}
+        showArchiveActions={Boolean(livingArchive.slug)}
+        navRegion={memberCardSideNavRegion}
+        sceneLabel="Member Card archive-building scene"
+      >
+        <ArchiveOverlayRegion
+          region={memberCardPreviewRegion}
+          className="member-card-print-shell flex items-center justify-center overflow-hidden"
+          ariaLabel="Live member card preview"
+        >
+          <div className="w-full max-w-[24rem]">
+            <MemberCard
+              hasArchive={hasArchive}
+              memberName={memberName}
+              qrSrc={svgToDataUri(qrSvg)}
+              legacyActivationCode={legacyActivationCode}
+              createdYear={createdYear}
+            />
+          </div>
+        </ArchiveOverlayRegion>
+
+        <ArchiveOverlayRegion
+          region={memberCardControlsRegion}
+          className="overflow-hidden p-5 text-center text-archive-ivory"
+          ariaLabel="Member card status"
+        >
+          <div className="flex h-full flex-col items-center justify-center">
+            {isNewMember ? (
+              <SuccessMessage
+                eyebrow="Your membership begins here"
+                message="Your place in The Life Archive is confirmed."
+              />
+            ) : null}
+            <p className="max-w-md text-sm leading-6 text-archive-ivory/68">
+              This live card uses your real archive QR and private Legacy
+              Activation Code.
+            </p>
+          </div>
+        </ArchiveOverlayRegion>
+
+        <ArchiveOverlayRegion
+          region={memberCardActionRegion}
+          className="flex items-center justify-center overflow-hidden px-4"
+          ariaLabel="Member card actions"
+        >
+          <MemberCardActions
+            continueHref={continueHref}
+            continueLabel={continueLabel}
+            variant="archive-building"
+          />
+        </ArchiveOverlayRegion>
+      </ArchiveBuildingShell>
+
+      <main className="member-card-page relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8 lg:hidden">
       <DesignBackdrop />
 
       <div className="no-print relative mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
@@ -251,6 +343,7 @@ export default async function MemberCardPage({
           </section>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

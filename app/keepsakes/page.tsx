@@ -2,7 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
+import {
+  ArchiveBuildingShell,
+  ArchiveOverlayRegion
+} from "@/components/archive-building/ArchiveBuildingShell";
 import { getAccountContext } from "@/lib/account";
+import { archiveBuildingScenes } from "@/lib/archive-building-scenes";
 
 export const dynamic = "force-dynamic";
 
@@ -351,6 +356,14 @@ const activeKeepsakes = launchProductNames
   .map((name) => keepsakes.find((keepsake) => keepsake.name === name))
   .filter((keepsake): keepsake is Keepsake => Boolean(keepsake));
 
+const keepsakeSceneRegions = [
+  { left: 27.62, top: 35.35, width: 22.08, height: 30.18 },
+  { left: 20.72, top: 66.21, width: 22.08, height: 30.08 },
+  { left: 50.42, top: 35.55, width: 22.08, height: 30.08 },
+  { left: 44.69, top: 66.11, width: 22.08, height: 30.08 },
+  { left: 69.77, top: 55.86, width: 28.6, height: 42.58 }
+];
+
 const comingSoonKeepsakes = keepsakes.filter(
   (keepsake) => !launchProductNames.includes(keepsake.name)
 );
@@ -672,7 +685,46 @@ export default async function KeepsakesPage({
   const checkoutArchiveSlug = account.defaultArchive?.slug || null;
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
+    <>
+      <ArchiveBuildingShell
+        image={{ ...archiveBuildingScenes.keepsakes, priority: true }}
+        active="keepsakes"
+        archiveSlug={account.defaultArchive?.slug ?? null}
+        archiveName={account.defaultArchive?.archiveName ?? null}
+        archivePersonName={account.defaultArchive?.personName ?? null}
+        showArchiveActions={Boolean(account.defaultArchive?.slug)}
+        signedIn={isSignedIn}
+        sceneLabel="Keepsake Store archive-building scene"
+      >
+        {activeKeepsakes.map((product, index) => {
+            const checkoutUrl = getCheckoutUrl(product, checkoutArchiveSlug);
+            const region = keepsakeSceneRegions[index];
+            if (!region) {
+              return null;
+            }
+
+            return (
+              <ArchiveOverlayRegion
+                key={product.name}
+                region={region}
+                ariaLabel={product.name}
+              >
+                <CheckoutLink
+                  checkoutUrl={checkoutUrl}
+                  className="group relative block h-full rounded-[1.35rem] focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+                >
+                  <span className="sr-only">{product.name}</span>
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_center,rgba(232,207,136,0.44),rgba(232,207,136,0.18)_42%,transparent_76%)] opacity-0 blur-[4px] brightness-125 mix-blend-screen transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+                  />
+                </CheckoutLink>
+              </ArchiveOverlayRegion>
+            );
+          })}
+      </ArchiveBuildingShell>
+
+      <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:hidden lg:px-12 xl:px-16 sm:py-8">
       <DesignBackdrop />
 
       <nav className="relative z-10 mx-auto flex w-full max-w-[96rem] flex-col gap-4 border-b border-archive-gold/20 pb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
@@ -878,6 +930,7 @@ export default async function KeepsakesPage({
           </div>
         </section>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

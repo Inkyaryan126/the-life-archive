@@ -175,6 +175,10 @@ async function listAllAuthUsers() {
   return users;
 }
 
+export async function countAdminAccounts() {
+  return (await listAllAuthUsers()).length;
+}
+
 async function loadDirectoryRows() {
   const supabase = createAdminClient();
   const [users, profilesResult, archivesResult, memoriesResult] = await Promise.all([

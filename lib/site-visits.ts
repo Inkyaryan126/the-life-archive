@@ -31,6 +31,15 @@ export type RecentSiteVisit = {
   browser: string;
   createdAt: string;
   visitorStatus: VisitorStatus;
+  visitorDisplayName: string;
+  location: string;
+  totalPageViews: number;
+  firstSeenAt: string | null;
+  recentPages: Array<{
+    id: string;
+    path: string;
+    createdAt: string;
+  }>;
 };
 
 export type BotProbeVisit = {
@@ -38,24 +47,6 @@ export type BotProbeVisit = {
   path: string;
   browser: string;
   createdAt: string;
-};
-
-export type VisitorJourney = {
-  visitorId: string;
-  displayName: string;
-  location: string;
-  firstSeenAt: string;
-  lastSeenAt: string;
-  totalPageViews: number;
-  deviceType: DeviceType;
-  browser: string;
-  referrerSource: string;
-  visitorStatus: VisitorStatus;
-  recentPages: Array<{
-    id: string;
-    path: string;
-    createdAt: string;
-  }>;
 };
 
 export type SiteVisitStats = {
@@ -75,7 +66,6 @@ export type SiteVisitStats = {
   mostRecentVisit: RecentSiteVisit | null;
   recentVisits: RecentSiteVisit[];
   recentBotProbeVisits: BotProbeVisit[];
-  visitorJourneys: VisitorJourney[];
   topPaths: Array<{
     path: string;
     visitCount: number;
@@ -103,6 +93,18 @@ type RawSiteVisitRow = Omit<
     Pick<SiteVisitRow, "visitor_city" | "visitor_region" | "visitor_country">
   >;
 
+type VisitorSummary = {
+  displayName: string;
+  location: string;
+  totalPageViews: number;
+  firstSeenAt: string | null;
+  recentPages: Array<{
+    id: string;
+    path: string;
+    createdAt: string;
+  }>;
+};
+
 function getSiteVisitClient() {
   return createAdminClient() as SupabaseClient<any, "public", any>;
 }
@@ -128,8 +130,13 @@ function isAtOrAfter(value: string, boundary: Date) {
 
 function toRecentVisit(
   row: SiteVisitRow,
-  firstVisitByVisitorId: Map<string, string>
+  firstVisitByVisitorId: Map<string, string>,
+  visitorSummaryById: Map<string, VisitorSummary>
 ): RecentSiteVisit {
+  const visitorSummary = row.anonymous_visitor_id
+    ? visitorSummaryById.get(row.anonymous_visitor_id)
+    : null;
+
   return {
     id: row.id,
     path: row.path,
@@ -141,7 +148,21 @@ function toRecentVisit(
       visitorId: row.anonymous_visitor_id,
       createdAt: row.created_at,
       firstVisitByVisitorId
-    })
+    }),
+    visitorDisplayName:
+      visitorSummary?.displayName ??
+      getVisitorDisplayName(row.anonymous_visitor_id),
+    location: visitorSummary?.location ?? formatVisitorLocation(getRowLocation(row)),
+    totalPageViews: visitorSummary?.totalPageViews ?? 1,
+    firstSeenAt: visitorSummary?.firstSeenAt ?? row.created_at,
+    recentPages:
+      visitorSummary?.recentPages ?? [
+        {
+          id: row.id,
+          path: row.path,
+          createdAt: row.created_at
+        }
+      ]
   };
 }
 
@@ -192,6 +213,7 @@ export function summarizeSiteVisitRows(input: {
   );
   const firstVisitByVisitorId = getFirstVisitByVisitorId(allHumanRows);
   const visitorIdTrackingStartedAt = getVisitorIdTrackingStartedAt(allHumanRows);
+  const visitorSummaryById = getVisitorSummaryById(allHumanRows);
   const visitorWindowSummary = getVisitorWindowSummary(
     firstVisitByVisitorId,
     recentHumanRows,
@@ -213,13 +235,14 @@ export function summarizeSiteVisitRows(input: {
     adminRequestsLast30Days: recentAdminRows.length,
     visitorIdTrackingStartedAt,
     mostRecentVisit: recentHumanRows[0]
-      ? toRecentVisit(recentHumanRows[0], firstVisitByVisitorId)
+      ? toRecentVisit(recentHumanRows[0], firstVisitByVisitorId, visitorSummaryById)
       : null,
     recentVisits: recentHumanRows
       .slice(0, 25)
-      .map((row) => toRecentVisit(row, firstVisitByVisitorId)),
+      .map((row) =>
+        toRecentVisit(row, firstVisitByVisitorId, visitorSummaryById)
+      ),
     recentBotProbeVisits: recentBotProbeRows.slice(0, 8).map(toBotProbeVisit),
-    visitorJourneys: getVisitorJourneys(allHumanRows, firstVisitByVisitorId),
     topPaths: getTopHumanPaths(recentHumanRows)
   };
 }
@@ -360,10 +383,7 @@ function getTopHumanPaths(rows: SiteVisitRow[]) {
     .slice(0, 5);
 }
 
-function getVisitorJourneys(
-  rows: SiteVisitRow[],
-  firstVisitByVisitorId: Map<string, string>
-) {
+function getVisitorSummaryById(rows: SiteVisitRow[]) {
   const rowsByVisitorId = new Map<string, SiteVisitRow[]>();
 
   for (const row of rows) {
@@ -377,44 +397,29 @@ function getVisitorJourneys(
     ]);
   }
 
-  return Array.from(rowsByVisitorId.entries())
-    .map(([visitorId, visitorRows]) => {
+  return new Map(
+    Array.from(rowsByVisitorId.entries()).map(([visitorId, visitorRows]) => {
       const sortedRows = [...visitorRows].sort(
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       const latestRow = sortedRows[0];
       const oldestRow = sortedRows[sortedRows.length - 1];
-
-      return {
-        visitorId,
+      const summary: VisitorSummary = {
         displayName: getVisitorDisplayName(visitorId),
         location: latestRow
           ? formatVisitorLocation(getRowLocation(latestRow))
           : "Unknown location",
-        firstSeenAt: oldestRow?.created_at ?? latestRow?.created_at ?? "",
-        lastSeenAt: latestRow?.created_at ?? "",
+        firstSeenAt: oldestRow?.created_at ?? latestRow?.created_at ?? null,
         totalPageViews: visitorRows.length,
-        deviceType: detectDeviceType(latestRow?.user_agent),
-        browser: detectBrowser(latestRow?.user_agent),
-        referrerSource: formatReferrerSource(latestRow?.referrer),
-        visitorStatus: latestRow
-          ? getVisitorStatus({
-              visitorId,
-              createdAt: latestRow.created_at,
-              firstVisitByVisitorId
-            })
-          : "unknown",
-        recentPages: sortedRows.slice(0, 6).map((row) => ({
+        recentPages: sortedRows.slice(0, 4).map((row) => ({
           id: row.id,
           path: row.path,
           createdAt: row.created_at
         }))
       };
+
+      return [visitorId, summary];
     })
-    .sort(
-      (a, b) =>
-        new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime()
-    )
-    .slice(0, 20);
+  );
 }

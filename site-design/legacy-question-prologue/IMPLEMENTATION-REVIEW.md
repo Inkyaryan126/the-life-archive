@@ -1,0 +1,158 @@
+# Implementation Review
+
+## Architecture
+
+The Legacy Question cinematic prologue prototype is isolated under `app/(prototype)/legacy-prologue/`. The route group keeps the public URL simple as `/legacy-prologue` while avoiding changes to the existing `/legacy-question` route or any current application page.
+
+The implementation is data-driven:
+
+- `page.tsx` renders the prototype route.
+- `_data/types.ts` defines the scene contract.
+- `_data/legacyPrologueScenes.ts` imports approved master artwork and provides one configuration entry per approved master image.
+- `_components/LegacyProloguePlayer.tsx` owns playback state, image preloading, timing, crossfades, skip/replay controls, reduced-motion handling, and fallback behavior.
+- `_components/LegacyProloguePlayer.module.css` owns the full-screen cinematic layout, GPU-accelerated camera motion, overlays, fades, safe areas, mobile layout, and reduced-motion styling.
+
+No application routes were replaced. No database, authentication, Supabase, Resend, Stripe, Vercel, or claim behavior was changed.
+
+## File Tree
+
+```text
+app/(prototype)/legacy-prologue/
+├── _components/
+│   ├── LegacyProloguePlayer.module.css
+│   └── LegacyProloguePlayer.tsx
+├── _data/
+│   ├── legacyPrologueScenes.ts
+│   └── types.ts
+└── page.tsx
+```
+
+## Scene Flow
+
+The configuration contains 28 scene entries, matching the approved master-image set:
+
+1. Funeral establishing
+2. Rain striking cemetery soil
+3. Mourner behind umbrellas
+4. Empty cemetery aftermath
+5. Hands holding photograph
+6. Thumb brushing photograph
+7. Empty chair
+8. Mourner alone with photograph
+9. Old audio recorder
+10. First mansion reveal
+11. Mourner noticing light
+12. Light crossing room
+13. Light touching photograph
+14. Hidden engraving
+15. Blank QR plate
+16. Voice recording
+17. Handwritten letter
+18. Home-video memory
+19. Archiving a story
+20. Future message waiting
+21. Road emerging
+22. Figure at the road
+23. Mansion through trees
+24. Empty question environment
+25. Question mourner silhouette
+26. First illuminated road
+27. Additional mansion window
+28. Final illuminated road
+
+Each scene is driven by:
+
+```ts
+{
+  id,
+  image,
+  duration,
+  zoom,
+  pan,
+  fadeIn,
+  fadeOut,
+  text,
+  textDelay,
+  audioCue,
+  overlay,
+  transition
+}
+```
+
+The placeholder text comes from the storyboard/copy timing documents and is intentionally not wired into the live Legacy Question page.
+
+## Performance Notes
+
+- Scene artwork is imported as static image assets, allowing Next.js to fingerprint and optimize delivery.
+- Camera movement uses `translate3d(...) scale(...)` so motion stays GPU-accelerated.
+- The player only renders the active scene and the next scene during crossfade.
+- The first three images are loaded before playback begins.
+- The next two images are preloaded as playback advances.
+- The progress indicator exists but is hidden by default behind the `Progress` control.
+- The route built successfully with `npm run build` and appears as the static route `/legacy-prologue`.
+
+## Preload Strategy
+
+Initial preload:
+
+- Load scenes 1-3 before showing the player.
+- Display a branded loading state with a progress bar.
+
+During playback:
+
+- When scene `n` is active, preload scenes `n + 1` and `n + 2`.
+- Failed preloads do not crash playback.
+- If an image fails at render time, the scene shows a restrained fallback panel instead of a broken image.
+
+## Accessibility Notes
+
+- The route uses a semantic `main` element with an `aria-label`.
+- The loading state uses `aria-busy`.
+- Scene images are decorative and rendered with empty alt text.
+- Scene copy uses `aria-live="polite"`.
+- Skip, Continue/Replay, and Progress controls are real buttons.
+- Safe-area insets are respected for notched mobile screens.
+- `prefers-reduced-motion: reduce` disables CSS overlay animation and shortens copy motion.
+- In reduced-motion mode, the player still gives each scene a slight stable framing offset, but avoids active Ken Burns animation.
+- Hidden browser tabs pause the timing engine and resume without fast-forwarding.
+
+## Future Audio Integration Points
+
+Each scene already includes an `audioCue` string. A future audio mixer can map these cue IDs to ambience, Foley, music, and impact stems from `prompts/audio/audio-prompts.md`.
+
+Recommended next audio layer:
+
+- Build a `legacyPrologueAudioMap`.
+- Request user consent before playing audio.
+- Fade stems by scene rather than using one final mixed track.
+- Pause stems on hidden tabs.
+- Duck music when any future input, recording, or form element receives focus.
+
+## Future QR Animation Integration Points
+
+The QR-related scenes already exist as separate entries:
+
+- `scene-05-light-touching-photo`
+- `scene-05-engraving`
+- `scene-05-blank-qr-plate`
+
+The engine supports overlays by scene. Future QR work should add a dedicated SVG/DOM layer above the image but below copy, keyed by scene `id`, using the real QR or coded visual generated by application data. Do not bake QR codes into artwork.
+
+## Future Rain Overlay Integration Points
+
+The current prototype uses CSS atmospheric overlays for `rain`, `window-rain`, `fog`, and `amber`. Future production work can replace these with WebM, Canvas, or SVG effects from `prompts/effects/effects-prompts.md`.
+
+Recommended order:
+
+1. Replace CSS rain with foreground rain WebM.
+2. Replace window rain CSS with window-rain WebM.
+3. Keep distant fog CSS unless foreground fog needs more realism.
+4. Keep road and QR reveal as SVG masks for precise alignment.
+
+## Known Follow-Up Work
+
+- Replace placeholder storyboard text with approved final copy only when the live Legacy Question integration is planned.
+- Connect Skip/Continue to the real question state only when this prototype is promoted into `/legacy-question`.
+- Add real audio only after consent and stem files exist.
+- Add production QR animation only after the data path for real QR/claim visuals is defined.
+- Create mobile crops from approved masters if art direction requires more control than `object-fit: cover`.

@@ -356,7 +356,6 @@ export default async function AdminPage({
     mostRecentVisit: null,
     recentVisits: [],
     recentBotProbeVisits: [],
-    visitorJourneys: [],
     topPaths: []
   };
   let loadError: string | null = null;

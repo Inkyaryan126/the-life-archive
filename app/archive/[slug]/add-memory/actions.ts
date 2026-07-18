@@ -8,6 +8,7 @@ import {
   maxAudioUploadMegabytes
 } from "@/lib/media-upload-constants";
 import { validateMemoryMediaUrl } from "@/lib/safe-url";
+import { isAddMemoryMode } from "./memory-mode";
 
 function readString(formData: FormData, key: string) {
   const value = formData.get(key);
@@ -60,6 +61,23 @@ function parseTags(value: string) {
     .filter(Boolean);
 }
 
+function normalizeEntrySubtype(value: string) {
+  return value === "letter" || value === "journal-entry" ? value : "";
+}
+
+function applyEntrySubtypeTag(tags: string[], subtype: string, type: string) {
+  const normalizedSubtype = normalizeEntrySubtype(subtype);
+
+  if (type !== "journal" || !normalizedSubtype) {
+    return tags;
+  }
+
+  const subtypeTag = normalizedSubtype === "letter" ? "letter" : "journal-entry";
+  const existingTags = new Set(tags.map((tag) => tag.toLowerCase()));
+
+  return existingTags.has(subtypeTag) ? tags : [subtypeTag, ...tags];
+}
+
 export async function addMemoryAction(slug: string, formData: FormData) {
   const title = readString(formData, "title");
   const type = readString(formData, "type");
@@ -67,12 +85,16 @@ export async function addMemoryAction(slug: string, formData: FormData) {
   const mediaUrl = readString(formData, "mediaUrl");
   const mediaFile = readOptionalFile(formData, "mediaFile");
   const date = readString(formData, "date");
-  const tags = parseTags(readString(formData, "tags"));
+  const mode = readString(formData, "mode");
+  const entrySubtype = normalizeEntrySubtype(readString(formData, "entrySubtype"));
+  const tags = applyEntrySubtypeTag(parseTags(readString(formData, "tags")), entrySubtype, type);
   const submittedValues = {
     title,
     type,
     content,
     mediaUrl,
+    mode: isAddMemoryMode(mode) ? mode : "",
+    entrySubtype,
     date,
     tags: tags.join(", ")
   };
@@ -88,7 +110,7 @@ export async function addMemoryAction(slug: string, formData: FormData) {
   if (!content && !mediaUrl && !mediaFile) {
     redirectWithError(
       slug,
-      "Add a written memory, a photo upload, a voice upload, an Unsplash photo link, a hosted voice link, or a Spotify song link.",
+      "Add written content, a photo upload, a voice/audio upload, an Unsplash photo link, or a Spotify song link.",
       submittedValues
     );
   }

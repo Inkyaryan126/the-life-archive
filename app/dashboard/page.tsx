@@ -4,10 +4,16 @@ import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import { DesignBackdrop, HeartbeatLogoDivider, SiteLogo } from "@/components/SiteDesign";
+import {
+  ArchiveBuildingShell,
+  ArchiveOverlayRegion,
+  ArchiveSoftHighlight
+} from "@/components/archive-building/ArchiveBuildingShell";
 import { regenerateLegacyActivationCodeAction } from "@/app/dashboard/actions";
 import { saveProfileAction } from "@/app/dashboard/settings/actions";
 import { signOutAction } from "@/app/login/actions";
 import { getAccountContext, type AccountArchive } from "@/lib/account";
+import { archiveBuildingScenes } from "@/lib/archive-building-scenes";
 import { getArchiveRelationshipLabel } from "@/lib/archive-relationships";
 import { getArchiveBySlug, getLegacyInstructionByArchiveSlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 import { legacyInstructionAccessLevelLabels } from "@/lib/legacy-instructions";
@@ -50,6 +56,57 @@ const memoryBreakdownOrder: Array<{ type: MemoryType; label: string }> = [
   { type: "song", label: "Songs" }
 ];
 
+const dashboardSideNavRegion = {
+  left: 2.21,
+  top: 25.88,
+  width: 13.09,
+  height: 67.19
+};
+
+const activeArchiveImageRegion = {
+  left: 20.13,
+  top: 6.05,
+  width: 15.18,
+  height: 26.17
+};
+
+const activeArchiveInfoRegion = {
+  left: 39.22,
+  top: 3.32,
+  width: 20.2,
+  height: 36.72
+};
+
+const shelfBookRegions = [
+  { left: 61.04, top: 14.84, width: 6.06, height: 15.72 },
+  { left: 68.73, top: 14.75, width: 6.12, height: 15.82 },
+  { left: 76.55, top: 14.84, width: 6.12, height: 15.82 },
+  { left: 83.58, top: 14.94, width: 6.12, height: 15.82 },
+  { left: 90.88, top: 14.84, width: 6.06, height: 15.72 }
+];
+
+const recentMemoryRegions = [
+  { left: 28.99, top: 48.73, width: 20.72, height: 7.03 },
+  { left: 28.4, top: 57.32, width: 20.78, height: 7.13 },
+  { left: 27.62, top: 66.02, width: 20.85, height: 7.13 },
+  { left: 26.84, top: 74.22, width: 20.85, height: 7.03 }
+];
+
+const addArchiveActionRegions = [
+  { left: 53.68, top: 54.59, width: 21.56, height: 8.5 },
+  { left: 53.94, top: 63.48, width: 21.3, height: 10.35 },
+  { left: 53.55, top: 71.78, width: 22.67, height: 10.94 }
+];
+
+const addArchiveActionsConfig: Array<{
+  label: string;
+  mode: string;
+}> = [
+  { label: "Add Voice & Sound", mode: "voice-sound" },
+  { label: "Add Photos & Video", mode: "photo-video" },
+  { label: "Write a Letter or Journal Entry", mode: "letter-journal" }
+];
+
 function getArchiveInitials(name: string) {
   return name
     .split(/\s+/)
@@ -57,6 +114,31 @@ function getArchiveInitials(name: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("");
+}
+
+function formatMemoryType(type: MemoryType) {
+  return memoryBreakdownOrder.find((item) => item.type === type)?.label ?? type;
+}
+
+function formatMemoryDate(value: string) {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  }).format(date);
+}
+
+function getAddMemoryHref(archiveSlug: string, mode: string) {
+  return `/archive/${archiveSlug}/add-memory?mode=${encodeURIComponent(mode)}`;
 }
 
 function MemoryBreakdownCard({ label, count }: MemoryBreakdownCardProps) {
@@ -253,9 +335,180 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const sidebarArchiveSlug = sidebarArchive?.archiveDetails?.slug ?? sidebarArchive?.archive.slug ?? null;
   const sidebarArchiveName = sidebarArchive?.archiveDetails?.archiveName ?? sidebarArchive?.archive.archiveName ?? null;
   const sidebarArchivePersonName = sidebarArchive?.archiveDetails?.personName ?? sidebarArchive?.archive.personName ?? null;
+  const activeMemoryCounts = memoryBreakdownOrder.reduce<Record<MemoryType, number>>(
+    (counts, { type }) => {
+      counts[type] = activeArchiveMemories.filter((memory) => memory.type === type).length;
+      return counts;
+    },
+    { photo: 0, video: 0, voice: 0, journal: 0, lesson: 0, song: 0 }
+  );
+  const archiveStatItems = [
+    ["Total", activeArchiveMemories.length],
+    ["Voice", activeMemoryCounts.voice],
+    ["Photos", activeMemoryCounts.photo],
+    ["Videos", activeMemoryCounts.video],
+    ["Journals", activeMemoryCounts.journal + activeMemoryCounts.lesson],
+    ["Songs", activeMemoryCounts.song]
+  ];
+  const shelfArchives = archiveOverviews.slice(0, 4);
+  const addArchiveActions = activeArchive
+    ? addArchiveActionsConfig.map((action) => ({
+        label: action.label,
+        href: getAddMemoryHref(activeArchive.slug, action.mode)
+      }))
+    : [];
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
+    <>
+      <ArchiveBuildingShell
+        image={{ ...archiveBuildingScenes.myArchives, priority: true }}
+        active="dashboard"
+        archiveSlug={sidebarArchiveSlug}
+        archiveName={sidebarArchiveName}
+        archivePersonName={sidebarArchivePersonName}
+        showArchiveActions={Boolean(sidebarArchiveSlug)}
+        navRegion={dashboardSideNavRegion}
+        sceneLabel="My Archives archive-building scene"
+      >
+        <ArchiveOverlayRegion
+          region={activeArchiveImageRegion}
+          ariaLabel="Active archive image"
+        >
+          {activeArchive ? (
+            <Link
+              href={`/archive/${activeArchive.slug}`}
+              className="group relative block h-full w-full overflow-hidden rounded-[0.2rem] focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+              aria-label={`Open ${activeArchive.archiveName}`}
+            >
+              {activeArchivePhoto ? (
+                <Image
+                  src={activeArchivePhoto}
+                  alt={activeArchive.personName}
+                  fill
+                  priority
+                  className="object-cover object-[center_25%]"
+                  sizes="16vw"
+                />
+              ) : (
+                <div className="grid h-full place-items-center bg-black/26 text-center">
+                  <p className="font-serif text-4xl text-archive-gold">
+                    {getArchiveInitials(activeArchive.personName)}
+                  </p>
+                </div>
+              )}
+              <ArchiveSoftHighlight className="bg-[radial-gradient(circle_at_center,rgba(232,207,136,0.46),rgba(232,207,136,0.2)_44%,transparent_78%)]" />
+            </Link>
+          ) : (
+            <div className="grid h-full place-items-center bg-black/26 text-center">
+              <p className="font-serif text-4xl text-archive-gold">TLA</p>
+            </div>
+          )}
+        </ArchiveOverlayRegion>
+
+        <ArchiveOverlayRegion
+          region={activeArchiveInfoRegion}
+          className="p-5 text-archive-ivory"
+          ariaLabel="Active archive information and statistics"
+        >
+          <div className="flex h-full flex-col justify-center">
+            <h1 className="line-clamp-2 font-serif text-[clamp(1.25rem,1.75vw,2rem)] leading-tight text-archive-ivory">
+              {activeArchive?.archiveName ?? "Create Your Archive"}
+            </h1>
+            {activeArchive ? (
+              <p className="mt-1 truncate text-xs font-semibold uppercase tracking-[0.14em] text-archive-gold/78">
+                {activeArchive.personName} · {activeArchive.memorialMode ? "Memorial" : "Living"}
+              </p>
+            ) : null}
+            <div className="mt-4 grid grid-cols-3 gap-x-4 gap-y-3">
+              {archiveStatItems.map(([label, count]) => (
+                <div key={label} className="min-w-0">
+                  <p className="font-serif text-[clamp(1rem,1.35vw,1.45rem)] leading-none text-archive-gold">
+                    {String(count).padStart(2, "0")}
+                  </p>
+                  <p className="mt-1 truncate text-[0.56rem] font-semibold uppercase tracking-[0.12em] text-archive-ivory/64">
+                    {label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </ArchiveOverlayRegion>
+
+        {shelfBookRegions.map((region, index) => {
+          const overview = shelfArchives[index];
+          const isCreateBook = index === 4;
+          const href = isCreateBook || !overview ? "/create" : `/archive/${overview.archive.slug}`;
+          const label = isCreateBook || !overview ? "Create Archive" : overview.archive.archiveName;
+          const ariaLabel = isCreateBook || !overview ? "Create a new archive" : `Open ${overview.archive.archiveName}`;
+
+          return (
+            <ArchiveOverlayRegion key={`${label}-${index}`} region={region} ariaLabel={ariaLabel}>
+              <Link
+                href={href}
+                aria-label={ariaLabel}
+                className="group relative flex h-full w-full items-center justify-center rounded-[0.45rem] px-1 py-2 text-center focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+              >
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_center,rgba(232,207,136,0.5),rgba(232,207,136,0.22)_44%,transparent_78%)] opacity-0 blur-[4px] brightness-125 mix-blend-screen transition group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+                />
+                <span
+                  title={label}
+                  className="relative line-clamp-3 max-h-full font-serif text-[clamp(0.55rem,0.7vw,0.72rem)] leading-tight text-archive-ivory/86 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                >
+                  {label}
+                </span>
+              </Link>
+            </ArchiveOverlayRegion>
+          );
+        })}
+
+        {recentMemoryRegions.map((region, index) => {
+          const memory = activeArchiveMemories[index];
+          if (!memory || !activeArchive) {
+            return null;
+          }
+
+          return (
+            <ArchiveOverlayRegion key={memory.id} region={region} ariaLabel={`Recent memory ${index + 1}`}>
+              <Link
+                href={`/archive/${activeArchive.slug}/memories/${memory.id}`}
+                aria-label={`Open memory: ${memory.title}`}
+                className="group relative flex h-full w-full flex-col justify-center rounded-sm px-3 text-[#2f2418] transition hover:text-[#6e511f] focus:outline-none focus:ring-2 focus:ring-archive-gold/60"
+              >
+                <ArchiveSoftHighlight className="bg-[radial-gradient(circle_at_center,rgba(198,139,45,0.38),rgba(198,139,45,0.16)_45%,transparent_80%)]" />
+                <span className="relative block truncate font-serif text-[clamp(0.75rem,0.95vw,0.98rem)] leading-tight">
+                  {memory.title}
+                </span>
+                <span className="relative mt-0.5 block truncate text-[0.56rem] uppercase tracking-[0.12em] text-[#6f5732]/72">
+                  {formatMemoryType(memory.type)} {memory.date ? `· ${formatMemoryDate(memory.date)}` : ""}
+                </span>
+              </Link>
+            </ArchiveOverlayRegion>
+          );
+        })}
+
+        {addArchiveActions.map((action, index) => {
+          const region = addArchiveActionRegions[index];
+          if (!region) {
+            return null;
+          }
+
+          return (
+            <ArchiveOverlayRegion key={action.label} region={region} ariaLabel={action.label}>
+              <Link
+                href={action.href}
+                aria-label={action.label}
+                className="group relative block h-full w-full rounded-full focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+              >
+                <ArchiveSoftHighlight className="rounded-full bg-[radial-gradient(circle_at_center,rgba(232,207,136,0.56),rgba(232,207,136,0.24)_46%,transparent_80%)]" />
+              </Link>
+            </ArchiveOverlayRegion>
+          );
+        })}
+      </ArchiveBuildingShell>
+
+      <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:hidden lg:px-12 xl:px-16 sm:py-8">
       <DesignBackdrop />
 
       <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
@@ -528,6 +781,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </div>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

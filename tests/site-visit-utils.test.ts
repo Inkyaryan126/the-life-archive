@@ -360,7 +360,9 @@ function headers(values: Record<string, string>) {
   assert.match(helper, /recentBotProbeRows/);
   assert.match(helper, /anonymous_visitor_id/);
   assert.match(helper, /visitor_city/);
-  assert.match(helper, /visitorJourneys/);
+  assert.match(helper, /visitorDisplayName/);
+  assert.match(helper, /totalPageViews/);
+  assert.match(helper, /getVisitorSummaryById/);
   assert.match(helper, /getVisitorDisplayName/);
   assert.match(helper, /BASE_SITE_VISIT_SELECT/);
   assert.match(helper, /LOCATION_SITE_VISIT_SELECT/);
@@ -379,10 +381,12 @@ function headers(values: Record<string, string>) {
   assert.match(visitorsPage, /Human page views today/);
   assert.match(visitorsPage, /Unique visitors since IDs began/);
   assert.match(visitorsPage, /Bot\/probe requests last 30 days/);
+  assert.match(visitorsPage, /Accounts created/);
+  assert.match(visitorsPage, /countAdminAccounts/);
   assert.match(visitorsPage, /formatVisitorAnalyticsDateTime/);
   assert.match(visitorsPage, /formatVisitorAnalyticsRelativeTime/);
-  assert.match(visitorsPage, /VisitorJourneys/);
-  assert.match(visitorsPage, /Approximate location/);
+  assert.match(visitorsPage, /Newest human activity/);
+  assert.match(visitorsPage, /Visitor context/);
   assert.match(setup, /20260715200000_add_site_visit_location_fields\.sql/);
   assert.match(locationMigration, /visitor_city/);
   assert.match(locationMigration, /Raw IP addresses are intentionally not stored/);

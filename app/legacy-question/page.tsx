@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { LegacyQuestionExperience } from "@/app/legacy-question/LegacyQuestionExperience";
 import { MemoryCaptureWidget } from "@/components/legacy-question/MemoryCaptureWidget";
 import { SiteLogo } from "@/components/SiteDesign";
 import { publicSupportEmail } from "@/lib/site-config";
@@ -51,12 +52,13 @@ export default async function LegacyQuestionPage({
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#11100e] text-[#f8f1e7]">
-      <HeroSection />
-      <MemoryCaptureWidget initialSource={source} initialCardBatch={cardBatch} />
-      <HowItWorksSection />
-      <RandomQrExplainer />
-      <PrivacyConsentSection />
-      <FooterSection />
+      <LegacyQuestionExperience>
+        <MemoryCaptureWidget initialSource={source} initialCardBatch={cardBatch} />
+        <HowItWorksSection />
+        <RandomQrExplainer />
+        <PrivacyConsentSection />
+        <FooterSection />
+      </LegacyQuestionExperience>
     </main>
   );
 }

@@ -451,7 +451,7 @@ export function MemoryCaptureWidget({
         <div className="grid items-start gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.82fr)]">
           <div className="p-5 sm:p-8 lg:p-9">
             <h2 id="capture-heading" className="font-serif text-4xl leading-tight text-[#18130f] sm:text-5xl">
-              What&apos;s yours?
+              What would you say?
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-[#5b5147] sm:text-lg">
               Share one memory, lesson, story, or message you never want lost.

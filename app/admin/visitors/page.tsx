@@ -2,12 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { getAdminAccess } from "@/lib/admin";
+import { countAdminAccounts } from "@/lib/admin-users";
 import {
   type BotProbeVisit,
   getSiteVisitStats,
   type RecentSiteVisit,
-  type SiteVisitStats,
-  type VisitorJourney
+  type SiteVisitStats
 } from "@/lib/site-visits";
 import {
   formatVisitorAnalyticsDateTime,
@@ -57,7 +57,7 @@ function VisitorStatusBadge({ status }: { status: RecentSiteVisit["visitorStatus
 
 function RecentVisitRow({ visit }: { visit: RecentSiteVisit }) {
   return (
-    <article className="grid gap-3 border-t border-archive-gold/10 py-4 text-sm md:grid-cols-[10rem_minmax(0,1fr)_8rem_8rem_7rem] md:items-center">
+    <article className="grid gap-3 border-t border-archive-gold/10 py-4 text-sm lg:grid-cols-[10rem_minmax(0,1.4fr)_minmax(12rem,0.9fr)_8rem_8rem_7rem] lg:items-center">
       <div>
         <p className="font-semibold text-archive-ivory">
           {formatVisitorAnalyticsRelativeTime(visit.createdAt)}
@@ -73,6 +73,25 @@ function RecentVisitRow({ visit }: { visit: RecentSiteVisit }) {
         <p className="mt-1 break-all text-xs text-archive-ivory/52">
           {visit.referrerSource}
         </p>
+      </div>
+      <div className="min-w-0 text-xs leading-5 text-archive-ivory/58">
+        <p className="font-semibold text-archive-ivory/76">
+          {visit.visitorDisplayName}
+        </p>
+        <p>{visit.location}</p>
+        <p>
+          {visit.totalPageViews.toLocaleString("en-US")} page views
+          {visit.firstSeenAt
+            ? ` · first seen ${formatVisitorAnalyticsRelativeTime(
+                visit.firstSeenAt
+              )}`
+            : ""}
+        </p>
+        {visit.recentPages.length > 1 ? (
+          <p className="mt-1 truncate text-archive-ivory/42">
+            Recent path: {visit.recentPages[1].path}
+          </p>
+        ) : null}
       </div>
       <p className="capitalize text-archive-ivory/66">{visit.deviceType}</p>
       <p className="text-archive-ivory/66">{visit.browser}</p>
@@ -131,9 +150,10 @@ function RecentVisitorFeed({ visits }: { visits: RecentSiteVisit[] }) {
 
       {visits.length > 0 ? (
         <div className="mt-4">
-          <div className="hidden border-t border-archive-gold/10 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-archive-ivory/42 md:grid md:grid-cols-[10rem_minmax(0,1fr)_8rem_8rem_7rem]">
+          <div className="hidden border-t border-archive-gold/10 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-archive-ivory/42 lg:grid lg:grid-cols-[10rem_minmax(0,1.4fr)_minmax(12rem,0.9fr)_8rem_8rem_7rem]">
             <span>Time</span>
             <span>Page and source</span>
+            <span>Visitor context</span>
             <span>Device</span>
             <span>Browser</span>
             <span>Visitor</span>
@@ -145,99 +165,6 @@ function RecentVisitorFeed({ visits }: { visits: RecentSiteVisit[] }) {
       ) : (
         <p className="mt-4 text-sm leading-7 text-archive-ivory/64">
           No recent human page views have been recorded yet.
-        </p>
-      )}
-    </section>
-  );
-}
-
-function VisitorJourneyCard({ journey }: { journey: VisitorJourney }) {
-  return (
-    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-archive-gold/25 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-archive-champagne">
-              {journey.displayName}
-            </span>
-            <span className="rounded-full border border-archive-gold/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-archive-ivory/50">
-              {journey.visitorStatus}
-            </span>
-          </div>
-          <h3 className="mt-4 font-serif text-2xl text-archive-ivory">
-            {journey.location}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
-            {journey.totalPageViews.toLocaleString("en-US")} human page views ·{" "}
-            {journey.deviceType} · {journey.browser}
-          </p>
-          <p className="mt-1 text-xs leading-5 text-archive-ivory/48">
-            First seen {formatVisitorAnalyticsDateTime(journey.firstSeenAt)} ·
-            Last seen {formatVisitorAnalyticsRelativeTime(journey.lastSeenAt)}
-          </p>
-        </div>
-        <div className="text-sm text-archive-ivory/58 lg:text-right">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-archive-gold">
-            Source
-          </p>
-          <p className="mt-2 break-all">{journey.referrerSource}</p>
-        </div>
-      </div>
-
-      <div className="mt-5 border-t border-archive-gold/10 pt-4">
-        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-archive-gold">
-          Recent path
-        </p>
-        <div className="mt-3 grid gap-2">
-          {journey.recentPages.map((page) => (
-            <div
-              key={page.id}
-              className="flex flex-col gap-1 rounded-xl border border-archive-gold/10 bg-archive-obsidian/45 px-3 py-2 text-xs sm:flex-row sm:items-center sm:justify-between"
-            >
-              <span className="break-all font-semibold text-archive-champagne">
-                {page.path}
-              </span>
-              <span className="shrink-0 text-archive-ivory/48">
-                {formatVisitorAnalyticsRelativeTime(page.createdAt)}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function VisitorJourneys({ journeys }: { journeys: VisitorJourney[] }) {
-  return (
-    <section className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-            Visitor journeys
-          </p>
-          <h2 className="mt-3 font-serif text-2xl text-archive-ivory">
-            Latest anonymous visitors
-          </h2>
-        </div>
-        <span className="text-xs text-archive-ivory/48">
-          Last {Math.min(journeys.length, 20).toLocaleString("en-US")} visitors
-        </span>
-      </div>
-      <p className="mt-3 text-sm leading-7 text-archive-ivory/60">
-        Names are assigned from the anonymous visitor ID. Approximate location
-        comes from hosting geo headers; raw IP addresses are not shown.
-      </p>
-
-      {journeys.length > 0 ? (
-        <div className="mt-5 grid gap-4">
-          {journeys.map((journey) => (
-            <VisitorJourneyCard key={journey.visitorId} journey={journey} />
-          ))}
-        </div>
-      ) : (
-        <p className="mt-4 text-sm leading-7 text-archive-ivory/64">
-          No anonymous human visitor journeys are available yet.
         </p>
       )}
     </section>
@@ -313,7 +240,10 @@ export default async function AdminVisitorsPage() {
     return <AccessUnavailable />;
   }
 
-  const stats = await getSiteVisitStats();
+  const [stats, accountCount] = await Promise.all([
+    getSiteVisitStats(),
+    countAdminAccounts()
+  ]);
   const latestDetail = stats.mostRecentVisit
     ? `Latest human visit ${formatVisitorAnalyticsRelativeTime(
         stats.mostRecentVisit.createdAt
@@ -409,9 +339,9 @@ export default async function AdminVisitorsPage() {
             detail="First observed during the last 30 days."
           />
           <StatCard
-            label="Returning visitors last 30 days"
-            value={stats.returningVisitorsLast30Days}
-            detail="Had an earlier human visit before this 30-day window."
+            label="Accounts created"
+            value={accountCount}
+            detail="Total authenticated accounts."
           />
           <StatCard
             label="Bot/probe requests last 30 days"
@@ -431,16 +361,13 @@ export default async function AdminVisitorsPage() {
           </p>
         </section>
 
-        <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
-          <div className="grid gap-6">
-            <TopPages stats={stats} />
-            <BotProbeSummary visits={stats.recentBotProbeVisits} />
-          </div>
+        <div className="mt-8">
           <RecentVisitorFeed visits={stats.recentVisits} />
         </div>
 
-        <div className="mt-8">
-          <VisitorJourneys journeys={stats.visitorJourneys} />
+        <div className="mt-8 grid gap-6 xl:grid-cols-2">
+          <TopPages stats={stats} />
+          <BotProbeSummary visits={stats.recentBotProbeVisits} />
         </div>
       </div>
     </main>

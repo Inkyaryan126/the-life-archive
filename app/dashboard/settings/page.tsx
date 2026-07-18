@@ -4,10 +4,15 @@ import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import {
+  ArchiveBuildingShell,
+  ArchiveOverlayRegion
+} from "@/components/archive-building/ArchiveBuildingShell";
+import {
   changePasswordAction,
   saveProfileAction
 } from "@/app/dashboard/settings/actions";
 import { getAccountContext } from "@/lib/account";
+import { archiveBuildingScenes } from "@/lib/archive-building-scenes";
 import { FormButton } from "@/components/auth/FormButton";
 import { PasswordFields } from "@/components/auth/PasswordFields";
 import { signOutAction } from "@/app/login/actions";
@@ -22,6 +27,41 @@ function formatInitials(value: string) {
     .map((part) => part[0]?.toUpperCase())
     .join("") || "A";
 }
+
+const settingsSideNavRegion = {
+  left: 2.28,
+  top: 25.78,
+  width: 12.96,
+  height: 66.99
+};
+
+const profileIdentityRegion = {
+  left: 24.82,
+  top: 23.54,
+  width: 28.93,
+  height: 20.12
+};
+
+const archivePreferencesRegion = {
+  left: 57.13,
+  top: 23.44,
+  width: 28.99,
+  height: 20.21
+};
+
+const privacyAccessRegion = {
+  left: 24.76,
+  top: 52.44,
+  width: 28.66,
+  height: 19.24
+};
+
+const securityRecoveryRegion = {
+  left: 57.13,
+  top: 52.73,
+  width: 28.99,
+  height: 19.14
+};
 
 export default async function DashboardSettingsPage({
   searchParams
@@ -42,7 +82,135 @@ export default async function DashboardSettingsPage({
   const initials = formatInitials(avatarLabel);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8">
+    <>
+      <ArchiveBuildingShell
+        image={{ ...archiveBuildingScenes.settings, priority: true }}
+        active="settings"
+        archiveSlug={account.defaultArchive?.slug ?? null}
+        archiveName={account.defaultArchive?.archiveName ?? null}
+        archivePersonName={account.defaultArchive?.personName ?? null}
+        showArchiveActions={Boolean(account.defaultArchive?.slug)}
+        navRegion={settingsSideNavRegion}
+        sceneLabel="Profile Settings archive-building scene"
+      >
+        <ArchiveOverlayRegion
+          region={profileIdentityRegion}
+          className="overflow-hidden p-5 text-archive-ivory"
+          ariaLabel="Profile identity"
+        >
+          <form action={saveProfileAction} className="grid h-full content-center gap-3">
+            <input type="hidden" name="next" value="/dashboard/settings" />
+            <p className="line-clamp-1 font-serif text-[clamp(1rem,1.35vw,1.5rem)] text-archive-ivory">
+              {avatarLabel}
+            </p>
+            <label className="grid gap-1">
+              <span className="text-xs font-semibold text-archive-ivory/72">
+                Display name
+              </span>
+              <input
+                name="displayName"
+                defaultValue={displayNameValue}
+                maxLength={60}
+                className="rounded-md border border-archive-gold/18 bg-black/38 px-3 py-1.5 text-sm text-archive-ivory outline-none focus:border-archive-gold"
+              />
+            </label>
+            <FormButton
+              pendingText="Saving..."
+              className="w-fit rounded-md bg-archive-gold/88 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-archive-obsidian transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+            >
+              Save Profile
+            </FormButton>
+          </form>
+        </ArchiveOverlayRegion>
+
+        <ArchiveOverlayRegion
+          region={archivePreferencesRegion}
+          className="overflow-hidden p-5 text-archive-ivory"
+          ariaLabel="Archive preferences"
+        >
+          <div className="flex h-full flex-col justify-center">
+            <h2 className="line-clamp-1 font-serif text-[clamp(1rem,1.35vw,1.5rem)] text-archive-ivory">
+              {account.defaultArchive?.archiveName ?? "No archive yet"}
+            </h2>
+            {bioValue ? (
+              <p className="mt-2 line-clamp-2 text-xs leading-5 text-archive-ivory/62">
+                {bioValue}
+              </p>
+            ) : null}
+            <Link
+              href={account.defaultArchive?.slug ? `/archive/${account.defaultArchive.slug}/edit` : "/create"}
+              className="mt-3 w-fit border-b border-archive-gold/34 pb-0.5 text-xs font-semibold uppercase tracking-[0.12em] text-archive-champagne transition hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+            >
+              {account.defaultArchive?.slug ? "Edit Archive" : "Create Archive"}
+            </Link>
+          </div>
+        </ArchiveOverlayRegion>
+
+        <ArchiveOverlayRegion
+          region={privacyAccessRegion}
+          className="overflow-hidden p-5 text-archive-ivory"
+          ariaLabel="Privacy and access"
+        >
+          <div className="flex h-full flex-col justify-center">
+            <p className="break-all text-sm leading-5 text-archive-ivory/78">
+              {account.user.email}
+            </p>
+            <p className="mt-2 text-xs leading-5 text-archive-ivory/56">
+              Archive privacy is managed from each archive.
+            </p>
+            <Link
+              href="/dashboard"
+              className="mt-3 w-fit border-b border-archive-gold/34 pb-0.5 text-xs font-semibold uppercase tracking-[0.12em] text-archive-champagne transition hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+            >
+              My Archives
+            </Link>
+          </div>
+        </ArchiveOverlayRegion>
+
+        <ArchiveOverlayRegion
+          region={securityRecoveryRegion}
+          className="overflow-hidden p-5 text-archive-ivory"
+          ariaLabel="Security and recovery"
+        >
+          <form action={changePasswordAction} className="grid h-full content-center gap-3">
+            <input type="hidden" name="next" value="/dashboard/settings" />
+            <div className="grid grid-cols-2 gap-2">
+              <label className="grid gap-1">
+                <span className="text-xs font-semibold text-archive-ivory/72">
+                  New password
+                </span>
+                <input
+                  name="newPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  className="rounded-md border border-archive-gold/18 bg-black/38 px-3 py-1.5 text-sm text-archive-ivory outline-none focus:border-archive-gold"
+                />
+              </label>
+              <label className="grid gap-1">
+                <span className="text-xs font-semibold text-archive-ivory/72">
+                  Confirm
+                </span>
+                <input
+                  name="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  className="rounded-md border border-archive-gold/18 bg-black/38 px-3 py-1.5 text-sm text-archive-ivory outline-none focus:border-archive-gold"
+                />
+              </label>
+            </div>
+            <FormButton
+              pendingText="Updating..."
+              className="w-fit rounded-md bg-archive-gold/88 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-archive-obsidian transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+            >
+              Change Password
+            </FormButton>
+          </form>
+        </ArchiveOverlayRegion>
+      </ArchiveBuildingShell>
+
+      <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8 lg:hidden">
       <DesignBackdrop />
 
       <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
@@ -259,6 +427,7 @@ export default async function DashboardSettingsPage({
           </div>
         </div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }
