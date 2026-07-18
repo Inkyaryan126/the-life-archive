@@ -27,14 +27,14 @@ const memberCardSideNavRegion = {
   height: 66.99
 };
 
-const memberCardPreviewRegion = {
+const memberCardFrontRegion = {
   left: 39.54,
-  top: 29.98,
+  top: 30.08,
   width: 33.03,
-  height: 26.17
+  height: 26.07
 };
 
-const memberCardControlsRegion = {
+const memberCardBackRegion = {
   left: 39.15,
   top: 56.84,
   width: 33.75,
@@ -43,9 +43,9 @@ const memberCardControlsRegion = {
 
 const memberCardActionRegion = {
   left: 32.12,
-  top: 87.7,
+  top: 87.6,
   width: 47.88,
-  height: 6.84
+  height: 6.93
 };
 
 type MemberCardPageProps = {
@@ -54,6 +54,42 @@ type MemberCardPageProps = {
     welcome?: string;
   }>;
 };
+
+type MemberCardSidePreviewProps = {
+  side: "front" | "back";
+  hasArchive: boolean;
+  memberName: string;
+  qrSrc: string;
+  legacyActivationCode: string;
+  createdYear: number;
+};
+
+function MemberCardSidePreview({
+  side,
+  hasArchive,
+  memberName,
+  qrSrc,
+  legacyActivationCode,
+  createdYear
+}: MemberCardSidePreviewProps) {
+  return (
+    <div
+      className={`flex h-full w-full items-center justify-center overflow-hidden ${
+        side === "front"
+          ? "[&_.member-card-back]:hidden"
+          : "[&_.member-card-front]:hidden"
+      } [&_.member-card-face>img]:!object-contain [&_.member-card-face]:!h-full [&_.member-card-face]:!w-auto [&_.member-card-face]:!max-w-full [&_.member-card-face]:!rounded-[0.55rem] [&_.member-card-print-area]:!flex [&_.member-card-print-area]:!h-full [&_.member-card-print-area]:!w-full [&_.member-card-print-area]:!items-center [&_.member-card-print-area]:!justify-center [&_.member-card-print-area]:!gap-0`}
+    >
+      <MemberCard
+        hasArchive={hasArchive}
+        memberName={memberName}
+        qrSrc={qrSrc}
+        legacyActivationCode={legacyActivationCode}
+        createdYear={createdYear}
+      />
+    </div>
+  );
+}
 
 export default async function MemberCardPage({
   searchParams
@@ -141,50 +177,47 @@ export default async function MemberCardPage({
         sceneLabel="Member Card archive-building scene"
       >
         <ArchiveOverlayRegion
-          region={memberCardPreviewRegion}
-          className="member-card-print-shell flex items-center justify-center overflow-hidden"
-          ariaLabel="Live member card preview"
+          region={memberCardFrontRegion}
+          className="flex items-center justify-center overflow-hidden p-3"
+          ariaLabel="Member card front preview"
         >
-          <div className="w-full max-w-[24rem]">
-            <MemberCard
-              hasArchive={hasArchive}
-              memberName={memberName}
-              qrSrc={svgToDataUri(qrSvg)}
-              legacyActivationCode={legacyActivationCode}
-              createdYear={createdYear}
-            />
-          </div>
+          <MemberCardSidePreview
+            side="front"
+            hasArchive={hasArchive}
+            memberName={memberName}
+            qrSrc={svgToDataUri(qrSvg)}
+            legacyActivationCode={legacyActivationCode}
+            createdYear={createdYear}
+          />
         </ArchiveOverlayRegion>
 
         <ArchiveOverlayRegion
-          region={memberCardControlsRegion}
-          className="overflow-hidden p-5 text-center text-archive-ivory"
-          ariaLabel="Member card status"
+          region={memberCardBackRegion}
+          className="flex items-center justify-center overflow-hidden p-3"
+          ariaLabel="Member card back preview"
         >
-          <div className="flex h-full flex-col items-center justify-center">
-            {isNewMember ? (
-              <SuccessMessage
-                eyebrow="Your membership begins here"
-                message="Your place in The Life Archive is confirmed."
-              />
-            ) : null}
-            <p className="max-w-md text-sm leading-6 text-archive-ivory/68">
-              This live card uses your real archive QR and private Legacy
-              Activation Code.
-            </p>
-          </div>
+          <MemberCardSidePreview
+            side="back"
+            hasArchive={hasArchive}
+            memberName={memberName}
+            qrSrc={svgToDataUri(qrSvg)}
+            legacyActivationCode={legacyActivationCode}
+            createdYear={createdYear}
+          />
         </ArchiveOverlayRegion>
 
         <ArchiveOverlayRegion
           region={memberCardActionRegion}
-          className="flex items-center justify-center overflow-hidden px-4"
+          className="flex items-center justify-center overflow-hidden"
           ariaLabel="Member card actions"
         >
-          <MemberCardActions
-            continueHref={continueHref}
-            continueLabel={continueLabel}
-            variant="archive-building"
-          />
+          <div className="h-full w-full [&>div]:grid [&>div]:h-full [&>div]:w-full [&>div]:grid-cols-[167fr_197fr_197fr_174fr] [&>div]:gap-0 [&>div]:overflow-hidden [&>div>div]:contents [&_a]:flex [&_a]:h-full [&_a]:min-w-0 [&_a]:items-center [&_a]:justify-center [&_a]:whitespace-nowrap [&_a]:rounded-none [&_a]:border-0 [&_a]:px-1 [&_a]:py-0 [&_a]:text-[clamp(0.42rem,0.64vw,0.72rem)] [&_a]:tracking-[0.06em] [&_button]:h-full [&_button]:min-w-0 [&_button]:whitespace-nowrap [&_button]:rounded-none [&_button]:border-0 [&_button]:px-1 [&_button]:py-0 [&_button]:text-[clamp(0.42rem,0.64vw,0.72rem)] [&_button]:tracking-[0.06em]">
+            <MemberCardActions
+              continueHref={continueHref}
+              continueLabel={continueLabel}
+              variant="archive-building"
+            />
+          </div>
         </ArchiveOverlayRegion>
       </ArchiveBuildingShell>
 
