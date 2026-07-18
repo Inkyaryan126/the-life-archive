@@ -1,74 +1,42 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import grandHallDirectoryImage from "../site-design/archive-building-design/archive-map.png";
 import { SiteLogo } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
-import { exampleArchivePath } from "@/lib/site-config";
+import { publicSupportEmail } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "The Life Archive - Preserve Voices, Stories, and Memories",
+  title: "The Life Archive - The Grand Hall",
   description:
-    "Create a private digital archive for yourself or a loved one. Save stories, photos, voice notes, songs, and memories, then connect them to a QR code family can scan for years."
+    "Enter The Life Archive Grand Hall. Begin with the Legacy Question, create an archive, manage memories, explore keepsakes, and find support after a loss."
 };
 
-const audienceCards = [
-  {
-    title: "For someone who passed away",
-    copy: "Create a memorial archive where family can collect stories, photos, voice notes, and memories in one place."
-  },
-  {
-    title: "For yourself",
-    copy: "Record your lessons, stories, favorite memories, and messages for the people who may need them someday."
-  },
-  {
-    title: "For parents and grandparents",
-    copy: "Save the voice, laugh, wisdom, and stories younger generations may not fully appreciate yet."
-  },
-  {
-    title: "For pets, veterans, families, and special moments",
-    copy: "Build an archive around a life, a bond, a chapter, or a legacy worth protecting."
-  }
-];
+type DirectoryEntry = {
+  title: string;
+  label?: string;
+  href: string;
+  description: string;
+  note?: string;
+  ariaLabel: string;
+  position: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  };
+  featured?: boolean;
+};
 
-const steps = [
-  {
-    title: "Create an archive",
-    copy: "Start one for yourself, a loved one, a family member, a pet, or someone who has passed."
-  },
-  {
-    title: "Add memories",
-    copy: "Write stories, upload photos and voice notes, add songs, and preserve lessons."
-  },
-  {
-    title: "Invite family",
-    copy: "Let others contribute their own memories so the archive becomes fuller over time."
-  },
-  {
-    title: "Create a QR code",
-    copy: "Print it, save it, or place it on a keepsake, card, frame, bookmark, or memorial marker."
-  },
-  {
-    title: "Scan and rediscover",
-    copy: "Each scan can bring back a different memory from the archive."
-  }
-];
-
-const trustPoints = [
-  "You control what is private, shared with family, or public.",
-  "Nothing is posted publicly without permission.",
-  "Archives can be created for yourself or someone you love.",
-  "Family contributions can be invited and reviewed.",
-  "The goal is preservation, not exploitation."
-];
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold sm:text-sm">
-      {children}
-    </p>
-  );
+function positionStyle(entry: DirectoryEntry) {
+  return {
+    left: `${entry.position.left}%`,
+    top: `${entry.position.top}%`,
+    width: `${entry.position.width}%`,
+    height: `${entry.position.height}%`
+  };
 }
 
 function PrimaryCta({
@@ -78,11 +46,9 @@ function PrimaryCta({
   href: string;
   children: React.ReactNode;
 }) {
-  // TODO: wire event hooks when first-party analytics exists:
-  // homepage_primary_cta_clicked, homepage_create_archive_clicked.
   return (
     <Link
-      className="inline-flex min-h-14 items-center justify-center rounded-full bg-archive-gold px-7 py-4 text-base font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35 sm:px-8"
+      className="inline-flex min-h-12 items-center justify-center rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
       href={href}
     >
       {children}
@@ -97,10 +63,9 @@ function SecondaryCta({
   href: string;
   children: React.ReactNode;
 }) {
-  // TODO: wire homepage_legacy_question_clicked when event tracking exists.
   return (
     <Link
-      className="inline-flex min-h-14 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-7 py-4 text-base font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30 sm:px-8"
+      className="inline-flex min-h-12 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
       href={href}
     >
       {children}
@@ -108,48 +73,127 @@ function SecondaryCta({
   );
 }
 
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold sm:text-sm">
+      {children}
+    </p>
+  );
+}
+
 export default async function HomePage() {
   const account = await getAccountContext();
   const isSignedIn = Boolean(account.user);
-  const archivesHref = isSignedIn ? "/dashboard" : "/login";
-  const archivesLabel = isSignedIn ? "Open My Archives" : "Sign In";
+  const myArchivesHref = isSignedIn ? "/dashboard" : "/login";
+  const timeCapsulesHref = isSignedIn
+    ? "/dashboard/time-capsules"
+    : "/login?next=%2Fdashboard%2Ftime-capsules";
+
+  const directoryEntries: DirectoryEntry[] = [
+    {
+      label: "Start here",
+      title: "The Legacy Question",
+      href: "/legacy-question",
+      description:
+        "Answer one meaningful question, preserve your words and memories, and leave something behind for someone you love.",
+      note:
+        "THE LIFE ARCHIVE IS FREE TO USE. The core archive experience is free. Physical keepsakes and other optional extras are available only if someone wants them. No purchase is required to preserve a story.",
+      ariaLabel: "Start here with The Legacy Question. The Life Archive is free to use.",
+      featured: true,
+      position: { left: 41.1, top: 30.6, width: 18.4, height: 10.8 }
+    },
+    {
+      title: "My Archives",
+      href: myArchivesHref,
+      description:
+        "Manage your archives and access voice, photos, videos, journals, letters, songs, lessons, and memories.",
+      ariaLabel: isSignedIn ? "Open My Archives" : "Sign in to open My Archives",
+      position: { left: 41.1, top: 41.9, width: 18.4, height: 5.4 }
+    },
+    {
+      title: "Create an Archive",
+      href: "/create",
+      description:
+        "Create a private place for stories, memories, photographs, voice, video, letters, songs, lessons, and guidance.",
+      ariaLabel: "Create an archive",
+      position: { left: 41.1, top: 47.8, width: 18.4, height: 5.7 }
+    },
+    {
+      title: "Time Capsules",
+      href: timeCapsulesHref,
+      description:
+        "Write something today and schedule it to reach someone later.",
+      ariaLabel: "Open Time Capsules",
+      position: { left: 41.1, top: 53.9, width: 18.4, height: 5.8 }
+    },
+    {
+      title: "Keepsakes",
+      href: "/keepsakes",
+      description:
+        "Member Cards, Memorial Keychains, Memorial Cards, QR Plaques, and Storykeeper Cards can become a doorway back into an archive or memorial.",
+      ariaLabel: "Visit Keepsakes",
+      position: { left: 41.1, top: 60.1, width: 18.4, height: 5.9 }
+    },
+    {
+      title: "Member Card",
+      href: "/member-card",
+      description:
+        "A physical connection to your archive that can help loved ones find it later.",
+      ariaLabel: "Open Member Card",
+      position: { left: 41.1, top: 66.4, width: 18.4, height: 5.4 }
+    },
+    {
+      title: "Support After A Loss",
+      href: "/after-a-loss",
+      description:
+        "A calm guide for the first hours, the next necessary decisions, children, practical details, grief care, and crisis resources.",
+      ariaLabel: "Get support after a loss",
+      position: { left: 41.1, top: 72.1, width: 18.4, height: 5.3 }
+    },
+    {
+      title: "How It Works",
+      href: "#how-it-works",
+      description:
+        "Create an archive, preserve memories, connect a QR code if desired, and let loved ones return whenever they need it.",
+      ariaLabel: "Read how The Life Archive works",
+      position: { left: 41.1, top: 77.8, width: 8.9, height: 6.8 }
+    },
+    {
+      title: "Help, Privacy, And Information",
+      href: "#information",
+      description:
+        "Find help, privacy, terms, FAQ, contact, and the main public pages.",
+      ariaLabel: "Open help privacy and information links",
+      position: { left: 50.5, top: 77.8, width: 9.0, height: 6.8 }
+    }
+  ];
 
   return (
-    <main className="min-h-screen overflow-hidden bg-archive-obsidian text-archive-ivory">
-      <HeroSection archivesHref={archivesHref} archivesLabel={archivesLabel} />
-      <WhatItIsSection />
-      <WhoItIsForSection />
-      <RandomQrSection />
-      <HowItWorksSection />
-      <LegacyQuestionSection />
-      <PhysicalWorldSection />
-      <PricingSection />
-      <TrustSection />
-      <FinalCtaSection />
-      <FooterSection />
+    <main className="min-h-screen overflow-hidden bg-[#070605] text-archive-ivory">
+      <GrandHallHero entries={directoryEntries} myArchivesHref={myArchivesHref} />
+      <BelowDirectoryContent timeCapsulesHref={timeCapsulesHref} />
+      <GrandHallFooter
+        myArchivesHref={myArchivesHref}
+        timeCapsulesHref={timeCapsulesHref}
+      />
     </main>
   );
 }
 
-function HeroSection({
-  archivesHref,
-  archivesLabel
+function GrandHallHero({
+  entries,
+  myArchivesHref
 }: {
-  archivesHref: string;
-  archivesLabel: string;
+  entries: DirectoryEntry[];
+  myArchivesHref: string;
 }) {
   return (
-    <header className="relative min-h-[760px] overflow-hidden px-5 pb-16 pt-5 sm:px-8 lg:min-h-[820px] lg:px-10">
+    <header className="relative overflow-hidden bg-black px-4 pb-16 pt-5 sm:px-6 lg:px-8">
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[linear-gradient(105deg,rgba(13,13,14,0.98)_0%,rgba(13,13,14,0.9)_42%,rgba(42,33,26,0.54)_72%,rgba(13,13,14,0.92)_100%),url('/images/site-design/tla-background.png')] bg-cover bg-center"
+        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.48),rgba(0,0,0,0.06)_34%,rgba(7,6,5,0.86)_94%)]"
       />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(198,161,91,0.24),transparent_25rem),radial-gradient(circle_at_82%_34%,rgba(229,207,154,0.13),transparent_30rem),linear-gradient(180deg,rgba(13,13,14,0)_0%,#0d0d0e_96%)]"
-      />
-
-      <nav className="relative z-10 mx-auto flex w-full max-w-[1280px] flex-col gap-5 border-b border-archive-gold/12 pb-5 sm:flex-row sm:items-center sm:justify-between">
+      <nav className="relative z-20 mx-auto flex w-full max-w-[1280px] flex-col gap-5 border-b border-archive-gold/16 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <Link
           className="inline-flex rounded-xl transition hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
           href="/"
@@ -157,14 +201,14 @@ function HeroSection({
           <SiteLogo width={230} height={58} />
         </Link>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm font-semibold text-archive-ivory/78 sm:justify-end">
-          <Link className="transition hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="#how-it-works">
-            How It Works
-          </Link>
           <Link className="transition hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/legacy-question">
             Legacy Question
           </Link>
-          <Link className="transition hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href={archivesHref}>
-            {archivesLabel}
+          <Link className="transition hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href={myArchivesHref}>
+            My Archives
+          </Link>
+          <Link className="transition hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/after-a-loss">
+            Support After A Loss
           </Link>
           <Link
             className="rounded-full border border-archive-gold/35 px-5 py-2.5 text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.06] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
@@ -175,402 +219,425 @@ function HeroSection({
         </div>
       </nav>
 
-      <div className="relative z-10 mx-auto grid w-full max-w-[1280px] items-center gap-10 pt-16 lg:grid-cols-[minmax(0,0.92fr)_minmax(20rem,0.68fr)] lg:pt-24">
-        <section className="max-w-4xl">
-          <Eyebrow>A living archive for voices, stories, and memories.</Eyebrow>
-          <h1 className="mt-5 max-w-5xl font-serif text-5xl leading-[0.98] text-archive-ivory sm:text-6xl lg:text-7xl xl:text-8xl">
-            Preserve the stories they should{" "}
-            <span className="text-archive-gold">never lose.</span>
+      <section className="relative z-10 mx-auto mt-10 w-full max-w-[1280px]">
+        <div className="mx-auto mb-8 max-w-3xl text-center">
+          <Eyebrow>The Grand Hall</Eyebrow>
+          <h1 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-6xl">
+            Where should the story begin?
           </h1>
-          <p className="mt-7 max-w-3xl text-xl leading-8 text-archive-ivory/86 sm:text-2xl sm:leading-10">
-            Create a private digital archive for yourself or someone you love.
-            Save stories, photos, voice notes, songs, and memories, then
-            connect them to a QR code family can scan for years to come.
+          <p className="mt-5 text-base leading-8 text-archive-ivory/72 sm:text-lg">
+            Choose the doorway you need. The Life Archive keeps the first step
+            simple, calm, and free to use.
           </p>
-          <div className="mt-6 max-w-2xl rounded-2xl border border-archive-gold/22 bg-white/[0.045] p-4 text-base leading-7 text-archive-champagne shadow-luxury">
-            One scan can reveal one memory. Scan again later and discover another.
-          </div>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <PrimaryCta href="/create">Preserve a Story</PrimaryCta>
-            <SecondaryCta href="/legacy-question">Answer One Question First</SecondaryCta>
-          </div>
-          <p className="mt-5 text-sm font-semibold text-archive-ivory/66">
-            Private by default. Share only when you choose.
-          </p>
-        </section>
+        </div>
 
-        <aside className="rounded-[1.75rem] border border-archive-gold/25 bg-archive-obsidian/72 p-5 shadow-luxury backdrop-blur-md sm:p-7">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-archive-gold">
-            Not just a profile
-          </p>
-          <h2 className="mt-4 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
-            One QR code. A lifetime of memories.
-          </h2>
-          <p className="mt-5 text-base leading-7 text-archive-ivory/76">
-            A normal QR code opens one static page. A Life Archive QR can become
-            a doorway into a living archive: a voice note today, a photo next
-            week, a lesson years from now.
-          </p>
-          <div className="mt-6 overflow-hidden rounded-2xl border border-archive-gold/18 bg-black/20 p-3">
+        <div className="hidden lg:block">
+          <div className="relative mx-auto aspect-[1672/941] w-full overflow-hidden shadow-[0_40px_140px_rgba(0,0,0,0.74)]">
             <Image
-              src="/images/keepsakes/flagships/wallet-card-front.png"
-              alt="A Life Archive wallet card with a QR code"
-              width={350}
-              height={250}
-              className="h-auto w-full object-contain"
+              src={grandHallDirectoryImage}
+              alt="The Life Archive Grand Hall with a blank central directory board"
+              fill
               priority
+              sizes="100vw"
+              className="object-contain"
             />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(237,190,98,0.1),transparent_26%),linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.14))]"
+            />
+            <div className="absolute left-[41.1%] top-[23.1%] w-[18.4%] text-center">
+              <p className="font-serif text-[clamp(0.95rem,1.45vw,1.6rem)] uppercase tracking-[0.16em] text-archive-champagne drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
+                The Life Archive
+              </p>
+            </div>
+            {entries.map((entry) => (
+              <DirectoryBoardLink key={entry.title} entry={entry} />
+            ))}
           </div>
-        </aside>
-      </div>
+        </div>
+
+        <div className="lg:hidden">
+          <div className="relative overflow-hidden border border-archive-gold/22 bg-[#110f0c] shadow-luxury">
+            <Image
+              src={grandHallDirectoryImage}
+              alt=""
+              width={1672}
+              height={941}
+              priority
+              className="h-56 w-full object-cover object-center opacity-58"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-[#090807]/48 to-[#090807]" />
+            <div className="relative -mt-16 grid gap-3 px-4 pb-5">
+              {entries.map((entry) => (
+                <MobileDirectoryLink key={entry.title} entry={entry} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
     </header>
   );
 }
 
-function WhatItIsSection() {
+function DirectoryBoardLink({ entry }: { entry: DirectoryEntry }) {
   return (
-    <section className="bg-archive-paper px-5 py-16 text-archive-ink sm:px-8 lg:px-10 lg:py-24">
-      <div className="mx-auto grid w-full max-w-[1280px] gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)] lg:items-center">
-        <div>
-          <Eyebrow>What is The Life Archive?</Eyebrow>
-          <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-            A private digital home for the memories that make a person real.
-          </h2>
-        </div>
-        <div className="text-lg leading-8 text-archive-ink/76 sm:text-xl sm:leading-9">
-          <p>
-            The Life Archive is a digital place to preserve someone&apos;s voice,
-            stories, photos, lessons, favorite songs, and the moments family
-            never wants to lose.
-          </p>
-          <p className="mt-5">
-            Each archive can be connected to a QR code for a card, keychain,
-            frame, bookmark, memorial marker, or keepsake.
-          </p>
-          <p className="mt-5 font-serif text-2xl leading-8 text-archive-obsidian">
-            It turns an object into a doorway back to someone&apos;s life.
-          </p>
-        </div>
-      </div>
-    </section>
+    <Link
+      href={entry.href}
+      aria-label={entry.ariaLabel}
+      className={`group absolute flex min-w-0 flex-col justify-center overflow-hidden border border-archive-gold/0 px-[0.55vw] text-center transition duration-300 focus:outline-none focus:ring-2 focus:ring-archive-gold/80 ${
+        entry.featured
+          ? "bg-archive-gold/[0.055] shadow-[0_0_34px_rgba(212,171,88,0.18)] hover:bg-archive-gold/[0.11]"
+          : "hover:bg-archive-gold/[0.055]"
+      }`}
+      style={positionStyle(entry)}
+    >
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-2 bottom-0 h-px bg-archive-gold/28"
+      />
+      {entry.label ? (
+        <span className="text-[clamp(0.42rem,0.52vw,0.62rem)] font-bold uppercase tracking-[0.17em] text-archive-gold">
+          {entry.label}
+        </span>
+      ) : null}
+      <span
+        className={`mt-0.5 block font-serif uppercase tracking-[0.1em] text-archive-ivory drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] ${
+          entry.featured
+            ? "text-[clamp(0.78rem,0.98vw,1.1rem)]"
+            : "text-[clamp(0.48rem,0.63vw,0.78rem)]"
+        }`}
+      >
+        {entry.title}
+      </span>
+      <span
+        className={`mx-auto mt-1 block max-w-[15rem] leading-snug text-archive-ivory/66 ${
+          entry.featured
+            ? "text-[clamp(0.43rem,0.55vw,0.68rem)]"
+            : "text-[clamp(0.36rem,0.46vw,0.55rem)]"
+        }`}
+      >
+        {entry.description}
+      </span>
+      {entry.note ? (
+        <span className="mx-auto mt-1 block max-w-[16rem] text-[clamp(0.36rem,0.43vw,0.5rem)] font-semibold leading-snug text-archive-champagne/78">
+          {entry.note}
+        </span>
+      ) : null}
+    </Link>
   );
 }
 
-function WhoItIsForSection() {
+function MobileDirectoryLink({ entry }: { entry: DirectoryEntry }) {
   return (
-    <section className="bg-[#efe3d1] px-5 py-16 text-archive-ink sm:px-8 lg:px-10 lg:py-24">
-      <div className="mx-auto w-full max-w-[1280px]">
-        <div className="max-w-4xl">
-          <Eyebrow>Who it is for</Eyebrow>
-          <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-            Built for the people and stories you refuse to let disappear.
-          </h2>
-        </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {audienceCards.map((card) => (
-            <article
-              className="rounded-[1.5rem] border border-archive-gold/24 bg-white/58 p-6 shadow-soft"
-              key={card.title}
-            >
-              <h3 className="font-serif text-2xl leading-tight text-archive-obsidian">
-                {card.title}
-              </h3>
-              <p className="mt-4 text-base leading-7 text-archive-ink/72">
-                {card.copy}
-              </p>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
+    <Link
+      href={entry.href}
+      aria-label={entry.ariaLabel}
+      className={`block border px-4 py-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition focus:outline-none focus:ring-4 focus:ring-archive-gold/35 ${
+        entry.featured
+          ? "border-archive-gold/58 bg-archive-gold/[0.12]"
+          : "border-archive-gold/18 bg-black/38 hover:border-archive-gold/45"
+      }`}
+    >
+      {entry.label ? (
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-archive-gold">
+          {entry.label}
+        </p>
+      ) : null}
+      <h2 className="mt-1 font-serif text-xl uppercase tracking-[0.08em] text-archive-ivory">
+        {entry.title}
+      </h2>
+      <p className="mt-2 text-sm leading-6 text-archive-ivory/72">
+        {entry.description}
+      </p>
+      {entry.note ? (
+        <p className="mt-3 text-xs font-semibold leading-5 text-archive-champagne/82">
+          {entry.note}
+        </p>
+      ) : null}
+    </Link>
   );
 }
 
-function RandomQrSection() {
-  // TODO: wire homepage_random_qr_section_viewed when event tracking exists.
-  const flow = [
-    "Scan the QR",
-    "Hear her voice tell a story",
-    "Scan again later",
-    "See a photo you forgot existed",
-    "Scan again",
-    "Find a lesson she left behind"
+function BelowDirectoryContent({ timeCapsulesHref }: { timeCapsulesHref: string }) {
+  return (
+    <>
+      <section className="bg-[#0b0907] px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto grid w-full max-w-[1180px] gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
+          <div>
+            <Eyebrow>What is The Life Archive?</Eyebrow>
+            <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
+              A private archive for the voice, memory, and guidance a person
+              leaves behind.
+            </h2>
+          </div>
+          <div className="grid gap-6 text-base leading-8 text-archive-ivory/72 sm:text-lg">
+            <p>
+              The Life Archive is a place to preserve stories, photos, videos,
+              voice notes, journals, letters, songs, lessons, and memories. It
+              can be built for yourself, for someone you love, or in honor of a
+              life that has ended.
+            </p>
+            <p>
+              The core archive experience is free to use. Optional physical
+              keepsakes are available when someone wants a card, keychain,
+              plaque, or other object that opens the archive by QR code.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="how-it-works"
+        className="bg-[#120f0b] px-5 py-16 text-archive-ivory sm:px-8 lg:px-10 lg:py-24"
+      >
+        <div className="mx-auto w-full max-w-[1180px]">
+          <div className="max-w-3xl">
+            <Eyebrow>How It Works</Eyebrow>
+            <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
+              Four steps. No pressure.
+            </h2>
+          </div>
+          <div className="mt-10 grid gap-px overflow-hidden border border-archive-gold/16 bg-archive-gold/16 md:grid-cols-4">
+            {[
+              [
+                "1",
+                "Create an archive",
+                "Start a private place for a life, a family, or a chapter worth preserving."
+              ],
+              [
+                "2",
+                "Preserve memories",
+                "Add stories, photos, videos, voice, letters, songs, lessons, or guidance."
+              ],
+              [
+                "3",
+                "Connect a QR code",
+                "Use the archive QR code on a keepsake, card, frame, marker, or plaque if desired."
+              ],
+              [
+                "4",
+                "Return when needed",
+                "Let the people you love revisit the archive whenever they need to feel close."
+              ]
+            ].map(([number, title, copy]) => (
+              <article key={title} className="bg-[#120f0b] p-6">
+                <p className="font-mono text-xs font-bold text-archive-gold">
+                  {number}
+                </p>
+                <h3 className="mt-4 font-serif text-2xl text-archive-champagne">
+                  {title}
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-archive-ivory/68">
+                  {copy}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-archive-paper px-5 py-16 text-archive-ink sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto grid w-full max-w-[1180px] gap-8 md:grid-cols-2">
+          <InfoPanel
+            title="What can be preserved"
+            copy="Voice, photographs, videos, written memories, letters, journals, songs, lessons, favorite moments, practical guidance, and the small details that make someone feel present."
+          />
+          <InfoPanel
+            title="Why the core experience is free"
+            copy="Preserving a story should not require a purchase. Keepsakes are optional physical doorways into an archive, not a condition for saving memories."
+          />
+          <InfoPanel
+            title="How QR access works"
+            copy="Every archive can have a QR code. A scan can lead someone back to the archive, a memory, or a keepsake-connected experience controlled by the archive owner."
+          />
+          <InfoPanel
+            title="Time Capsules"
+            copy="Time Capsules let someone prepare a preserved message today and schedule it to reach another person later through the existing archive dashboard."
+            href={timeCapsulesHref}
+            linkText="Open Time Capsules"
+          />
+          <InfoPanel
+            title="Optional keepsakes"
+            copy="Member Cards, Memorial Keychains, Memorial Cards, QR Plaques, and Storykeeper Cards can make an archive easier to find in the physical world."
+            href="/keepsakes"
+            linkText="Visit the Keepsake Store"
+          />
+          <InfoPanel
+            title="Privacy and trust"
+            copy="Archives are built around consent, privacy choices, and family control. Nothing needs to be public unless the archive owner chooses to share it."
+            href="/privacy"
+            linkText="Read Privacy"
+          />
+        </div>
+      </section>
+
+      <section className="bg-[#0b0907] px-5 py-16 text-archive-ivory sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto grid w-full max-w-[1180px] gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+          <div>
+            <Eyebrow>Support After A Loss</Eyebrow>
+            <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
+              Start with the next necessary thing.
+            </h2>
+          </div>
+          <div>
+            <p className="text-lg leading-8 text-archive-ivory/72">
+              Grief can make ordinary decisions feel impossible. The after-loss
+              guide is there for the first hours, the first calls, children,
+              practical documents, self-care, and knowing when professional help
+              may be needed.
+            </p>
+            <div className="mt-6">
+              <SecondaryCta href="/after-a-loss">I Need Help After A Loss</SecondaryCta>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[linear-gradient(180deg,#0b0907,#050403)] px-5 py-20 text-center text-archive-ivory sm:px-8 lg:px-10 lg:py-28">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="font-serif text-4xl leading-tight sm:text-6xl">
+            Some stories deserve somewhere to go.
+          </h2>
+          <p className="mt-5 text-base leading-8 text-archive-ivory/68 sm:text-lg">
+            Begin with a full archive, one question, or a guide for the moment
+            you are in.
+          </p>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <PrimaryCta href="/create">Create an Archive</PrimaryCta>
+            <SecondaryCta href="/legacy-question">Answer the Legacy Question</SecondaryCta>
+            <SecondaryCta href="/after-a-loss">I Need Help After A Loss</SecondaryCta>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function InfoPanel({
+  title,
+  copy,
+  href,
+  linkText
+}: {
+  title: string;
+  copy: string;
+  href?: string;
+  linkText?: string;
+}) {
+  return (
+    <article className="border-l border-archive-gold/34 bg-[#f4ead8]/55 p-6">
+      <h3 className="font-serif text-3xl leading-tight text-archive-obsidian">
+        {title}
+      </h3>
+      <p className="mt-4 text-base leading-8 text-archive-ink/74">
+        {copy}
+      </p>
+      {href && linkText ? (
+        <Link
+          href={href}
+          className="mt-5 inline-flex font-semibold text-archive-obsidian underline decoration-archive-gold/55 underline-offset-4 hover:text-[#7c5721] focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
+        >
+          {linkText}
+        </Link>
+      ) : null}
+    </article>
+  );
+}
+
+function GrandHallFooter({
+  myArchivesHref,
+  timeCapsulesHref
+}: {
+  myArchivesHref: string;
+  timeCapsulesHref: string;
+}) {
+  const footerGroups = [
+    {
+      title: "Begin",
+      links: [
+        ["Legacy Question", "/legacy-question"],
+        ["Create an Archive", "/create"],
+        ["My Archives", myArchivesHref],
+        ["Time Capsules", timeCapsulesHref]
+      ]
+    },
+    {
+      title: "Keepsakes",
+      links: [
+        ["Keepsake Store", "/keepsakes"],
+        ["Member Card", "/member-card"],
+        ["Storykeeper Products", "/storykeeper-products"]
+      ]
+    },
+    {
+      title: "Guides",
+      links: [
+        ["Support After A Loss", "/after-a-loss"],
+        ["Help for Families", "/help-for-families"],
+        ["Build Your Legacy", "/build-your-legacy"],
+        ["Preserve Their Voice", "/preserve-their-voice"],
+        ["How It Works", "#how-it-works"]
+      ]
+    },
+    {
+      title: "Partners",
+      links: [
+        ["Funeral Homes", "/partners/funeral-homes"],
+        ["Cemeteries & Parks", "/partners/cemeteries"],
+        ["Monument Builders", "/partners/monuments"],
+        ["Hospice Care Providers", "/partners/hospice"],
+        ["Estate Planners", "/partners/estate-planners"]
+      ]
+    },
+    {
+      title: "Information",
+      links: [
+        ["FAQ", "/faq"],
+        ["Privacy", "/privacy"],
+        ["Terms", "/terms"],
+        ["Contact", `mailto:${publicSupportEmail}`]
+      ]
+    }
   ];
 
   return (
-    <section className="relative overflow-hidden bg-archive-obsidian px-5 py-16 text-archive-ivory sm:px-8 lg:px-10 lg:py-24">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.16),transparent_30rem),linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))]"
-      />
-      <div className="relative mx-auto grid w-full max-w-[1280px] gap-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(20rem,0.7fr)] lg:items-center">
-        <div>
-          <Eyebrow>The QR difference</Eyebrow>
-          <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
-            One QR code. A lifetime of memories.
-          </h2>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-archive-ivory/78 sm:text-xl sm:leading-9">
-            Most QR codes open the same page every time. A Life Archive QR can
-            open a random memory from one archive: a voice note, story, photo,
-            song, or lesson. That means the same card, keychain, frame,
-            or marker can reveal something different each time it is scanned.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <PrimaryCta href="/create">Start an Archive</PrimaryCta>
-            <SecondaryCta href="/legacy-question">See the Legacy Question Page</SecondaryCta>
-          </div>
-        </div>
-        <ol className="rounded-[1.75rem] border border-archive-gold/22 bg-white/[0.035] p-5 shadow-luxury sm:p-7">
-          {flow.map((item, index) => (
-            <li className="flex items-center gap-4 py-3" key={`${item}-${index}`}>
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-archive-gold/35 bg-archive-gold/10 text-sm font-bold text-archive-gold">
-                {index + 1}
-              </span>
-              <span className="text-base leading-6 text-archive-ivory/82">
-                {item}
-              </span>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
-  );
-}
-
-function HowItWorksSection() {
-  return (
-    <section
-      className="bg-archive-paper px-5 py-16 text-archive-ink sm:px-8 lg:px-10 lg:py-24"
-      id="how-it-works"
+    <footer
+      id="information"
+      className="border-t border-archive-gold/14 bg-[#060504] px-5 py-12 text-archive-ivory sm:px-8 lg:px-10"
     >
-      <div className="mx-auto w-full max-w-[1280px]">
-        <div className="max-w-4xl">
-          <Eyebrow>How it works</Eyebrow>
-          <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-            Start small. Let the archive become fuller over time.
-          </h2>
-        </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {steps.map((step, index) => (
-            <article
-              className="rounded-[1.5rem] border border-archive-gold/18 bg-white/64 p-5 shadow-soft"
-              key={step.title}
-            >
-              <p className="font-serif text-4xl text-archive-gold">
-                {String(index + 1).padStart(2, "0")}
-              </p>
-              <h3 className="mt-5 text-xl font-bold text-archive-obsidian">
-                {step.title}
-              </h3>
-              <p className="mt-3 text-base leading-7 text-archive-ink/72">
-                {step.copy}
-              </p>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function LegacyQuestionSection() {
-  return (
-    <section className="bg-[#2a211a] px-5 py-16 text-archive-ivory sm:px-8 lg:px-10 lg:py-24">
-      <div className="mx-auto grid w-full max-w-[1280px] gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,0.75fr)] lg:items-center">
+      <div className="mx-auto grid w-full max-w-[1180px] gap-10 lg:grid-cols-[1.1fr_2fr]">
         <div>
-          <Eyebrow>Start with one question</Eyebrow>
-          <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-            Not ready to build a full archive yet?
-          </h2>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-archive-ivory/78 sm:text-xl sm:leading-9">
-            Share one written memory, story, or message you never want the
-            world to forget. We&apos;ll save it privately and help you turn it into
-            a starter archive.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <PrimaryCta href="/legacy-question">Answer the Legacy Question</PrimaryCta>
-            <SecondaryCta href={exampleArchivePath}>View a Real Example</SecondaryCta>
-          </div>
-        </div>
-        <div className="rounded-[1.75rem] border border-archive-gold/25 bg-white/[0.045] p-6 shadow-luxury">
-          <p className="font-serif text-3xl leading-tight text-archive-champagne">
-            People are more than dates, photos, and belongings.
-          </p>
-          <p className="mt-5 text-base leading-7 text-archive-ivory/76">
-            They are voices, habits, stories, songs, jokes, recipes, lessons,
-            and little moments that disappear when nobody saves them.
+          <SiteLogo width={260} height={70} />
+          <p className="mt-5 max-w-sm text-sm leading-7 text-archive-ivory/58">
+            The Life Archive is a quiet place to preserve words, memories, and
+            the physical doorways that help loved ones find them again.
           </p>
         </div>
-      </div>
-    </section>
-  );
-}
-
-function PhysicalWorldSection() {
-  return (
-    <section className="bg-[#efe3d1] px-5 py-16 text-archive-ink sm:px-8 lg:px-10 lg:py-24">
-      <div className="mx-auto grid w-full max-w-[1280px] gap-10 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,0.9fr)] lg:items-center">
-        <div>
-          <Eyebrow>Made for the real world</Eyebrow>
-          <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-            The QR code is the bridge between physical keepsakes and digital memories.
-          </h2>
-          <p className="mt-6 text-lg leading-8 text-archive-ink/74 sm:text-xl sm:leading-9">
-            A Life Archive QR can live on the things people actually keep:
-            wallet cards, keychains, bookmarks, picture frames, ornaments, dog
-            tags, memorial plaques, grave markers, NFC keepsakes, and more.
-          </p>
-          <div className="mt-8">
-            <Link
-              className="inline-flex min-h-14 items-center justify-center rounded-full bg-archive-obsidian px-7 py-4 text-base font-bold text-archive-ivory shadow-soft transition hover:bg-archive-charcoal focus:outline-none focus:ring-4 focus:ring-archive-gold/35 sm:px-8"
-              href="/create"
-            >
-              Create an Archive First
-            </Link>
-          </div>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {["Wallet cards", "Keychains", "Picture frames", "Bookmarks", "Memorial markers", "NFC keepsakes"].map((item) => (
-            <div
-              className="rounded-2xl border border-archive-gold/22 bg-white/58 p-5 text-lg font-semibold text-archive-obsidian shadow-soft"
-              key={item}
-            >
-              {item}
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
+          {footerGroups.map((group) => (
+            <div key={group.title}>
+              <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-archive-gold">
+                {group.title}
+              </h2>
+              <ul className="mt-4 grid gap-3 text-sm text-archive-ivory/64">
+                {group.links.map(([label, href]) => (
+                  <li key={`${group.title}-${label}`}>
+                    <Link
+                      className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
+                      href={href}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
       </div>
-    </section>
-  );
-}
-
-function PricingSection() {
-  return (
-    <section className="bg-archive-paper px-5 py-16 text-archive-ink sm:px-8 lg:px-10 lg:py-24">
-      <div className="mx-auto grid w-full max-w-[1280px] gap-10 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1fr)] lg:items-start">
-        <div>
-          <Eyebrow>Pricing and ownership</Eyebrow>
-          <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-            Start the archive first. Add physical keepsakes only when they make sense.
-          </h2>
-        </div>
-        <div className="grid gap-4">
-          <p className="rounded-2xl border border-archive-gold/18 bg-white/64 p-5 text-base leading-7 text-archive-ink/76 shadow-soft">
-            Creating a Life Archive is currently free. Optional physical keepsakes are purchased separately through secure checkout.
-          </p>
-          <p className="rounded-2xl border border-archive-gold/18 bg-white/64 p-5 text-base leading-7 text-archive-ink/76 shadow-soft">
-            If archive pricing changes in the future, members will be notified clearly before any change affects them. You retain ownership of the memories and content you add.
-          </p>
-          <p className="rounded-2xl border border-archive-gold/18 bg-white/64 p-5 text-base leading-7 text-archive-ink/76 shadow-soft">
-            The Life Archive is built for long-term preservation, but no online service can promise uninterrupted or permanent hosting forever.
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TrustSection() {
-  return (
-    <section className="bg-archive-obsidian px-5 py-16 text-archive-ivory sm:px-8 lg:px-10 lg:py-24">
-      <div className="mx-auto grid w-full max-w-[1280px] gap-10 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)]">
-        <div>
-          <Eyebrow>Privacy and trust</Eyebrow>
-          <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-            Private by default. Shared only by choice.
-          </h2>
-          <p className="mt-6 text-lg leading-8 text-archive-ivory/74">
-            The Life Archive is built for personal memories, family stories, and
-            grief-sensitive moments. It should feel like preservation, not a
-            public feed.
-          </p>
-        </div>
-        <ul className="grid gap-4">
-          {trustPoints.map((point) => (
-            <li
-              className="rounded-2xl border border-archive-gold/16 bg-white/[0.035] p-5 text-base leading-7 text-archive-ivory/78"
-              key={point}
-            >
-              <span className="mr-3 text-archive-gold" aria-hidden="true">
-                -
-              </span>
-              {point}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
-function FinalCtaSection() {
-  return (
-    <section className="bg-archive-paper px-5 py-16 text-center text-archive-ink sm:px-8 lg:px-10 lg:py-24">
-      <div className="mx-auto max-w-4xl">
-        <Eyebrow>Begin gently</Eyebrow>
-        <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl lg:text-6xl">
-          Start with one story.
-        </h2>
-        <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-archive-ink/72 sm:text-xl sm:leading-9">
-          You do not have to preserve an entire life today. Begin with one voice
-          note, one photo, one lesson, or one memory worth keeping.
-        </p>
-        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link
-            className="inline-flex min-h-14 items-center justify-center rounded-full bg-archive-obsidian px-8 py-4 text-base font-bold text-archive-ivory shadow-soft transition hover:bg-archive-charcoal focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
-            href="/create"
-          >
-            Preserve a Story
-          </Link>
-          <Link
-            className="inline-flex min-h-14 items-center justify-center rounded-full border border-archive-gold/35 bg-white/70 px-8 py-4 text-base font-semibold text-archive-obsidian transition hover:border-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
-            href="/legacy-question"
-          >
-            Answer One Question First
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FooterSection() {
-  return (
-    <footer className="border-t border-archive-gold/14 bg-[#0b0a09] px-5 py-10 text-archive-ivory sm:px-8 lg:px-10">
-      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-8 md:flex-row md:items-end md:justify-between">
-        <div>
-          <SiteLogo width={230} height={54} />
-          <p className="mt-4 max-w-xl leading-7 text-archive-ivory/66">
-            The Life Archive - preserve the voice, stories, and memories that
-            should not disappear.
-          </p>
-          <p className="mt-4 text-sm text-archive-ivory/45">
-            Copyright 2026 The Life Archive. All rights reserved.
-          </p>
-        </div>
-        <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-3 text-sm font-semibold text-archive-ivory/68">
-          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/legacy-question">
-            Legacy Question
-          </Link>
-          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/create">
-            Create Archive
-          </Link>
-          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/dashboard">
-            My Archives
-          </Link>
-          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/keepsakes">
-            Keepsakes
-          </Link>
-          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/faq">
-            FAQ
-          </Link>
-          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/privacy">
-            Privacy
-          </Link>
-          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/terms">
-            Terms
-          </Link>
-        </nav>
+      <div className="mx-auto mt-10 flex w-full max-w-[1180px] flex-col gap-3 border-t border-archive-gold/12 pt-6 text-xs text-archive-ivory/46 sm:flex-row sm:items-center sm:justify-between">
+        <p>© 2026 The Life Archive. All rights reserved.</p>
+        <p>Questions can be sent to {publicSupportEmail}.</p>
       </div>
     </footer>
   );
