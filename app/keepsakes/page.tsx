@@ -1,13 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
+import {
+ DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import {
   ArchiveBuildingShell,
-  ArchiveOverlayRegion
+  ArchiveOverlayRegion,
+  ArchiveMobileScene
 } from "@/components/archive-building/ArchiveBuildingShell";
 import { getAccountContext } from "@/lib/account";
-import { archiveBuildingScenes } from "@/lib/archive-building-scenes";
+import {
+  archiveBuildingMobileScenes,
+  archiveBuildingScenes
+} from "@/lib/archive-building-scenes";
 
 export const dynamic = "force-dynamic";
 
@@ -724,10 +729,14 @@ export default async function KeepsakesPage({
           })}
       </ArchiveBuildingShell>
 
-      <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:hidden lg:px-12 xl:px-16 sm:py-8">
-      <DesignBackdrop />
-
-      <nav className="relative z-10 mx-auto flex w-full max-w-[96rem] flex-col gap-4 border-b border-archive-gold/20 pb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <ArchiveMobileScene
+        image={{ ...archiveBuildingMobileScenes.keepsakes, priority: true }}
+        sceneLabel="Keepsakes mobile archive room"
+        title={"KEEPSAKES"}
+        subtitle={"Carry their story into the world."}
+        className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
+      >
+<nav className="relative z-10 mx-auto flex w-full max-w-[96rem] flex-col gap-4 border-b border-archive-gold/20 pb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <Link href="/">
           <SiteLogo width={240} height={60} />
         </Link>
@@ -930,7 +939,7 @@ export default async function KeepsakesPage({
           </div>
         </section>
       </div>
-      </main>
+      </ArchiveMobileScene>
     </>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { headers } from "next/headers";
+import {
+ headers } from "next/headers";
 import { MemberCard } from "@/components/MemberCard";
 import { MemberCardActions } from "@/components/MemberCardActions";
 import { DesignBackdrop } from "@/components/SiteDesign";
@@ -14,9 +15,13 @@ import { AccessPrompt } from "@/components/AccessPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
 import {
   ArchiveBuildingShell,
-  ArchiveOverlayRegion
+  ArchiveOverlayRegion,
+  ArchiveMobileScene
 } from "@/components/archive-building/ArchiveBuildingShell";
-import { archiveBuildingScenes } from "@/lib/archive-building-scenes";
+import {
+  archiveBuildingMobileScenes,
+  archiveBuildingScenes
+} from "@/lib/archive-building-scenes";
 
 export const dynamic = "force-dynamic";
 
@@ -221,10 +226,14 @@ export default async function MemberCardPage({
         </ArchiveOverlayRegion>
       </ArchiveBuildingShell>
 
-      <main className="member-card-page relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8 lg:hidden">
-      <DesignBackdrop />
-
-      <div className="no-print relative mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
+      <ArchiveMobileScene
+        image={{ ...archiveBuildingMobileScenes.memberCard, priority: true }}
+        sceneLabel="Member Card mobile archive room"
+        title={"MEMBER CARD"}
+        subtitle={"Your archive, carried with you."}
+        className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
+      >
+<div className="no-print relative mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
         <AppSidebar
           active="member-card"
           archiveSlug={livingArchive.slug}
@@ -376,7 +385,7 @@ export default async function MemberCardPage({
           </section>
         </div>
       </div>
-      </main>
+      </ArchiveMobileScene>
     </>
   );
 }

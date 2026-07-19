@@ -11,6 +11,8 @@ import {
 import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug, getVisitorMessages } from "@/lib/archive-data";
 import { Guestbook } from "@/components/Guestbook";
+import { ArchiveMobileScene } from "@/components/archive-building/ArchiveBuildingShell";
+import { archiveBuildingMobileScenes } from "@/lib/archive-building-scenes";
 
 export const dynamic = "force-dynamic";
 
@@ -83,6 +85,14 @@ export default async function ArchivePage({
 
   return (
     <main className="relative min-h-screen overflow-hidden px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
+        <ArchiveMobileScene
+          image={{ ...(archive.memorialMode ? archiveBuildingMobileScenes.memorial : archiveBuildingMobileScenes.library), priority: true }}
+          sceneLabel="Archive home mobile room"
+          title={archive.archiveName}
+          subtitle="Every preserved story becomes part of what remains."
+          backgroundOnly
+        />
+
       <DesignBackdrop />
 
       <div className="relative z-10 mx-auto w-full max-w-[96rem]">
