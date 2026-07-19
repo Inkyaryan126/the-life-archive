@@ -407,25 +407,25 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
         <ArchiveOverlayRegion
           region={activeArchiveInfoRegion}
-          className="p-5 text-archive-ivory"
+          className="p-[clamp(1rem,1.55vw,1.75rem)] text-archive-ivory"
           ariaLabel="Active archive information and statistics"
         >
           <div className="flex h-full flex-col justify-center">
-            <h1 className="line-clamp-2 font-serif text-[clamp(1.25rem,1.75vw,2rem)] leading-tight text-archive-ivory">
+            <h1 className="line-clamp-2 font-serif text-[clamp(1.45rem,2.05vw,2.45rem)] leading-tight text-archive-ivory drop-shadow-[0_3px_14px_rgba(0,0,0,0.42)]">
               {activeArchive?.archiveName ?? "Create Your Archive"}
             </h1>
             {activeArchive ? (
-              <p className="mt-1 truncate text-xs font-semibold uppercase tracking-[0.14em] text-archive-gold/78">
+              <p className="mt-2 truncate text-[clamp(0.64rem,0.78vw,0.88rem)] font-semibold uppercase tracking-[0.14em] text-archive-gold/82">
                 {activeArchive.personName} · {activeArchive.memorialMode ? "Memorial" : "Living"}
               </p>
             ) : null}
-            <div className="mt-4 grid grid-cols-3 gap-x-4 gap-y-3">
+            <div className="mt-[clamp(0.85rem,1.25vw,1.35rem)] grid grid-cols-3 gap-x-[clamp(0.9rem,1.35vw,1.6rem)] gap-y-[clamp(0.65rem,0.9vw,1rem)]">
               {archiveStatItems.map(([label, count]) => (
                 <div key={label} className="min-w-0">
-                  <p className="font-serif text-[clamp(1rem,1.35vw,1.45rem)] leading-none text-archive-gold">
+                  <p className="font-serif text-[clamp(1.25rem,1.7vw,1.95rem)] leading-none text-archive-gold drop-shadow-[0_2px_10px_rgba(0,0,0,0.32)]">
                     {String(count).padStart(2, "0")}
                   </p>
-                  <p className="mt-1 truncate text-[0.56rem] font-semibold uppercase tracking-[0.12em] text-archive-ivory/64">
+                  <p className="mt-1.5 truncate text-[clamp(0.58rem,0.68vw,0.76rem)] font-semibold uppercase tracking-[0.12em] text-archive-ivory/72">
                     {label}
                   </p>
                 </div>
@@ -454,7 +454,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 />
                 <span
                   title={label}
-                  className="relative line-clamp-3 max-h-full font-serif text-[clamp(0.55rem,0.7vw,0.72rem)] leading-tight text-archive-ivory/86 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                  className="relative line-clamp-3 max-h-full px-0.5 font-serif text-[clamp(0.68rem,0.84vw,0.95rem)] leading-tight text-archive-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
                 >
                   {label}
                 </span>
@@ -474,13 +474,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <Link
                 href={`/archive/${activeArchive.slug}/memories/${memory.id}`}
                 aria-label={`Open memory: ${memory.title}`}
-                className="group relative flex h-full w-full flex-col justify-center rounded-sm px-3 text-[#2f2418] transition hover:text-[#6e511f] focus:outline-none focus:ring-2 focus:ring-archive-gold/60"
+                className="group relative flex h-full w-full flex-col justify-center rounded-sm border-b border-[#7c5524]/22 px-[clamp(0.75rem,1.1vw,1.15rem)] text-[#2f2418] transition hover:bg-[#fff1cc]/18 hover:text-[#6e511f] focus:outline-none focus:ring-2 focus:ring-archive-gold/60"
               >
                 <ArchiveSoftHighlight className="bg-[radial-gradient(circle_at_center,rgba(198,139,45,0.38),rgba(198,139,45,0.16)_45%,transparent_80%)]" />
-                <span className="relative block truncate font-serif text-[clamp(0.75rem,0.95vw,0.98rem)] leading-tight">
+                <span className="relative block truncate font-serif text-[clamp(0.88rem,1.08vw,1.18rem)] leading-tight">
                   {memory.title}
                 </span>
-                <span className="relative mt-0.5 block truncate text-[0.56rem] uppercase tracking-[0.12em] text-[#6f5732]/72">
+                <span className="relative mt-1 block truncate text-[clamp(0.56rem,0.68vw,0.76rem)] uppercase tracking-[0.12em] text-[#6f5732]/78">
                   {formatMemoryType(memory.type)} {memory.date ? `· ${formatMemoryDate(memory.date)}` : ""}
                 </span>
               </Link>

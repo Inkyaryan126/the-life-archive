@@ -72,12 +72,10 @@ function regionStyle(region: Region): CSSProperties {
 
 function ArchiveNavLink({
   href,
-  indent = false,
   label,
   active
 }: {
   href: string;
-  indent?: boolean;
   label: string;
   active?: boolean;
 }) {
@@ -85,20 +83,28 @@ function ArchiveNavLink({
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`group flex items-center justify-between gap-2 rounded-md py-1.5 text-[clamp(0.65rem,0.7vw,0.8rem)] font-semibold leading-tight transition focus:outline-none focus:ring-2 focus:ring-archive-gold/55 ${
+      className={`group flex min-h-[clamp(1.75rem,2.35vw,2.6rem)] items-center justify-between gap-2 rounded-lg px-[clamp(0.35rem,0.55vw,0.7rem)] py-[clamp(0.24rem,0.42vw,0.52rem)] text-[clamp(0.76rem,0.88vw,1rem)] font-semibold leading-tight transition focus:outline-none focus:ring-2 focus:ring-archive-gold/60 ${
         active
-          ? "text-archive-gold drop-shadow-[0_0_10px_rgba(232,207,136,0.32)]"
-          : "text-archive-ivory/74 hover:text-archive-gold"
-      } ${indent ? "pl-4 pr-1.5 text-[clamp(0.58rem,0.64vw,0.74rem)]" : "px-1.5"}`}
+          ? "bg-archive-gold/9 text-archive-gold shadow-[inset_0_0_0_1px_rgba(202,164,92,0.16)] drop-shadow-[0_0_12px_rgba(232,207,136,0.34)]"
+          : "text-archive-ivory/82 hover:bg-white/[0.035] hover:text-archive-gold"
+      }`}
     >
       <span className="min-w-0">{label}</span>
       <span
         aria-hidden="true"
-        className={`h-1.5 w-1.5 shrink-0 rounded-full transition ${
-          active ? "bg-archive-gold" : "bg-archive-ivory/18 group-hover:bg-archive-gold/45"
+        className={`h-2 w-2 shrink-0 rounded-full transition ${
+          active ? "bg-archive-gold" : "bg-archive-ivory/20 group-hover:bg-archive-gold/50"
         }`}
       />
     </Link>
+  );
+}
+
+function ArchiveNavHeader({ label }: { label: string }) {
+  return (
+    <p className="px-[clamp(0.35rem,0.55vw,0.7rem)] pt-[clamp(0.28rem,0.5vw,0.6rem)] text-[clamp(0.58rem,0.66vw,0.74rem)] font-bold uppercase tracking-[0.2em] text-archive-gold/78">
+      {label}
+    </p>
   );
 }
 
@@ -106,7 +112,7 @@ function ArchiveNavDivider() {
   return (
     <div
       aria-hidden="true"
-      className="my-1 h-px w-[82%] justify-self-center bg-archive-gold/18"
+      className="my-[clamp(0.22rem,0.45vw,0.55rem)] h-px w-[92%] justify-self-center bg-[linear-gradient(90deg,transparent,rgba(202,164,92,0.5),transparent)]"
     />
   );
 }
@@ -121,17 +127,18 @@ export function ArchiveSideNavigation({
   return (
     <nav
       aria-label="Archive building navigation"
-      className="flex h-full flex-col justify-center overflow-hidden px-2 py-3 text-archive-ivory"
+      className="flex h-full flex-col justify-center overflow-hidden px-[clamp(0.45rem,0.75vw,0.85rem)] py-[clamp(0.6rem,1vw,1.1rem)] text-archive-ivory"
     >
-      <div className="grid gap-1">
+      <div className="grid gap-[clamp(0.06rem,0.18vw,0.24rem)]">
         {menuItems.map((item, index) =>
           item.kind === "divider" ? (
             <ArchiveNavDivider key={`divider-${index}`} />
+          ) : item.kind === "header" ? (
+            <ArchiveNavHeader key={`${item.label}-${index}`} label={item.label} />
           ) : (
             <ArchiveNavLink
               key={item.label}
               href={item.href}
-              indent={item.indent}
               label={item.label}
               active={active === item.active || (active === "add-memory" && item.active === "letter-journal")}
             />
@@ -141,12 +148,12 @@ export function ArchiveSideNavigation({
           <form action={signOutAction}>
             <button
               type="submit"
-              className="group flex w-full items-center justify-between gap-2 rounded-md px-1.5 py-1.5 text-left text-[clamp(0.68rem,0.72vw,0.82rem)] font-semibold leading-tight text-archive-ivory/74 transition hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/55"
+              className="group flex min-h-[clamp(1.75rem,2.35vw,2.6rem)] w-full items-center justify-between gap-2 rounded-lg px-[clamp(0.35rem,0.55vw,0.7rem)] py-[clamp(0.24rem,0.42vw,0.52rem)] text-left text-[clamp(0.76rem,0.88vw,1rem)] font-semibold leading-tight text-archive-ivory/82 transition hover:bg-white/[0.035] hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/60"
             >
               <span>Log Out</span>
               <span
                 aria-hidden="true"
-                className="h-1.5 w-1.5 rounded-full bg-archive-ivory/18 transition group-hover:bg-archive-gold/45"
+                className="h-2 w-2 rounded-full bg-archive-ivory/20 transition group-hover:bg-archive-gold/50"
               />
             </button>
           </form>

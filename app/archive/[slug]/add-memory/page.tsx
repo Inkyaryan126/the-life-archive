@@ -67,17 +67,19 @@ const archiveTitleRegionsByMode: Record<AddMemoryMode, { left: number; top: numb
 };
 
 const voiceSoundFormRegion = { left: 34.79, top: 62.11, width: 20, height: 22.07 };
-const photoVideoLeftRegion = { left: 33.59, top: 35.25, width: 20.57, height: 41.89 };
-const photoVideoRightRegion = { left: 55.27, top: 35.16, width: 20.64, height: 41.99 };
-const letterJournalWritingRegion = { left: 42.02, top: 39.55, width: 40.26, height: 31.25 };
-const letterJournalFieldsRegion = { left: 39.8, top: 71.58, width: 32.9, height: 17.87 };
+const photoVideoLeftRegion = { left: 32.95, top: 32.62, width: 21.65, height: 46.88 };
+const photoVideoRightRegion = { left: 54.95, top: 32.52, width: 21.95, height: 46.98 };
+const letterJournalWritingRegion = { left: 41.55, top: 35.94, width: 41.35, height: 36.72 };
+const letterJournalFieldsRegion = { left: 39.1, top: 72.56, width: 34.6, height: 16.6 };
 
 const compactInputClass =
-  "w-full rounded-md border border-[#8a6427]/30 bg-[#f3dfb8]/35 px-2 py-1.5 text-[0.68rem] leading-tight text-[#24190d] outline-none ring-[#9e6f27]/25 placeholder:text-[#5c4326]/55 focus:ring-2";
+  "w-full rounded-lg border border-[#8a6427]/36 bg-[#f4dfb7]/48 px-[clamp(0.55rem,0.8vw,0.9rem)] py-[clamp(0.45rem,0.65vw,0.72rem)] text-[clamp(0.76rem,0.9vw,1rem)] leading-tight text-[#24190d] outline-none ring-[#9e6f27]/25 placeholder:text-[#5c4326]/58 focus:ring-2";
 const compactDarkInputClass =
-  "w-full rounded-md border border-archive-gold/24 bg-black/35 px-2 py-1.5 text-[0.68rem] leading-tight text-archive-ivory outline-none ring-archive-gold/25 placeholder:text-archive-ivory/48 focus:ring-2";
+  "w-full rounded-lg border border-archive-gold/30 bg-black/42 px-[clamp(0.55rem,0.8vw,0.9rem)] py-[clamp(0.45rem,0.65vw,0.72rem)] text-[clamp(0.76rem,0.9vw,1rem)] leading-tight text-archive-ivory outline-none ring-archive-gold/25 placeholder:text-archive-ivory/52 focus:ring-2";
 const compactButtonClass =
-  "rounded-md bg-[#9e6f27] px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-[#140f09] transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70";
+  "rounded-lg bg-[#9e6f27] px-[clamp(0.9rem,1.25vw,1.35rem)] py-[clamp(0.55rem,0.78vw,0.85rem)] text-[clamp(0.66rem,0.78vw,0.88rem)] font-bold uppercase tracking-[0.12em] text-[#140f09] transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70";
+const compactFileInputClass =
+  "w-full cursor-pointer rounded-xl border border-dashed border-[#8a6427]/48 bg-[#f4dfb7]/34 px-[clamp(0.55rem,0.8vw,0.9rem)] py-[clamp(0.55rem,0.8vw,0.9rem)] text-[clamp(0.7rem,0.82vw,0.92rem)] leading-tight text-[#3c2a17] outline-none transition file:mr-3 file:rounded-full file:border-0 file:bg-[#9e6f27] file:px-[clamp(0.65rem,0.95vw,1rem)] file:py-[clamp(0.42rem,0.6vw,0.66rem)] file:text-[clamp(0.62rem,0.72vw,0.82rem)] file:font-bold file:uppercase file:tracking-[0.08em] file:text-[#140f09] hover:bg-[#f4dfb7]/46 focus:ring-2 focus:ring-[#9e6f27]/30";
 
 function isSupportedMemoryType(value?: string): value is MemoryType {
   return Boolean(value && memoryTypes.includes(value as MemoryType));
@@ -341,15 +343,20 @@ export default async function AddMemoryPage({
             <ArchiveOverlayRegion
               region={photoVideoLeftRegion}
               ariaLabel="Photo upload fields"
-              className="p-4 text-[#2a1c10]"
+              className="p-[clamp(1rem,1.4vw,1.5rem)] text-[#2a1c10]"
             >
-              <AddMemoryForm action={saveMemory} className="grid h-full content-start gap-2">
+              <AddMemoryForm action={saveMemory} className="grid h-full grid-rows-[auto_auto_minmax(0,1fr)_auto_auto_auto] gap-[clamp(0.55rem,0.8vw,0.9rem)]">
                 <input type="hidden" name="mode" value="photo-video" />
                 <input type="hidden" name="type" value="photo" />
                 <DesktopError message={resolvedSearchParams?.error} />
-                <p className="text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[#5c3b19]">
-                  Photo Upload
-                </p>
+                <div>
+                  <p className="text-[clamp(0.72rem,0.88vw,0.98rem)] font-bold uppercase tracking-[0.14em] text-[#5c3b19]">
+                    Photo Upload
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-[clamp(0.64rem,0.76vw,0.84rem)] leading-snug text-[#5c4326]/78">
+                    Add the image and the story that belongs with it.
+                  </p>
+                </div>
                 <input
                   name="title"
                   required
@@ -360,18 +367,18 @@ export default async function AddMemoryPage({
                 />
                 <textarea
                   name="content"
-                  rows={5}
+                  rows={7}
                   defaultValue={defaultType === "photo" ? resolvedSearchParams?.content ?? "" : ""}
                   placeholder="Caption or story"
                   aria-label="Photo caption or story"
-                  className={`${compactInputClass} resize-none`}
+                  className={`${compactInputClass} min-h-0 resize-none leading-[1.5]`}
                 />
                 <input
                   name="mediaFile"
                   type="file"
                   accept="image/*"
                   aria-label="Upload photo file"
-                  className="w-full text-[0.62rem] text-[#3c2a17] file:mr-2 file:rounded-md file:border-0 file:bg-[#9e6f27] file:px-2 file:py-1 file:text-[0.58rem] file:font-semibold file:text-[#140f09]"
+                  className={compactFileInputClass}
                 />
                 <input
                   name="mediaUrl"
@@ -389,17 +396,19 @@ export default async function AddMemoryPage({
             <ArchiveOverlayRegion
               region={photoVideoRightRegion}
               ariaLabel="Video chapter fields"
-              className="p-4 text-[#2a1c10]"
+              className="p-[clamp(1rem,1.4vw,1.5rem)] text-[#2a1c10]"
             >
-              <AddMemoryForm action={saveMemory} className="grid h-full content-start gap-2">
+              <AddMemoryForm action={saveMemory} className="grid h-full grid-rows-[auto_auto_minmax(0,1fr)_auto] gap-[clamp(0.55rem,0.8vw,0.9rem)]">
                 <input type="hidden" name="mode" value="photo-video" />
                 <input type="hidden" name="type" value="video" />
-                <p className="text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[#5c3b19]">
-                  Video Chapter
-                </p>
-                <p className="text-[0.62rem] leading-snug text-[#5c4326]/78">
-                  Video file upload is not available yet. Save the video memory as written context for now.
-                </p>
+                <div>
+                  <p className="text-[clamp(0.72rem,0.88vw,0.98rem)] font-bold uppercase tracking-[0.14em] text-[#5c3b19]">
+                    Video Chapter
+                  </p>
+                  <p className="mt-1 line-clamp-3 text-[clamp(0.64rem,0.76vw,0.84rem)] leading-snug text-[#5c4326]/78">
+                    Video upload is not available yet. Save where the video lives and why it matters.
+                  </p>
+                </div>
                 <input
                   name="title"
                   required
@@ -410,12 +419,12 @@ export default async function AddMemoryPage({
                 />
                 <textarea
                   name="content"
-                  rows={8}
+                  rows={10}
                   required
                   defaultValue={defaultType === "video" ? resolvedSearchParams?.content ?? "" : ""}
                   placeholder="Describe the video, where it lives, or why it matters"
                   aria-label="Video chapter context"
-                  className={`${compactInputClass} resize-none`}
+                  className={`${compactInputClass} min-h-0 resize-none leading-[1.5]`}
                 />
                 <button type="submit" className={compactButtonClass}>
                   Save Video Chapter
@@ -432,26 +441,26 @@ export default async function AddMemoryPage({
             <ArchiveOverlayRegion
               region={letterJournalWritingRegion}
               ariaLabel="Letter or journal writing area"
-              className="p-4 text-[#24190d]"
+              className="p-[clamp(1rem,1.45vw,1.6rem)] text-[#24190d]"
             >
               <textarea
                 name="content"
-                rows={9}
+                rows={12}
                 required
                 defaultValue={resolvedSearchParams?.content ?? ""}
                 placeholder="Write the letter or journal entry here."
                 aria-label="Letter or journal body"
-                className="h-full w-full resize-none border-0 bg-transparent px-2 py-2 font-serif text-[clamp(0.92rem,1.05vw,1.08rem)] leading-7 text-[#24190d] outline-none placeholder:text-[#5c4326]/50 focus:ring-2 focus:ring-[#9e6f27]/25"
+                className="h-full w-full resize-none border-0 bg-transparent px-[clamp(0.5rem,0.9vw,1rem)] py-[clamp(0.45rem,0.8vw,0.9rem)] font-serif text-[clamp(1.08rem,1.32vw,1.45rem)] leading-[1.65] text-[#24190d] outline-none placeholder:text-[#5c4326]/50 focus:ring-2 focus:ring-[#9e6f27]/25"
               />
             </ArchiveOverlayRegion>
             <ArchiveOverlayRegion
               region={letterJournalFieldsRegion}
               ariaLabel="Letter or journal details"
-              className="p-3 text-[#24190d]"
+              className="p-[clamp(0.7rem,1vw,1.1rem)] text-[#24190d]"
             >
-              <div className="grid h-full content-start gap-2">
+              <div className="grid h-full content-center gap-[clamp(0.5rem,0.72vw,0.8rem)] rounded-xl border border-[#8a6427]/16 bg-[#f4dfb7]/16 px-[clamp(0.45rem,0.7vw,0.8rem)]">
                 <DesktopError message={resolvedSearchParams?.error} />
-                <div className="grid grid-cols-[1fr_0.78fr] gap-2">
+                <div className="grid grid-cols-[1fr_0.78fr] gap-[clamp(0.45rem,0.7vw,0.8rem)]">
                   <input
                     name="title"
                     required
@@ -474,7 +483,7 @@ export default async function AddMemoryPage({
                     </option>
                   </select>
                 </div>
-                <div className="grid grid-cols-[0.85fr_1fr_auto] gap-2">
+                <div className="grid grid-cols-[0.85fr_1fr_auto] gap-[clamp(0.45rem,0.7vw,0.8rem)]">
                   <input
                     name="date"
                     type="date"

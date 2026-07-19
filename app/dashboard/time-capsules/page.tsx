@@ -56,12 +56,12 @@ export default async function TimeCapsulesPage({
       >
         <ArchiveOverlayRegion
           region={{ left: 19.14, top: 76.83, width: 74.22, height: 16.26 }}
-          className="p-4 text-archive-ivory"
+          className="p-[clamp(1rem,1.45vw,1.55rem)] text-archive-ivory"
           ariaLabel="Time Capsule status and records"
         >
-          <div className="grid h-full grid-cols-[0.72fr_1fr] gap-5">
+          <div className="grid h-full grid-cols-[0.78fr_1fr] gap-[clamp(1.15rem,1.8vw,2rem)]">
             <div className="min-w-0">
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-4 gap-[clamp(0.7rem,1vw,1.1rem)]">
                 {[
                   ["Scheduled", scheduledCount],
                   ["Processing", processingCount],
@@ -69,38 +69,38 @@ export default async function TimeCapsulesPage({
                   ["Failed", failedCount]
                 ].map(([label, count]) => (
                   <div key={label} className="min-w-0">
-                    <p className="font-serif text-[clamp(1rem,1.3vw,1.45rem)] leading-none text-archive-ivory">
+                    <p className="font-serif text-[clamp(1.35rem,1.9vw,2.2rem)] leading-none text-archive-ivory drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
                       {count}
                     </p>
-                    <p className="mt-1 truncate text-[0.52rem] font-semibold uppercase tracking-[0.12em] text-archive-gold/72">
+                    <p className="mt-1.5 truncate text-[clamp(0.58rem,0.72vw,0.8rem)] font-semibold uppercase tracking-[0.12em] text-archive-gold/82">
                       {label}
                     </p>
                   </div>
                 ))}
               </div>
-              <p className="mt-3 line-clamp-2 text-xs leading-5 text-archive-ivory/62">
+              <p className="mt-[clamp(0.65rem,1vw,1.15rem)] line-clamp-3 text-[clamp(0.72rem,0.86vw,0.95rem)] leading-[1.55] text-archive-ivory/72">
                 Choose a preserved memory, select who should receive it, and decide when it should be delivered.
               </p>
             </div>
 
-            <div className="min-w-0 border-l border-archive-gold/14 pl-5">
+            <div className="min-w-0 border-l border-archive-gold/20 pl-[clamp(1rem,1.55vw,1.8rem)]">
               {deliveries.length > 0 ? (
-                <div className="grid h-full content-start gap-1.5">
+                <div className="grid h-full content-start gap-[clamp(0.28rem,0.46vw,0.55rem)]">
                   {deliveries.slice(0, 3).map((delivery) => (
                     <Link
                       key={delivery.id}
                       href={`/dashboard/time-capsules/${delivery.id}`}
-                      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-archive-gold/12 pb-1.5 transition hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/60"
+                      className="grid min-h-[clamp(2.2rem,3vw,3.1rem)] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-archive-gold/16 transition hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/60"
                     >
                       <span className="min-w-0">
-                        <span className="block truncate font-serif text-sm text-archive-ivory">
+                        <span className="block truncate font-serif text-[clamp(0.92rem,1.12vw,1.22rem)] text-archive-ivory">
                           {delivery.memory?.title ?? "Memory unavailable"}
                         </span>
-                        <span className="mt-0.5 block truncate text-[0.62rem] text-archive-ivory/54">
+                        <span className="mt-0.5 block truncate text-[clamp(0.64rem,0.76vw,0.84rem)] text-archive-ivory/62">
                           {delivery.recipientName} · {formatTimeCapsuleLocalDate(delivery.scheduledFor, delivery.timezone)}
                         </span>
                       </span>
-                      <span className="shrink-0 text-[0.54rem] font-bold uppercase tracking-[0.1em] text-archive-gold/78">
+                      <span className="shrink-0 text-[clamp(0.55rem,0.66vw,0.74rem)] font-bold uppercase tracking-[0.1em] text-archive-gold/82">
                         {getTimeCapsuleStatusLabel(delivery.status)}
                       </span>
                     </Link>
@@ -108,10 +108,10 @@ export default async function TimeCapsulesPage({
                 </div>
               ) : (
                 <div className="flex h-full flex-col justify-center">
-                  <h2 className="font-serif text-[clamp(1rem,1.35vw,1.45rem)] text-archive-ivory">
+                  <h2 className="font-serif text-[clamp(1.35rem,1.85vw,2.15rem)] leading-tight text-archive-ivory">
                     No time capsules scheduled yet.
                   </h2>
-                  <p className="mt-1 text-xs leading-5 text-archive-ivory/58">
+                  <p className="mt-2 max-w-[24rem] text-[clamp(0.78rem,0.95vw,1.05rem)] leading-[1.55] text-archive-ivory/68">
                     Use the vault door above to preserve a memory for future delivery.
                   </p>
                 </div>
@@ -121,7 +121,7 @@ export default async function TimeCapsulesPage({
         </ArchiveOverlayRegion>
 
         <ArchiveHotspot
-          region={{ left: 55.14, top: 33.16, width: 14.83, height: 8.61 }}
+          region={{ left: 52.75, top: 31.25, width: 20.25, height: 12.35 }}
           href="/dashboard/time-capsules/new"
           label="Schedule a Time Capsule"
           className="rounded-full"
