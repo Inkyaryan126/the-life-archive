@@ -802,14 +802,12 @@ export function LegacyProloguePlayer({
         >
           {isComplete ? "Replay" : isPlaying ? "Pause" : "Continue"}
         </button>
-        <button
-          type="button"
-          aria-label="Toggle prologue progress indicator"
-          aria-pressed={showProgress}
-          onClick={() => setShowProgress((current) => !current)}
+        <a
+          href="/login"
+          aria-label="Log in to an existing Life Archive account"
         >
-          Progress
-        </button>
+          Log In
+        </a>
         {isSoundAvailable ? (
           <button
             type="button"
