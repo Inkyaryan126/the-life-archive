@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { signOutAction } from "@/app/login/actions";
+import { ArchiveRoomArrival } from "@/components/archive-building/ArchiveArrival";
 import {
   getArchiveBuildingMenuItems,
   type ArchiveBuildingNavActive
@@ -54,6 +55,60 @@ type ArchiveHotspotProps = {
   className?: string;
 };
 
+const desktopArrivalCopy: Record<
+  string,
+  { title: string; subtitle: string }
+> = {
+  dashboard: {
+    title: "My Archives",
+    subtitle: "Every legacy begins with a single memory."
+  },
+  "time-capsules": {
+    title: "Time Capsule Vault",
+    subtitle: "Some words are meant for another day."
+  },
+  keepsakes: {
+    title: "Keepsakes",
+    subtitle: "Some memories deserve something you can hold."
+  },
+  "member-card": {
+    title: "Member Card",
+    subtitle: "Carry a doorway back to the stories that matter."
+  },
+  settings: {
+    title: "Archive Settings",
+    subtitle: "Every archive is as unique as the life it protects."
+  },
+  "add-memory": {
+    title: "Preserve a Memory",
+    subtitle: "The smallest moment can become someone's greatest treasure."
+  },
+  "voice-sound": {
+    title: "Recording Room",
+    subtitle: "One voice can outlive a lifetime."
+  },
+  "photo-video": {
+    title: "Photo & Video",
+    subtitle: "A single image can hold an entire chapter."
+  },
+  "letter-journal": {
+    title: "The Writing Room",
+    subtitle: "Some words deserve to remain long after we are gone."
+  },
+  qr: {
+    title: "Archive Access",
+    subtitle: "One scan can open a lifetime of memories."
+  },
+  library: {
+    title: "The Library",
+    subtitle: "Every memory deserves a place on the shelf."
+  },
+  memorial: {
+    title: "Memorial",
+    subtitle: "Love leaves echoes. We help preserve them."
+  }
+};
+
 const sideNavRegion: Region = {
   left: 2.02,
   top: 19.53,
@@ -89,7 +144,23 @@ function ArchiveNavLink({
           : "text-archive-ivory/82 hover:bg-white/[0.035] hover:text-archive-gold"
       }`}
     >
-      <span className="min-w-0">{label}</span>
+      <span
+        className={
+          [
+            "My Archives",
+            "Time Capsules",
+            "Keepsake Store",
+            "Member Card",
+            "QR Code",
+            "Settings",
+            "Log Out"
+          ].includes(label)
+            ? "min-w-0 whitespace-nowrap"
+            : "min-w-0"
+        }
+      >
+        {label}
+      </span>
       <span
         aria-hidden="true"
         className={`h-2 w-2 shrink-0 rounded-full transition ${
@@ -166,11 +237,15 @@ export function ArchiveSideNavigation({
 export function ArchiveScene({
   image,
   children,
-  sceneLabel
+  sceneLabel,
+  arrivalTitle,
+  arrivalSubtitle
 }: {
   image: SceneImage;
   children: ReactNode;
   sceneLabel: string;
+  arrivalTitle?: string;
+  arrivalSubtitle?: string;
 }) {
   const ratio = image.width / image.height;
 
@@ -197,13 +272,22 @@ export function ArchiveScene({
             sizes="100vw"
             className="object-contain"
           />
-          <div className="absolute inset-0">{children}</div>
+
+          {arrivalTitle ? (
+            <ArchiveRoomArrival
+              title={arrivalTitle}
+              subtitle={arrivalSubtitle}
+            >
+              {children}
+            </ArchiveRoomArrival>
+          ) : (
+            <div className="absolute inset-0">{children}</div>
+          )}
         </div>
       </div>
     </section>
   );
 }
-
 
 export function ArchiveMobileScene({
   image,
@@ -376,8 +460,15 @@ export function ArchiveBuildingShell({
   sceneLabel,
   navRegion
 }: ArchiveBuildingShellProps) {
+  const arrival = desktopArrivalCopy[String(active)];
+
   return (
-    <ArchiveScene image={image} sceneLabel={sceneLabel}>
+    <ArchiveScene
+      image={image}
+      sceneLabel={sceneLabel}
+      arrivalTitle={arrival?.title}
+      arrivalSubtitle={arrival?.subtitle}
+    >
       <ArchiveOverlayRegion region={navRegion ?? sideNavRegion} ariaLabel="Navigation">
         <ArchiveSideNavigation
           active={active}

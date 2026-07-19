@@ -295,3 +295,437 @@ select {
   }
 }
 
+
+
+/* Cinematic mobile Grand Hall directory */
+.mobile-directory-scene {
+  opacity: 1;
+}
+
+.mobile-directory-intro {
+  opacity: 1;
+  visibility: visible;
+  animation: mobile-directory-intro-exit 2000ms ease-in-out 5600ms forwards;
+}
+
+.mobile-directory-crest {
+  opacity: 0;
+  transform: scale(0.92);
+  filter: blur(3px);
+  animation: mobile-directory-title-enter 1800ms ease-out 500ms forwards;
+}
+
+.mobile-directory-title {
+  opacity: 0;
+  transform: translateY(12px);
+  filter: blur(3px);
+  animation: mobile-directory-title-enter 1900ms ease-out 1500ms forwards;
+}
+
+.mobile-directory-subtitle {
+  opacity: 0;
+  transform: translateY(10px);
+  filter: blur(2px);
+  animation: mobile-directory-title-enter 1800ms ease-out 2800ms forwards;
+}
+
+.mobile-directory-interface {
+  pointer-events: none;
+}
+
+.mobile-directory-row {
+  opacity: 0;
+  transform: translateY(5px);
+  animation: mobile-directory-row-enter 1200ms ease-out forwards;
+}
+
+@keyframes mobile-directory-title-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+    filter: blur(3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes mobile-directory-intro-exit {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes mobile-directory-scene-enter {
+  from {
+    opacity: 0;
+    filter: blur(3px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes mobile-directory-row-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-directory-interface {
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-directory-scene,
+  .mobile-directory-intro,
+  .mobile-directory-crest,
+  .mobile-directory-title,
+  .mobile-directory-subtitle,
+  .mobile-directory-row {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    filter: none;
+    animation: none;
+  }
+
+  .mobile-directory-intro {
+    display: none;
+  }
+
+  .mobile-directory-interface {
+    pointer-events: auto;
+  }
+}
+
+
+/* Desktop Archive Building cinematic room arrival */
+@media (min-width: 1024px) {
+  .desktop-room-intro {
+    opacity: 1;
+    visibility: visible;
+    animation: desktop-room-intro-exit 1800ms ease-in-out 5200ms forwards;
+  }
+
+  .desktop-room-logo {
+    width: clamp(7rem, 10vw, 11rem);
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+    filter: blur(4px) brightness(0.45);
+    animation: desktop-room-copy-enter 1800ms ease-out 400ms forwards;
+  }
+
+  .desktop-room-title {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(4px) brightness(0.45);
+    text-shadow:
+      0 0 12px rgba(202, 164, 92, 0),
+      0 8px 34px rgba(0, 0, 0, 0.95);
+    animation: desktop-room-title-illuminate 2100ms ease-out 1200ms forwards;
+  }
+
+  .desktop-room-subtitle {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(3px) brightness(0.55);
+    text-shadow: 0 6px 28px rgba(0, 0, 0, 0.95);
+    animation: desktop-room-copy-enter 1900ms ease-out 2700ms forwards;
+  }
+
+  .desktop-room-interface {
+    opacity: 0;
+    filter: brightness(0.2);
+    animation: desktop-room-interface-enter 2200ms ease-in-out 5600ms forwards;
+  }
+}
+
+@keyframes desktop-room-copy-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.975);
+    filter: blur(4px) brightness(0.45);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0) brightness(1);
+  }
+}
+
+@keyframes desktop-room-title-illuminate {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+    color: #16120d;
+    filter: blur(4px) brightness(0.35);
+    text-shadow:
+      0 0 0 rgba(202, 164, 92, 0),
+      0 8px 34px rgba(0, 0, 0, 0.95);
+  }
+
+  55% {
+    opacity: 0.72;
+    color: #b38d3f;
+    filter: blur(1px) brightness(0.82);
+    text-shadow:
+      0 0 20px rgba(202, 164, 92, 0.18),
+      0 8px 34px rgba(0, 0, 0, 0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    color: #f6f0df;
+    filter: blur(0) brightness(1);
+    text-shadow:
+      0 0 30px rgba(202, 164, 92, 0.22),
+      0 8px 34px rgba(0, 0, 0, 0.95);
+  }
+}
+
+@keyframes desktop-room-intro-exit {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes desktop-room-interface-enter {
+  from {
+    opacity: 0;
+    filter: brightness(0.2);
+  }
+
+  to {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .desktop-room-intro {
+    display: none;
+  }
+
+  .desktop-room-interface {
+    opacity: 1;
+    filter: none;
+    animation: none;
+  }
+}
+
+
+/* Final Archive Building arrival timing */
+
+/*
+  Archive rooms:
+  Short museum-style transition, approximately 1.8 seconds.
+*/
+@media (min-width: 1024px) {
+  .desktop-room-intro {
+    opacity: 1;
+    visibility: visible;
+    animation:
+      desktop-room-intro-exit 720ms ease-in-out 1150ms forwards;
+  }
+
+  .desktop-room-logo {
+    opacity: 0;
+    transform: translateY(7px) scale(0.97);
+    filter: blur(3px) brightness(0.5);
+    animation:
+      desktop-room-copy-enter 620ms ease-out 80ms forwards;
+  }
+
+  .desktop-room-title {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(3px) brightness(0.5);
+    animation:
+      desktop-room-title-illuminate 720ms ease-out 240ms forwards;
+  }
+
+  .desktop-room-subtitle {
+    opacity: 0;
+    transform: translateY(7px);
+    filter: blur(2px) brightness(0.6);
+    animation:
+      desktop-room-copy-enter 620ms ease-out 610ms forwards;
+  }
+
+  .desktop-room-interface {
+    opacity: 0;
+    filter: brightness(0.28);
+    animation:
+      desktop-room-interface-enter 820ms ease-in-out 1080ms forwards;
+  }
+}
+
+/*
+  Desktop Grand Hall:
+  Longer ceremonial entrance, approximately 4.3 seconds.
+*/
+@media (min-width: 768px) {
+  .desktop-grandhall-intro {
+    opacity: 1;
+    visibility: visible;
+    animation:
+      desktop-grandhall-intro-exit 1050ms ease-in-out 3250ms forwards;
+  }
+
+  .desktop-grandhall-logo {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+    filter: blur(4px) brightness(0.45);
+    animation:
+      desktop-grandhall-copy-enter 1250ms ease-out 250ms forwards;
+  }
+
+  .desktop-grandhall-title {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px) brightness(0.45);
+    animation:
+      desktop-grandhall-title-enter 1450ms ease-out 900ms forwards;
+  }
+
+  .desktop-grandhall-subtitle {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(3px) brightness(0.55);
+    animation:
+      desktop-grandhall-copy-enter 1250ms ease-out 1950ms forwards;
+  }
+}
+
+@keyframes desktop-grandhall-copy-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.975);
+    filter: blur(4px) brightness(0.45);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0) brightness(1);
+  }
+}
+
+@keyframes desktop-grandhall-title-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+    color: #16120d;
+    filter: blur(4px) brightness(0.4);
+    text-shadow: 0 0 0 rgba(202, 164, 92, 0);
+  }
+
+  60% {
+    opacity: 0.76;
+    color: #b38d3f;
+    filter: blur(1px) brightness(0.85);
+    text-shadow: 0 0 24px rgba(202, 164, 92, 0.18);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    color: #f6f0df;
+    filter: blur(0) brightness(1);
+    text-shadow:
+      0 0 34px rgba(202, 164, 92, 0.2),
+      0 8px 36px rgba(0, 0, 0, 0.95);
+  }
+}
+
+@keyframes desktop-grandhall-intro-exit {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-grandhall-intro,
+  .desktop-room-intro {
+    display: none;
+  }
+
+  .desktop-room-interface {
+    opacity: 1;
+    filter: none;
+    animation: none;
+  }
+}
+
+
+/* Desktop Grand Hall directory rollout */
+@media (min-width: 768px) {
+  .desktop-directory-row {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: brightness(0.4);
+    animation: desktop-directory-row-enter 1100ms ease-out forwards;
+  }
+}
+
+@keyframes desktop-directory-row-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: brightness(0.4);
+  }
+
+  55% {
+    opacity: 0.7;
+    filter: brightness(0.75);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: brightness(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-directory-row {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    animation: none;
+  }
+}

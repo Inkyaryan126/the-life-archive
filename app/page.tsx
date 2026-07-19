@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import grandHallDirectoryImage from "../site-design/archive-building-design/archive-map.png";
 import { SiteLogo } from "@/components/SiteDesign";
+import { GrandHallArrival } from "@/components/archive-building/ArchiveArrival";
 import { getAccountContext } from "@/lib/account";
 import { publicSupportEmail } from "@/lib/site-config";
 
@@ -245,6 +246,58 @@ function GrandHallHero({
     }
   ];
 
+  const mobileEntries: DesktopDirectoryEntry[] = [
+    {
+      title: "The Legacy Question",
+      subtitle: "Leave words that matter.",
+      href: "/legacy-question",
+      ariaLabel: "Start with The Legacy Question.",
+      featured: true
+    },
+    {
+      title: "My Archives",
+      subtitle: "Return to your stories.",
+      href: myArchivesHref,
+      ariaLabel: "Open My Archives."
+    },
+    {
+      title: "Create an Archive",
+      subtitle: "Begin a life story.",
+      href: "/create",
+      ariaLabel: "Create an Archive."
+    },
+    {
+      title: "Time Capsules",
+      subtitle: "Send words into the future.",
+      href: timeCapsulesHref,
+      ariaLabel: "Open Time Capsules."
+    },
+    {
+      title: "Keepsakes",
+      subtitle: "Keep their story close.",
+      href: "/keepsakes",
+      ariaLabel: "Visit Keepsakes."
+    },
+    {
+      title: "Member Card",
+      subtitle: "Carry your archive with you.",
+      href: "/member-card",
+      ariaLabel: "Open Member Card."
+    },
+    {
+      title: "Support After a Loss",
+      subtitle: "Guidance when someone is gone.",
+      href: "/after-a-loss",
+      ariaLabel: "Open Support After a Loss."
+    },
+    {
+      title: "Help & Information",
+      subtitle: "Privacy, answers and support.",
+      href: "#information",
+      ariaLabel: "Open Help and Information."
+    }
+  ];
+
   return (
     <header className="relative overflow-hidden bg-black px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       <div
@@ -255,6 +308,11 @@ function GrandHallHero({
       <section className="relative z-10 mx-auto w-full max-w-[1280px]">
         <div className="hidden md:block">
           <div className="relative mx-auto aspect-[1672/941] w-full overflow-hidden shadow-[0_40px_140px_rgba(0,0,0,0.74)]">
+            <GrandHallArrival
+              title="The Life Archive"
+              subtitle="Every life has a story worth preserving."
+            />
+
             <Image
               src={grandHallDirectoryImage}
               alt="The Life Archive Grand Hall with a blank central directory board"
@@ -279,6 +337,7 @@ function GrandHallHero({
               {desktopEntries.map((entry, index) => (
                 <DesktopDirectoryRow
                   entry={entry}
+                  index={index}
                   isLast={index === desktopEntries.length - 1}
                   key={entry.title}
                 />
@@ -288,20 +347,77 @@ function GrandHallHero({
         </div>
 
         <div className="md:hidden">
-          <div className="relative overflow-hidden border border-archive-gold/22 bg-[#110f0c] shadow-luxury">
-            <Image
-              src={grandHallDirectoryImage}
-              alt=""
-              width={1672}
-              height={941}
-              priority
-              className="h-56 w-full object-cover object-center opacity-58"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-[#090807]/48 to-[#090807]" />
-            <div className="relative -mt-16 grid gap-3 px-4 pb-5">
-              {entries.map((entry) => (
-                <MobileDirectoryLink key={entry.title} entry={entry} />
-              ))}
+          <div className="mobile-home-directory relative mx-auto w-full max-w-[430px] overflow-hidden bg-black">
+            <div className="mobile-directory-scene relative aspect-[858/1844] w-full">
+              <Image
+                src="/images/archive-building/mobile/mobile-directory.png"
+                alt="The Life Archive Grand Hall directory"
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover"
+              />
+
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),transparent_22%,transparent_82%,rgba(0,0,0,0.38))]"
+              />
+
+              <nav
+                aria-label="The Life Archive directory"
+                className="mobile-directory-interface absolute left-[20.1%] top-[26.3%] flex h-[53.1%] w-[57.8%] flex-col"
+              >
+                {mobileEntries.map((entry, index) => (
+                  <Link
+                    href={entry.href}
+                    aria-label={entry.ariaLabel}
+                    className={`mobile-directory-row group relative flex min-h-0 flex-1 flex-col justify-center px-[7%] text-center focus:outline-none focus:ring-2 focus:ring-inset focus:ring-archive-gold/80 ${
+                      entry.featured
+                        ? "bg-archive-gold/[0.055]"
+                        : "hover:bg-archive-gold/[0.045]"
+                    }`}
+                    style={{ animationDelay: `${7600 + index * 700}ms` }}
+                    key={entry.title}
+                  >
+                    {entry.featured ? (
+                      <span className="mb-0.5 text-[0.48rem] font-bold uppercase tracking-[0.18em] text-archive-gold">
+                        Start here
+                      </span>
+                    ) : null}
+
+                    <span className="font-serif text-[clamp(0.68rem,3vw,0.9rem)] uppercase leading-tight tracking-[0.055em] text-archive-ivory drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
+                      {entry.title}
+                    </span>
+
+                    <span className="mt-0.5 line-clamp-1 text-[clamp(0.42rem,1.85vw,0.56rem)] leading-tight text-archive-ivory/64">
+                      {entry.subtitle}
+                    </span>
+                  </Link>
+                ))}
+              </nav>
+
+              <div className="mobile-directory-intro pointer-events-none absolute inset-0 z-30 flex items-start justify-center bg-black pt-[12svh]">
+                <div className="px-8 text-center">
+                  <div className="mobile-directory-crest relative mx-auto mb-5 h-24 w-32">
+                    <Image
+                      src="/images/site-design/tree-logo-master.png"
+                      alt="The Life Archive tree growing from an open book"
+                      fill
+                      priority
+                      sizes="128px"
+                      className="object-contain drop-shadow-[0_0_28px_rgba(202,164,92,0.28)]"
+                    />
+                  </div>
+
+                  <h1 className="mobile-directory-title font-serif text-[clamp(1.9rem,9vw,3rem)] uppercase tracking-[0.09em] text-archive-ivory">
+                    The Life Archive
+                  </h1>
+
+                  <p className="mobile-directory-subtitle mx-auto mt-5 max-w-[18rem] text-xs uppercase leading-6 tracking-[0.18em] text-archive-gold/90">
+                    Every life has a story worth preserving
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -312,13 +428,18 @@ function GrandHallHero({
 
 function DesktopDirectoryRow({
   entry,
+  index,
   isLast
 }: {
   entry: DesktopDirectoryEntry;
+  index: number;
   isLast: boolean;
 }) {
   return (
-    <div className="relative flex min-h-0 flex-1">
+    <div
+      className="desktop-directory-row relative flex min-h-0 flex-1"
+      style={{ animationDelay: `${4300 + index * 420}ms` }}
+    >
       <Link
         href={entry.href}
         aria-label={entry.ariaLabel}

@@ -53,6 +53,11 @@ export const archiveBuildingScenes = {
 
 
 export const archiveBuildingMobileScenes = {
+  directory: {
+    src: "/images/archive-building/mobile/mobile-directory.png",
+    width: 858,
+    height: 1844
+  },
   admin: {
     src: "/images/archive-building/mobile/mobile-admin.PNG",
     width: 1440,
