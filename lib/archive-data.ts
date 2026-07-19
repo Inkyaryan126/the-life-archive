@@ -10,6 +10,7 @@ import {
   deleteStorageObject,
   resolveStorageImageUrl,
   uploadMemoryVoice,
+  uploadMemoryVideo,
   validateAudioUpload,
   validateImageUpload,
   uploadArchiveCoverImage,
@@ -1000,6 +1001,12 @@ export async function createMemory(input: CreateMemoryInput) {
           );
         } else if (input.type === "voice") {
           filePath = await uploadMemoryVoice(
+            archive.id,
+            memoryId,
+            input.mediaFile
+          );
+        } else if (input.type === "video") {
+          filePath = await uploadMemoryVideo(
             archive.id,
             memoryId,
             input.mediaFile

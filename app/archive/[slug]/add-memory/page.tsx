@@ -21,6 +21,8 @@ import {
   DesignBackdrop
 } from "@/components/SiteDesign";
 import { AddMemoryForm } from "./AddMemoryForm";
+import { VoiceForm } from "./VoiceForm";
+import { VideoForm } from "./VideoForm";
 import {
   memoryTypesByMode,
   modeLabels,
@@ -292,39 +294,14 @@ export default async function AddMemoryPage({
             className="overflow-hidden p-3 text-archive-ivory"
           >
             <div className="grid h-full grid-rows-2 gap-2 rounded-lg bg-black/18 p-2 backdrop-blur-[1px]">
-              <AddMemoryForm action={saveMemory} className="grid min-h-0 content-start gap-1.5">
-                <input type="hidden" name="mode" value="voice-sound" />
-                <input type="hidden" name="type" value="voice" />
-                <DesktopError message={resolvedSearchParams?.error} dark />
-                <p className="text-[0.62rem] font-bold uppercase tracking-[0.13em] text-archive-gold">
-                  Upload Voice or Audio
-                </p>
-                <input
-                  name="title"
-                  required
-                  defaultValue={defaultType === "voice" ? resolvedSearchParams?.title ?? "" : ""}
-                  placeholder="Title"
-                  aria-label="Voice title"
-                  className={compactDarkInputClass}
-                />
-                <input
-                  name="mediaFile"
-                  type="file"
-                  accept="audio/*"
-                  aria-label="Upload voice or audio file"
-                  className="w-full text-[0.58rem] text-archive-ivory/78 file:mr-2 file:rounded-md file:border-0 file:bg-archive-gold file:px-2 file:py-1 file:text-[0.55rem] file:font-semibold file:text-archive-obsidian"
-                />
-                <input
-                  name="date"
-                  type="date"
-                  defaultValue={defaultType === "voice" ? resolvedSearchParams?.date ?? "" : ""}
-                  aria-label="Voice date"
-                  className={compactDarkInputClass}
-                />
-                <button type="submit" className={compactButtonClass}>
-                  Preserve Voice
-                </button>
-              </AddMemoryForm>
+              <VoiceForm
+                action={saveMemory}
+                defaultTitle={defaultType === "voice" ? resolvedSearchParams?.title ?? "" : ""}
+                defaultDate={defaultType === "voice" ? resolvedSearchParams?.date ?? "" : ""}
+                errorMessage={resolvedSearchParams?.error}
+                compactDarkInputClass={compactDarkInputClass}
+                compactButtonClass={compactButtonClass}
+              />
 
               <AddMemoryForm action={saveMemory} className="grid min-h-0 content-start gap-1.5">
                 <input type="hidden" name="mode" value="voice-sound" />
@@ -424,38 +401,16 @@ export default async function AddMemoryPage({
               ariaLabel="Video chapter fields"
               className="p-[clamp(1rem,1.4vw,1.5rem)] text-[#2a1c10]"
             >
-              <AddMemoryForm action={saveMemory} className="grid h-full grid-rows-[auto_auto_minmax(0,1fr)_auto] gap-[clamp(0.55rem,0.8vw,0.9rem)]">
-                <input type="hidden" name="mode" value="photo-video" />
-                <input type="hidden" name="type" value="video" />
-                <div>
-                  <p className="text-[clamp(0.72rem,0.88vw,0.98rem)] font-bold uppercase tracking-[0.14em] text-[#5c3b19]">
-                    Video Chapter
-                  </p>
-                  <p className="mt-1 line-clamp-3 text-[clamp(0.64rem,0.76vw,0.84rem)] leading-snug text-[#5c4326]/78">
-                    Video upload is not available yet. Save where the video lives and why it matters.
-                  </p>
-                </div>
-                <input
-                  name="title"
-                  required
-                  defaultValue={defaultType === "video" ? resolvedSearchParams?.title ?? "" : ""}
-                  placeholder="Title"
-                  aria-label="Video title"
-                  className={compactInputClass}
-                />
-                <textarea
-                  name="content"
-                  rows={10}
-                  required
-                  defaultValue={defaultType === "video" ? resolvedSearchParams?.content ?? "" : ""}
-                  placeholder="Describe the video, where it lives, or why it matters"
-                  aria-label="Video chapter context"
-                  className={`${compactInputClass} min-h-0 resize-none leading-[1.5]`}
-                />
-                <button type="submit" className={compactButtonClass}>
-                  Save Video Chapter
-                </button>
-              </AddMemoryForm>
+              <VideoForm
+                action={saveMemory}
+                defaultTitle={defaultType === "video" ? resolvedSearchParams?.title ?? "" : ""}
+                defaultContent={defaultType === "video" ? resolvedSearchParams?.content ?? "" : ""}
+                defaultMediaUrl={defaultType === "video" ? resolvedSearchParams?.mediaUrl ?? "" : ""}
+                errorMessage={resolvedSearchParams?.error}
+                compactInputClass={compactInputClass}
+                compactFileInputClass={compactFileInputClass}
+                compactButtonClass={compactButtonClass}
+              />
             </ArchiveOverlayRegion>
           </>
         ) : null}

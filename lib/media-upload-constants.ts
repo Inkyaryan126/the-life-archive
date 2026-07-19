@@ -2,6 +2,9 @@ export const maxImageUploadBytes = 10 * 1024 * 1024;
 export const maxAudioUploadBytes = 50 * 1024 * 1024;
 export const maxAudioUploadMegabytes = maxAudioUploadBytes / (1024 * 1024);
 
+export const maxVideoUploadBytes = 50 * 1024 * 1024;
+export const maxVideoUploadMegabytes = maxVideoUploadBytes / (1024 * 1024);
+
 export const acceptedAudioMimeTypes = [
   "audio/mpeg",
   "audio/mp3",
@@ -15,3 +18,13 @@ export const acceptedAudioMimeTypes = [
 ] as const;
 
 export const acceptedAudioFormatLabel = "MP3, WAV, M4A, AAC, OGG, or WebM";
+
+export const acceptedVideoMimeTypes = [
+  "video/mp4",
+  "video/webm",
+  "video/quicktime",
+  "video/x-matroska"
+] as const;
+
+export const acceptedVideoFormatLabel = "MP4, WebM, or MOV";
+

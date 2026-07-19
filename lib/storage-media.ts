@@ -4,9 +4,13 @@ import { createAdminClient } from "./supabase/admin";
 import {
   acceptedAudioFormatLabel,
   acceptedAudioMimeTypes,
+  acceptedVideoFormatLabel,
+  acceptedVideoMimeTypes,
   maxAudioUploadBytes,
   maxAudioUploadMegabytes,
-  maxImageUploadBytes
+  maxImageUploadBytes,
+  maxVideoUploadBytes,
+  maxVideoUploadMegabytes
 } from "./media-upload-constants";
 
 export const archiveMediaBucket = "archive-media";
@@ -33,6 +37,14 @@ const audioExtensionByMimeType: Record<string, string> = {
   "audio/aac": "aac"
 };
 const allowedAudioMimeTypes = new Set<string>(acceptedAudioMimeTypes);
+
+const videoExtensionByMimeType: Record<string, string> = {
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+  "video/quicktime": "mov",
+  "video/x-matroska": "mkv"
+};
+const allowedVideoMimeTypes = new Set<string>(acceptedVideoMimeTypes);
 
 function normalizeMimeType(value: string) {
   return value.toLowerCase().split(";")[0].trim();
@@ -76,6 +88,18 @@ export function validateAudioUpload(file: File, fieldName: string) {
   }
 }
 
+export function validateVideoUpload(file: File, fieldName: string) {
+  if (!allowedVideoMimeTypes.has(normalizeMimeType(file.type))) {
+    throw new Error(
+      `${fieldName} must be a supported video file: ${acceptedVideoFormatLabel}.`
+    );
+  }
+
+  if (file.size > maxVideoUploadBytes) {
+    throw new Error(`${fieldName} must be smaller than ${maxVideoUploadMegabytes} MB.`);
+  }
+}
+
 export function buildArchiveCoverPath(archiveId: string, file: File) {
   return `archives/${archiveId}/cover/original.${getExtensionFromFile(file)}`;
 }
@@ -94,8 +118,22 @@ function getAudioExtension(file: File) {
   return "mp3";
 }
 
+function getVideoExtension(file: File) {
+  const mimeExtension = videoExtensionByMimeType[normalizeMimeType(file.type)];
+
+  if (mimeExtension) {
+    return mimeExtension;
+  }
+
+  return "mp4";
+}
+
 export function buildMemoryVoicePath(archiveId: string, memoryId: string, file: File) {
   return `archives/${archiveId}/memories/${memoryId}/original.${getAudioExtension(file)}`;
+}
+
+export function buildMemoryVideoPath(archiveId: string, memoryId: string, file: File) {
+  return `archives/${archiveId}/memories/${memoryId}/original.${getVideoExtension(file)}`;
 }
 
 export async function uploadArchiveCoverImage(
@@ -161,6 +199,30 @@ export async function uploadMemoryVoice(
 
   return path;
 }
+
+export async function uploadMemoryVideo(
+  archiveId: string,
+  memoryId: string,
+  file: File
+) {
+  validateVideoUpload(file, "Video memory");
+
+  const storage = createAdminClient().storage;
+  const path = buildMemoryVideoPath(archiveId, memoryId, file);
+  const bytes = await getArrayBuffer(file);
+
+  const { error } = await storage.from(archiveMediaBucket).upload(path, bytes, {
+    contentType: file.type || "video/mp4",
+    upsert: true
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return path;
+}
+
 
 export async function resolveStorageImageUrl(
   storagePath?: string | null,

@@ -4,14 +4,19 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import {
   acceptedAudioFormatLabel,
   acceptedAudioMimeTypes,
+  acceptedVideoFormatLabel,
+  acceptedVideoMimeTypes,
   maxAudioUploadBytes,
-  maxAudioUploadMegabytes
+  maxAudioUploadMegabytes,
+  maxVideoUploadBytes,
+  maxVideoUploadMegabytes
 } from "@/lib/media-upload-constants";
 
 type AddMemoryFormProps = {
   action: (formData: FormData) => void | Promise<void>;
   children: ReactNode;
   className?: string;
+  recordedFile?: File | null;
 };
 
 function normalizeMimeType(value: string) {
@@ -32,35 +37,64 @@ function getAudioPreflightError(file: File) {
   return "";
 }
 
-export function AddMemoryForm({ action, children, className }: AddMemoryFormProps) {
+function getVideoPreflightError(file: File) {
+  const mimeType = normalizeMimeType(file.type);
+
+  if (file.size > maxVideoUploadBytes) {
+    return `This file is larger than the maximum allowed size of ${maxVideoUploadMegabytes} MB. Trim or compress the recording, then upload it again.`;
+  }
+
+  if (!acceptedVideoMimeTypes.includes(mimeType as (typeof acceptedVideoMimeTypes)[number])) {
+    return `This video format is not supported. Please upload ${acceptedVideoFormatLabel} video.`;
+  }
+
+  return "";
+}
+
+export function AddMemoryForm({ action, children, className, recordedFile }: AddMemoryFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    const formData = new FormData(event.currentTarget);
-    const type = formData.get("type");
-    const mediaFile = formData.get("mediaFile");
+    const rawFormData = new FormData(event.currentTarget);
+    const type = rawFormData.get("type");
+    let mediaFile = rawFormData.get("mediaFile");
+
+    if (recordedFile && (!mediaFile || !(mediaFile instanceof File) || mediaFile.size === 0)) {
+      rawFormData.set("mediaFile", recordedFile);
+      mediaFile = recordedFile;
+    }
 
     if (!(mediaFile instanceof File) || mediaFile.size === 0) {
       setErrorMessage("");
+      if (recordedFile) {
+        event.preventDefault();
+        action(rawFormData);
+      }
       return;
     }
 
     const isAudioUpload = typeof type === "string" && type === "voice";
+    const isVideoUpload = typeof type === "string" && type === "video";
 
-    if (!isAudioUpload) {
-      setErrorMessage("");
+    let message = "";
+    if (isAudioUpload) {
+      message = getAudioPreflightError(mediaFile);
+    } else if (isVideoUpload) {
+      message = getVideoPreflightError(mediaFile);
+    }
+
+    if (message) {
+      event.preventDefault();
+      setErrorMessage(message);
       return;
     }
 
-    const message = getAudioPreflightError(mediaFile);
+    setErrorMessage("");
 
-    if (!message) {
-      setErrorMessage("");
-      return;
+    if (recordedFile) {
+      event.preventDefault();
+      action(rawFormData);
     }
-
-    event.preventDefault();
-    setErrorMessage(message);
   }
 
   return (
@@ -82,3 +116,4 @@ export function AddMemoryForm({ action, children, className }: AddMemoryFormProp
     </form>
   );
 }
+

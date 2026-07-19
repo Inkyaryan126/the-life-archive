@@ -10,6 +10,7 @@ type MemoryCardProps = {
 export function MemoryCard({ memory }: MemoryCardProps) {
   const photoUrl = memory.type === "photo" ? memory.mediaUrl : undefined;
   const voiceUrl = memory.type === "voice" ? memory.mediaUrl : undefined;
+  const videoUrl = memory.type === "video" ? memory.mediaUrl : undefined;
 
   return (
     <article
@@ -34,6 +35,12 @@ export function MemoryCard({ memory }: MemoryCardProps) {
           <audio controls preload="none" className="w-full accent-archive-gold" src={voiceUrl}>
             Your browser does not support the audio element.
           </audio>
+        </div>
+      ) : videoUrl ? (
+        <div className="mb-4 overflow-hidden rounded-2xl border border-archive-gold/18 bg-black">
+          <video controls preload="metadata" playsInline className="aspect-video w-full" src={videoUrl}>
+            Your browser does not support video playback.
+          </video>
         </div>
       ) : null}
       <div className="flex flex-wrap items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
