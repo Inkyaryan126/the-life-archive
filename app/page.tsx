@@ -253,7 +253,7 @@ function GrandHallHero({
       />
 
       <section className="relative z-10 mx-auto w-full max-w-[1280px]">
-        <div className="hidden lg:block">
+        <div className="hidden md:block">
           <div className="relative mx-auto aspect-[1672/941] w-full overflow-hidden shadow-[0_40px_140px_rgba(0,0,0,0.74)]">
             <Image
               src={grandHallDirectoryImage}
@@ -287,7 +287,7 @@ function GrandHallHero({
           </div>
         </div>
 
-        <div className="lg:hidden">
+        <div className="md:hidden">
           <div className="relative overflow-hidden border border-archive-gold/22 bg-[#110f0c] shadow-luxury">
             <Image
               src={grandHallDirectoryImage}
