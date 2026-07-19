@@ -76,7 +76,7 @@ export const legacyPrologueScenes: LegacyPrologueScene[] = [
     image(
       "scene-01-e-funeral-distant-mourners-closer",
       "The funeral gathers closer while the world remains gray and distant.",
-      3500,
+      4500,
       {
         caption: ["The people you love will be left with questions you can no longer answer."],
         focalPoint: "50% 55%",

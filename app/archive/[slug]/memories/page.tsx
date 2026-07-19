@@ -8,6 +8,8 @@ import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 import type { MemoryType } from "@/lib/types";
 import { prettifyType } from "@/lib/format";
+import { ArchiveMobileScene } from "@/components/archive-building/ArchiveBuildingShell";
+import { archiveBuildingMobileScenes } from "@/lib/archive-building-scenes";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +64,14 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
 
   return (
     <main className="relative min-h-screen overflow-hidden px-5 py-6 text-archive-ivory sm:px-8">
+        <ArchiveMobileScene
+          image={{ ...archiveBuildingMobileScenes.library, priority: true }}
+          sceneLabel="Preserved memories mobile library"
+          title={"PRESERVED MEMORIES"}
+          subtitle="Return to the moments that built a life."
+          backgroundOnly
+        />
+
       <DesignBackdrop />
       <HashScroller />
 

@@ -1,15 +1,20 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import {
+ redirect } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
 import { DesignBackdrop, HeartbeatLogoDivider, SiteLogo } from "@/components/SiteDesign";
 import {
   ArchiveBuildingShell,
   ArchiveHotspot,
-  ArchiveOverlayRegion
+  ArchiveOverlayRegion,
+  ArchiveMobileScene
 } from "@/components/archive-building/ArchiveBuildingShell";
 import { TimeCapsuleConfirmAction } from "@/components/time-capsules/TimeCapsuleConfirmAction";
 import { getAccountContext } from "@/lib/account";
-import { archiveBuildingScenes } from "@/lib/archive-building-scenes";
+import {
+  archiveBuildingMobileScenes,
+  archiveBuildingScenes
+} from "@/lib/archive-building-scenes";
 import { cancelTimeCapsuleAction, retryTimeCapsuleAction } from "./actions";
 import { listOwnerScheduledMemoryDeliveries } from "@/lib/time-capsules";
 import {
@@ -128,10 +133,14 @@ export default async function TimeCapsulesPage({
         />
       </ArchiveBuildingShell>
 
-      <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:hidden lg:px-12 xl:px-16 sm:py-8">
-      <DesignBackdrop />
-
-      <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
+      <ArchiveMobileScene
+        image={{ ...archiveBuildingMobileScenes.vault, priority: true }}
+        sceneLabel="Time Capsules mobile vault room"
+        title={"THE VAULT"}
+        subtitle={"Some memories are meant to arrive later."}
+        className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
+      >
+<div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
         <AppSidebar
           active="time-capsules"
           archiveSlug={account.defaultArchive?.slug ?? null}
@@ -319,7 +328,7 @@ export default async function TimeCapsulesPage({
           </div>
         </div>
       </div>
-      </main>
+      </ArchiveMobileScene>
     </>
   );
 }

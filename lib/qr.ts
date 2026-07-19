@@ -32,6 +32,17 @@ export async function generateQrSvg(value: string) {
   });
 }
 
+export async function generateQrPngDataUri(value: string) {
+  return QRCode.toDataURL(value, {
+    margin: 2,
+    width: 768,
+    color: {
+      dark: "#27231f",
+      light: "#ffffff"
+    }
+  });
+}
+
 export function svgToDataUri(svg: string) {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
