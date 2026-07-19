@@ -1,19 +1,14 @@
 import Link from "next/link";
-import {
- redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { loginAction } from "./actions";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { FormButton } from "@/components/auth/FormButton";
 import {
   ArchiveOverlayRegion,
-  ArchiveScene,
-  ArchiveMobileScene
+  ArchiveScene
 } from "@/components/archive-building/ArchiveBuildingShell";
 import { getAccountContext } from "@/lib/account";
-import {
-  archiveBuildingMobileScenes,
-  archiveBuildingScenes
-} from "@/lib/archive-building-scenes";
+import { archiveBuildingScenes } from "@/lib/archive-building-scenes";
 
 type LoginPageProps = {
   searchParams?: Promise<{
@@ -172,20 +167,15 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </ArchiveOverlayRegion>
       </ArchiveScene>
 
-      <ArchiveMobileScene
-        image={{ ...archiveBuildingMobileScenes.grandHall, priority: true }}
-        sceneLabel="Login mobile Grand Hall"
-        title={"THE GRAND HALL"}
-        subtitle={"Every preserved life begins at the door."}
-        className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
-      >
-<div className="relative z-10 mx-auto max-w-sm">
+      <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-12 text-archive-ivory sm:px-8 lg:hidden">
+      <DesignBackdrop />
+      <div className="relative z-10 mx-auto max-w-sm">
         <Link href="/" className="mb-8 block text-center">
           <SiteLogo width={200} height={50} className="mx-auto" />
         </Link>
         {mobileLoginForm}
       </div>
-      </ArchiveMobileScene>
+      </main>
     </>
   );
 }

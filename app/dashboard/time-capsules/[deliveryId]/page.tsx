@@ -13,8 +13,6 @@ import {
   getTimeCapsuleStatusLabel,
   getTimeCapsuleStatusTone
 } from "../utils";
-import { ArchiveMobileScene } from "@/components/archive-building/ArchiveBuildingShell";
-import { archiveBuildingMobileScenes } from "@/lib/archive-building-scenes";
 
 export const dynamic = "force-dynamic";
 
@@ -82,14 +80,6 @@ export default async function TimeCapsuleDetailPage({
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
-        <ArchiveMobileScene
-          image={{ ...archiveBuildingMobileScenes.vault, priority: true }}
-          sceneLabel="Time Capsule detail mobile vault"
-          title={"TIME CAPSULE"}
-          subtitle="A message preserved now can arrive exactly when it is needed."
-          backgroundOnly
-        />
-
       <DesignBackdrop />
 
       <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">

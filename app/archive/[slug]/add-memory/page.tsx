@@ -1,18 +1,13 @@
 import Link from "next/link";
-import {
- notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { AccessPrompt } from "@/components/AccessPrompt";
 import {
   ArchiveBuildingShell,
   ArchiveOverlayRegion,
-  ArchiveSoftHighlight,
-  ArchiveMobileScene
+  ArchiveSoftHighlight
 } from "@/components/archive-building/ArchiveBuildingShell";
 import { canCurrentUserAddMemory, getAccountContext } from "@/lib/account";
-import {
-  archiveBuildingMobileScenes,
-  archiveBuildingScenes
-} from "@/lib/archive-building-scenes";
+import { archiveBuildingScenes } from "@/lib/archive-building-scenes";
 import { getArchiveBySlug, memoryTypes } from "@/lib/archive-data";
 import { prettifyType } from "@/lib/format";
 import type { MemoryType } from "@/lib/types";
@@ -245,27 +240,6 @@ export default async function AddMemoryPage({
   });
   const desktopScene = sceneByMode[addMode];
   const desktopSceneLabel = `${modeLabels[addMode]} archive-building room`;
-  const mobileSceneByMode = {
-    "voice-sound": archiveBuildingMobileScenes.recording,
-    "photo-video": archiveBuildingMobileScenes.study,
-    "letter-journal": archiveBuildingMobileScenes.writing
-  } as const;
-
-  const mobileTitleByMode = {
-    "voice-sound": "THE RECORDING ROOM",
-    "photo-video": "THE STUDY",
-    "letter-journal": "THE WRITING ROOM"
-  } as const;
-
-  const mobileSubtitleByMode = {
-    "voice-sound": "Let them hear you in your own voice.",
-    "photo-video": "Preserve the moments they will want to see.",
-    "letter-journal": "Leave behind the words only you can write."
-  } as const;
-
-  const mobileScene = mobileSceneByMode[addMode];
-  const mobileSceneTitle = mobileTitleByMode[addMode];
-  const mobileSceneSubtitle = mobileSubtitleByMode[addMode];
 
   return (
     <>
@@ -534,14 +508,9 @@ export default async function AddMemoryPage({
         ) : null}
       </ArchiveBuildingShell>
 
-      <ArchiveMobileScene
-        image={{ ...mobileScene, priority: true }}
-        sceneLabel="Add Memory mobile archive room"
-        title={mobileSceneTitle}
-        subtitle={mobileSceneSubtitle}
-        className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
-      >
-<div className="relative z-10 mx-auto max-w-3xl">
+      <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-12 text-archive-ivory sm:px-8 lg:hidden">
+      <DesignBackdrop />
+      <div className="relative z-10 mx-auto max-w-3xl">
         <nav className="pb-10">
           <Link
             href={`/archive/${archive.slug}`}
@@ -689,7 +658,7 @@ export default async function AddMemoryPage({
           </div>
         </AddMemoryForm>
       </div>
-      </ArchiveMobileScene>
+      </main>
     </>
   );
 }

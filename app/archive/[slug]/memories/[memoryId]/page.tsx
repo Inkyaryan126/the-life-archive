@@ -7,8 +7,6 @@ import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 import { formatMemoryDate, prettifyType } from "@/lib/format";
 import { deleteMemoryAction } from "./actions";
-import { ArchiveMobileScene } from "@/components/archive-building/ArchiveBuildingShell";
-import { archiveBuildingMobileScenes } from "@/lib/archive-building-scenes";
 
 export const dynamic = "force-dynamic";
 
@@ -48,14 +46,6 @@ export default async function MemoryPage({ params, searchParams }: MemoryPagePro
 
   return (
     <main className="relative min-h-screen overflow-hidden px-5 py-6 text-archive-ivory sm:px-8">
-        <ArchiveMobileScene
-          image={{ ...archiveBuildingMobileScenes.study, priority: true }}
-          sceneLabel="Memory detail mobile study"
-          title={"A PRESERVED MEMORY"}
-          subtitle="Some moments deserve to be entered slowly."
-          backgroundOnly
-        />
-
       <DesignBackdrop />
 
       <div className="relative z-10 mx-auto max-w-4xl">

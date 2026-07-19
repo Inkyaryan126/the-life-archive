@@ -246,13 +246,38 @@ function GrandHallHero({
   ];
 
   return (
-    <header className="relative overflow-hidden bg-black px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+    <header className="relative overflow-hidden bg-black px-4 pb-16 pt-5 sm:px-6 lg:px-8">
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.48),rgba(0,0,0,0.06)_34%,rgba(7,6,5,0.86)_94%)]"
       />
+      <nav className="relative z-20 mx-auto flex w-full max-w-[1280px] flex-col gap-5 border-b border-archive-gold/16 pb-5 sm:flex-row sm:items-center sm:justify-between">
+        <Link
+          className="inline-flex rounded-xl transition hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
+          href="/"
+        >
+          <SiteLogo width={230} height={58} />
+        </Link>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm font-semibold text-archive-ivory/78 sm:justify-end">
+          <Link className="transition hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/legacy-question">
+            Legacy Question
+          </Link>
+          <Link className="transition hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href={myArchivesHref}>
+            My Archives
+          </Link>
+          <Link className="transition hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/after-a-loss">
+            Support After A Loss
+          </Link>
+          <Link
+            className="rounded-full border border-archive-gold/35 px-5 py-2.5 text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.06] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
+            href="/create"
+          >
+            Create Archive
+          </Link>
+        </div>
+      </nav>
 
-      <section className="relative z-10 mx-auto w-full max-w-[1280px]">
+      <section className="relative z-10 mx-auto mt-10 w-full max-w-[1280px]">
         <div className="hidden lg:block">
           <div className="relative mx-auto aspect-[1672/941] w-full overflow-hidden shadow-[0_40px_140px_rgba(0,0,0,0.74)]">
             <Image

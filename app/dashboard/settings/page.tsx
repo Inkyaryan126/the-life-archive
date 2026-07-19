@@ -1,23 +1,18 @@
 import Link from "next/link";
-import {
- redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import {
   ArchiveBuildingShell,
-  ArchiveOverlayRegion,
-  ArchiveMobileScene
+  ArchiveOverlayRegion
 } from "@/components/archive-building/ArchiveBuildingShell";
 import {
   changePasswordAction,
   saveProfileAction
 } from "@/app/dashboard/settings/actions";
 import { getAccountContext } from "@/lib/account";
-import {
-  archiveBuildingMobileScenes,
-  archiveBuildingScenes
-} from "@/lib/archive-building-scenes";
+import { archiveBuildingScenes } from "@/lib/archive-building-scenes";
 import { FormButton } from "@/components/auth/FormButton";
 import { PasswordFields } from "@/components/auth/PasswordFields";
 import { signOutAction } from "@/app/login/actions";
@@ -215,14 +210,10 @@ export default async function DashboardSettingsPage({
         </ArchiveOverlayRegion>
       </ArchiveBuildingShell>
 
-      <ArchiveMobileScene
-        image={{ ...archiveBuildingMobileScenes.settings, priority: true }}
-        sceneLabel="Settings mobile archive room"
-        title={"SETTINGS"}
-        subtitle={"Protect the archive. Shape what remains."}
-        className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
-      >
-<div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
+      <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-6 text-archive-ivory sm:px-8 sm:py-8 lg:hidden">
+      <DesignBackdrop />
+
+      <div className="relative z-10 mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
         <AppSidebar
           active="settings"
           archiveSlug={account.defaultArchive?.slug ?? null}
@@ -436,7 +427,7 @@ export default async function DashboardSettingsPage({
           </div>
         </div>
       </div>
-      </ArchiveMobileScene>
+      </main>
     </>
   );
 }
