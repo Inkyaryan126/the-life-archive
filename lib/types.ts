@@ -78,3 +78,40 @@ export type ArchiveStore = {
   legacyInstructions: LegacyInstruction[];
   visitorMessages?: VisitorMessage[];
 };
+
+export type SharePassStatus = "active" | "disabled" | "revoked";
+
+export type Keepsake = {
+  id: string;
+  archiveId: string;
+  keepsakeCode: string;
+  productType: string;
+  activeSharePassId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ArchiveSharePass = {
+  id: string;
+  keepsakeId: string;
+  archiveId: string;
+  createdBy: string | null;
+  passName: string;
+  status: SharePassStatus;
+  useCount: number;
+  lastScannedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  selectedMemoryIds?: string[];
+};
+
+export type GuestPassMemory = {
+  id: string;
+  title: string;
+  type: MemoryType;
+  content: string | null;
+  mediaUrl: string | null;
+  signedMediaUrl?: string | null;
+  memoryDate: string | null;
+  tags: string[];
+};
