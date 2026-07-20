@@ -59,6 +59,7 @@
   transform-origin: center center;
   will-change: transform;
   backface-visibility: hidden;
+  filter: drop-shadow(0 0 16px rgba(229, 207, 154, 0.32));
 }
 
 .phoneRevealMobile {

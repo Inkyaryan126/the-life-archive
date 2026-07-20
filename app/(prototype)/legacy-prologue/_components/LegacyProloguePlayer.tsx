@@ -85,7 +85,7 @@ function preloadImage(src: string) {
 
 export function LegacyProloguePlayer({
   scenes,
-  finalPrimaryLabel = "Leave Your Message",
+  finalPrimaryLabel = "Answer the Legacy Question",
   finalSecondaryHref,
   finalSecondaryLabel = "I Already Have an Archive",
   isExiting = false,
@@ -200,15 +200,26 @@ export function LegacyProloguePlayer({
   }, [activeIndex, getSceneImageSrc, timeline]);
 
   useEffect(() => {
-    const audio = new Audio(SOUND_BED_SRC);
+    const audio = new Audio();
     audio.preload = "auto";
     audio.volume = SOUND_VOLUME;
     audio.muted = false;
+
+    const canPlayM4a = Boolean(audio.canPlayType("audio/mp4") || audio.canPlayType("audio/m4a"));
+    const canPlayMp3 = Boolean(audio.canPlayType("audio/mpeg"));
+
+    const selectedSrc = canPlayM4a
+      ? "/audio/legacy-prologue-sound-bed.m4a"
+      : canPlayMp3
+        ? "/audio/legacy-prologue-sound-bed.mp3"
+        : SOUND_BED_SRC;
+
+    audio.src = selectedSrc;
     audioRef.current = audio;
 
     const log = (event: string, detail: Record<string, unknown> = {}) => {
       logPrologueAudio(event, {
-        src: SOUND_BED_SRC,
+        src: selectedSrc,
         currentTime: Number(audio.currentTime.toFixed(2)),
         duration: Number.isFinite(audio.duration) ? Number(audio.duration.toFixed(2)) : null,
         paused: audio.paused,
@@ -609,7 +620,7 @@ export function LegacyProloguePlayer({
   const activeOpacity = 1;
 
   const introBlack = activeIndex === 0 && activeFrame.introCaption && !isComplete
-    ? clamp((INTRO_BLACK_DURATION - activeImageElapsed) / 500, 0, 1)
+    ? clamp((INTRO_BLACK_DURATION - activeImageElapsed) / 500, 0, 0.82)
     : 0;
   const chapterEndBlack = nextFrame && nextFrame.chapterId !== activeFrame.chapterId
     ? clamp((activeImageElapsed - (activeFrame.duration - 650)) / 650, 0, 0.62)
