@@ -60,7 +60,7 @@ export function PasswordFields({
             minLength={10}
             maxLength={128}
             placeholder={passwordPlaceholder}
-            className="w-full rounded-2xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 pr-28 text-base text-archive-ivory outline-none transition placeholder:text-archive-ivory/36 focus:border-archive-gold"
+            className="w-full rounded-2xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 pr-28 text-base text-archive-ivory outline-none transition placeholder:text-archive-ivory/60 focus:border-archive-gold"
           />
           <button
             type="button"
@@ -88,7 +88,7 @@ export function PasswordFields({
             minLength={10}
             maxLength={128}
             placeholder={confirmPlaceholder}
-            className="w-full rounded-2xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 text-base text-archive-ivory outline-none transition placeholder:text-archive-ivory/36 focus:border-archive-gold"
+            className="w-full rounded-2xl border border-archive-gold/20 bg-archive-obsidian px-4 py-3 text-base text-archive-ivory outline-none transition placeholder:text-archive-ivory/60 focus:border-archive-gold"
           />
         </div>
       ) : null}

@@ -109,19 +109,20 @@ export default async function DashboardSettingsPage({
               {avatarLabel}
             </p>
             <label className="grid gap-1">
-              <span className="text-xs font-semibold text-archive-ivory/72">
+              <span className="text-xs font-semibold text-archive-ivory/80">
                 Display name
               </span>
               <input
                 name="displayName"
                 defaultValue={displayNameValue}
                 maxLength={60}
-                className="rounded-md border border-archive-gold/18 bg-black/38 px-3 py-1.5 text-sm text-archive-ivory outline-none focus:border-archive-gold"
+                placeholder="Enter display name"
+                className="w-full rounded-md border border-archive-gold/35 bg-archive-obsidian/80 px-3 py-1.5 text-sm text-archive-ivory outline-none placeholder:text-archive-ivory/60 focus:border-archive-gold focus:ring-1 focus:ring-archive-gold/50"
               />
             </label>
             <FormButton
               pendingText="Saving..."
-              className="w-fit rounded-md bg-archive-gold/88 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-archive-obsidian transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+              className="w-fit rounded-md bg-archive-gold px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-archive-obsidian shadow-sm transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
             >
               Save Profile
             </FormButton>
@@ -138,13 +139,13 @@ export default async function DashboardSettingsPage({
               {account.defaultArchive?.archiveName ?? "No archive yet"}
             </h2>
             {bioValue ? (
-              <p className="mt-2 line-clamp-2 text-xs leading-5 text-archive-ivory/62">
+              <p className="mt-2 line-clamp-2 text-xs leading-5 text-archive-ivory/70">
                 {bioValue}
               </p>
             ) : null}
             <Link
               href={account.defaultArchive?.slug ? `/archive/${account.defaultArchive.slug}/edit` : "/create"}
-              className="mt-3 w-fit border-b border-archive-gold/34 pb-0.5 text-xs font-semibold uppercase tracking-[0.12em] text-archive-champagne transition hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+              className="mt-3 inline-flex w-fit items-center rounded-md bg-archive-gold px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-archive-obsidian shadow-sm transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
             >
               {account.defaultArchive?.slug ? "Edit Archive" : "Create Archive"}
             </Link>
@@ -157,15 +158,15 @@ export default async function DashboardSettingsPage({
           ariaLabel="Privacy and access"
         >
           <div className="flex h-full flex-col justify-center">
-            <p className="break-all text-sm leading-5 text-archive-ivory/78">
+            <p className="break-all text-sm leading-5 text-archive-ivory/85">
               {account.user.email}
             </p>
-            <p className="mt-2 text-xs leading-5 text-archive-ivory/56">
+            <p className="mt-2 text-xs leading-5 text-archive-ivory/70">
               Archive privacy is managed from each archive.
             </p>
             <Link
               href="/dashboard"
-              className="mt-3 w-fit border-b border-archive-gold/34 pb-0.5 text-xs font-semibold uppercase tracking-[0.12em] text-archive-champagne transition hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+              className="mt-3 inline-flex w-fit items-center rounded-md bg-archive-gold px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-archive-obsidian shadow-sm transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
             >
               My Archives
             </Link>
@@ -181,7 +182,7 @@ export default async function DashboardSettingsPage({
             <input type="hidden" name="next" value="/dashboard/settings" />
             <div className="grid grid-cols-2 gap-2">
               <label className="grid gap-1">
-                <span className="text-xs font-semibold text-archive-ivory/72">
+                <span className="text-xs font-semibold text-archive-ivory/80">
                   New password
                 </span>
                 <input
@@ -189,11 +190,12 @@ export default async function DashboardSettingsPage({
                   type="password"
                   autoComplete="new-password"
                   required
-                  className="rounded-md border border-archive-gold/18 bg-black/38 px-3 py-1.5 text-sm text-archive-ivory outline-none focus:border-archive-gold"
+                  placeholder="New password"
+                  className="w-full rounded-md border border-archive-gold/35 bg-archive-obsidian/80 px-3 py-1.5 text-sm text-archive-ivory outline-none placeholder:text-archive-ivory/60 focus:border-archive-gold focus:ring-1 focus:ring-archive-gold/50"
                 />
               </label>
               <label className="grid gap-1">
-                <span className="text-xs font-semibold text-archive-ivory/72">
+                <span className="text-xs font-semibold text-archive-ivory/80">
                   Confirm
                 </span>
                 <input
@@ -201,13 +203,14 @@ export default async function DashboardSettingsPage({
                   type="password"
                   autoComplete="new-password"
                   required
-                  className="rounded-md border border-archive-gold/18 bg-black/38 px-3 py-1.5 text-sm text-archive-ivory outline-none focus:border-archive-gold"
+                  placeholder="Confirm password"
+                  className="w-full rounded-md border border-archive-gold/35 bg-archive-obsidian/80 px-3 py-1.5 text-sm text-archive-ivory outline-none placeholder:text-archive-ivory/60 focus:border-archive-gold focus:ring-1 focus:ring-archive-gold/50"
                 />
               </label>
             </div>
             <FormButton
               pendingText="Updating..."
-              className="w-fit rounded-md bg-archive-gold/88 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-archive-obsidian transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+              className="w-fit rounded-md bg-archive-gold px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-archive-obsidian shadow-sm transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
             >
               Change Password
             </FormButton>
