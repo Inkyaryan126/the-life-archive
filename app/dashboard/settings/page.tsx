@@ -122,7 +122,12 @@ export default async function DashboardSettingsPage({
             </label>
             <FormButton
               pendingText="Saving..."
-              className="w-fit rounded-md border border-[#f0d77a] !bg-[#d4af37] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] !text-[#0a0908] shadow-md transition hover:!bg-[#f0d77a] hover:!text-[#0a0908] focus:outline-none focus:ring-2 focus:ring-[#d4af37]/70"
+              style={{
+                backgroundColor: "#d4af37",
+                color: "#0a0908",
+                borderColor: "#f0d77a"
+              }}
+              className="w-fit rounded-md border px-4 py-1.5 text-xs font-bold uppercase tracking-[0.12em] shadow-md transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/70"
             >
               Save Profile
             </FormButton>
