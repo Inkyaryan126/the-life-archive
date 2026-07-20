@@ -117,7 +117,7 @@ export default async function DashboardSettingsPage({
                 defaultValue={displayNameValue}
                 maxLength={60}
                 placeholder="Enter display name"
-                className="w-full rounded-md border border-archive-gold/35 bg-archive-obsidian/80 px-3 py-1.5 text-sm text-archive-ivory outline-none placeholder:text-archive-ivory/60 focus:border-archive-gold focus:ring-1 focus:ring-archive-gold/50"
+                className="settings-dark-input w-full rounded-md border border-archive-gold/35 bg-archive-obsidian/80 px-3 py-1.5 text-sm text-archive-ivory outline-none placeholder:text-archive-ivory/60 focus:border-archive-gold focus:ring-1 focus:ring-archive-gold/50"
               />
             </label>
             <FormButton
@@ -191,7 +191,7 @@ export default async function DashboardSettingsPage({
                   autoComplete="new-password"
                   required
                   placeholder="New password"
-                  className="w-full rounded-md border border-archive-gold/35 bg-archive-obsidian/80 px-3 py-1.5 text-sm text-archive-ivory outline-none placeholder:text-archive-ivory/60 focus:border-archive-gold focus:ring-1 focus:ring-archive-gold/50"
+                  className="settings-dark-input w-full rounded-md border border-archive-gold/35 bg-archive-obsidian/80 px-3 py-1.5 text-sm text-archive-ivory outline-none placeholder:text-archive-ivory/60 focus:border-archive-gold focus:ring-1 focus:ring-archive-gold/50"
                 />
               </label>
               <label className="grid gap-1">
@@ -204,7 +204,7 @@ export default async function DashboardSettingsPage({
                   autoComplete="new-password"
                   required
                   placeholder="Confirm password"
-                  className="w-full rounded-md border border-archive-gold/35 bg-archive-obsidian/80 px-3 py-1.5 text-sm text-archive-ivory outline-none placeholder:text-archive-ivory/60 focus:border-archive-gold focus:ring-1 focus:ring-archive-gold/50"
+                  className="settings-dark-input w-full rounded-md border border-archive-gold/35 bg-archive-obsidian/80 px-3 py-1.5 text-sm text-archive-ivory outline-none placeholder:text-archive-ivory/60 focus:border-archive-gold focus:ring-1 focus:ring-archive-gold/50"
                 />
               </label>
             </div>

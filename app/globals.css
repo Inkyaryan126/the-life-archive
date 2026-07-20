@@ -729,3 +729,25 @@ select {
     animation: none;
   }
 }
+
+/* Settings room form readability */
+.settings-dark-input {
+  color: #f7f1e5;
+  background-color: rgba(10, 9, 8, 0.88);
+  caret-color: #d4af37;
+}
+
+.settings-dark-input::placeholder {
+  color: rgba(247, 241, 229, 0.62);
+  opacity: 1;
+}
+
+.settings-dark-input:-webkit-autofill,
+.settings-dark-input:-webkit-autofill:hover,
+.settings-dark-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f7f1e5;
+  caret-color: #d4af37;
+  box-shadow: 0 0 0 1000px rgba(10, 9, 8, 0.96) inset;
+  transition: background-color 9999s ease-out 0s;
+}
+
