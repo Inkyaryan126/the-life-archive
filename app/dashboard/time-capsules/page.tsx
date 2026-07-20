@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
  redirect } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
+import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 import { DesignBackdrop, HeartbeatLogoDivider, SiteLogo } from "@/components/SiteDesign";
 import {
   ArchiveBuildingShell,
@@ -150,22 +151,11 @@ export default async function TimeCapsulesPage({
         />
 
         <div className="min-w-0">
-          <nav className="relative z-10 flex flex-col gap-4 border-b border-archive-gold/20 pb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 lg:hidden">
-            <Link href="/" className="block">
-              <SiteLogo width={240} height={60} />
-            </Link>
-            <div className="flex flex-wrap items-center gap-4 sm:justify-end sm:gap-6">
-              <Link href="/dashboard" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">
-                My Archives
-              </Link>
-              <Link href="/dashboard/settings" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">
-                Settings
-              </Link>
-              <Link href="/dashboard/time-capsules" className="text-sm font-semibold text-archive-gold sm:text-base">
-                Time Capsules
-              </Link>
-            </div>
-          </nav>
+          <MobileArchiveHeader
+            active="time-capsules"
+            archiveSlug={account.defaultArchive?.slug ?? null}
+            signedIn={true}
+          />
 
           <div className="pb-20 pt-10 sm:pt-14">
             <header className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end lg:gap-10">

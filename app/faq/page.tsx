@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
+import { SiteFooter } from "@/components/SiteFooter";
+import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 import {
   exampleArchivePath,
   lastUpdatedDate,
@@ -74,36 +76,34 @@ const faqs = [
 
 export default function FaqPage() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-8 text-archive-ivory sm:px-8 lg:px-10">
+    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian text-archive-ivory">
       <DesignBackdrop />
-      <div className="relative z-10 mx-auto w-full max-w-5xl">
-        <nav className="flex flex-col gap-4 border-b border-archive-gold/18 pb-5 sm:flex-row sm:items-center sm:justify-between">
+
+      <div className="relative z-10 mx-auto w-full max-w-5xl px-4 pt-4 sm:px-6 lg:px-8">
+        <MobileArchiveHeader active="faq" />
+        <nav className="hidden items-center justify-between border-b border-archive-gold/14 pb-5 pt-4 lg:flex">
           <Link href="/">
             <SiteLogo width={220} height={54} />
           </Link>
-          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-archive-ivory/72">
-            <Link className="hover:text-archive-gold" href={exampleArchivePath}>
-              Example Archive
+          <div className="flex items-center gap-6 text-sm font-semibold text-archive-ivory/70">
+            <Link className="hover:text-archive-gold" href="/">
+              Grand Hall
             </Link>
-            <Link className="hover:text-archive-gold" href="/privacy">
-              Privacy
-            </Link>
-            <Link className="hover:text-archive-gold" href="/terms">
-              Terms
+            <Link className="hover:text-archive-gold" href="/create">
+              Create Archive
             </Link>
           </div>
         </nav>
 
-        <header className="py-14 sm:py-16">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-archive-gold">
-            FAQ
+        <header className="py-16 sm:py-20">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+            Frequently Asked Questions
           </p>
           <h1 className="mt-4 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
             Questions before you begin.
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-8 text-archive-ivory/70 sm:text-lg">
-            Last updated {lastUpdatedDate}. These answers reflect the current
-            product behavior in this repository.
+            Last updated {lastUpdatedDate}. These answers reflect the current product behavior.
           </p>
         </header>
 
@@ -122,15 +122,9 @@ export default function FaqPage() {
             </article>
           ))}
         </section>
-
-        <footer className="border-t border-archive-gold/14 py-8 text-sm leading-6 text-archive-ivory/60">
-          Need help with a specific archive or order?{" "}
-          <a className="font-semibold text-archive-champagne underline-offset-4 hover:underline" href={`mailto:${publicSupportEmail}`}>
-            Contact support
-          </a>
-          .
-        </footer>
       </div>
+
+      <SiteFooter className="mt-10" />
     </main>
   );
 }

@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import {
- DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
+import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
+import { SiteFooter } from "@/components/SiteFooter";
+import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 import {
   ArchiveBuildingShell,
   ArchiveOverlayRegion,
@@ -780,164 +781,10 @@ export default async function KeepsakesPage({
               >
                 Choose a Keepsake
               </a>
-              <Link
-                href={dashboardHref}
-                className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-8 py-4 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] sm:text-base"
-              >
-                {isSignedIn ? "Return to Dashboard" : "Sign In to Your Archive"}
-              </Link>
             </div>
-          </div>
-          <div className="rounded-[2.5rem] border border-archive-gold/16 bg-white/[0.025] p-4 shadow-luxury">
-            <ProductVisual
-              image={activeKeepsakes[0]?.image}
-              type={activeKeepsakes[0]?.visual || "keychain"}
-              name={activeKeepsakes[0]?.name || "The Life Archive Member Card"}
-            />
           </div>
         </header>
-
-        <section className="border-t border-archive-gold/15 py-14 sm:py-16">
-          <div className="grid gap-6 md:grid-cols-5">
-            {storeSteps.map((step, index) => (
-              <div key={step} className="border-t border-archive-gold/20 pt-5">
-                <span className="font-serif text-4xl text-archive-gold/45">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <p className="mt-4 text-base leading-7 text-archive-ivory/72">
-                  {step}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="border-t border-archive-gold/15 py-14 sm:py-16">
-          <div className="grid gap-8 lg:grid-cols-[0.72fr_1fr] lg:items-start">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.26em] text-archive-gold">
-                After Checkout
-              </p>
-              <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-                Before we make it
-              </h2>
-              <p className="mt-5 text-base leading-7 text-archive-ivory/66">
-                Every custom keepsake is checked by a real person. We confirm the archive, personalization, names, dates, QR code, and design proof before engraving or production begins.
-              </p>
-            </div>
-            <ol className="grid gap-4 md:grid-cols-2">
-              {productionSteps.map((step, index) => (
-                <li
-                  className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 text-base leading-7 text-archive-ivory/72"
-                  key={step}
-                >
-                  <span className="font-serif text-3xl text-archive-gold/60">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <p className="mt-3">{step}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        <section className="py-16" id="collection">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.26em] text-archive-gold">
-              Featured Collection
-            </p>
-            <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-              Start with the card or keepsake that fits the archive.
-            </h2>
-          </div>
-          <div className="mt-10 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))]">
-            {activeKeepsakes.map((product, index) => (
-              <ProductCard
-                key={product.name}
-                archiveSlug={checkoutArchiveSlug}
-                product={product}
-                badge={index === 0 ? "Featured / Best Seller" : undefined}
-              />
-            ))}
-          </div>
-        </section>
-
-        {activeKeepsakes.map((product, index) => (
-          <ProductShowcase
-            key={product.name}
-            archiveSlug={checkoutArchiveSlug}
-            product={product}
-            badge={index === 0 ? "Featured / Best Seller" : undefined}
-            reverse={index % 2 === 1}
-          />
-        ))}
-
-        <section className="border-t border-archive-gold/15 py-16 sm:py-20">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.26em] text-archive-gold">
-              Coming Soon
-            </p>
-            <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-              Future keepsakes in development.
-            </h2>
-            <p className="mt-5 text-base leading-7 text-archive-ivory/66">
-              These formats remain part of the catalog, but they are not available for checkout yet.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(18rem,1fr))]">
-            {comingSoonKeepsakes.map((product) => (
-              <ProductCard
-                key={product.name}
-                product={product}
-                isComingSoon
-              />
-            ))}
-          </div>
-        </section>
-
-        <section className="border-t border-archive-gold/15 py-20 sm:py-24">
-          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.26em] text-archive-gold">
-                Built For Memory
-              </p>
-              <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-                A keepsake should feel worthy before anyone scans it.
-              </h2>
-            </div>
-            <div className="grid gap-8 md:grid-cols-2">
-              {trustPillars.map((pillar) => (
-                <TrustPillar key={pillar.title} {...pillar} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="mb-16 rounded-[2.5rem] border border-archive-gold/22 bg-archive-obsidian/92 p-8 text-center shadow-luxury sm:p-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-archive-gold">
-            The Life Archive Keepsakes
-          </p>
-          <h2 className="mx-auto mt-4 max-w-3xl font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-            Order the launch keepsake that fits your archive.
-          </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-archive-ivory/68">
-            Start with the Member Card for a living archive, or choose a memorial keychain, memorial card, dog tag, or plaque for remembrance use. After checkout, you will personalize the keepsake around the Life Archive it belongs to.
-          </p>
-          <div className="mt-9 flex flex-wrap justify-center gap-4">
-            <a
-              href="#collection"
-              className="rounded-full bg-archive-gold px-8 py-4 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne sm:text-base"
-            >
-              Choose a Keepsake
-            </a>
-            <Link
-              href={dashboardHref}
-              className="rounded-full border border-archive-gold/20 px-8 py-4 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:text-archive-ivory sm:text-base"
-            >
-              {isSignedIn ? "Return to Dashboard" : "Sign In to Your Archive"}
-            </Link>
-          </div>
-        </section>
+        <SiteFooter archiveSlug={checkoutArchiveSlug} signedIn={isSignedIn} className="mt-12 rounded-3xl" />
       </div>
       </ArchiveMobileScene>
     </>

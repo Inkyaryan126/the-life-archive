@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DesignBackdrop, HeartbeatLogoDivider, SiteLogo } from "@/components/SiteDesign";
+import { SiteFooter } from "@/components/SiteFooter";
+import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 import {
   ArchiveBuildingShell,
   ArchiveOverlayRegion,
@@ -403,37 +405,24 @@ export default async function EternismPage() {
         subtitle="Memory, identity, and human continuity."
         className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
       >
-        <main className="relative min-h-screen overflow-hidden bg-archive-obsidian/90 px-4 py-8 text-archive-ivory sm:px-8">
-          <DesignBackdrop />
-          <div className="relative z-10 mx-auto w-full max-w-5xl">
-            <nav className="flex flex-col gap-4 border-b border-archive-gold/18 pb-5 sm:flex-row sm:items-center sm:justify-between">
-              <Link href="/" aria-label="Return to Grand Hall">
-                <SiteLogo width={220} height={54} />
-              </Link>
-              <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-archive-ivory/72">
-                <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="/">
-                  Grand Hall
-                </Link>
-                <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="#problem">
-                  The Problem
-                </Link>
-                <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="#two-fronts">
-                  Two Fronts
-                </Link>
-                <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="#continuity">
-                  Continuity
-                </Link>
-                <Link
-                  className="rounded-full border border-archive-gold/35 px-4 py-1.5 text-xs uppercase tracking-[0.14em] text-archive-gold hover:bg-archive-gold/10 focus:outline-none focus:ring-2 focus:ring-archive-gold/50"
-                  href="/create"
-                >
-                  Begin Archive
-                </Link>
-              </div>
-            </nav>
-            <EternismContentBody />
-          </div>
-        </main>
+        <div className="relative z-10 mx-auto w-full max-w-5xl pt-3">
+          <MobileArchiveHeader
+            active="eternism"
+            archiveSlug={account.defaultArchive?.slug ?? null}
+            signedIn={Boolean(account.user)}
+          />
+          <main className="relative mt-6 min-h-screen overflow-hidden rounded-3xl border border-archive-gold/18 bg-archive-obsidian/90 px-4 py-8 text-archive-ivory sm:px-8">
+            <DesignBackdrop />
+            <div className="relative z-10 mx-auto w-full max-w-5xl">
+              <EternismContentBody />
+            </div>
+          </main>
+          <SiteFooter
+            archiveSlug={account.defaultArchive?.slug ?? null}
+            signedIn={Boolean(account.user)}
+            className="mt-8 rounded-3xl"
+          />
+        </div>
       </ArchiveMobileScene>
     </>
   );

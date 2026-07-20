@@ -7,6 +7,7 @@ import { EditArchiveForm } from "@/components/EditArchiveForm";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { AccessPrompt } from "@/components/AccessPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
+import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -63,23 +64,12 @@ export default async function EditArchivePage({ params }: EditArchivePageProps) 
         />
 
         <div className="min-w-0">
-          {/* Navigation */}
-          <nav className="flex flex-col gap-4 border-b border-archive-gold/20 pb-10 sm:flex-row sm:items-center sm:justify-between lg:hidden">
-        <Link href="/">
-          <SiteLogo width={240} height={60} />
-        </Link>
-        <div className="flex flex-wrap items-center gap-4 sm:justify-end sm:gap-6">
-              <Link
-                href="/dashboard"
-                className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline sm:text-base"
-              >
-              Dashboard
-              </Link>
-              <span className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">
-                Admin Archive Portal
-              </span>
-            </div>
-          </nav>
+          {/* Mobile Navigation */}
+          <MobileArchiveHeader
+            active="settings"
+            archiveSlug={archive.slug}
+            signedIn={true}
+          />
 
           {/* Edit Form Shell */}
           <div className="pt-10 sm:pt-14">

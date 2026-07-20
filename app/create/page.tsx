@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { getAccountContext } from "@/lib/account";
 import { createArchiveAction } from "./actions";
-import {
-  DesignBackdrop,
-  SiteLogo
-} from "@/components/SiteDesign";
+import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
+import { SiteFooter } from "@/components/SiteFooter";
+import { StandalonePageHeader } from "@/components/archive-building/StandalonePageHeader";
 import {
   archiveRelationshipLabels,
   archiveRelationships
@@ -28,20 +27,15 @@ export default async function CreateArchivePage({
     resolvedSearchParams?.relationshipToOwner === "self" ? "self" : "other";
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-6 py-12 text-archive-ivory lg:px-12 xl:px-16 sm:py-14">
+    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian text-archive-ivory">
       <DesignBackdrop />
-      <div className="relative z-10 mx-auto w-full max-w-[96rem]">
-        <nav className="flex flex-col gap-4 pb-10 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/">
-            <SiteLogo width={240} height={60} />
-          </Link>
-          <Link
-            href={exampleArchivePath}
-            className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base"
-          >
-            View real example archive
-          </Link>
-        </nav>
+      <StandalonePageHeader
+        title="Create an Archive"
+        backHref="/"
+        backLabel="Return to Grand Hall"
+        signedIn={Boolean(account.user)}
+      />
+      <div className="relative z-10 mx-auto w-full max-w-[96rem] px-6 py-10 lg:px-12 xl:px-16">
 
         <section className="pb-14">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
@@ -273,6 +267,7 @@ export default async function CreateArchivePage({
           </form>
         )}
       </div>
+      <SiteFooter signedIn={Boolean(account.user)} className="mt-10" />
     </main>
   );
 }

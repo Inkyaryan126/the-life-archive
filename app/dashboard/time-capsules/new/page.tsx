@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
+import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 import { getAccountContext } from "@/lib/account";
 import { createTimeCapsuleAction } from "../actions";
 import { loadOwnerTimeCapsuleArchiveOptions } from "../data";
@@ -63,22 +64,11 @@ export default async function NewTimeCapsulePage() {
             showArchiveActions={Boolean(account.defaultArchive?.slug)}
           />
           <div className="min-w-0">
-            <nav className="relative z-10 flex flex-col gap-4 border-b border-archive-gold/20 pb-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 lg:hidden">
-              <Link href="/" className="block">
-                <SiteLogo width={240} height={60} />
-              </Link>
-              <div className="flex flex-wrap items-center gap-4 sm:justify-end sm:gap-6">
-                <Link href="/dashboard" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">
-                  My Archives
-                </Link>
-                <Link href="/dashboard/settings" className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold sm:text-base">
-                  Settings
-                </Link>
-                <Link href="/dashboard/time-capsules" className="text-sm font-semibold text-archive-gold sm:text-base">
-                  Time Capsules
-                </Link>
-              </div>
-            </nav>
+            <MobileArchiveHeader
+              active="time-capsules"
+              archiveSlug={account.defaultArchive?.slug ?? null}
+              signedIn={true}
+            />
 
             <div className="pb-20 pt-10 sm:pt-14">
               <section className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">

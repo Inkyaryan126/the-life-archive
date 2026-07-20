@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { setNewPasswordAction } from "./actions";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
+import { StandalonePageHeader } from "@/components/archive-building/StandalonePageHeader";
 import { FormButton } from "@/components/auth/FormButton";
 import { PasswordFields } from "@/components/auth/PasswordFields";
 import { getAccountContext } from "@/lib/account";
@@ -57,12 +58,10 @@ export default async function ResetPasswordPage({
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-12 text-archive-ivory sm:px-8">
+    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian text-archive-ivory">
       <DesignBackdrop />
-      <div className="relative z-10 mx-auto max-w-sm">
-        <Link href="/" className="mb-8 block text-center">
-          <SiteLogo width={200} height={50} className="mx-auto" />
-        </Link>
+      <StandalonePageHeader backHref="/login" backLabel="Return to Log In" />
+      <div className="relative z-10 mx-auto max-w-sm px-5 py-12">
         <form
           action={setNewPasswordAction}
           className="grid gap-5 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-8 shadow-luxury"

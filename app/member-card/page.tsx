@@ -13,6 +13,8 @@ import { getAccountContext } from "@/lib/account";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import { AccessPrompt } from "@/components/AccessPrompt";
 import { AppSidebar } from "@/components/AppSidebar";
+import { SiteFooter } from "@/components/SiteFooter";
+import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 import {
   ArchiveBuildingShell,
   ArchiveOverlayRegion,
@@ -243,26 +245,12 @@ export default async function MemberCardPage({
         />
 
         <div className="min-w-0">
-          <div className="no-print relative flex items-center justify-between border-b border-archive-gold/20 pb-5 lg:hidden">
-            <Link
-              href="/"
-              className="font-serif text-lg tracking-wide text-archive-ivory"
-            >
-              The Life Archive Home
-            </Link>
-            <div className="flex items-center gap-4">
-              {user ? (
-                <Link
-                  href="/dashboard"
-                  className="text-sm font-semibold text-archive-champagne underline-offset-4 hover:underline"
-                >
-                  My Archives
-                </Link>
-              ) : null}
-              <span className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-                Member Card
-              </span>
-            </div>
+          <div className="no-print relative pt-2 lg:hidden">
+            <MobileArchiveHeader
+              active="member-card"
+              archiveSlug={livingArchive.slug}
+              signedIn={Boolean(user)}
+            />
           </div>
 
           <section className="no-print relative mx-auto max-w-3xl pb-10 pt-14 text-center sm:pt-20">
@@ -383,6 +371,7 @@ export default async function MemberCardPage({
               </p>
             </div>
           </section>
+          <SiteFooter archiveSlug={livingArchive.slug} signedIn={Boolean(user)} className="no-print mt-12" />
         </div>
       </div>
       </ArchiveMobileScene>

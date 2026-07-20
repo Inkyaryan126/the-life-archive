@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { SiteFooter } from "@/components/SiteFooter";
+import { StandalonePageHeader } from "@/components/archive-building/StandalonePageHeader";
 import { claimLegacyQuestionArchiveAction, requestFreshLegacyQuestionClaimEmailAction } from "./actions";
 import {
   getLegacyQuestionClaimOverviewByRawToken,
@@ -57,11 +59,14 @@ export default async function ClaimPage({
     Boolean(account.user && claim?.userId && account.user.id === claim.userId);
 
   return (
-    <main className="min-h-screen bg-[#11100e] px-4 py-8 text-[#f8f1e7] sm:px-6 lg:px-10">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-        <Link className="text-sm font-semibold text-[#d8b66f] underline-offset-4 hover:underline" href="/">
-          The Life Archive
-        </Link>
+    <main className="min-h-screen bg-[#11100e] text-[#f8f1e7]">
+      <StandalonePageHeader
+        title="Claim Archive"
+        backHref="/"
+        backLabel="Return to Grand Hall"
+        signedIn={Boolean(account.user)}
+      />
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-10">
 
         <section className="rounded-3xl border border-[#c9a45c]/18 bg-white/[0.04] p-6 shadow-[0_28px_70px_rgba(0,0,0,0.32)] sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a45c]">
@@ -174,6 +179,7 @@ export default async function ClaimPage({
           )}
         </section>
       </div>
+      <SiteFooter signedIn={Boolean(account.user)} className="mt-10" />
     </main>
   );
 }

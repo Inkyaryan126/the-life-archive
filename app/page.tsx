@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import grandHallDirectoryImage from "../public/images/archive-building/archive-map.png";
 import { SiteLogo } from "@/components/SiteDesign";
+import { SiteFooter } from "@/components/SiteFooter";
 import { GrandHallArrival } from "@/components/archive-building/ArchiveArrival";
 import { getAccountContext } from "@/lib/account";
 import { publicSupportEmail } from "@/lib/site-config";
@@ -191,9 +192,9 @@ export default async function HomePage() {
         timeCapsulesHref={timeCapsulesHref}
       />
       <BelowDirectoryContent timeCapsulesHref={timeCapsulesHref} />
-      <GrandHallFooter
-        myArchivesHref={myArchivesHref}
-        timeCapsulesHref={timeCapsulesHref}
+      <SiteFooter
+        archiveSlug={account.defaultArchive?.slug ?? null}
+        signedIn={isSignedIn}
       />
     </main>
   );
@@ -387,7 +388,7 @@ function GrandHallHero({
                 aria-label="The Life Archive directory"
                 className="mobile-directory-interface absolute left-[20.1%] top-[26.3%] flex h-[53.1%] w-[57.8%] flex-col"
               >
-                {mobileEntries.map((entry, index) => (
+                {mobileEntries.map((entry) => (
                   <Link
                     href={entry.href}
                     aria-label={entry.ariaLabel}
@@ -396,7 +397,6 @@ function GrandHallHero({
                         ? "bg-archive-gold/[0.055]"
                         : "hover:bg-archive-gold/[0.045]"
                     }`}
-                    style={{ animationDelay: `${7600 + index * 700}ms` }}
                     key={entry.title}
                   >
                     {entry.featured ? (
@@ -416,7 +416,20 @@ function GrandHallHero({
                 ))}
               </nav>
 
-              <div className="mobile-directory-intro pointer-events-none absolute inset-0 z-30 flex items-start justify-center bg-black pt-[12svh]">
+              <div
+                tabIndex={0}
+                role="button"
+                aria-label="Tap to skip intro animation"
+                onClick={(e) => {
+                  (e.currentTarget as HTMLElement).style.display = "none";
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    (e.currentTarget as HTMLElement).style.display = "none";
+                  }
+                }}
+                className="mobile-directory-intro cursor-pointer absolute inset-0 z-30 flex items-start justify-center bg-black pt-[12svh]"
+              >
                 <div className="px-8 text-center">
                   <div className="mobile-directory-crest relative mx-auto mb-5 h-24 w-32">
                     <Image

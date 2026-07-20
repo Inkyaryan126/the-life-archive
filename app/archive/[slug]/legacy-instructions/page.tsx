@@ -9,6 +9,7 @@ import {
 import { saveLegacyInstructionsAction } from "./actions";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import { AppSidebar } from "@/components/AppSidebar";
+import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -272,7 +273,8 @@ export default async function LegacyInstructionsPage({
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,161,91,0.14),transparent_30rem),radial-gradient(circle_at_bottom_right,rgba(198,161,91,0.06),transparent_36rem)]" />
 
       <div className="relative mx-auto max-w-5xl">
-        <nav className="flex items-center justify-between border-b border-archive-gold/20 pb-5">
+        <MobileArchiveHeader archiveSlug={slug} active="settings" signedIn={isOwner} />
+        <nav className="hidden items-center justify-between border-b border-archive-gold/20 pb-5 pt-3 lg:flex">
           <Link href="/" className="font-serif text-lg tracking-wide">
             The Life Archive Home
           </Link>

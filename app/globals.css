@@ -305,38 +305,37 @@ select {
 .mobile-directory-intro {
   opacity: 1;
   visibility: visible;
-  animation: mobile-directory-intro-exit 2000ms ease-in-out 5600ms forwards;
+  animation: mobile-directory-intro-exit 1000ms ease-in-out 1200ms forwards;
 }
 
 .mobile-directory-crest {
   opacity: 0;
   transform: scale(0.92);
   filter: blur(3px);
-  animation: mobile-directory-title-enter 1800ms ease-out 500ms forwards;
+  animation: mobile-directory-title-enter 800ms ease-out 100ms forwards;
 }
 
 .mobile-directory-title {
   opacity: 0;
   transform: translateY(12px);
   filter: blur(3px);
-  animation: mobile-directory-title-enter 1900ms ease-out 1500ms forwards;
+  animation: mobile-directory-title-enter 900ms ease-out 300ms forwards;
 }
 
 .mobile-directory-subtitle {
   opacity: 0;
   transform: translateY(10px);
   filter: blur(2px);
-  animation: mobile-directory-title-enter 1800ms ease-out 2800ms forwards;
+  animation: mobile-directory-title-enter 800ms ease-out 500ms forwards;
 }
 
 .mobile-directory-interface {
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .mobile-directory-row {
-  opacity: 0;
-  transform: translateY(5px);
-  animation: mobile-directory-row-enter 1200ms ease-out forwards;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @keyframes mobile-directory-title-enter {

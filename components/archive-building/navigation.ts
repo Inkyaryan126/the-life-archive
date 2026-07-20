@@ -20,18 +20,19 @@ export type ArchiveBuildingNavActive =
   | "settings"
   | "legacy-question";
 
-type ArchiveBuildingMenuLink = {
+export type ArchiveBuildingMenuLink = {
   active: ArchiveBuildingNavActive;
   href: string;
   kind: "link";
   label: string;
+  requiresAuth?: boolean;
 };
 
-type ArchiveBuildingMenuDivider = {
+export type ArchiveBuildingMenuDivider = {
   kind: "divider";
 };
 
-type ArchiveBuildingMenuHeader = {
+export type ArchiveBuildingMenuHeader = {
   kind: "header";
   label: string;
 };
@@ -41,37 +42,146 @@ export type ArchiveBuildingMenuItem =
   | ArchiveBuildingMenuDivider
   | ArchiveBuildingMenuHeader;
 
-export function getArchiveBuildingMenuItems(
-  archiveSlug?: string | null
-): ArchiveBuildingMenuItem[] {
+export type ArchiveNavSection = {
+  category: "ARCHIVE" | "PRESERVE" | "GUIDANCE" | "ACCOUNT";
+  items: ArchiveBuildingMenuLink[];
+};
+
+export function getNavGroupedItems(
+  archiveSlug?: string | null,
+  signedIn = true
+): ArchiveNavSection[] {
   const archiveHref = archiveSlug ? `/archive/${archiveSlug}` : "/create";
   const addMemoryHref = archiveSlug ? `${archiveHref}/add-memory` : "/create";
+  const dashboardHref = signedIn ? "/dashboard" : "/login?next=%2Fdashboard";
+  const timeCapsulesHref = signedIn
+    ? "/dashboard/time-capsules"
+    : "/login?next=%2Fdashboard%2Ftime-capsules";
+  const settingsHref = signedIn
+    ? "/dashboard/settings"
+    : "/login?next=%2Fdashboard%2Fsettings";
 
   return [
-    { kind: "header", label: "ARCHIVE" },
-    { kind: "link", href: "/dashboard", label: "My Archives", active: "dashboard" },
-    { kind: "link", href: "/", label: "Grand Hall", active: "grand-hall" },
-    { kind: "link", href: "/eternism", label: "Eternist Observatory", active: "eternism" },
-
-    { kind: "divider" },
-    { kind: "header", label: "PRESERVE" },
-    { kind: "link", href: addMemoryHref, label: "Add a Memory", active: "add-memory" },
-    { kind: "link", href: "/dashboard/time-capsules", label: "Time Capsules", active: "time-capsules" },
-    { kind: "link", href: "/keepsakes", label: "Keepsake Store", active: "keepsakes" },
-    { kind: "link", href: "/member-card", label: "Member Card", active: "member-card" },
-    { kind: "link", href: "/storykeeper-products", label: "Storykeeper Products", active: "storykeeper-products" },
-
-    { kind: "divider" },
-    { kind: "header", label: "GUIDANCE" },
-    { kind: "link", href: "/after-a-loss", label: "After a Loss", active: "after-a-loss" },
-    { kind: "link", href: "/help-for-families", label: "Help for Families", active: "help-for-families" },
-    { kind: "link", href: "/build-your-legacy", label: "Build Your Legacy", active: "build-your-legacy" },
-    { kind: "link", href: "/preserve-their-voice", label: "Preserve Their Voice", active: "preserve-their-voice" },
-    { kind: "link", href: "/#how-it-works", label: "How It Works", active: "how-it-works" },
-    { kind: "link", href: "/faq", label: "FAQ", active: "faq" },
-
-    { kind: "divider" },
-    { kind: "header", label: "ACCOUNT" },
-    { kind: "link", href: "/dashboard/settings", label: "Settings", active: "settings" }
+    {
+      category: "ARCHIVE",
+      items: [
+        {
+          kind: "link",
+          href: dashboardHref,
+          label: "My Archives",
+          active: "dashboard",
+          requiresAuth: true
+        },
+        { kind: "link", href: "/", label: "Grand Hall", active: "grand-hall" },
+        {
+          kind: "link",
+          href: "/eternism",
+          label: "Eternist Observatory",
+          active: "eternism"
+        }
+      ]
+    },
+    {
+      category: "PRESERVE",
+      items: [
+        {
+          kind: "link",
+          href: addMemoryHref,
+          label: "Add a Memory",
+          active: "add-memory",
+          requiresAuth: true
+        },
+        {
+          kind: "link",
+          href: timeCapsulesHref,
+          label: "Time Capsules",
+          active: "time-capsules"
+        },
+        {
+          kind: "link",
+          href: "/keepsakes",
+          label: "Keepsake Store",
+          active: "keepsakes"
+        },
+        {
+          kind: "link",
+          href: "/member-card",
+          label: "Member Card",
+          active: "member-card"
+        },
+        {
+          kind: "link",
+          href: "/storykeeper-products",
+          label: "Storykeeper Products",
+          active: "storykeeper-products"
+        }
+      ]
+    },
+    {
+      category: "GUIDANCE",
+      items: [
+        {
+          kind: "link",
+          href: "/after-a-loss",
+          label: "After a Loss",
+          active: "after-a-loss"
+        },
+        {
+          kind: "link",
+          href: "/help-for-families",
+          label: "Help for Families",
+          active: "help-for-families"
+        },
+        {
+          kind: "link",
+          href: "/build-your-legacy",
+          label: "Build Your Legacy",
+          active: "build-your-legacy"
+        },
+        {
+          kind: "link",
+          href: "/preserve-their-voice",
+          label: "Preserve Their Voice",
+          active: "preserve-their-voice"
+        },
+        {
+          kind: "link",
+          href: "/#how-it-works",
+          label: "How It Works",
+          active: "how-it-works"
+        },
+        { kind: "link", href: "/faq", label: "FAQ", active: "faq" }
+      ]
+    },
+    {
+      category: "ACCOUNT",
+      items: [
+        {
+          kind: "link",
+          href: settingsHref,
+          label: "Settings",
+          active: "settings",
+          requiresAuth: true
+        }
+      ]
+    }
   ];
+}
+
+export function getArchiveBuildingMenuItems(
+  archiveSlug?: string | null,
+  signedIn = true
+): ArchiveBuildingMenuItem[] {
+  const sections = getNavGroupedItems(archiveSlug, signedIn);
+  const items: ArchiveBuildingMenuItem[] = [];
+
+  sections.forEach((section, index) => {
+    if (index > 0) {
+      items.push({ kind: "divider" });
+    }
+    items.push({ kind: "header", label: section.category });
+    items.push(...section.items);
+  });
+
+  return items;
 }

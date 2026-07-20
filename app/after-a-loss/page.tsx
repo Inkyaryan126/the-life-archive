@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteLogo } from "@/components/SiteDesign";
+import { SiteFooter } from "@/components/SiteFooter";
+import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 import { publicSupportEmail } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -172,25 +174,28 @@ export default function AfterALossPage() {
 
   return (
     <main className="min-h-screen bg-[#080706] text-archive-ivory">
-      <nav className="mx-auto flex w-full max-w-[1180px] flex-col gap-5 border-b border-archive-gold/14 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-0">
-        <Link
-          className="inline-flex rounded-xl transition hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
-          href="/"
-        >
-          <SiteLogo width={230} height={58} />
-        </Link>
-        <div className="flex flex-wrap gap-x-5 gap-y-3 text-sm font-semibold text-archive-ivory/72">
-          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/">
-            Grand Hall
+      <div className="mx-auto max-w-[1180px] px-4 pt-4 sm:px-6 lg:px-0">
+        <MobileArchiveHeader active="after-a-loss" />
+        <nav className="hidden mx-auto flex w-full max-w-[1180px] flex-col gap-5 border-b border-archive-gold/14 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:flex lg:px-0">
+          <Link
+            className="inline-flex rounded-xl transition hover:opacity-90 focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
+            href="/"
+          >
+            <SiteLogo width={230} height={58} />
           </Link>
-          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/legacy-question">
-            Legacy Question
-          </Link>
-          <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/create">
-            Create Archive
-          </Link>
-        </div>
-      </nav>
+          <div className="flex flex-wrap gap-x-5 gap-y-3 text-sm font-semibold text-archive-ivory/72">
+            <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/">
+              Grand Hall
+            </Link>
+            <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/legacy-question">
+              Legacy Question
+            </Link>
+            <Link className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30" href="/create">
+              Create Archive
+            </Link>
+          </div>
+        </nav>
+      </div>
 
       <header className="mx-auto grid w-full max-w-[1180px] gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:px-0 lg:py-24">
         <div>
@@ -435,20 +440,8 @@ export default function AfterALossPage() {
             </a>
           </div>
         </Section>
-
-        <footer className="border-t border-archive-gold/16 py-10 text-sm leading-7 text-archive-ivory/58">
-          <p>
-            Questions about The Life Archive can be sent to{" "}
-            <a
-              className="font-semibold text-archive-champagne underline-offset-4 hover:underline"
-              href={`mailto:${publicSupportEmail}`}
-            >
-              {publicSupportEmail}
-            </a>
-            .
-          </p>
-        </footer>
       </div>
+      <SiteFooter className="mt-10" />
     </main>
   );
 }

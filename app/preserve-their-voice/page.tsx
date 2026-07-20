@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
+import { SiteFooter } from "@/components/SiteFooter";
+import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 import { getAccountContext } from "@/lib/account";
 
 export const dynamic = "force-dynamic";
@@ -63,11 +65,12 @@ export default async function PreserveTheirVoicePage() {
       <DesignBackdrop />
 
       <div className="relative z-10 flex flex-col flex-grow">
-        {/* Navigation Bar with Glass Blur */}
-        <nav className="sticky top-0 z-50 mx-auto w-full border-b border-archive-gold/10 bg-archive-obsidian/45 backdrop-blur-md px-5 py-5 sm:px-8">
-          <div className="mx-auto flex max-w-7xl items-center justify-between">
+        {/* Navigation Bar */}
+        <div className="sticky top-0 z-50 mx-auto w-full border-b border-archive-gold/10 bg-archive-obsidian/45 px-5 py-4 backdrop-blur-md sm:px-8">
+          <MobileArchiveHeader active="preserve-their-voice" signedIn={isSignedIn} />
+          <div className="hidden mx-auto max-w-7xl items-center justify-between lg:flex">
             <Link href="/" className="transition opacity-90 hover:opacity-100">
-              <SiteLogo width={420} height={120} />
+              <SiteLogo width={220} height={54} />
             </Link>
             <div className="flex items-center gap-4">
               <Link
@@ -92,7 +95,7 @@ export default async function PreserveTheirVoicePage() {
               </Link>
             </div>
           </div>
-        </nav>
+        </div>
 
         {/* HERO: Asymmetric Left-Heavy Split */}
         <header className="mx-auto w-full max-w-7xl px-5 py-24 sm:px-8 sm:py-32 grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
@@ -273,82 +276,8 @@ export default async function PreserveTheirVoicePage() {
           </div>
         </section>
 
-        {/* Editorial Legacy Footer */}
-        <footer className="relative z-10 border-t border-archive-gold/20 bg-archive-obsidian/40 backdrop-blur-md mt-auto py-16 text-xs text-archive-ivory/60">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8 grid gap-8 md:grid-cols-4">
-            <div>
-              <SiteLogo width={360} height={110} className="mb-8 opacity-100" />
-              <p className="leading-6 max-w-xs text-[11px]">
-                The Life Archive is a quiet, permanent digital sanctuary helping you intentionally decide what survives you. Preserve your voice, identity, and life lessons for generations to come.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-archive-gold font-semibold uppercase tracking-wider mb-4">Legacy Hub</h4>
-              <ul className="grid gap-3">
-                <li>
-                  <Link href="/build-your-legacy" className="hover:text-archive-champagne hover:underline transition">
-                    Build Your Legacy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/preserve-their-voice" className="hover:text-archive-champagne hover:underline transition">
-                    Preserve Their Voice
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/keepsakes" className="hover:text-archive-champagne hover:underline transition">
-                    Keepsake Store
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/help-for-families" className="hover:text-archive-champagne hover:underline transition">
-                    Help for Families (After Loss)
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-archive-gold font-semibold uppercase tracking-wider mb-4">Partner Ecosystem</h4>
-              <ul className="grid gap-3">
-                <li>
-                  <Link href="/partners/funeral-homes" className="hover:text-archive-champagne hover:underline transition">
-                    Funeral Homes
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/partners/cemeteries" className="hover:text-archive-champagne hover:underline transition">
-                    Cemeteries &amp; Parks
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/partners/monuments" className="hover:text-archive-champagne hover:underline transition">
-                    Monument Builders
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/partners/hospice" className="hover:text-archive-champagne hover:underline transition">
-                    Hospice Care Providers
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/partners/estate-planners" className="hover:text-archive-champagne hover:underline transition">
-                    Estate Planners
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-archive-gold font-semibold uppercase tracking-wider mb-4 font-serif italic">Every Legacy Begins...</h4>
-              <p className="leading-5 max-w-xs text-[11px] mb-4">
-                &ldquo;What story deserves to be remembered? What mistake taught you the most? What do you hope they remember when you are gone?&rdquo;
-              </p>
-              <p className="text-[10px] text-archive-gold/60">
-                © 2026 The Life Archive. All rights preserved.
-              </p>
-            </div>
-          </div>
-        </footer>
       </div>
+      <SiteFooter signedIn={isSignedIn} />
     </main>
   );
 }

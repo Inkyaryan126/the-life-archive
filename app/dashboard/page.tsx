@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
+import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import { DesignBackdrop, HeartbeatLogoDivider, SiteLogo } from "@/components/SiteDesign";
 import {
@@ -519,116 +520,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         subtitle="Every story you preserve becomes part of what remains."
         className="px-4 pb-5 pt-5 sm:px-6 sm:pb-7 sm:pt-7"
       >
-        <nav
-          aria-label="Mobile Archive Building navigation"
-          className="relative z-40 flex items-center justify-between rounded-2xl border border-archive-gold/20 bg-black/58 px-4 py-3 shadow-[0_16px_50px_rgba(0,0,0,0.48)] backdrop-blur-md"
-        >
-          <Link
-            href="/"
-            className="font-serif text-lg tracking-wide text-archive-ivory focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
-          >
-            The Life Archive
-          </Link>
-
-          <details className="group relative">
-            <summary className="cursor-pointer list-none rounded-full border border-archive-gold/35 bg-black/48 px-4 py-2 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/70">
-              Menu
-            </summary>
-
-            <div className="absolute right-0 top-[calc(100%+0.65rem)] grid max-h-[72vh] min-w-[17rem] overflow-y-auto rounded-2xl border border-archive-gold/22 bg-[#090806]/97 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.72)] backdrop-blur-xl">
-              <p className="px-3 pb-1 pt-2 text-[0.62rem] font-bold uppercase tracking-[0.2em] text-archive-gold/72">
-                Archive
-              </p>
-
-              <Link
-                href="/dashboard"
-                aria-current="page"
-                className="rounded-xl bg-archive-gold/8 px-4 py-3 text-sm font-semibold text-archive-gold hover:bg-white/[0.06]"
-              >
-                My Archives
-              </Link>
-
-              <Link
-                href={activeArchive ? `/archive/${activeArchive.slug}/add-memory?mode=voice-sound` : "/create"}
-                className="rounded-xl px-4 py-3 text-sm text-archive-ivory/82 hover:bg-white/[0.06] hover:text-archive-gold"
-              >
-                Add Voice & Sound
-              </Link>
-
-              <Link
-                href={activeArchive ? `/archive/${activeArchive.slug}/add-memory?mode=photo-video` : "/create"}
-                className="rounded-xl px-4 py-3 text-sm text-archive-ivory/82 hover:bg-white/[0.06] hover:text-archive-gold"
-              >
-                Add Photos & Video
-              </Link>
-
-              <Link
-                href={activeArchive ? `/archive/${activeArchive.slug}/add-memory?mode=letter-journal` : "/create"}
-                className="rounded-xl px-4 py-3 text-sm text-archive-ivory/82 hover:bg-white/[0.06] hover:text-archive-gold"
-              >
-                Write a Letter or Journal
-              </Link>
-
-              <div className="my-2 h-px bg-[linear-gradient(90deg,transparent,rgba(202,164,92,0.38),transparent)]" />
-
-              <p className="px-3 pb-1 pt-1 text-[0.62rem] font-bold uppercase tracking-[0.2em] text-archive-gold/72">
-                Preserve
-              </p>
-
-              <Link
-                href="/dashboard/time-capsules"
-                className="rounded-xl px-4 py-3 text-sm text-archive-ivory/82 hover:bg-white/[0.06] hover:text-archive-gold"
-              >
-                Time Capsules
-              </Link>
-
-              <Link
-                href="/keepsakes"
-                className="rounded-xl px-4 py-3 text-sm text-archive-ivory/82 hover:bg-white/[0.06] hover:text-archive-gold"
-              >
-                Keepsake Store
-              </Link>
-
-              {livingDefaultArchive ? (
-                <Link
-                  href="/member-card"
-                  className="rounded-xl px-4 py-3 text-sm text-archive-ivory/82 hover:bg-white/[0.06] hover:text-archive-gold"
-                >
-                  Member Card
-                </Link>
-              ) : null}
-
-              <Link
-                href={activeArchive ? `/archive/${activeArchive.slug}/qr` : "/create"}
-                className="rounded-xl px-4 py-3 text-sm text-archive-ivory/82 hover:bg-white/[0.06] hover:text-archive-gold"
-              >
-                QR Code
-              </Link>
-
-              <div className="my-2 h-px bg-[linear-gradient(90deg,transparent,rgba(202,164,92,0.38),transparent)]" />
-
-              <p className="px-3 pb-1 pt-1 text-[0.62rem] font-bold uppercase tracking-[0.2em] text-archive-gold/72">
-                Account
-              </p>
-
-              <Link
-                href="/dashboard/settings"
-                className="rounded-xl px-4 py-3 text-sm text-archive-ivory/82 hover:bg-white/[0.06] hover:text-archive-gold"
-              >
-                Settings
-              </Link>
-
-              <form action={signOutAction}>
-                <button
-                  type="submit"
-                  className="w-full rounded-xl px-4 py-3 text-left text-sm text-archive-ivory/68 hover:bg-white/[0.06] hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
-                >
-                  Sign Out
-                </button>
-              </form>
-            </div>
-          </details>
-        </nav>
+        <MobileArchiveHeader
+          active="dashboard"
+          archiveSlug={activeArchive?.slug ?? null}
+          signedIn={true}
+        />
 
         {activeArchive ? (
           <Link
