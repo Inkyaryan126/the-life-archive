@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import grandHallDirectoryImage from "../site-design/archive-building-design/archive-map.png";
+import grandHallDirectoryImage from "../public/images/archive-building/archive-map.png";
 import { SiteLogo } from "@/components/SiteDesign";
 import { GrandHallArrival } from "@/components/archive-building/ArchiveArrival";
 import { getAccountContext } from "@/lib/account";
@@ -40,10 +40,10 @@ type DesktopDirectoryEntry = {
 };
 
 const desktopDirectoryRegion = {
-  left: 40.79,
-  top: 30.39,
-  width: 18.9,
-  height: 55.37
+  left: 39.05,
+  top: 16.79,
+  width: 21.17,
+  height: 65.67
 };
 
 function PrimaryCta({
@@ -107,7 +107,7 @@ export default async function HomePage() {
         "THE LIFE ARCHIVE IS FREE TO USE. The core archive experience is free. Physical keepsakes and other optional extras are available only if someone wants them. No purchase is required to preserve a story.",
       ariaLabel: "Start here with The Legacy Question. The Life Archive is free to use.",
       featured: true,
-      position: { left: 41.1, top: 30.6, width: 18.4, height: 10.8 }
+      position: { left: 39.1, top: 16.8, width: 21.2, height: 12.0 }
     },
     {
       title: "My Archives",
@@ -115,7 +115,7 @@ export default async function HomePage() {
       description:
         "Manage your archives and access voice, photos, videos, journals, letters, songs, lessons, and memories.",
       ariaLabel: isSignedIn ? "Open My Archives" : "Sign in to open My Archives",
-      position: { left: 41.1, top: 41.9, width: 18.4, height: 5.4 }
+      position: { left: 39.1, top: 28.8, width: 21.2, height: 6.8 }
     },
     {
       title: "Create an Archive",
@@ -123,7 +123,7 @@ export default async function HomePage() {
       description:
         "Create a private place for stories, memories, photographs, voice, video, letters, songs, lessons, and guidance.",
       ariaLabel: "Create an archive",
-      position: { left: 41.1, top: 47.8, width: 18.4, height: 5.7 }
+      position: { left: 39.1, top: 35.6, width: 21.2, height: 6.8 }
     },
     {
       title: "Time Capsules",
@@ -131,7 +131,7 @@ export default async function HomePage() {
       description:
         "Write something today and schedule it to reach someone later.",
       ariaLabel: "Open Time Capsules",
-      position: { left: 41.1, top: 53.9, width: 18.4, height: 5.8 }
+      position: { left: 39.1, top: 42.4, width: 21.2, height: 6.8 }
     },
     {
       title: "Keepsakes",
@@ -139,7 +139,7 @@ export default async function HomePage() {
       description:
         "Member Cards, Memorial Keychains, Memorial Cards, QR Plaques, and Storykeeper Cards can become a doorway back into an archive or memorial.",
       ariaLabel: "Visit Keepsakes",
-      position: { left: 41.1, top: 60.1, width: 18.4, height: 5.9 }
+      position: { left: 39.1, top: 49.2, width: 21.2, height: 6.8 }
     },
     {
       title: "Member Card",
@@ -147,7 +147,7 @@ export default async function HomePage() {
       description:
         "A physical connection to your archive that can help loved ones find it later.",
       ariaLabel: "Open Member Card",
-      position: { left: 41.1, top: 66.4, width: 18.4, height: 5.4 }
+      position: { left: 39.1, top: 56.0, width: 21.2, height: 6.8 }
     },
     {
       title: "Support After A Loss",
@@ -155,7 +155,7 @@ export default async function HomePage() {
       description:
         "A calm guide for the first hours, the next necessary decisions, children, practical details, grief care, and crisis resources.",
       ariaLabel: "Get support after a loss",
-      position: { left: 41.1, top: 72.1, width: 18.4, height: 5.3 }
+      position: { left: 39.1, top: 62.8, width: 21.2, height: 6.8 }
     },
     {
       title: "The Eternist Observatory",
@@ -163,7 +163,7 @@ export default async function HomePage() {
       description:
         "Explore memory, continuity, longevity, and the future of human life.",
       ariaLabel: "Visit The Eternist Observatory. Explore memory, continuity, longevity, and the future of human life.",
-      position: { left: 41.1, top: 77.8, width: 18.4, height: 5.3 }
+      position: { left: 39.1, top: 69.6, width: 21.2, height: 6.8 }
     },
     {
       title: "How It Works",
@@ -171,7 +171,7 @@ export default async function HomePage() {
       description:
         "Create an archive, preserve memories, connect a QR code if desired, and let loved ones return whenever they need it.",
       ariaLabel: "Read how The Life Archive works",
-      position: { left: 41.1, top: 83.5, width: 8.9, height: 6.8 }
+      position: { left: 39.1, top: 76.4, width: 10.4, height: 6.0 }
     },
     {
       title: "Help, Privacy, And Information",
@@ -179,7 +179,7 @@ export default async function HomePage() {
       description:
         "Find help, privacy, terms, FAQ, contact, and the main public pages.",
       ariaLabel: "Open help privacy and information links",
-      position: { left: 50.5, top: 83.5, width: 9.0, height: 6.8 }
+      position: { left: 49.9, top: 76.4, width: 10.4, height: 6.0 }
     }
   ];
 
@@ -409,7 +409,7 @@ function GrandHallHero({
                       {entry.title}
                     </span>
 
-                    <span className="mt-0.5 line-clamp-1 text-[clamp(0.42rem,1.85vw,0.56rem)] leading-tight text-archive-ivory/64">
+                    <span className="mt-0.5 text-[clamp(0.42rem,1.85vw,0.56rem)] leading-tight text-archive-ivory/64">
                       {entry.subtitle}
                     </span>
                   </Link>
@@ -463,21 +463,21 @@ function DesktopDirectoryRow({
       <Link
         href={entry.href}
         aria-label={entry.ariaLabel}
-        className={`group flex min-h-0 w-full flex-col justify-center overflow-hidden px-[4.5%] py-[1.6%] text-center transition duration-300 focus:outline-none focus:ring-2 focus:ring-archive-gold/75 ${
+        className={`group flex min-h-0 w-full flex-col justify-center overflow-hidden px-[4%] py-[1.2%] text-center transition duration-300 focus:outline-none focus:ring-2 focus:ring-archive-gold/75 ${
           entry.featured
             ? "bg-archive-gold/[0.07] shadow-[0_0_28px_rgba(202,164,92,0.16)] hover:bg-archive-gold/[0.12]"
             : "hover:bg-archive-gold/[0.055]"
         }`}
       >
         {entry.featured ? (
-          <span className="mb-[1.5%] text-[clamp(0.42rem,0.5vw,0.58rem)] font-bold uppercase tracking-[0.16em] text-archive-gold">
+          <span className="mb-[1%] text-[clamp(0.46rem,0.56vw,0.64rem)] font-bold uppercase tracking-[0.16em] text-archive-gold">
             Start here
           </span>
         ) : null}
-        <span className="block truncate font-serif text-[clamp(0.56rem,0.78vw,0.94rem)] uppercase tracking-[0.08em] text-archive-ivory drop-shadow-[0_2px_8px_rgba(0,0,0,0.92)]">
+        <span className="block font-serif text-[clamp(0.62rem,0.85vw,1.02rem)] uppercase tracking-[0.08em] text-archive-ivory drop-shadow-[0_2px_8px_rgba(0,0,0,0.92)]">
           {entry.title}
         </span>
-        <span className="mx-auto mt-[1.7%] line-clamp-2 max-w-full text-[clamp(0.42rem,0.52vw,0.62rem)] leading-snug text-archive-ivory/68">
+        <span className="mx-auto mt-[1.2%] max-w-full text-[clamp(0.46rem,0.56vw,0.68rem)] leading-snug text-archive-ivory/68">
           {entry.subtitle}
         </span>
       </Link>
