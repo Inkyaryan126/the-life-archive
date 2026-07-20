@@ -51,8 +51,9 @@ export default async function LegacyQuestionPage({
   const cardBatch = params?.batch || null;
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#11100e] text-[#f8f1e7]">
+    <main className="min-h-screen bg-[#11100e] text-[#f8f1e7]">
       <LegacyQuestionExperience>
+        <HeroSection />
         <MemoryCaptureWidget initialSource={source} initialCardBatch={cardBatch} />
         <HowItWorksSection />
         <RandomQrExplainer />
@@ -82,20 +83,28 @@ function HeroSection() {
         >
           <SiteLogo width={240} height={58} />
         </Link>
-        <Link
-          className="hidden rounded-full border border-[#c9a45c]/35 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-[#f8f1e7] transition hover:border-[#c9a45c] hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30 sm:inline-flex"
-          href="#how-it-works"
-        >
-          See How It Works
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            className="hidden rounded-full border border-[#c9a45c]/35 bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-[#f8f1e7] transition hover:border-[#c9a45c] hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/30 sm:inline-flex"
+            href="#how-it-works"
+          >
+            See How It Works
+          </Link>
+          <Link
+            className="rounded-full bg-[#c9a45c] px-5 py-2.5 text-sm font-bold text-[#11100e] shadow-sm transition hover:bg-[#d8b66f] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/35"
+            href="/login"
+          >
+            Log In
+          </Link>
+        </div>
       </nav>
 
-      <section className="relative z-10 mx-auto w-full max-w-[1280px] pt-14 sm:pt-16 lg:pt-20">
+      <section className="relative z-10 mx-auto w-full max-w-[1280px] pt-10 sm:pt-14 lg:pt-16">
         <div className="max-w-5xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#d8b66f] sm:text-base">
             A living archive for voices, stories, and memories.
           </p>
-          <h1 className="mt-5 font-serif text-5xl leading-[0.98] text-[#f8f1e7] sm:text-6xl lg:text-7xl xl:text-8xl">
+          <h1 className="mt-5 font-serif text-4xl leading-[0.98] text-[#f8f1e7] sm:text-6xl lg:text-7xl">
             Every person has one story that deserves to{" "}
             <span className="text-[#c9a45c]">be found again.</span>
           </h1>

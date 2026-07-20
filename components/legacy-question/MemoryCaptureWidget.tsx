@@ -450,12 +450,22 @@ export function MemoryCaptureWidget({
       <div className="overflow-hidden rounded-2xl border border-archive-gold/25 bg-[#f8f1e7] text-[#221b15] shadow-[0_28px_70px_rgba(0,0,0,0.32)]">
         <div className="grid items-start gap-0 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.82fr)]">
           <div className="p-5 sm:p-8 lg:p-9">
-            <h2 id="capture-heading" className="font-serif text-4xl leading-tight text-[#18130f] sm:text-5xl">
-              What would you say?
-            </h2>
-            <p className="mt-3 max-w-2xl text-base leading-7 text-[#5b5147] sm:text-lg">
-              Share one memory, lesson, story, or message you never want lost.
-            </p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 id="capture-heading" className="font-serif text-4xl leading-tight text-[#18130f] sm:text-5xl">
+                  What would you say?
+                </h2>
+                <p className="mt-3 max-w-2xl text-base leading-7 text-[#5b5147] sm:text-lg">
+                  Share one memory, lesson, story, or message you never want lost.
+                </p>
+              </div>
+              <a
+                href="/login"
+                className="inline-flex shrink-0 items-center justify-center rounded-full border border-[#8e6b2f]/35 bg-[#211912] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-[#f8f1e7] shadow-sm transition hover:bg-[#352a21] hover:text-[#c9a45c] focus:outline-none focus:ring-4 focus:ring-[#c9a45c]/35"
+              >
+                Log In to Archive &rarr;
+              </a>
+            </div>
 
             <p className="mt-7 text-sm font-bold uppercase tracking-[0.14em] text-[#7a5a25]">
               Choose how to share

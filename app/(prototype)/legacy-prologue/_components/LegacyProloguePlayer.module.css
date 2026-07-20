@@ -299,7 +299,11 @@
   gap: 10px;
 }
 
-.controls button {
+.controls button,
+.controls a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 42px;
   border: 1px solid rgba(229, 207, 154, 0.35);
   border-radius: 999px;
@@ -310,13 +314,17 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   padding: 0 16px;
+  text-decoration: none;
   text-transform: uppercase;
   backdrop-filter: blur(14px);
 }
 
 .controls button:hover,
-.controls button:focus-visible {
+.controls button:focus-visible,
+.controls a:hover,
+.controls a:focus-visible {
   border-color: rgba(198, 161, 91, 0.9);
+  color: #c9a45c;
   outline: none;
 }
 
