@@ -28,7 +28,7 @@ const faqs = [
   },
   {
     q: "What is the difference between a living archive and a memorial archive?",
-    a: "A living archive is built while life is still being lived and can continue growing. A memorial archive is preserved in remembrance after Legacy Activation."
+    a: "A living archive is built while life is still being lived and can continue growing. A Living Archive can also become your Continuity Archive—a record of who you were, who you are, and who you are becoming across decades. A memorial archive is preserved in remembrance after Legacy Activation."
   },
   {
     q: "What happens when the Legacy Activation Code is used?",

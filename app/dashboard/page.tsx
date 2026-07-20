@@ -749,6 +749,21 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
             <details className="border-t border-archive-gold/14">
               <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-5 text-sm font-semibold text-archive-champagne focus:outline-none focus:ring-2 focus:ring-inset focus:ring-archive-gold/70">
+                <span>Continuity &amp; Legacy</span>
+                <span aria-hidden="true" className="text-archive-gold/70">+</span>
+              </summary>
+              <div className="border-t border-archive-gold/10 bg-black/24 p-4 text-xs leading-5 text-archive-ivory/70">
+                <p>
+                  A Living Archive can also become your Continuity Archive—a record of who you were, who you are, and who you are becoming.
+                </p>
+                <Link href="/eternism" className="mt-2 inline-block font-semibold text-archive-gold hover:underline">
+                  Learn about Eternism &amp; The Observatory →
+                </Link>
+              </div>
+            </details>
+
+            <details className="border-t border-archive-gold/14">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-5 text-sm font-semibold text-archive-champagne focus:outline-none focus:ring-2 focus:ring-inset focus:ring-archive-gold/70">
                 <span>Recent Memories</span>
                 <span className="text-xs font-normal text-archive-ivory/42">
                   {activeArchiveMemories.length}

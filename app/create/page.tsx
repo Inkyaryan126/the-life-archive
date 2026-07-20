@@ -71,8 +71,8 @@ export default async function CreateArchivePage({
             An archive is a collection of memories centered around one person.
             You can create an archive for yourself or for someone you love.
             Choose Living Archive when the person can still own, update, and
-            carry their Member Card. Choose Memorial Archive when the archive is
-            already being preserved in remembrance.
+            carry their Member Card. A Living Archive can also become your Continuity Archive—a record of who you were, who you are, and who you are becoming.
+            Choose Memorial Archive when the archive is already being preserved in remembrance.
             Each archive can hold photos, stories, voice recordings,
             life lessons, and other meaningful memories that can be preserved
             and shared for future generations.

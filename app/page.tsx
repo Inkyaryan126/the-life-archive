@@ -158,12 +158,20 @@ export default async function HomePage() {
       position: { left: 41.1, top: 72.1, width: 18.4, height: 5.3 }
     },
     {
+      title: "The Eternist Observatory",
+      href: "/eternism",
+      description:
+        "Explore memory, continuity, longevity, and the future of human life.",
+      ariaLabel: "Visit The Eternist Observatory. Explore memory, continuity, longevity, and the future of human life.",
+      position: { left: 41.1, top: 77.8, width: 18.4, height: 5.3 }
+    },
+    {
       title: "How It Works",
       href: "#how-it-works",
       description:
         "Create an archive, preserve memories, connect a QR code if desired, and let loved ones return whenever they need it.",
       ariaLabel: "Read how The Life Archive works",
-      position: { left: 41.1, top: 77.8, width: 8.9, height: 6.8 }
+      position: { left: 41.1, top: 83.5, width: 8.9, height: 6.8 }
     },
     {
       title: "Help, Privacy, And Information",
@@ -171,7 +179,7 @@ export default async function HomePage() {
       description:
         "Find help, privacy, terms, FAQ, contact, and the main public pages.",
       ariaLabel: "Open help privacy and information links",
-      position: { left: 50.5, top: 77.8, width: 9.0, height: 6.8 }
+      position: { left: 50.5, top: 83.5, width: 9.0, height: 6.8 }
     }
   ];
 
@@ -239,6 +247,12 @@ function GrandHallHero({
       ariaLabel: "Open Support After a Loss. Guidance when someone is gone."
     },
     {
+      title: "The Eternist Observatory",
+      subtitle: "Explore memory, continuity & longevity.",
+      href: "/eternism",
+      ariaLabel: "Open The Eternist Observatory. Explore memory, continuity, longevity, and the future of human life."
+    },
+    {
       title: "Help, Privacy & Information",
       subtitle: "Help, privacy and support.",
       href: "#information",
@@ -289,6 +303,12 @@ function GrandHallHero({
       subtitle: "Guidance when someone is gone.",
       href: "/after-a-loss",
       ariaLabel: "Open Support After a Loss."
+    },
+    {
+      title: "The Eternist Observatory",
+      subtitle: "Memory, continuity & human longevity.",
+      href: "/eternism",
+      ariaLabel: "Open The Eternist Observatory."
     },
     {
       title: "Help & Information",
@@ -512,23 +532,20 @@ function BelowDirectoryContent({ timeCapsulesHref }: { timeCapsulesHref: string 
       <section className="bg-[#0b0907] px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
         <div className="mx-auto grid w-full max-w-[1180px] gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
           <div>
-            <Eyebrow>What is The Life Archive?</Eyebrow>
+            <Eyebrow>Mission & Vision</Eyebrow>
             <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-              A private archive for the voice, memory, and guidance a person
-              leaves behind.
+              Preserve the life. Extend the life.
             </h2>
+            <p className="mt-4 text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
+              The Life Archive preserves who we are while humanity works toward preserving that we are.
+            </p>
           </div>
           <div className="grid gap-6 text-base leading-8 text-archive-ivory/72 sm:text-lg">
             <p>
-              The Life Archive is a place to preserve stories, photos, videos,
-              voice notes, journals, letters, songs, lessons, and memories. It
-              can be built for yourself, for someone you love, or in honor of a
-              life that has ended.
+              The Life Archive is a private platform for preserving a person during life, after loss, and for the future. Memories are not only memorial artifacts—they are continuity records. A person may want to revisit earlier versions of themselves decades from now, while future generations will need a far richer record than still photos and names.
             </p>
             <p>
-              The core archive experience is free to use. Optional physical
-              keepsakes are available when someone wants a card, keychain,
-              plaque, or other object that opens the archive by QR code.
+              Whether life ends too soon or stretches farther than any generation before us imagined, your story should remain intact. The core archive experience is free to use, allowing you to preserve voice, video, photos, journals, letters, lessons, and memories across a lifetime.
             </p>
           </div>
         </div>
@@ -597,6 +614,12 @@ function BelowDirectoryContent({ timeCapsulesHref }: { timeCapsulesHref: string 
           <InfoPanel
             title="How QR access works"
             copy="Every archive can have a QR code. A scan can lead someone back to the archive, a memory, or a keepsake-connected experience controlled by the archive owner."
+          />
+          <InfoPanel
+            title="Eternism and Continuity"
+            copy="Explore how The Life Archive preserves identity, voice, and personal continuity across decades while humanity works toward longer and healthier lives."
+            href="/eternism"
+            linkText="Explore The Eternist Observatory"
           />
           <InfoPanel
             title="Time Capsules"
@@ -720,6 +743,7 @@ function GrandHallFooter({
     {
       title: "Guides",
       links: [
+        ["The Eternist Observatory", "/eternism"],
         ["Support After A Loss", "/after-a-loss"],
         ["Help for Families", "/help-for-families"],
         ["Build Your Legacy", "/build-your-legacy"],
