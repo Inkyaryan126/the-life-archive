@@ -79,6 +79,10 @@ const desktopArrivalCopy: Record<
     title: "Archive Settings",
     subtitle: "Every archive is as unique as the life it protects."
   },
+  eternism: {
+    title: "Eternist Observatory",
+    subtitle: "Memory, identity, and the long horizon of human continuity."
+  },
   "add-memory": {
     title: "Preserve a Memory",
     subtitle: "The smallest moment can become someone's greatest treasure."
@@ -138,32 +142,18 @@ function ArchiveNavLink({
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`group flex min-h-[clamp(1.75rem,2.35vw,2.6rem)] items-center justify-between gap-2 rounded-lg px-[clamp(0.35rem,0.55vw,0.7rem)] py-[clamp(0.24rem,0.42vw,0.52rem)] text-[clamp(0.76rem,0.88vw,1rem)] font-semibold leading-tight transition focus:outline-none focus:ring-2 focus:ring-archive-gold/60 ${
+      className={`group flex min-h-[clamp(1.2rem,1.5vw,1.75rem)] items-center justify-between gap-1.5 rounded px-[clamp(0.25rem,0.4vw,0.55rem)] py-[clamp(0.08rem,0.16vw,0.24rem)] text-[clamp(0.58rem,0.68vw,0.8rem)] font-semibold leading-tight transition focus:outline-none focus:ring-1 focus:ring-archive-gold/60 ${
         active
-          ? "bg-archive-gold/9 text-archive-gold shadow-[inset_0_0_0_1px_rgba(202,164,92,0.16)] drop-shadow-[0_0_12px_rgba(232,207,136,0.34)]"
-          : "text-archive-ivory/82 hover:bg-white/[0.035] hover:text-archive-gold"
+          ? "bg-archive-gold/15 text-archive-gold shadow-[inset_0_0_0_1px_rgba(202,164,92,0.22)] drop-shadow-[0_0_10px_rgba(232,207,136,0.3)]"
+          : "text-archive-ivory/80 hover:bg-white/[0.04] hover:text-archive-gold"
       }`}
     >
-      <span
-        className={
-          [
-            "My Archives",
-            "Time Capsules",
-            "Keepsake Store",
-            "Member Card",
-            "QR Code",
-            "Settings",
-            "Log Out"
-          ].includes(label)
-            ? "min-w-0 whitespace-nowrap"
-            : "min-w-0"
-        }
-      >
+      <span className="min-w-0 truncate">
         {label}
       </span>
       <span
         aria-hidden="true"
-        className={`h-2 w-2 shrink-0 rounded-full transition ${
+        className={`h-1.5 w-1.5 shrink-0 rounded-full transition ${
           active ? "bg-archive-gold" : "bg-archive-ivory/20 group-hover:bg-archive-gold/50"
         }`}
       />
@@ -173,7 +163,7 @@ function ArchiveNavLink({
 
 function ArchiveNavHeader({ label }: { label: string }) {
   return (
-    <p className="px-[clamp(0.35rem,0.55vw,0.7rem)] pt-[clamp(0.28rem,0.5vw,0.6rem)] text-[clamp(0.58rem,0.66vw,0.74rem)] font-bold uppercase tracking-[0.2em] text-archive-gold/78">
+    <p className="px-[clamp(0.25rem,0.4vw,0.55rem)] pt-[clamp(0.18rem,0.28vw,0.38rem)] pb-[clamp(0.02rem,0.06vw,0.1rem)] text-[clamp(0.48rem,0.54vw,0.62rem)] font-bold uppercase tracking-[0.2em] text-archive-gold/85">
       {label}
     </p>
   );
@@ -183,7 +173,7 @@ function ArchiveNavDivider() {
   return (
     <div
       aria-hidden="true"
-      className="my-[clamp(0.22rem,0.45vw,0.55rem)] h-px w-[92%] justify-self-center bg-[linear-gradient(90deg,transparent,rgba(202,164,92,0.5),transparent)]"
+      className="my-[clamp(0.22rem,0.35vw,0.48rem)] h-px w-[92%] justify-self-center bg-[linear-gradient(90deg,transparent,rgba(202,164,92,0.5),transparent)]"
     />
   );
 }
@@ -198,9 +188,9 @@ export function ArchiveSideNavigation({
   return (
     <nav
       aria-label="Archive building navigation"
-      className="flex h-full flex-col justify-center overflow-hidden px-[clamp(0.45rem,0.75vw,0.85rem)] py-[clamp(0.6rem,1vw,1.1rem)] text-archive-ivory"
+      className="flex h-full flex-col justify-start overflow-y-auto px-[clamp(0.35rem,0.6vw,0.75rem)] py-[clamp(0.25rem,0.5vw,0.8rem)] text-archive-ivory custom-scrollbar"
     >
-      <div className="grid gap-[clamp(0.06rem,0.18vw,0.24rem)]">
+      <div className="grid gap-[clamp(0.02rem,0.06vw,0.1rem)]">
         {menuItems.map((item, index) =>
           item.kind === "divider" ? (
             <ArchiveNavDivider key={`divider-${index}`} />
@@ -211,7 +201,13 @@ export function ArchiveSideNavigation({
               key={item.label}
               href={item.href}
               label={item.label}
-              active={active === item.active || (active === "add-memory" && item.active === "letter-journal")}
+              active={
+                active === item.active ||
+                (active === "add-memory" && item.active === "add-memory") ||
+                (active === "voice-sound" && item.active === "add-memory") ||
+                (active === "photo-video" && item.active === "add-memory") ||
+                (active === "letter-journal" && item.active === "add-memory")
+              }
             />
           )
         )}
@@ -219,12 +215,12 @@ export function ArchiveSideNavigation({
           <form action={signOutAction}>
             <button
               type="submit"
-              className="group flex min-h-[clamp(1.75rem,2.35vw,2.6rem)] w-full items-center justify-between gap-2 rounded-lg px-[clamp(0.35rem,0.55vw,0.7rem)] py-[clamp(0.24rem,0.42vw,0.52rem)] text-left text-[clamp(0.76rem,0.88vw,1rem)] font-semibold leading-tight text-archive-ivory/82 transition hover:bg-white/[0.035] hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/60"
+              className="group flex min-h-[clamp(1.2rem,1.5vw,1.75rem)] w-full items-center justify-between gap-1.5 rounded px-[clamp(0.25rem,0.4vw,0.55rem)] py-[clamp(0.08rem,0.16vw,0.24rem)] text-left text-[clamp(0.58rem,0.68vw,0.8rem)] font-semibold leading-tight text-archive-ivory/80 transition hover:bg-white/[0.04] hover:text-archive-gold focus:outline-none focus:ring-1 focus:ring-archive-gold/60"
             >
-              <span>Log Out</span>
+              <span className="min-w-0 truncate">Log Out</span>
               <span
                 aria-hidden="true"
-                className="h-2 w-2 rounded-full bg-archive-ivory/20 transition group-hover:bg-archive-gold/50"
+                className="h-1.5 w-1.5 shrink-0 rounded-full bg-archive-ivory/20 transition group-hover:bg-archive-gold/50"
               />
             </button>
           </form>

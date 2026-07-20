@@ -1,7 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DesignBackdrop, HeartbeatLogoDivider, SiteLogo } from "@/components/SiteDesign";
+import {
+  ArchiveBuildingShell,
+  ArchiveOverlayRegion,
+  ArchiveMobileScene
+} from "@/components/archive-building/ArchiveBuildingShell";
+import { getAccountContext } from "@/lib/account";
+import {
+  archiveBuildingMobileScenes,
+  archiveBuildingScenes
+} from "@/lib/archive-building-scenes";
 import { publicSupportEmail } from "@/lib/site-config";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Eternism and Human Continuity | The Life Archive",
@@ -102,61 +114,48 @@ const whatTLADoesNotPromise = [
   }
 ];
 
-export default function EternismPage() {
-  return (
-    <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-8 text-archive-ivory sm:px-8 lg:px-10">
-      <DesignBackdrop />
+const observatoryNavRegion = {
+  left: 0.78,
+  top: 19.73,
+  width: 14.27,
+  height: 74.02
+};
 
-      <div className="relative z-10 mx-auto w-full max-w-5xl">
-        {/* Navigation Bar */}
-        <nav className="flex flex-col gap-4 border-b border-archive-gold/18 pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/" aria-label="Return to Grand Hall">
-            <SiteLogo width={220} height={54} />
-          </Link>
-          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-archive-ivory/72">
-            <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="/">
-              Grand Hall
-            </Link>
-            <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="#problem">
-              The Problem
-            </Link>
-            <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="#two-fronts">
-              Two Fronts
-            </Link>
-            <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="#continuity">
-              Continuity
-            </Link>
-            <Link
-              className="rounded-full border border-archive-gold/35 px-4 py-1.5 text-xs uppercase tracking-[0.14em] text-archive-gold hover:bg-archive-gold/10 focus:outline-none focus:ring-2 focus:ring-archive-gold/50"
-              href="/create"
-            >
-              Begin Archive
-            </Link>
-          </div>
-        </nav>
+const observatoryContentRegion = {
+  left: 17.5,
+  top: 19.73,
+  width: 78.0,
+  height: 74.02
+};
 
+export default async function EternismPage() {
+  const account = await getAccountContext();
+
+  function EternismContentBody() {
+    return (
+      <div className="space-y-12">
         {/* Hero Section */}
-        <header className="py-16 text-center sm:py-24">
+        <header className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold sm:text-sm">
             Eternism &amp; Human Continuity
           </p>
-          <h1 className="mx-auto mt-4 max-w-4xl font-serif text-4xl leading-tight text-archive-ivory sm:text-6xl lg:text-7xl">
+          <h1 className="mx-auto mt-4 max-w-4xl font-serif text-3xl leading-tight text-archive-ivory sm:text-5xl lg:text-6xl">
             Human life is too valuable to disappear.
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-archive-ivory/78 sm:text-xl sm:leading-9">
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-archive-ivory/78 sm:text-lg sm:leading-8">
             The Life Archive preserves the person we are today while humanity
             continues the longer fight to preserve human life itself.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/create"
-              className="inline-flex min-h-12 items-center justify-center rounded-full bg-archive-gold px-8 py-3.5 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-archive-gold px-7 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
             >
               Begin Your Archive
             </Link>
             <Link
               href="#two-fronts"
-              className="inline-flex min-h-12 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-8 py-3.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-7 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
             >
               Read The Philosophy
             </Link>
@@ -166,16 +165,16 @@ export default function EternismPage() {
         <HeartbeatLogoDivider />
 
         {/* Section 1: The Problem */}
-        <section id="problem" className="py-12 sm:py-16">
-          <div className="rounded-[2rem] border border-archive-gold/18 bg-black/40 p-8 shadow-luxury sm:p-12">
+        <section id="problem">
+          <div className="rounded-[2rem] border border-archive-gold/18 bg-black/55 p-8 shadow-luxury sm:p-10">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
               The Fundamental Challenge
             </p>
-            <h2 className="mt-3 font-serif text-3xl leading-snug text-archive-champagne sm:text-4xl">
+            <h2 className="mt-3 font-serif text-2xl leading-snug text-archive-champagne sm:text-3xl">
               “We lose people twice: first when life ends, and again when their
               voice, perspective, lessons, and inner world disappear.”
             </h2>
-            <div className="mt-6 grid gap-6 text-base leading-8 text-archive-ivory/76 sm:text-lg">
+            <div className="mt-6 grid gap-6 text-base leading-8 text-archive-ivory/76">
               <p>
                 When a life reaches its conclusion, the physical absence is immediate
                 and profound. But over the decades that follow, a second loss occurs:
@@ -194,22 +193,22 @@ export default function EternismPage() {
         </section>
 
         {/* Section 2: Two Fronts */}
-        <section id="two-fronts" className="py-12 sm:py-16">
+        <section id="two-fronts">
           <div className="text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
               The Dual Mission
             </p>
-            <h2 className="mt-3 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
+            <h2 className="mt-3 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
               Preserve the life. Extend the life.
             </h2>
-            <p className="mx-auto mt-4 max-w-3xl font-serif text-lg italic text-archive-champagne/90 sm:text-xl">
+            <p className="mx-auto mt-3 max-w-3xl font-serif text-base italic text-archive-champagne/90 sm:text-lg">
               “The Life Archive preserves who we are while humanity works toward
               preserving that we are.”
             </p>
           </div>
 
-          <div className="mt-10 grid gap-8 md:grid-cols-2">
-            <article className="rounded-[2rem] border border-archive-gold/22 bg-white/[0.035] p-8 shadow-luxury">
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            <article className="rounded-[2rem] border border-archive-gold/22 bg-black/55 p-8 shadow-luxury">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-archive-gold">
                 Front One · Preservation Now
               </p>
@@ -224,7 +223,7 @@ export default function EternismPage() {
               </p>
             </article>
 
-            <article className="rounded-[2rem] border border-archive-gold/22 bg-white/[0.035] p-8 shadow-luxury">
+            <article className="rounded-[2rem] border border-archive-gold/22 bg-black/55 p-8 shadow-luxury">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-archive-gold">
                 Front Two · The Long Horizon
               </p>
@@ -242,28 +241,28 @@ export default function EternismPage() {
         </section>
 
         {/* Section 3: Continuity Across Time */}
-        <section id="continuity" className="py-12 sm:py-16">
-          <div className="rounded-[2rem] border border-archive-gold/18 bg-[#0a0806] p-8 sm:p-12">
+        <section id="continuity">
+          <div className="rounded-[2rem] border border-archive-gold/18 bg-black/55 p-8 sm:p-10">
             <div className="max-w-3xl">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
                 Human Continuity
               </p>
-              <h2 className="mt-3 font-serif text-3xl leading-snug text-archive-ivory sm:text-4xl">
+              <h2 className="mt-3 font-serif text-2xl leading-snug text-archive-ivory sm:text-3xl">
                 “Even a life that lasts centuries would still need memory, context, and continuity.”
               </h2>
               <p className="mt-4 text-base leading-7 text-archive-ivory/72">
                 Preservation is not only for the end of life. A Living Archive can also
-                become your <strong className="text-archive-champagne font-semibold">Continuity Archive</strong>—a record of who you were, who you are, and who you are becoming across decades.
+                become your <strong className="font-semibold text-archive-champagne">Continuity Archive</strong>—a record of who you were, who you are, and who you are becoming across decades.
               </p>
             </div>
 
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {futureContinuityUses.map((use) => (
-                <article key={use.title} className="rounded-xl border border-archive-gold/14 bg-white/[0.025] p-6">
-                  <h3 className="font-serif text-xl text-archive-champagne">
+                <article key={use.title} className="rounded-xl border border-archive-gold/14 bg-white/[0.03] p-5">
+                  <h3 className="font-serif text-lg text-archive-champagne">
                     {use.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-6 text-archive-ivory/68">
+                  <p className="mt-2.5 text-sm leading-6 text-archive-ivory/68">
                     {use.description}
                   </p>
                 </article>
@@ -273,7 +272,7 @@ export default function EternismPage() {
         </section>
 
         {/* Section 4: What TLA Can Preserve Today */}
-        <section className="py-12 sm:py-16">
+        <section>
           <div className="text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
               Capabilities Today
@@ -286,9 +285,9 @@ export default function EternismPage() {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {preservedToday.map((item) => (
-              <div key={item.title} className="rounded-xl border border-archive-gold/16 bg-white/[0.03] p-5">
+              <div key={item.title} className="rounded-xl border border-archive-gold/16 bg-black/55 p-5">
                 <h3 className="font-serif text-lg text-archive-gold">
                   {item.title}
                 </h3>
@@ -301,8 +300,8 @@ export default function EternismPage() {
         </section>
 
         {/* Section 5: What TLA Does Not Promise */}
-        <section id="preserve-and-promise" className="py-12 sm:py-16">
-          <div className="rounded-[2rem] border border-archive-gold/20 bg-black/60 p-8 sm:p-12">
+        <section id="preserve-and-promise">
+          <div className="rounded-[2rem] border border-archive-gold/20 bg-black/65 p-8 sm:p-10">
             <div className="max-w-3xl">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
                 Clarity &amp; Integrity
@@ -319,11 +318,11 @@ export default function EternismPage() {
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {whatTLADoesNotPromise.map((item) => (
-                <div key={item.title} className="rounded-xl border border-archive-gold/14 bg-white/[0.02] p-6">
+                <div key={item.title} className="rounded-xl border border-archive-gold/14 bg-white/[0.03] p-5">
                   <span className="text-xs font-bold uppercase tracking-[0.14em] text-archive-gold/80">
                     Not Offered
                   </span>
-                  <h3 className="mt-2 font-serif text-xl text-archive-ivory">
+                  <h3 className="mt-2 font-serif text-lg text-archive-ivory">
                     {item.title}
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-archive-ivory/64">
@@ -336,28 +335,28 @@ export default function EternismPage() {
         </section>
 
         {/* Section 6: Closing Invitation & CTA */}
-        <section className="py-16 text-center sm:py-24">
-          <div className="mx-auto max-w-3xl rounded-[2.5rem] border border-archive-gold/24 bg-[linear-gradient(180deg,rgba(202,164,92,0.08),rgba(7,6,5,0.92))] p-10 shadow-luxury sm:p-16">
-            <HeartbeatLogoDivider className="py-4" />
-            <h2 className="font-serif text-3xl leading-tight text-archive-ivory sm:text-5xl">
+        <section className="py-8 text-center sm:py-12">
+          <div className="mx-auto max-w-3xl rounded-[2.5rem] border border-archive-gold/24 bg-black/70 p-8 shadow-luxury sm:p-12">
+            <HeartbeatLogoDivider className="py-2" />
+            <h2 className="font-serif text-2xl leading-tight text-archive-ivory sm:text-4xl">
               “If death remains, your story remains.
               <br />
               If life expands, your continuity remains.”
             </h2>
-            <p className="mt-6 text-base leading-8 text-archive-ivory/72 sm:text-lg">
+            <p className="mt-5 text-base leading-8 text-archive-ivory/72 sm:text-lg">
               Whether life ends too soon or stretches farther than any generation
               before us imagined, your story should remain intact.
             </p>
             <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
               <Link
                 href="/create"
-                className="inline-flex min-h-12 items-center justify-center rounded-full bg-archive-gold px-8 py-3.5 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-archive-gold px-8 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
               >
                 Begin Your Archive
               </Link>
               <Link
                 href="/"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-8 py-3.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-8 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
               >
                 Return to Grand Hall
               </Link>
@@ -371,6 +370,71 @@ export default function EternismPage() {
           <p className="mt-2">Questions regarding Eternism and archive continuity can be directed to {publicSupportEmail}.</p>
         </footer>
       </div>
-    </main>
+    );
+  }
+
+  return (
+    <>
+      <ArchiveBuildingShell
+        image={{ ...archiveBuildingScenes.eternistObservatory, priority: true }}
+        active="eternism"
+        archiveSlug={account.defaultArchive?.slug ?? null}
+        archiveName={account.defaultArchive?.archiveName ?? null}
+        archivePersonName={account.defaultArchive?.personName ?? null}
+        showArchiveActions={Boolean(account.defaultArchive?.slug)}
+        navRegion={observatoryNavRegion}
+        sceneLabel="Eternist Observatory archive-building scene"
+      >
+        <ArchiveOverlayRegion
+          region={observatoryContentRegion}
+          className="overflow-hidden p-6 text-archive-ivory"
+          ariaLabel="Eternist Observatory Content"
+        >
+          <div className="h-full overflow-y-auto pr-3 custom-scrollbar">
+            <EternismContentBody />
+          </div>
+        </ArchiveOverlayRegion>
+      </ArchiveBuildingShell>
+
+      <ArchiveMobileScene
+        image={{ ...archiveBuildingMobileScenes.study, priority: true }}
+        sceneLabel="Eternist Observatory mobile archive room"
+        title="ETERNIST OBSERVATORY"
+        subtitle="Memory, identity, and human continuity."
+        className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
+      >
+        <main className="relative min-h-screen overflow-hidden bg-archive-obsidian/90 px-4 py-8 text-archive-ivory sm:px-8">
+          <DesignBackdrop />
+          <div className="relative z-10 mx-auto w-full max-w-5xl">
+            <nav className="flex flex-col gap-4 border-b border-archive-gold/18 pb-5 sm:flex-row sm:items-center sm:justify-between">
+              <Link href="/" aria-label="Return to Grand Hall">
+                <SiteLogo width={220} height={54} />
+              </Link>
+              <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-archive-ivory/72">
+                <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="/">
+                  Grand Hall
+                </Link>
+                <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="#problem">
+                  The Problem
+                </Link>
+                <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="#two-fronts">
+                  Two Fronts
+                </Link>
+                <Link className="hover:text-archive-gold focus:outline-none focus:ring-2 focus:ring-archive-gold/50" href="#continuity">
+                  Continuity
+                </Link>
+                <Link
+                  className="rounded-full border border-archive-gold/35 px-4 py-1.5 text-xs uppercase tracking-[0.14em] text-archive-gold hover:bg-archive-gold/10 focus:outline-none focus:ring-2 focus:ring-archive-gold/50"
+                  href="/create"
+                >
+                  Begin Archive
+                </Link>
+              </div>
+            </nav>
+            <EternismContentBody />
+          </div>
+        </main>
+      </ArchiveMobileScene>
+    </>
   );
 }

@@ -48,6 +48,11 @@ export const archiveBuildingScenes = {
     src: "/images/archive-building/qr-code.png",
     width: 1535,
     height: 1024
+  },
+  eternistObservatory: {
+    src: "/images/archive-building/eternist-observatory.png",
+    width: 1535,
+    height: 1024
   }
 } as const;
 

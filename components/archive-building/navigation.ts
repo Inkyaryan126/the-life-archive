@@ -1,14 +1,23 @@
 export type ArchiveBuildingNavActive =
   | "dashboard"
-  | "settings"
-  | "member-card"
-  | "keepsakes"
-  | "time-capsules"
+  | "grand-hall"
+  | "eternism"
   | "add-memory"
   | "voice-sound"
   | "photo-video"
   | "letter-journal"
+  | "time-capsules"
+  | "keepsakes"
+  | "member-card"
+  | "storykeeper-products"
   | "qr"
+  | "after-a-loss"
+  | "help-for-families"
+  | "build-your-legacy"
+  | "preserve-their-voice"
+  | "how-it-works"
+  | "faq"
+  | "settings"
   | "legacy-question";
 
 type ArchiveBuildingMenuLink = {
@@ -36,41 +45,31 @@ export function getArchiveBuildingMenuItems(
   archiveSlug?: string | null
 ): ArchiveBuildingMenuItem[] {
   const archiveHref = archiveSlug ? `/archive/${archiveSlug}` : "/create";
-  const addMemoryHref = archiveSlug ? `${archiveHref}/add-memory` : null;
-  const qrHref = archiveSlug ? `${archiveHref}/qr` : "/create";
+  const addMemoryHref = archiveSlug ? `${archiveHref}/add-memory` : "/create";
 
   return [
     { kind: "header", label: "ARCHIVE" },
     { kind: "link", href: "/dashboard", label: "My Archives", active: "dashboard" },
-    {
-      kind: "link",
-      href: addMemoryHref ? `${addMemoryHref}?mode=voice-sound` : "/create",
-      label: "Add Voice & Sound",
-      active: "voice-sound"
-    },
-    {
-      kind: "link",
-      href: addMemoryHref ? `${addMemoryHref}?mode=photo-video` : "/create",
-      label: "Add Photos & Video",
-      active: "photo-video"
-    },
-    {
-      kind: "link",
-      href: addMemoryHref ? `${addMemoryHref}?mode=letter-journal` : "/create",
-      label: "Write a Letter or Journal",
-      active: "letter-journal"
-    },
+    { kind: "link", href: "/", label: "Grand Hall", active: "grand-hall" },
+    { kind: "link", href: "/eternism", label: "Eternist Observatory", active: "eternism" },
+
     { kind: "divider" },
     { kind: "header", label: "PRESERVE" },
-    {
-      kind: "link",
-      href: "/dashboard/time-capsules",
-      label: "Time Capsules",
-      active: "time-capsules"
-    },
+    { kind: "link", href: addMemoryHref, label: "Add a Memory", active: "add-memory" },
+    { kind: "link", href: "/dashboard/time-capsules", label: "Time Capsules", active: "time-capsules" },
     { kind: "link", href: "/keepsakes", label: "Keepsake Store", active: "keepsakes" },
     { kind: "link", href: "/member-card", label: "Member Card", active: "member-card" },
-    { kind: "link", href: qrHref, label: "QR Code", active: "qr" },
+    { kind: "link", href: "/storykeeper-products", label: "Storykeeper Products", active: "storykeeper-products" },
+
+    { kind: "divider" },
+    { kind: "header", label: "GUIDANCE" },
+    { kind: "link", href: "/after-a-loss", label: "After a Loss", active: "after-a-loss" },
+    { kind: "link", href: "/help-for-families", label: "Help for Families", active: "help-for-families" },
+    { kind: "link", href: "/build-your-legacy", label: "Build Your Legacy", active: "build-your-legacy" },
+    { kind: "link", href: "/preserve-their-voice", label: "Preserve Their Voice", active: "preserve-their-voice" },
+    { kind: "link", href: "/#how-it-works", label: "How It Works", active: "how-it-works" },
+    { kind: "link", href: "/faq", label: "FAQ", active: "faq" },
+
     { kind: "divider" },
     { kind: "header", label: "ACCOUNT" },
     { kind: "link", href: "/dashboard/settings", label: "Settings", active: "settings" }
