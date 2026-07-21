@@ -643,12 +643,12 @@ export function LegacyProloguePlayer({
     Boolean(activeFrame.introCaption) &&
     activeImageElapsed >= 240 &&
     activeImageElapsed <= INTRO_BLACK_DURATION - 120;
-  const finalQuestionVisible = activeFrame.chapterId === "mansion" && (activeImageElapsed >= 4550 || isComplete);
-  const finalPromptVisible = activeFrame.chapterId === "mansion" && (activeImageElapsed >= 5000 || isComplete);
+  const finalQuestionVisible = activeFrame.chapterId === "mansion" && (activeImageElapsed >= 3700 || isComplete);
+  const finalPromptVisible = activeFrame.chapterId === "mansion" && (activeImageElapsed >= 4200 || isComplete);
   const finalCaptionVisible = activeFrame.chapterId !== "mansion" || isComplete
     ? true
-    : (activeImageElapsed >= 900 && activeImageElapsed <= 4050) ||
-      activeImageElapsed >= 4550;
+    : (activeImageElapsed >= 900 && activeImageElapsed <= 3300) ||
+      activeImageElapsed >= 3700;
   const textVisible =
     Boolean(activeImage.caption?.length) &&
     activeImageElapsed >= captionStart &&
