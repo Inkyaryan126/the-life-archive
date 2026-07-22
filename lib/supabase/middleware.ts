@@ -5,10 +5,15 @@ import { recordSiteVisit } from "@/lib/site-visit-tracking";
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !anonKey) {
+      return response;
+    }
+
+    const supabase = createServerClient(supabaseUrl, anonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -29,19 +34,25 @@ export async function updateSession(request: NextRequest) {
           );
         }
       }
+    });
+
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    try {
+      await recordSiteVisit({
+        request,
+        response,
+        supabase,
+        userEmail: user?.email ?? null
+      });
+    } catch (visitError) {
+      console.error("Unable to record site visit:", visitError);
     }
-  );
-
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
-  await recordSiteVisit({
-    request,
-    response,
-    supabase,
-    userEmail: user?.email ?? null
-  });
+  } catch (sessionError) {
+    console.error("Unable to update session in middleware:", sessionError);
+  }
 
   return response;
 }

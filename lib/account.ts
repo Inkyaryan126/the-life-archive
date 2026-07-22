@@ -89,7 +89,7 @@ export async function getAccountContext(): Promise<AccountContext> {
     .maybeSingle();
 
   if (profileError) {
-    throw profileError;
+    console.error("Unable to fetch profile:", profileError.message);
   }
 
   const archives: AccountArchive[] = (archiveRows ?? []).map((archive) => ({
