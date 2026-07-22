@@ -108,12 +108,6 @@ export function getNavGroupedItems(
           href: "/member-card",
           label: "Member Card",
           active: "member-card"
-        },
-        {
-          kind: "link",
-          href: "/storykeeper-products",
-          label: "Storykeeper Products",
-          active: "storykeeper-products"
         }
       ]
     },

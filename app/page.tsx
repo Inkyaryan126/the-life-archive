@@ -471,7 +471,7 @@ function DesktopDirectoryRow({
   return (
     <div
       className="desktop-directory-row relative flex min-h-0 flex-1"
-      style={{ animationDelay: `${4300 + index * 420}ms` }}
+      style={{ animationDelay: `${index * 30}ms` }}
     >
       <Link
         href={entry.href}
