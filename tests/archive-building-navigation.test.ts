@@ -8,7 +8,6 @@ assert.deepEqual(labels, [
   "ARCHIVE",
   "My Archives",
   "Grand Hall",
-  "Eternist Observatory",
   "---",
   "PRESERVE",
   "Add a Memory",

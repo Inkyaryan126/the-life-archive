@@ -72,13 +72,7 @@ export function getNavGroupedItems(
           active: "dashboard",
           requiresAuth: true
         },
-        { kind: "link", href: "/", label: "Grand Hall", active: "grand-hall" },
-        {
-          kind: "link",
-          href: "/eternism",
-          label: "Eternist Observatory",
-          active: "eternism"
-        }
+        { kind: "link", href: "/", label: "Grand Hall", active: "grand-hall" }
       ]
     },
     {

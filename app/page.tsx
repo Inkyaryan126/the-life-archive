@@ -160,14 +160,6 @@ export default async function HomePage() {
       position: { left: 39.1, top: 62.8, width: 21.2, height: 6.8 }
     },
     {
-      title: "The Eternist Observatory",
-      href: "/eternism",
-      description:
-        "Explore memory, continuity, longevity, and the future of human life.",
-      ariaLabel: "Visit The Eternist Observatory. Explore memory, continuity, longevity, and the future of human life.",
-      position: { left: 39.1, top: 69.6, width: 21.2, height: 6.8 }
-    },
-    {
       title: "How It Works",
       href: "#how-it-works",
       description:
@@ -249,12 +241,6 @@ function GrandHallHero({
       ariaLabel: "Open Support After a Loss. Guidance when someone is gone."
     },
     {
-      title: "The Eternist Observatory",
-      subtitle: "Explore memory, continuity & longevity.",
-      href: "/eternism",
-      ariaLabel: "Open The Eternist Observatory. Explore memory, continuity, longevity, and the future of human life."
-    },
-    {
       title: "Help, Privacy & Information",
       subtitle: "Help, privacy and support.",
       href: "#information",
@@ -305,12 +291,6 @@ function GrandHallHero({
       subtitle: "Guidance when someone is gone.",
       href: "/after-a-loss",
       ariaLabel: "Open Support After a Loss."
-    },
-    {
-      title: "The Eternist Observatory",
-      subtitle: "Memory, continuity & human longevity.",
-      href: "/eternism",
-      ariaLabel: "Open The Eternist Observatory."
     },
     {
       title: "Help & Information",
@@ -596,12 +576,6 @@ function BelowDirectoryContent({ timeCapsulesHref }: { timeCapsulesHref: string 
             copy="Every archive can have a QR code. A scan can lead someone back to the archive, a memory, or a keepsake-connected experience controlled by the archive owner."
           />
           <InfoPanel
-            title="Eternism and Continuity"
-            copy="Explore how The Life Archive preserves identity, voice, and personal continuity across decades while humanity works toward longer and healthier lives."
-            href="/eternism"
-            linkText="Explore The Eternist Observatory"
-          />
-          <InfoPanel
             title="Time Capsules"
             copy="Time Capsules let someone prepare a preserved message today and schedule it to reach another person later through the existing archive dashboard."
             href={timeCapsulesHref}
@@ -723,7 +697,6 @@ function GrandHallFooter({
     {
       title: "Guides",
       links: [
-        ["The Eternist Observatory", "/eternism"],
         ["Support After A Loss", "/after-a-loss"],
         ["Help for Families", "/help-for-families"],
         ["Build Your Legacy", "/build-your-legacy"],
