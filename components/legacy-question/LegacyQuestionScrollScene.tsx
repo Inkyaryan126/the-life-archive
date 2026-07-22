@@ -511,27 +511,14 @@ export function LegacyQuestionScrollScene({
               )}
             </div>
 
-            {/* FIRST NAME INPUT (Region 8) */}
+            {/* EMAIL ADDRESS INPUT (Region 8 - Left Field) */}
             <div className="absolute left-[28.821%] top-[50.622%] z-20 h-[2.279%] w-[23.941%]">
-              <input
-                type="text"
-                id="legacy-first-name"
-                aria-label="First Name"
-                value={firstName}
-                maxLength={60}
-                placeholder="First Name"
-                onChange={(e) => setFirstName(e.target.value)}
-                className="h-full w-full rounded-md border-none bg-transparent px-2 font-sans text-[clamp(11px,1.2vw,16px)] font-medium text-[#211912] placeholder:text-[#73685c]/60 outline-none focus:ring-1 focus:ring-[#8e6b2f]/40"
-              />
-            </div>
-
-            {/* EMAIL ADDRESS INPUT (Region 9) */}
-            <div className="absolute left-[57.551%] top-[50.622%] z-20 h-[2.348%] w-[23.204%]">
               <input
                 type="email"
                 id="legacy-email-address"
                 ref={emailInputRef}
                 required
+                autoComplete="email"
                 aria-label="Email Address"
                 aria-invalid={Boolean(emailError)}
                 value={email}
@@ -540,6 +527,21 @@ export function LegacyQuestionScrollScene({
                   setEmail(e.target.value);
                   setEmailError("");
                 }}
+                className="h-full w-full rounded-md border-none bg-transparent px-2 font-sans text-[clamp(11px,1.2vw,16px)] font-medium text-[#211912] placeholder:text-[#73685c]/60 outline-none focus:ring-1 focus:ring-[#8e6b2f]/40"
+              />
+            </div>
+
+            {/* FIRST NAME INPUT (Region 9 - Right Field) */}
+            <div className="absolute left-[57.551%] top-[50.622%] z-20 h-[2.348%] w-[23.204%]">
+              <input
+                type="text"
+                id="legacy-first-name"
+                autoComplete="given-name"
+                aria-label="First Name"
+                value={firstName}
+                maxLength={60}
+                placeholder="First Name"
+                onChange={(e) => setFirstName(e.target.value)}
                 className="h-full w-full rounded-md border-none bg-transparent px-2 font-sans text-[clamp(11px,1.2vw,16px)] font-medium text-[#211912] placeholder:text-[#73685c]/60 outline-none focus:ring-1 focus:ring-[#8e6b2f]/40"
               />
             </div>
