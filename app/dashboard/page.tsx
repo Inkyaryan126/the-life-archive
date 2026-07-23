@@ -23,6 +23,7 @@ import { getArchiveRelationshipLabel } from "@/lib/archive-relationships";
 import { getArchiveBySlug, getLegacyInstructionByArchiveSlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 import { legacyInstructionAccessLevelLabels } from "@/lib/legacy-instructions";
 import { DashboardProloguePart3Container } from "@/components/dashboard/DashboardProloguePart3Container";
+import { MobileDashboard } from "@/components/dashboard/MobileDashboard";
 import type { Memory, MemoryType } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -367,6 +368,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   return (
     <>
       <DashboardProloguePart3Container eligible={account.prologuePart3Eligible} />
+      {activeArchive ? (
+        <MobileDashboard
+          displayName={account.user?.displayName ?? "Archive Member"}
+          activeArchive={activeArchive}
+          memories={activeArchiveMemories}
+          totalArchivesCount={archives.length}
+        />
+      ) : null}
       <ArchiveBuildingShell
         image={{ ...archiveBuildingScenes.myArchives, priority: true }}
         active="dashboard"
