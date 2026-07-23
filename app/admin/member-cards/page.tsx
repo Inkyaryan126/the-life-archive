@@ -1,14 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { AdminNav } from "@/components/AdminNav";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { getAdminAccess } from "@/lib/admin";
+import { listKeepsakeOrders } from "@/lib/keepsake-orders";
+import { listLegacyActivationRequests } from "@/lib/legacy-activation";
 import {
   buildMemberCardEngravingDataUri,
   getMemberCardEngravingFilename,
   listMemberCardEngravingCandidates,
   type MemberCardEngravingCandidate
 } from "@/lib/member-card-engraving";
+import { getSiteVisitStats } from "@/lib/site-visits";
 
 export const dynamic = "force-dynamic";
 
@@ -87,20 +91,20 @@ function CandidateCard({
   const backFilename = getMemberCardEngravingFilename(candidate, "back");
 
   return (
-    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
+    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury transition hover:border-archive-gold/25">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${
                 isReady
-                  ? "border-emerald-300/35 text-emerald-200"
-                  : "border-amber-300/35 text-amber-100"
+                  ? "border-emerald-300/35 text-emerald-200 bg-emerald-500/10"
+                  : "border-amber-300/35 text-amber-100 bg-amber-500/10"
               }`}
             >
               {isReady ? "Ready" : "Incomplete"}
             </span>
-            <span className="rounded-full border border-archive-gold/18 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-archive-ivory/65">
+            <span className="rounded-full border border-archive-gold/18 bg-white/[0.02] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-archive-ivory/65">
               {candidate.archiveType}
             </span>
             <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-archive-ivory/45">
@@ -114,13 +118,13 @@ function CandidateCard({
           <p className="mt-2 text-sm text-archive-ivory/68">
             Archive name: {candidate.archiveName || "Missing archive name"}
           </p>
-          <p className="mt-1 break-all text-sm text-archive-ivory/58">
+          <p className="mt-1 break-all font-mono text-xs text-archive-ivory/58">
             Archive slug: {candidate.archiveSlug || "Missing archive slug"}
           </p>
           <p className="mt-1 break-all text-sm text-archive-ivory/58">
             Account email: {candidate.ownerEmail || "Email unavailable"}
           </p>
-          <p className="mt-1 text-xs text-archive-ivory/45">
+          <p className="mt-1 font-mono text-xs text-archive-ivory/45">
             Member identifier: {candidate.ownerId}
           </p>
 
@@ -138,7 +142,7 @@ function CandidateCard({
               <>
                 <a
                   href={`/admin/member-cards/${candidate.archiveId}/front`}
-                  className="rounded-full bg-archive-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian transition hover:bg-archive-champagne"
+                  className="rounded-full bg-archive-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
                   download={frontFilename}
                 >
                   Download Front PNG
@@ -232,9 +236,23 @@ export default async function MemberCardEngravingPage({
 
   let candidates: MemberCardEngravingCandidate[] = [];
   let loadError: string | null = null;
+  let siteVisitStats = { uniqueVisitorsToday: 0 };
+  let newOrdersCount = 0;
+  let pendingReviewsCount = 0;
 
   try {
-    candidates = await listMemberCardEngravingCandidates(params?.q);
+    const [candData, stats, orders, legacyRequests] = await Promise.all([
+      listMemberCardEngravingCandidates(params?.q),
+      getSiteVisitStats(),
+      listKeepsakeOrders(),
+      listLegacyActivationRequests()
+    ]);
+    candidates = candData;
+    siteVisitStats = stats;
+    newOrdersCount = orders.filter((o) => o.fulfillmentStatus === "New").length;
+    pendingReviewsCount = legacyRequests.filter(
+      (r) => r.status === "pending_memorial_review"
+    ).length;
   } catch (error) {
     loadError =
       error instanceof Error
@@ -246,49 +264,37 @@ export default async function MemberCardEngravingPage({
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-8 text-archive-ivory sm:px-8">
       <DesignBackdrop />
       <div className="relative z-10 mx-auto max-w-7xl">
-        <nav className="flex flex-col gap-4 border-b border-archive-gold/18 pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/">
-            <SiteLogo width={160} height={40} />
-          </Link>
-          <div className="flex flex-wrap gap-4 text-sm font-semibold text-archive-champagne">
-            <Link href="/admin" className="underline-offset-4 hover:underline">
-              Admin Dashboard
-            </Link>
-            <Link
-              href="/admin/legacy-question"
-              className="underline-offset-4 hover:underline"
-            >
-              Legacy Question
-            </Link>
-          </div>
-        </nav>
+        <AdminNav
+          currentPath="/admin/member-cards"
+          todayVisitsCount={siteVisitStats.uniqueVisitorsToday}
+          newOrdersCount={newOrdersCount}
+          pendingReviewsCount={pendingReviewsCount}
+        />
 
-        <header className="py-12">
+        <header className="py-10">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-            Admin-only production export
+            Admin Production Export
           </p>
-          <h1 className="mt-4 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
+          <h1 className="mt-3 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
             Member Card Engraving
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-archive-ivory/68">
-            Export engraving-ready PNG files for LightBurn. Regular members do
-            not have access to this tool.
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-archive-ivory/68">
+            Export engraving-ready high-resolution PNG files for LightBurn laser equipment.
           </p>
-          <p className="mt-4 max-w-4xl text-sm leading-7 text-archive-ivory/62">
-            For black-coated metal cards, engrave only the artwork areas so the
-            coating is removed where the design should appear.
+          <p className="mt-2 max-w-4xl text-xs leading-6 text-archive-ivory/60">
+            For black-coated metal cards, engrave only the artwork areas so the coating is removed where the design should appear.
           </p>
 
           <form method="get" className="mt-6 flex max-w-2xl gap-3">
             <input
               name="q"
               defaultValue={params?.q ?? ""}
-              placeholder="Search display name, archive name, archive slug, or email"
+              placeholder="Search display name, archive name, archive slug, or email..."
               className="min-w-0 flex-1 rounded-full border border-archive-gold/18 bg-white/[0.03] px-5 py-3 text-sm text-archive-ivory outline-none placeholder:text-archive-ivory/35 focus:border-archive-gold"
             />
             <button
               type="submit"
-              className="rounded-full bg-archive-gold px-5 py-3 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+              className="rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
             >
               Search
             </button>
@@ -301,14 +307,14 @@ export default async function MemberCardEngravingPage({
           </p>
         ) : null}
 
-        <section className="mb-6 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
+        <section className="mb-6 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-            Export rules
+            Production Export Specs
           </p>
-          <ul className="mt-3 grid gap-2 text-sm leading-6 text-archive-ivory/68">
-            <li>Front and back PNGs are standalone and physical-size accurate.</li>
-            <li>Downloads are disabled until required data is present.</li>
-            <li>QR destinations are derived only from server-side archive records.</li>
+          <ul className="mt-3 grid gap-2 text-xs leading-6 text-archive-ivory/68 sm:grid-cols-3">
+            <li>• Front and back PNGs are physical-size accurate (85.73mm × 53.98mm).</li>
+            <li>• Downloads disabled until all required fields are validated.</li>
+            <li>• QR destinations derived strictly from verified database records.</li>
           </ul>
         </section>
 
@@ -319,8 +325,10 @@ export default async function MemberCardEngravingPage({
             ))}
           </div>
         ) : (
-          <section className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-8 text-sm leading-7 text-archive-ivory/68">
-            No eligible living archives were found.
+          <section className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-8 text-center shadow-luxury">
+            <h2 className="font-serif text-3xl text-archive-ivory">
+              No eligible living archives found.
+            </h2>
           </section>
         )}
       </div>

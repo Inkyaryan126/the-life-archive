@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AdminNav } from "@/components/AdminNav";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { getAdminAccess } from "@/lib/admin";
 import {
@@ -7,6 +8,9 @@ import {
   type AdminUserArchiveSummary,
   type AdminUserDirectoryEntry
 } from "@/lib/admin-users";
+import { listKeepsakeOrders } from "@/lib/keepsake-orders";
+import { listLegacyActivationRequests } from "@/lib/legacy-activation";
+import { getSiteVisitStats } from "@/lib/site-visits";
 
 export const dynamic = "force-dynamic";
 
@@ -31,18 +35,18 @@ function formatDate(value: string | null) {
 
 function statusClass(tone: "gold" | "green" | "amber" | "muted") {
   if (tone === "green") {
-    return "border-emerald-300/35 text-emerald-200";
+    return "border-emerald-300/35 text-emerald-200 bg-emerald-500/10";
   }
 
   if (tone === "amber") {
-    return "border-amber-300/35 text-amber-100";
+    return "border-amber-300/35 text-amber-200 bg-amber-500/10";
   }
 
   if (tone === "muted") {
-    return "border-archive-ivory/14 text-archive-ivory/55";
+    return "border-archive-ivory/14 text-archive-ivory/55 bg-white/[0.02]";
   }
 
-  return "border-archive-gold/25 text-archive-champagne";
+  return "border-archive-gold/25 text-archive-champagne bg-archive-gold/10";
 }
 
 function Badge({
@@ -69,7 +73,7 @@ function ArchiveRow({
   archive: AdminUserArchiveSummary;
 }) {
   return (
-    <div className="rounded-2xl border border-archive-gold/12 bg-archive-obsidian/45 p-4">
+    <div className="rounded-2xl border border-archive-gold/12 bg-archive-obsidian/45 p-4 transition hover:border-archive-gold/25">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">
@@ -90,18 +94,18 @@ function ArchiveRow({
           <p className="mt-1 text-sm text-archive-ivory/66">
             Person: {archive.personName}
           </p>
-          <p className="mt-1 break-all text-xs text-archive-ivory/48">
+          <p className="mt-1 break-all font-mono text-xs text-archive-ivory/48">
             Slug: {archive.slug || "Missing slug"}
           </p>
           <p className="mt-1 text-xs text-archive-ivory/48">
             Created {formatDate(archive.createdAt)} · {archive.memoryCount}{" "}
-            memories · {archive.relationshipToOwner}
+            memories · Relationship: {archive.relationshipToOwner}
           </p>
         </div>
 
         <Link
           href={`/admin/archives/${archive.id}`}
-          className="inline-flex shrink-0 items-center justify-center rounded-full bg-archive-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian transition hover:bg-archive-champagne"
+          className="inline-flex shrink-0 items-center justify-center rounded-full bg-archive-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
         >
           View Archive
         </Link>
@@ -112,7 +116,7 @@ function ArchiveRow({
 
 function UserCard({ user }: { user: AdminUserDirectoryEntry }) {
   return (
-    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
+    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury transition hover:border-archive-gold/25">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
           <h2 className="break-words font-serif text-3xl leading-tight text-archive-ivory">
@@ -121,7 +125,7 @@ function UserCard({ user }: { user: AdminUserDirectoryEntry }) {
           <p className="mt-2 break-all text-sm text-archive-ivory/70">
             {user.email || "Email unavailable"}
           </p>
-          <p className="mt-1 break-all text-xs text-archive-ivory/42">
+          <p className="mt-1 break-all font-mono text-xs text-archive-ivory/42">
             User ID: {user.id}
           </p>
         </div>
@@ -129,7 +133,7 @@ function UserCard({ user }: { user: AdminUserDirectoryEntry }) {
         <div className="grid gap-3 text-sm sm:grid-cols-3 xl:min-w-[32rem]">
           <div className="rounded-2xl border border-archive-gold/12 bg-white/[0.025] p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-archive-gold">
-              Archives
+              Archives Owned
             </p>
             <p className="mt-2 font-serif text-3xl text-archive-ivory">
               {user.archiveCount}
@@ -215,9 +219,23 @@ export default async function AdminUsersPage({
     totalArchives: 0
   };
   let loadError: string | null = null;
+  let siteVisitStats = { uniqueVisitorsToday: 0 };
+  let newOrdersCount = 0;
+  let pendingReviewsCount = 0;
 
   try {
-    directory = await listAdminUsersAndArchives(params?.q);
+    const [dirData, stats, orders, legacyRequests] = await Promise.all([
+      listAdminUsersAndArchives(params?.q),
+      getSiteVisitStats(),
+      listKeepsakeOrders(),
+      listLegacyActivationRequests()
+    ]);
+    directory = dirData;
+    siteVisitStats = stats;
+    newOrdersCount = orders.filter((o) => o.fulfillmentStatus === "New").length;
+    pendingReviewsCount = legacyRequests.filter(
+      (r) => r.status === "pending_memorial_review"
+    ).length;
   } catch (error) {
     loadError =
       error instanceof Error ? error.message : "Unable to load users.";
@@ -227,47 +245,36 @@ export default async function AdminUsersPage({
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-8 text-archive-ivory sm:px-8">
       <DesignBackdrop />
       <div className="relative z-10 mx-auto max-w-7xl">
-        <nav className="flex flex-col gap-4 border-b border-archive-gold/18 pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/">
-            <SiteLogo width={160} height={40} />
-          </Link>
-          <div className="flex flex-wrap gap-4 text-sm font-semibold text-archive-champagne">
-            <Link href="/admin" className="underline-offset-4 hover:underline">
-              Admin Dashboard
-            </Link>
-            <Link
-              href="/admin/member-cards"
-              className="underline-offset-4 hover:underline"
-            >
-              Member Card Engraving
-            </Link>
-          </div>
-        </nav>
+        <AdminNav
+          currentPath="/admin/users"
+          todayVisitsCount={siteVisitStats.uniqueVisitorsToday}
+          newOrdersCount={newOrdersCount}
+          pendingReviewsCount={pendingReviewsCount}
+        />
 
-        <header className="py-12">
+        <header className="py-10">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-            Admin directory
+            User Directory
           </p>
-          <h1 className="mt-4 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
+          <h1 className="mt-3 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
             Users & Archives
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-archive-ivory/68">
-            Review account owners and open their archives through a separate
-            admin-only preview without changing public privacy rules.
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-archive-ivory/68">
+            Review registered account owners, inspect owned archives, and open administrative preview sessions without modifying public visibility controls.
           </p>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
+            <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-                Total Users
+                Total Registered Users
               </p>
               <p className="mt-2 font-serif text-4xl text-archive-ivory">
                 {directory.totalUsers.toLocaleString("en-US")}
               </p>
             </div>
-            <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
+            <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-                Total Archives
+                Total Life Archives Created
               </p>
               <p className="mt-2 font-serif text-4xl text-archive-ivory">
                 {directory.totalArchives.toLocaleString("en-US")}
@@ -279,14 +286,14 @@ export default async function AdminUsersPage({
             <input
               name="q"
               defaultValue={params?.q ?? ""}
-              placeholder="Search display name, email, or archive name"
+              placeholder="Search by display name, email address, or archive title..."
               className="min-w-0 flex-1 rounded-full border border-archive-gold/18 bg-white/[0.03] px-5 py-3 text-sm text-archive-ivory outline-none placeholder:text-archive-ivory/35 focus:border-archive-gold"
             />
             <button
               type="submit"
-              className="rounded-full bg-archive-gold px-5 py-3 text-sm font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+              className="rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
             >
-              Search
+              Search Directory
             </button>
           </form>
         </header>
@@ -300,10 +307,10 @@ export default async function AdminUsersPage({
         {!loadError && directory.users.length === 0 ? (
           <section className="rounded-2xl border border-archive-gold/18 bg-white/[0.025] p-8 text-center shadow-luxury">
             <h2 className="font-serif text-3xl text-archive-ivory">
-              No users found.
+              No users found matching query.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-archive-ivory/64">
-              Try a different display name, email, or archive name.
+              Try searching by a different display name, email, or archive title.
             </p>
           </section>
         ) : null}

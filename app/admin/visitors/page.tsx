@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AdminNav } from "@/components/AdminNav";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { getAdminAccess } from "@/lib/admin";
 import { countAdminAccounts } from "@/lib/admin-users";
+import { listKeepsakeOrders } from "@/lib/keepsake-orders";
+import { listLegacyActivationRequests } from "@/lib/legacy-activation";
 import {
   type BotProbeVisit,
   getSiteVisitStats,
@@ -11,7 +14,8 @@ import {
 } from "@/lib/site-visits";
 import {
   formatVisitorAnalyticsDateTime,
-  formatVisitorAnalyticsRelativeTime
+  formatVisitorAnalyticsRelativeTime,
+  VISITOR_ANALYTICS_TIME_ZONE
 } from "@/lib/site-visit-utils";
 
 export const dynamic = "force-dynamic";
@@ -19,22 +23,31 @@ export const dynamic = "force-dynamic";
 function StatCard({
   label,
   value,
-  detail
+  detail,
+  badge
 }: {
   label: string;
   value: number | string;
   detail?: string;
+  badge?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
-      <p className="text-xs uppercase tracking-[0.18em] text-archive-ivory/48">
-        {label}
-      </p>
+    <div className="relative overflow-hidden rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury transition hover:border-archive-gold/25">
+      <div className="flex items-center justify-between">
+        <p className="text-xs uppercase tracking-[0.18em] text-archive-ivory/50">
+          {label}
+        </p>
+        {badge ? (
+          <span className="rounded-full border border-archive-gold/25 bg-archive-gold/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-archive-gold">
+            {badge}
+          </span>
+        ) : null}
+      </div>
       <p className="mt-3 font-serif text-4xl text-archive-gold">
         {typeof value === "number" ? value.toLocaleString("en-US") : value}
       </p>
       {detail ? (
-        <p className="mt-2 text-xs leading-5 text-archive-ivory/56">{detail}</p>
+        <p className="mt-2 text-xs leading-5 text-archive-ivory/55">{detail}</p>
       ) : null}
     </div>
   );
@@ -48,8 +61,17 @@ function VisitorStatusBadge({ status }: { status: RecentSiteVisit["visitorStatus
         ? "New"
         : "Unknown";
 
+  const colorClass =
+    status === "returning"
+      ? "border-sky-300/35 text-sky-200 bg-sky-500/10"
+      : status === "new"
+        ? "border-emerald-300/35 text-emerald-200 bg-emerald-500/10"
+        : "border-archive-gold/25 text-archive-champagne bg-archive-gold/10";
+
   return (
-    <span className="rounded-full border border-archive-gold/25 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-archive-champagne">
+    <span
+      className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${colorClass}`}
+    >
       {label}
     </span>
   );
@@ -67,7 +89,7 @@ function RecentVisitRow({ visit }: { visit: RecentSiteVisit }) {
         </p>
       </div>
       <div className="min-w-0">
-        <p className="break-all font-semibold text-archive-champagne">
+        <p className="break-all font-mono text-xs font-semibold text-archive-champagne">
           {visit.path}
         </p>
         <p className="mt-1 break-all text-xs text-archive-ivory/52">
@@ -88,8 +110,8 @@ function RecentVisitRow({ visit }: { visit: RecentSiteVisit }) {
             : ""}
         </p>
         {visit.recentPages.length > 1 ? (
-          <p className="mt-1 truncate text-archive-ivory/42">
-            Recent path: {visit.recentPages[1].path}
+          <p className="mt-1 truncate font-mono text-[11px] text-archive-ivory/42">
+            Prev path: {visit.recentPages[1].path}
           </p>
         ) : null}
       </div>
@@ -102,9 +124,9 @@ function RecentVisitRow({ visit }: { visit: RecentSiteVisit }) {
 
 function TopPages({ stats }: { stats: SiteVisitStats }) {
   return (
-    <section className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
+    <section className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
       <h2 className="font-serif text-2xl text-archive-ivory">
-        Most visited human pages
+        Most Visited Human Pages
       </h2>
       {stats.topPaths.length > 0 ? (
         <div className="mt-4 divide-y divide-archive-gold/10">
@@ -113,10 +135,10 @@ function TopPages({ stats }: { stats: SiteVisitStats }) {
               key={path.path}
               className="flex flex-col gap-2 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
             >
-              <span className="break-all font-semibold text-archive-champagne">
+              <span className="break-all font-mono text-xs text-archive-champagne">
                 {path.path}
               </span>
-              <span className="text-archive-ivory/58">
+              <span className="text-xs text-archive-ivory/58">
                 {path.visitCount.toLocaleString("en-US")} visits
               </span>
             </div>
@@ -133,30 +155,31 @@ function TopPages({ stats }: { stats: SiteVisitStats }) {
 
 function RecentVisitorFeed({ visits }: { visits: RecentSiteVisit[] }) {
   return (
-    <section className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
+    <section className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
             Recent visitor activity
           </p>
-          <h2 className="mt-3 font-serif text-2xl text-archive-ivory">
+          <h2 className="mt-2 font-serif text-2xl text-archive-ivory">
             Newest human activity
           </h2>
         </div>
-        <span className="inline-flex w-fit rounded-full border border-emerald-300/25 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-100">
-          Refresh for latest
+        <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-emerald-300/25 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-200">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          Live Stream
         </span>
       </div>
 
       {visits.length > 0 ? (
         <div className="mt-4">
           <div className="hidden border-t border-archive-gold/10 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-archive-ivory/42 lg:grid lg:grid-cols-[10rem_minmax(0,1.4fr)_minmax(12rem,0.9fr)_8rem_8rem_7rem]">
-            <span>Time</span>
-            <span>Page and source</span>
+            <span>Timestamp</span>
+            <span>Page & Referrer</span>
             <span>Visitor context</span>
             <span>Device</span>
             <span>Browser</span>
-            <span>Visitor</span>
+            <span>Visitor Status</span>
           </div>
           {visits.map((visit) => (
             <RecentVisitRow key={visit.id} visit={visit} />
@@ -173,16 +196,16 @@ function RecentVisitorFeed({ visits }: { visits: RecentSiteVisit[] }) {
 
 function BotProbeSummary({ visits }: { visits: BotProbeVisit[] }) {
   return (
-    <section className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
+    <section className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
       <h2 className="font-serif text-2xl text-archive-ivory">
-        Bot/probe traffic
+        Bot & Automated Probe Traffic
       </h2>
       {visits.length > 0 ? (
         <div className="mt-4 divide-y divide-archive-gold/10">
           {visits.map((visit) => (
             <div key={visit.id} className="py-3 text-sm">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <span className="break-all font-semibold text-archive-champagne">
+                <span className="break-all font-mono text-xs text-amber-200/90">
                   {visit.path}
                 </span>
                 <span className="text-xs text-archive-ivory/48">
@@ -240,20 +263,23 @@ export default async function AdminVisitorsPage() {
     return <AccessUnavailable />;
   }
 
-  const [stats, accountCount] = await Promise.all([
+  const [stats, accountCount, orders, legacyRequests] = await Promise.all([
     getSiteVisitStats(),
-    countAdminAccounts()
+    countAdminAccounts(),
+    listKeepsakeOrders(),
+    listLegacyActivationRequests()
   ]);
-  const latestDetail = stats.mostRecentVisit
-    ? `Latest human visit ${formatVisitorAnalyticsRelativeTime(
-        stats.mostRecentVisit.createdAt
-      )} · ${formatVisitorAnalyticsDateTime(stats.mostRecentVisit.createdAt)}`
-    : "No human activity yet";
+
+  const newOrdersCount = orders.filter((o) => o.fulfillmentStatus === "New").length;
+  const pendingReviewsCount = legacyRequests.filter(
+    (r) => r.status === "pending_memorial_review"
+  ).length;
+
   const latestVisitDetail = stats.mostRecentVisit
     ? `${stats.mostRecentVisit.path} · ${formatVisitorAnalyticsDateTime(
         stats.mostRecentVisit.createdAt
       )}`
-    : latestDetail;
+    : "No human activity yet";
   const trackingStart = stats.visitorIdTrackingStartedAt
     ? formatVisitorAnalyticsDateTime(stats.visitorIdTrackingStartedAt)
     : "Not started yet";
@@ -262,57 +288,41 @@ export default async function AdminVisitorsPage() {
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-8 text-archive-ivory sm:px-8">
       <DesignBackdrop />
       <div className="relative z-10 mx-auto max-w-7xl">
-        <nav className="flex flex-col gap-4 border-b border-archive-gold/18 pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/">
-            <SiteLogo width={160} height={40} />
-          </Link>
-          <div className="flex flex-wrap gap-4 text-sm font-semibold text-archive-champagne">
-            <Link href="/admin" className="underline-offset-4 hover:underline">
-              Admin
-            </Link>
-            <Link href="/dashboard" className="underline-offset-4 hover:underline">
-              Dashboard
-            </Link>
-            <Link href="/admin/users" className="underline-offset-4 hover:underline">
-              Users & Archives
-            </Link>
-            <Link
-              href="/admin/visitors"
-              className="inline-flex items-center gap-2 text-archive-gold underline-offset-4 hover:underline"
-            >
-              Visitors
-              <span className="rounded-full border border-archive-gold/25 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-archive-ivory/60">
-                {stats.humanPageViewsToday.toLocaleString("en-US")} today
-              </span>
-            </Link>
-          </div>
-        </nav>
+        <AdminNav
+          currentPath="/admin/visitors"
+          todayVisitsCount={stats.uniqueVisitorsToday}
+          newOrdersCount={newOrdersCount}
+          pendingReviewsCount={pendingReviewsCount}
+        />
 
-        <header className="py-12">
+        <header className="py-10">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-            Visitor Activity
+            Analytics Intelligence
           </p>
-          <h1 className="mt-4 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
-            Visitors
+          <h1 className="mt-3 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
+            Visitors & Site Traffic
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-archive-ivory/68">
-            Human page views are separated from unique visitor estimates,
-            bot/probe requests, and admin traffic.
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-archive-ivory/68">
+            Detailed breakdown of unique human visitors vs page views, timezone-aligned to {VISITOR_ANALYTICS_TIME_ZONE}. Bot/probe scans and admin activity are filtered automatically.
           </p>
         </header>
 
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             label="Human page views today"
             value={stats.humanPageViewsToday}
+            detail={`Unique visitors today: ${stats.uniqueVisitorsToday.toLocaleString("en-US")} (${VISITOR_ANALYTICS_TIME_ZONE})`}
+            badge="Today"
           />
           <StatCard
             label="Human page views last 7 days"
             value={stats.humanPageViewsLast7Days}
+            detail={`${stats.uniqueVisitorsLast7Days.toLocaleString("en-US")} unique visitors in last 7 days`}
           />
           <StatCard
             label="Human page views last 30 days"
             value={stats.humanPageViewsLast30Days}
+            detail={`${stats.uniqueVisitorsLast30Days.toLocaleString("en-US")} unique visitors in last 30 days`}
           />
           <StatCard
             label="Most recent human visit"
@@ -327,7 +337,7 @@ export default async function AdminVisitorsPage() {
           />
         </section>
 
-        <section className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             label="Unique visitors since IDs began"
             value={stats.uniqueVisitorsSinceTrackingBegan}
@@ -336,23 +346,21 @@ export default async function AdminVisitorsPage() {
           <StatCard
             label="New visitors last 30 days"
             value={stats.newVisitorsLast30Days}
-            detail="First observed during the last 30 days."
+            detail="First observed within the last 30 days"
           />
           <StatCard
             label="Accounts created"
             value={accountCount}
-            detail="Total authenticated accounts."
+            detail="Total authenticated member accounts"
           />
           <StatCard
             label="Bot/probe requests last 30 days"
             value={stats.botProbeRequestsLast30Days}
-            detail={`${stats.adminRequestsLast30Days.toLocaleString(
-              "en-US"
-            )} admin requests also excluded.`}
+            detail={`${stats.adminRequestsLast30Days.toLocaleString("en-US")} admin requests also excluded.`}
           />
         </section>
 
-        <section className="mt-6 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 text-sm leading-7 text-archive-ivory/64">
+        <section className="mt-6 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 text-xs leading-6 text-archive-ivory/60">
           <p>
             Historical rows before anonymous visitor IDs cannot be counted as
             unique visitors. Unique visitor estimates only include human rows

@@ -6,9 +6,12 @@ import {
   retryLegacyQuestionSubmissionAction,
   updateLegacyQuestionSubmissionAction
 } from "@/app/admin/legacy-question/actions";
+import { AdminNav } from "@/components/AdminNav";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { getAdminAccess } from "@/lib/admin";
 import { isConfiguredAdminEmail } from "@/lib/admin-emails";
+import { listKeepsakeOrders } from "@/lib/keepsake-orders";
+import { listLegacyActivationRequests } from "@/lib/legacy-activation";
 import {
   listLegacyQuestionClaimOverviews,
   type LegacyQuestionClaimOverview
@@ -22,6 +25,7 @@ import {
   getFallbackDisplayName,
   loadProfilesByUserIds
 } from "@/lib/profiles";
+import { getSiteVisitStats } from "@/lib/site-visits";
 
 export const dynamic = "force-dynamic";
 
@@ -53,52 +57,52 @@ function previewText(value: string | null) {
 
 function statusClass(status: LegacyQuestionSubmission["submissionStatus"]) {
   if (status === "archived") {
-    return "border-emerald-300/35 text-emerald-200";
+    return "border-emerald-300/35 text-emerald-200 bg-emerald-500/10";
   }
 
   if (status === "emailed") {
-    return "border-sky-300/35 text-sky-200";
+    return "border-sky-300/35 text-sky-200 bg-sky-500/10";
   }
 
   if (status === "failed") {
-    return "border-red-300/35 text-red-100";
+    return "border-red-300/35 text-red-100 bg-red-500/10";
   }
 
-  return "border-archive-gold/35 text-archive-champagne";
+  return "border-archive-gold/35 text-archive-champagne bg-archive-gold/10";
 }
 
 function processingStatusClass(
   status: LegacyQuestionSubmission["processingStatus"]
 ) {
   if (status === "email_sent") {
-    return "border-emerald-300/35 text-emerald-200";
+    return "border-emerald-300/35 text-emerald-200 bg-emerald-500/10";
   }
 
   if (status === "failed") {
-    return "border-red-300/35 text-red-100";
+    return "border-red-300/35 text-red-100 bg-red-500/10";
   }
 
   if (status === "media_pending") {
-    return "border-amber-300/35 text-amber-100";
+    return "border-amber-300/35 text-amber-100 bg-amber-500/10";
   }
 
-  return "border-sky-300/35 text-sky-100";
+  return "border-sky-300/35 text-sky-100 bg-sky-500/10";
 }
 
 function claimStatusClass(status: LegacyQuestionClaimOverview["claimStatus"]) {
   if (status === "claimed") {
-    return "border-emerald-300/35 text-emerald-200";
+    return "border-emerald-300/35 text-emerald-200 bg-emerald-500/10";
   }
 
   if (status === "expired" || status === "revoked") {
-    return "border-red-300/35 text-red-100";
+    return "border-red-300/35 text-red-100 bg-red-500/10";
   }
 
   if (status === "active") {
-    return "border-sky-300/35 text-sky-100";
+    return "border-sky-300/35 text-sky-100 bg-sky-500/10";
   }
 
-  return "border-archive-gold/35 text-archive-champagne";
+  return "border-archive-gold/35 text-archive-champagne bg-archive-gold/10";
 }
 
 const pipelineStages: Array<{
@@ -129,7 +133,7 @@ function SubmissionCard({
   const isAdminTestSubmission = isConfiguredAdminEmail(submission.email);
 
   return (
-    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
+    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury transition hover:border-archive-gold/25">
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -147,7 +151,7 @@ function SubmissionCard({
             >
               {submission.processingStatus.replace(/_/g, " ")}
             </span>
-            <span className="rounded-full border border-archive-gold/16 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-archive-ivory/60">
+            <span className="rounded-full border border-archive-gold/16 bg-white/[0.02] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-archive-ivory/60">
               {submission.entryType}
             </span>
             {isAdminTestSubmission ? (
@@ -173,7 +177,7 @@ function SubmissionCard({
               <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
                 Starter archive
               </dt>
-              <dd className="mt-1 break-all text-archive-ivory/75">
+              <dd className="mt-1 break-all font-mono text-xs text-archive-ivory/75">
                 {submission.starterArchiveSlug ? (
                   <Link
                     className="text-archive-champagne underline-offset-4 hover:underline"
@@ -190,7 +194,7 @@ function SubmissionCard({
               <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
                 First memory ID
               </dt>
-              <dd className="mt-1 break-all text-archive-ivory/75">
+              <dd className="mt-1 break-all font-mono text-xs text-archive-ivory/75">
                 {submission.firstMemoryId || "Not created yet"}
               </dd>
             </div>
@@ -222,7 +226,7 @@ function SubmissionCard({
               <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
                 Media MIME
               </dt>
-              <dd className="mt-1 break-all text-archive-ivory/75">
+              <dd className="mt-1 break-all font-mono text-xs text-archive-ivory/75">
                 {submission.mediaMimeType || "None"}
               </dd>
             </div>
@@ -230,7 +234,7 @@ function SubmissionCard({
 
           <div className="mt-5 rounded-xl border border-archive-gold/10 bg-archive-obsidian/60 p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Pipeline
+              Pipeline Stages
             </p>
             <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
               {pipelineStages.map((stage) => (
@@ -243,7 +247,7 @@ function SubmissionCard({
               ))}
               <div>
                 <dt className="text-archive-ivory/48">Failed/current stage</dt>
-                <dd className="mt-1 break-all text-archive-ivory/78">
+                <dd className="mt-1 break-all font-mono text-xs text-archive-ivory/78">
                   {submission.processingStage || "None"}
                 </dd>
               </div>
@@ -269,7 +273,7 @@ function SubmissionCard({
 
           <div className="mt-5 rounded-xl border border-archive-gold/10 bg-archive-obsidian/60 p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Text preview
+              Text Preview
             </p>
             <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-archive-ivory/72">
               {previewText(submission.textContent)}
@@ -278,7 +282,7 @@ function SubmissionCard({
 
           <div className="mt-5 rounded-xl border border-archive-gold/10 bg-archive-obsidian/60 p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Claim token
+              Claim Token & Account Link
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <span
@@ -307,7 +311,7 @@ function SubmissionCard({
                 <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
                   User ID
                 </dt>
-                <dd className="mt-1 break-all text-archive-ivory/78">
+                <dd className="mt-1 break-all font-mono text-xs text-archive-ivory/78">
                   {claim.userId || "Not linked yet"}
                 </dd>
               </div>
@@ -322,7 +326,7 @@ function SubmissionCard({
           >
             <input type="hidden" name="submissionId" value={submission.id} />
             <p className="text-sm font-semibold text-archive-ivory">
-              Claim email
+              Re-issue Claim Email
             </p>
             <p className="mt-2 text-sm leading-6 text-archive-ivory/68">
               Sends a fresh local claim link and revokes any previous active claim token for this submission.
@@ -389,7 +393,7 @@ function SubmissionCard({
               className="mt-4 w-full rounded-full bg-archive-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
               type="submit"
             >
-              Update
+              Update Submission
             </button>
           </form>
 
@@ -403,8 +407,7 @@ function SubmissionCard({
             </p>
             <p className="mt-2 text-sm leading-6 text-red-100/78">
               Deletes only this submission, its linked first memory, and its
-              linked starter archive. The Supabase auth user and any other
-              archives remain untouched.
+              linked starter archive.
             </p>
             <label className="mt-4 grid gap-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-red-100/80">
@@ -493,9 +496,24 @@ export default async function LegacyQuestionAdminPage({
   let claims = new Map<string, LegacyQuestionClaimOverview>();
   let claimProfiles = new Map<string, { displayName: string | null }>();
   let loadError: string | null = null;
+  let siteVisitStats = { uniqueVisitorsToday: 0 };
+  let newOrdersCount = 0;
+  let pendingReviewsCount = 0;
 
   try {
-    submissions = await listLegacyQuestionSubmissions();
+    const [subData, stats, orders, legacyRequests] = await Promise.all([
+      listLegacyQuestionSubmissions(),
+      getSiteVisitStats(),
+      listKeepsakeOrders(),
+      listLegacyActivationRequests()
+    ]);
+    submissions = subData;
+    siteVisitStats = stats;
+    newOrdersCount = orders.filter((o) => o.fulfillmentStatus === "New").length;
+    pendingReviewsCount = legacyRequests.filter(
+      (r) => r.status === "pending_memorial_review"
+    ).length;
+
     claims = await listLegacyQuestionClaimOverviews(
       submissions.map((submission) => submission.id)
     );
@@ -521,58 +539,24 @@ export default async function LegacyQuestionAdminPage({
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-8 text-archive-ivory sm:px-8">
       <DesignBackdrop />
       <div className="relative z-10 mx-auto max-w-7xl">
-        <nav className="flex flex-col gap-4 border-b border-archive-gold/18 pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/">
-            <SiteLogo width={160} height={40} />
-          </Link>
-          <div className="flex flex-wrap gap-4 text-sm font-semibold text-archive-champagne">
-            <Link href="/admin" className="underline-offset-4 hover:underline">
-              Admin dashboard
-            </Link>
-            <Link href="/legacy-question" className="underline-offset-4 hover:underline">
-              Open page
-            </Link>
-          </div>
-        </nav>
+        <AdminNav
+          currentPath="/admin/legacy-question"
+          todayVisitsCount={siteVisitStats.uniqueVisitorsToday}
+          newOrdersCount={newOrdersCount}
+          pendingReviewsCount={pendingReviewsCount}
+        />
 
-        <header className="py-12">
+        <header className="py-10">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-            Field testing
+            Field Testing & Submissions
           </p>
-          <h1 className="mt-4 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
-            Legacy question submissions
+          <h1 className="mt-3 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
+            Legacy Question Submissions
           </h1>
-          <p className="mt-5 max-w-3xl text-sm leading-7 text-archive-ivory/68">
-            Review memories submitted from /legacy-question, including physical Talk Card source and batch tracking.
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-archive-ivory/68">
+            Review audio/text memories submitted from physical Talk Cards and the public page, track claim pipeline statuses, and re-issue claims.
           </p>
         </header>
-
-        <section className="mb-10 grid gap-4 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 sm:grid-cols-3">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Signed in as
-            </p>
-            <p className="mt-2 font-serif text-2xl text-archive-ivory">
-              {account.user?.displayName ?? "Archive Member"}
-            </p>
-          </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Email
-            </p>
-            <p className="mt-2 break-all text-sm text-archive-ivory/74">
-              {account.user?.email ?? "Email unavailable"}
-            </p>
-          </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              User ID
-            </p>
-            <p className="mt-2 break-all text-sm text-archive-ivory/74">
-              {account.user?.id ?? "Unavailable"}
-            </p>
-          </div>
-        </section>
 
         {successMessage ? (
           <p className="mb-6 rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4 text-sm text-emerald-100">

@@ -4,6 +4,8 @@ import {
   markLegacyActivationMemorializedAction,
   updateOrderAction
 } from "@/app/admin/actions";
+import { AdminNav } from "@/components/AdminNav";
+import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { getAdminAccess } from "@/lib/admin";
 import {
   fulfillmentStatuses,
@@ -17,9 +19,9 @@ import {
 import { getSiteVisitStats, type SiteVisitStats } from "@/lib/site-visits";
 import {
   formatVisitorAnalyticsDateTime,
-  formatVisitorAnalyticsRelativeTime
+  formatVisitorAnalyticsRelativeTime,
+  VISITOR_ANALYTICS_TIME_ZONE
 } from "@/lib/site-visit-utils";
-import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 
 export const dynamic = "force-dynamic";
 
@@ -42,29 +44,49 @@ function formatDate(value: string) {
 
 function getStatusClass(status: KeepsakeOrder["fulfillmentStatus"]) {
   if (status === "Completed") {
-    return "border-emerald-300/35 text-emerald-200";
+    return "border-emerald-300/35 text-emerald-200 bg-emerald-500/10";
   }
 
   if (status === "Shipped") {
-    return "border-sky-300/35 text-sky-200";
+    return "border-sky-300/35 text-sky-200 bg-sky-500/10";
   }
 
   if (status === "In Production") {
-    return "border-archive-gold/45 text-archive-gold";
+    return "border-archive-gold/45 text-archive-gold bg-archive-gold/10";
   }
 
-  return "border-archive-gold/25 text-archive-champagne";
+  return "border-amber-300/35 text-amber-200 bg-amber-500/10";
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({
+  label,
+  value,
+  detail,
+  badge
+}: {
+  label: string;
+  value: number | string;
+  detail?: string;
+  badge?: string;
+}) {
   return (
-    <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
-      <p className="text-xs uppercase tracking-[0.18em] text-archive-ivory/48">
-        {label}
-      </p>
+    <div className="relative overflow-hidden rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury transition hover:border-archive-gold/25">
+      <div className="flex items-center justify-between">
+        <p className="text-xs uppercase tracking-[0.18em] text-archive-ivory/50">
+          {label}
+        </p>
+        {badge ? (
+          <span className="rounded-full border border-archive-gold/25 bg-archive-gold/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-archive-gold">
+            {badge}
+          </span>
+        ) : null}
+      </div>
       <p className="mt-3 font-serif text-4xl text-archive-gold">
-        {value.toLocaleString("en-US")}
+        {typeof value === "number" ? value.toLocaleString("en-US") : value}
       </p>
+      {detail ? (
+        <p className="mt-2 text-xs leading-5 text-archive-ivory/55">{detail}</p>
+      ) : null}
     </div>
   );
 }
@@ -77,59 +99,78 @@ function SiteVisitSection({ stats }: { stats: SiteVisitStats }) {
     : "No human page views yet.";
 
   return (
-    <section className="mb-10">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <section className="mb-10 rounded-2xl border border-archive-gold/14 bg-white/[0.02] p-6 shadow-luxury">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-archive-gold/10 pb-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-            Visitor Activity
-          </p>
-          <h2 className="mt-3 font-serif text-3xl text-archive-ivory">
-            Human site activity
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+              Live Visitor Traffic Analytics
+            </p>
+          </div>
+          <h2 className="mt-2 font-serif text-3xl text-archive-ivory">
+            Human Site Activity
           </h2>
-          <p className="mt-2 text-sm text-archive-ivory/58">
-            Most recent human visit: {latestHumanVisit}
+          <p className="mt-1 text-xs text-archive-ivory/58">
+            Timezone normalized to {VISITOR_ANALYTICS_TIME_ZONE} · Most recent: {latestHumanVisit}
           </p>
         </div>
+        <Link
+          href="/admin/visitors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-archive-gold underline-offset-4 hover:underline"
+        >
+          View Full Traffic Analytics &rarr;
+        </Link>
       </div>
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Human page views"
-          value={stats.totalPublicVisits}
+          label="Unique Visitors Today"
+          value={stats.uniqueVisitorsToday}
+          detail="Individual human visitors observed today"
+          badge="Today"
         />
         <StatCard
-          label="Human page views today"
+          label="Human Page Views Today"
           value={stats.humanPageViewsToday}
+          detail="Total pages viewed today"
+          badge="Today"
         />
         <StatCard
-          label="Human page views last 7 days"
-          value={stats.humanPageViewsLast7Days}
+          label="Unique Visitors (7 Days)"
+          value={stats.uniqueVisitorsLast7Days}
+          detail={`${stats.humanPageViewsLast7Days.toLocaleString("en-US")} total page views`}
+        />
+        <StatCard
+          label="Total Public Visits"
+          value={stats.totalPublicVisits}
+          detail="Lifetime verified human page views"
         />
       </div>
 
-      <div className="mt-5 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5">
-        <h3 className="font-serif text-2xl text-archive-ivory">
-          Top human paths
+      <div className="mt-6 rounded-xl border border-archive-gold/10 bg-archive-obsidian/40 p-4">
+        <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-archive-champagne">
+          Top Active Pages Today & Recent
         </h3>
         {stats.topPaths.length > 0 ? (
-          <div className="mt-4 divide-y divide-archive-gold/10">
+          <div className="mt-3 divide-y divide-archive-gold/10">
             {stats.topPaths.map((path) => (
               <div
                 key={path.path}
-                className="flex flex-col gap-2 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-1 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between"
               >
-                <span className="break-all font-semibold text-archive-champagne">
+                <span className="break-all font-mono text-xs text-archive-champagne">
                   {path.path}
                 </span>
-                <span className="text-archive-ivory/58">
-                  {path.visitCount.toLocaleString("en-US")} visits
+                <span className="text-xs text-archive-ivory/60">
+                  {path.visitCount.toLocaleString("en-US")} views
                 </span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-sm leading-7 text-archive-ivory/64">
-            No public visits have been recorded yet.
+          <p className="mt-2 text-xs text-archive-ivory/50">
+            No public visits recorded yet today.
           </p>
         )}
       </div>
@@ -139,7 +180,7 @@ function SiteVisitSection({ stats }: { stats: SiteVisitStats }) {
 
 function OrderCard({ order }: { order: KeepsakeOrder }) {
   return (
-    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
+    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury transition hover:border-archive-gold/25">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -191,7 +232,10 @@ function OrderCard({ order }: { order: KeepsakeOrder }) {
         </div>
       </div>
 
-      <form action={updateOrderAction} className="mt-6 grid gap-4 lg:grid-cols-[16rem_1fr_auto] lg:items-end">
+      <form
+        action={updateOrderAction}
+        className="mt-6 grid gap-4 lg:grid-cols-[16rem_1fr_auto] lg:items-end"
+      >
         <input type="hidden" name="orderId" value={order.id} />
         <label className="grid gap-2">
           <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
@@ -252,7 +296,7 @@ function LegacyActivationCard({
   const isPending = request.status === "pending_memorial_review";
 
   return (
-    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury">
+    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury transition hover:border-archive-gold/25">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <span className="rounded-full border border-archive-gold/25 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-archive-champagne">
@@ -347,6 +391,9 @@ export default async function AdminPage({
     humanPageViewsToday: 0,
     humanPageViewsLast7Days: 0,
     humanPageViewsLast30Days: 0,
+    uniqueVisitorsToday: 0,
+    uniqueVisitorsLast7Days: 0,
+    uniqueVisitorsLast30Days: 0,
     uniqueVisitorsSinceTrackingBegan: 0,
     newVisitorsLast30Days: 0,
     returningVisitorsLast30Days: 0,
@@ -377,85 +424,82 @@ export default async function AdminPage({
   const pendingLegacyActivations = legacyActivations.filter(
     (request) => request.status === "pending_memorial_review"
   );
+  const totalRevenueCents = orders.reduce(
+    (sum, order) => sum + (order.paymentStatus === "paid" ? order.amountPaid : 0),
+    0
+  );
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-8 text-archive-ivory sm:px-8">
       <DesignBackdrop />
       <div className="relative z-10 mx-auto max-w-7xl">
-        <nav className="flex flex-col gap-4 border-b border-archive-gold/18 pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/">
-            <SiteLogo width={160} height={40} />
-          </Link>
-          <div className="flex flex-wrap gap-4 text-sm font-semibold text-archive-champagne">
-            <Link href="/dashboard" className="underline-offset-4 hover:underline">
-              Dashboard
-            </Link>
-            <Link href="/keepsakes" className="underline-offset-4 hover:underline">
-              Keepsake Store
-            </Link>
-            <Link
-              href="/admin/member-cards"
-              className="underline-offset-4 hover:underline"
-            >
-              Member Card Engraving
-            </Link>
-            <Link href="/admin/users" className="underline-offset-4 hover:underline">
-              Users & Archives
-            </Link>
-            <Link
-              href="/admin/visitors"
-              className="inline-flex items-center gap-2 underline-offset-4 hover:underline"
-            >
-              Visitors
-              <span className="rounded-full border border-archive-gold/25 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-archive-ivory/60">
-                {siteVisitStats.humanPageViewsToday.toLocaleString("en-US")} today
-              </span>
-            </Link>
-          </div>
-        </nav>
+        <AdminNav
+          currentPath="/admin"
+          todayVisitsCount={siteVisitStats.uniqueVisitorsToday}
+          newOrdersCount={newOrders.length}
+          pendingReviewsCount={pendingLegacyActivations.length}
+        />
 
-        <header className="py-12">
+        <header className="py-10">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-            Keepsake Fulfillment
+            Executive Control Center
           </p>
-          <h1 className="mt-4 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
-            Admin dashboard
+          <h1 className="mt-3 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
+            Admin Dashboard
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-archive-ivory/68">
-            Review fulfillment, legacy activations, and live site activity in one place.
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-archive-ivory/68">
+            Fulfillment operations, legacy memorial reviews, revenue metrics, and real-time site visitor intelligence.
           </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <StatCard label="New orders" value={newOrders.length} />
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
-              label="Pending memorial reviews"
-              value={pendingLegacyActivations.length}
+              label="New Orders"
+              value={newOrders.length}
+              detail="Requires fulfillment action"
+              badge={newOrders.length > 0 ? "Action Required" : "All Clear"}
             />
-            <StatCard label="Total orders" value={orders.length} />
+            <StatCard
+              label="Pending Reviews"
+              value={pendingLegacyActivations.length}
+              detail="Legacy memorial activation requests"
+              badge={pendingLegacyActivations.length > 0 ? "Pending" : "Clean"}
+            />
+            <StatCard
+              label="Total Revenue"
+              value={formatAmount(totalRevenueCents, "USD")}
+              detail={`Across ${orders.length} total orders`}
+            />
+            <StatCard
+              label="Unique Visitors Today"
+              value={siteVisitStats.uniqueVisitorsToday}
+              detail={`${siteVisitStats.humanPageViewsToday.toLocaleString("en-US")} page views today (${VISITOR_ANALYTICS_TIME_ZONE})`}
+              badge="Live"
+            />
           </div>
         </header>
 
-        <section className="mb-10 grid gap-4 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 sm:grid-cols-3">
+        <section className="mb-8 grid gap-4 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 sm:grid-cols-3">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Signed in as
+              Signed in Administrator
             </p>
-            <p className="mt-2 font-serif text-2xl text-archive-ivory">
+            <p className="mt-1 font-serif text-xl text-archive-ivory">
               {account.user?.displayName ?? "Archive Member"}
             </p>
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Email
+              Email Address
             </p>
-            <p className="mt-2 break-all text-sm text-archive-ivory/74">
+            <p className="mt-1 break-all text-sm text-archive-ivory/74">
               {account.user?.email ?? "Email unavailable"}
             </p>
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              User ID
+              Administrator ID
             </p>
-            <p className="mt-2 break-all text-sm text-archive-ivory/74">
+            <p className="mt-1 break-all text-xs font-mono text-archive-ivory/60">
               {account.user?.id ?? "Unavailable"}
             </p>
           </div>
@@ -463,7 +507,7 @@ export default async function AdminPage({
 
         {params?.success ? (
           <p className="mb-6 rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4 text-sm text-emerald-100">
-            Order updated.
+            Order updated successfully.
           </p>
         ) : null}
 
@@ -481,22 +525,16 @@ export default async function AdminPage({
 
         {!loadError ? <SiteVisitSection stats={siteVisitStats} /> : null}
 
-        {!loadError && orders.length === 0 ? (
-          <section className="rounded-2xl border border-archive-gold/18 bg-white/[0.025] p-8 text-center shadow-luxury">
-            <h2 className="font-serif text-3xl text-archive-ivory">
-              No keepsake orders yet.
-            </h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-archive-ivory/64">
-              Successful Stripe Checkout sessions will appear here after the webhook records them.
-            </p>
-          </section>
-        ) : null}
-
         {pendingLegacyActivations.length > 0 ? (
           <section className="mb-10">
-            <h2 className="font-serif text-3xl text-archive-ivory">
-              Pending memorial reviews
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-3xl text-archive-ivory">
+                Pending Memorial Reviews
+              </h2>
+              <span className="rounded-full border border-amber-300/35 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-amber-200">
+                {pendingLegacyActivations.length} Pending
+              </span>
+            </div>
             <div className="mt-5 grid gap-5">
               {pendingLegacyActivations.map((request) => (
                 <LegacyActivationCard key={request.id} request={request} />
@@ -505,26 +543,14 @@ export default async function AdminPage({
           </section>
         ) : null}
 
-        {legacyActivations.length > pendingLegacyActivations.length ? (
-          <section className="mb-10">
-            <h2 className="font-serif text-3xl text-archive-ivory">
-              Reviewed memorial requests
-            </h2>
-            <div className="mt-5 grid gap-5">
-              {legacyActivations
-                .filter(
-                  (request) => request.status !== "pending_memorial_review"
-                )
-                .map((request) => (
-                  <LegacyActivationCard key={request.id} request={request} />
-                ))}
-            </div>
-          </section>
-        ) : null}
-
         {newOrders.length > 0 ? (
           <section className="mb-10">
-            <h2 className="font-serif text-3xl text-archive-ivory">New orders</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-3xl text-archive-ivory">New Keepsake Orders</h2>
+              <span className="rounded-full border border-archive-gold/35 bg-archive-gold/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-archive-gold">
+                {newOrders.length} New
+              </span>
+            </div>
             <div className="mt-5 grid gap-5">
               {newOrders.map((order) => (
                 <OrderCard key={order.id} order={order} />
@@ -533,9 +559,24 @@ export default async function AdminPage({
           </section>
         ) : null}
 
+        {legacyActivations.length > pendingLegacyActivations.length ? (
+          <section className="mb-10">
+            <h2 className="font-serif text-3xl text-archive-ivory">
+              Reviewed Memorial Requests
+            </h2>
+            <div className="mt-5 grid gap-5">
+              {legacyActivations
+                .filter((request) => request.status !== "pending_memorial_review")
+                .map((request) => (
+                  <LegacyActivationCard key={request.id} request={request} />
+                ))}
+            </div>
+          </section>
+        ) : null}
+
         {orders.length > newOrders.length ? (
           <section className="mb-16">
-            <h2 className="font-serif text-3xl text-archive-ivory">All other orders</h2>
+            <h2 className="font-serif text-3xl text-archive-ivory">Fulfilled & Past Orders</h2>
             <div className="mt-5 grid gap-5">
               {orders
                 .filter((order) => order.fulfillmentStatus !== "New")
@@ -543,6 +584,17 @@ export default async function AdminPage({
                   <OrderCard key={order.id} order={order} />
                 ))}
             </div>
+          </section>
+        ) : null}
+
+        {!loadError && orders.length === 0 ? (
+          <section className="rounded-2xl border border-archive-gold/18 bg-white/[0.025] p-8 text-center shadow-luxury">
+            <h2 className="font-serif text-3xl text-archive-ivory">
+              No keepsake orders yet.
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-archive-ivory/64">
+              Successful Stripe Checkout sessions will appear here after the webhook records them.
+            </p>
           </section>
         ) : null}
       </div>

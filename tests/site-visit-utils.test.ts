@@ -12,11 +12,15 @@ import {
   formatReferrerSource,
   getApproximateVisitorLocation,
   getSafeHeaderValue,
+  getStartOfTodayInTimeZone,
   getVisitorDisplayName,
   getVisitorStatus,
   isDuplicateRecentVisit,
   isProbePath,
-  shouldRecordSiteVisit
+  shouldRecordSiteVisit,
+  summarizeSiteVisitRows,
+  VISITOR_ANALYTICS_TIME_ZONE,
+  type SiteVisitRow
 } from "../lib/site-visit-utils";
 import { isConfiguredAdminEmail } from "../lib/admin-emails";
 
@@ -25,7 +29,7 @@ function headers(values: Record<string, string>) {
     get(name: string) {
       return values[name.toLowerCase()] ?? null;
     }
-} as Pick<Headers, "get">;
+  } as Pick<Headers, "get">;
 }
 
 {
@@ -93,6 +97,76 @@ function headers(values: Record<string, string>) {
     formatVisitorAnalyticsRelativeTime("2026-07-16T00:13:00Z", now),
     "1h ago"
   );
+}
+
+{
+  // Test timezone-aware midnight calculation for America/New_York
+  const testNow = new Date("2026-07-23T15:59:38Z"); // July 23, 11:59:38 AM EDT
+  const startOfToday = getStartOfTodayInTimeZone(VISITOR_ANALYTICS_TIME_ZONE, testNow);
+
+  // 00:00:00 EDT on July 23, 2026 corresponds to 04:00:00 UTC on July 23, 2026
+  assert.equal(startOfToday.toISOString(), "2026-07-23T04:00:00.000Z");
+
+  // Verify that visits occurring after 04:00 UTC are counted in "today"
+  const rows: SiteVisitRow[] = [
+    {
+      id: "v1",
+      path: "/archive/story-1",
+      referrer: null,
+      user_agent: "Mozilla/5.0",
+      anonymous_visitor_id: "user-a",
+      is_admin: false,
+      visitor_city: "New York",
+      visitor_region: "NY",
+      visitor_country: "US",
+      created_at: "2026-07-23T05:00:00Z" // 1:00 AM EDT today
+    },
+    {
+      id: "v2",
+      path: "/archive/story-2",
+      referrer: null,
+      user_agent: "Mozilla/5.0",
+      anonymous_visitor_id: "user-a", // same user viewing second page
+      is_admin: false,
+      visitor_city: "New York",
+      visitor_region: "NY",
+      visitor_country: "US",
+      created_at: "2026-07-23T06:00:00Z" // 2:00 AM EDT today
+    },
+    {
+      id: "v3",
+      path: "/archive/story-1",
+      referrer: null,
+      user_agent: "Mozilla/5.0",
+      anonymous_visitor_id: "user-b", // different user
+      is_admin: false,
+      visitor_city: "Boston",
+      visitor_region: "MA",
+      visitor_country: "US",
+      created_at: "2026-07-23T08:00:00Z" // 4:00 AM EDT today
+    },
+    {
+      id: "v4",
+      path: "/archive/story-1",
+      referrer: null,
+      user_agent: "Mozilla/5.0",
+      anonymous_visitor_id: "user-c",
+      is_admin: false,
+      visitor_city: "Miami",
+      visitor_region: "FL",
+      visitor_country: "US",
+      created_at: "2026-07-22T23:00:00Z" // 7:00 PM EDT yesterday
+    }
+  ];
+
+  const stats = summarizeSiteVisitRows({
+    allRows: rows,
+    recentRows: rows,
+    now: testNow
+  });
+
+  assert.equal(stats.humanPageViewsToday, 3);
+  assert.equal(stats.uniqueVisitorsToday, 2); // user-a and user-b
 }
 
 {
@@ -342,6 +416,7 @@ function headers(values: Record<string, string>) {
 
 {
   const helper = readFileSync("lib/site-visits.ts", "utf8");
+  const utils = readFileSync("lib/site-visit-utils.ts", "utf8");
   const tracking = readFileSync("lib/site-visit-tracking.ts", "utf8");
   const setup = readFileSync("SUPABASE_SETUP.md", "utf8");
   const visitorsPage = readFileSync("app/admin/visitors/page.tsx", "utf8");
@@ -354,16 +429,16 @@ function headers(values: Record<string, string>) {
     "utf8"
   );
 
-  assert.match(helper, /classifyRow\(row\) === "human"/);
-  assert.match(helper, /recentHumanRows/);
-  assert.match(helper, /getTopHumanPaths\(recentHumanRows\)/);
-  assert.match(helper, /recentBotProbeRows/);
-  assert.match(helper, /anonymous_visitor_id/);
-  assert.match(helper, /visitor_city/);
-  assert.match(helper, /visitorDisplayName/);
-  assert.match(helper, /totalPageViews/);
-  assert.match(helper, /getVisitorSummaryById/);
-  assert.match(helper, /getVisitorDisplayName/);
+  assert.match(utils, /classifyRow\(row\) === "human"/);
+  assert.match(utils, /recentHumanRows/);
+  assert.match(utils, /getTopHumanPaths\(recentHumanRows\)/);
+  assert.match(utils, /recentBotProbeRows/);
+  assert.match(utils, /anonymous_visitor_id/);
+  assert.match(utils, /visitor_city/);
+  assert.match(utils, /visitorDisplayName/);
+  assert.match(utils, /totalPageViews/);
+  assert.match(utils, /getVisitorSummaryById/);
+  assert.match(utils, /getVisitorDisplayName/);
   assert.match(helper, /BASE_SITE_VISIT_SELECT/);
   assert.match(helper, /LOCATION_SITE_VISIT_SELECT/);
   assert.match(helper, /selectSiteVisitRows/);
