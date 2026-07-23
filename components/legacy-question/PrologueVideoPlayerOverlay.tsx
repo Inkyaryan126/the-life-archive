@@ -152,10 +152,26 @@ export function PrologueVideoPlayerOverlay({
         </button>
       </div>
 
-      {/* Main Video Area */}
-      <div className="relative flex h-full max-h-full w-full max-w-full flex-1 items-center justify-center overflow-hidden box-border">
+      {/* Background Video Stage */}
+      <div className="absolute inset-0 z-0 h-full w-full max-w-full max-h-full overflow-hidden bg-[#090807]">
+        <video
+          ref={videoRef}
+          src={videoSrc}
+          playsInline
+          className="absolute inset-0 h-full w-full max-w-full max-h-full object-contain object-center"
+          onEnded={() => handleComplete("completed")}
+          onError={() => {
+            setHasError(true);
+            setIsLoading(false);
+          }}
+          onCanPlay={() => setIsLoading(false)}
+        />
+      </div>
+
+      {/* Main UI Overlay Area */}
+      <div className="relative z-20 flex h-full max-h-full w-full max-w-full flex-1 items-center justify-center overflow-hidden box-border pointer-events-none">
         {isLoading && !hasError ? (
-          <div className="absolute z-20 flex flex-col items-center gap-3 px-4 text-center">
+          <div className="pointer-events-auto flex flex-col items-center gap-3 px-4 text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#c9a45c] border-t-transparent" />
             <p className="text-xs uppercase tracking-[0.16em] text-[#efe3d1]/70">
               Loading cinematic scene...
@@ -164,7 +180,7 @@ export function PrologueVideoPlayerOverlay({
         ) : null}
 
         {needsPlayGesture ? (
-          <div className="absolute z-30 mx-4 flex max-w-sm flex-col items-center gap-4 rounded-2xl border border-[#c9a45c]/30 bg-black/80 p-6 text-center backdrop-blur box-border">
+          <div className="pointer-events-auto mx-4 flex max-w-sm flex-col items-center gap-4 rounded-2xl border border-[#c9a45c]/30 bg-black/80 p-6 text-center backdrop-blur box-border">
             <p className="font-serif text-base text-[#f8f1e7] sm:text-lg">
               {subtitle || "Press play to begin the cinematic sequence."}
             </p>
@@ -179,7 +195,7 @@ export function PrologueVideoPlayerOverlay({
         ) : null}
 
         {hasError ? (
-          <div className="absolute z-30 mx-4 flex max-w-sm flex-col items-center gap-4 rounded-2xl border border-red-500/30 bg-black/90 p-6 text-center box-border">
+          <div className="pointer-events-auto mx-4 flex max-w-sm flex-col items-center gap-4 rounded-2xl border border-red-500/30 bg-black/90 p-6 text-center box-border">
             <p className="font-serif text-base text-red-200 sm:text-lg">
               Video playback is unavailable right now.
             </p>
@@ -192,19 +208,6 @@ export function PrologueVideoPlayerOverlay({
             </button>
           </div>
         ) : null}
-
-        <video
-          ref={videoRef}
-          src={videoSrc}
-          playsInline
-          className="block h-full max-h-full w-full max-w-full object-contain object-center"
-          onEnded={() => handleComplete("completed")}
-          onError={() => {
-            setHasError(true);
-            setIsLoading(false);
-          }}
-          onCanPlay={() => setIsLoading(false)}
-        />
       </div>
 
       {/* Bottom Controls Bar */}
