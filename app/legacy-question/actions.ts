@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import {
   createLegacyQuestionSubmission,
   isLegacyQuestionEntryType,
+  markLegacyQuestionPart2Complete,
   type LegacyQuestionEntryType
 } from "@/lib/legacy-question-submissions";
 import { processLegacyQuestionSubmission } from "@/lib/legacy-question-onboarding";
@@ -30,6 +31,7 @@ export type LegacyQuestionSubmitResult =
       success: true;
       submissionId: string;
       message: string;
+      showPart2?: boolean;
     }
   | {
       success: false;
@@ -219,6 +221,7 @@ export async function submitLegacyQuestionEntry(
     return {
       success: true,
       submissionId: created.id,
+      showPart2: isComplete,
       message: isComplete
         ? "Your first memory is saved. Check your email for the secure link to your archive."
         : isMediaPending
@@ -233,6 +236,7 @@ export async function submitLegacyQuestionEntry(
       return {
         success: true,
         submissionId: createdSubmissionId,
+        showPart2: false,
         message:
           "Your memory is safely captured, but we could not send the email yet. We'll retry it."
       };
@@ -243,4 +247,15 @@ export async function submitLegacyQuestionEntry(
       message: readableError
     };
   }
+}
+
+export async function markProloguePart2CompleteAction(input: {
+  submissionId: string;
+  status: "completed" | "skipped";
+}) {
+  if (!input.submissionId) return;
+  await markLegacyQuestionPart2Complete({
+    submissionId: input.submissionId,
+    status: input.status
+  });
 }

@@ -58,6 +58,11 @@ export type LegacyQuestionSubmission = {
   consentPrivateDefault: boolean;
   consentContact: boolean;
   notes: string;
+  prologuePart2SeenAt: string | null;
+  prologuePart2Status: "completed" | "skipped" | null;
+  prologuePart3SeenAt: string | null;
+  prologuePart3Status: "completed" | "skipped" | null;
+  claimedUserId: string | null;
 };
 
 type LegacyQuestionSubmissionRow = {
@@ -92,6 +97,11 @@ type LegacyQuestionSubmissionRow = {
   consent_private_default: boolean;
   consent_contact: boolean;
   notes: string | null;
+  prologue_part2_seen_at?: string | null;
+  prologue_part2_status?: "completed" | "skipped" | null;
+  prologue_part3_seen_at?: string | null;
+  prologue_part3_status?: "completed" | "skipped" | null;
+  claimed_user_id?: string | null;
 };
 
 export type CreateLegacyQuestionSubmissionInput = {
@@ -169,7 +179,12 @@ function mapSubmission(
     visibility: row.visibility,
     consentPrivateDefault: row.consent_private_default,
     consentContact: row.consent_contact,
-    notes: row.notes ?? ""
+    notes: row.notes ?? "",
+    prologuePart2SeenAt: row.prologue_part2_seen_at ?? null,
+    prologuePart2Status: row.prologue_part2_status ?? null,
+    prologuePart3SeenAt: row.prologue_part3_seen_at ?? null,
+    prologuePart3Status: row.prologue_part3_status ?? null,
+    claimedUserId: row.claimed_user_id ?? null
   };
 }
 
@@ -372,4 +387,66 @@ export async function deleteLegacyQuestionTestSubmission(submissionId: string) {
     deleted_archives: number;
     deleted_submissions: number;
   };
+}
+
+export async function markLegacyQuestionPart2Complete(input: {
+  submissionId: string;
+  status: "completed" | "skipped";
+}) {
+  const supabase = getAdminClient();
+  const now = new Date().toISOString();
+  const { error } = await (supabase
+    .from("legacy_question_submissions") as any)
+    .update({
+      prologue_part2_seen_at: now,
+      prologue_part2_status: input.status
+    })
+    .eq("id", input.submissionId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function markLegacyQuestionPart3Complete(input: {
+  userId: string;
+  submissionId?: string | null;
+  status: "completed" | "skipped";
+}) {
+  const supabase = getAdminClient();
+  const now = new Date().toISOString();
+
+  // Update profile
+  const { error: profileError } = await (supabase
+    .from("profiles") as any)
+    .update({
+      prologue_part3_seen_at: now,
+      prologue_part3_status: input.status,
+      legacy_question_eligible: true
+    })
+    .eq("id", input.userId);
+
+  if (profileError) {
+    console.error("mark_part3_profile_error", profileError.message);
+  }
+
+  // Update submission if available
+  if (input.submissionId) {
+    await (supabase
+      .from("legacy_question_submissions") as any)
+      .update({
+        prologue_part3_seen_at: now,
+        prologue_part3_status: input.status,
+        claimed_user_id: input.userId
+      })
+      .eq("id", input.submissionId);
+  } else {
+    await (supabase
+      .from("legacy_question_submissions") as any)
+      .update({
+        prologue_part3_seen_at: now,
+        prologue_part3_status: input.status
+      })
+      .eq("claimed_user_id", input.userId);
+  }
 }

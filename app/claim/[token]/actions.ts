@@ -1,5 +1,6 @@
 "use server";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { buildLegacyQuestionClaimEmail } from "@/lib/legacy-question-claim-email";
@@ -247,8 +248,15 @@ export async function claimLegacyQuestionArchiveAction(formData: FormData) {
   try {
     await upsertProfileForUser(supabase, {
       userId,
-      displayName: resolvedDisplayName
+      displayName: resolvedDisplayName,
+      legacyQuestionEligible: true
     });
+
+    const adminClient = createAdminClient();
+    await (adminClient
+      .from("legacy_question_submissions") as any)
+      .update({ claimed_user_id: userId })
+      .eq("id", claim.row.submission_id);
   } catch (error) {
     await supabase.auth.signOut();
     redirectWithError(

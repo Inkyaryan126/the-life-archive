@@ -10,6 +10,9 @@ export type PublicProfile = {
   bio: string | null;
   createdAt: string;
   updatedAt: string;
+  legacyQuestionEligible: boolean;
+  prologuePart3SeenAt: string | null;
+  prologuePart3Status: "completed" | "skipped" | null;
 };
 
 type PublicProfileRow = {
@@ -19,6 +22,9 @@ type PublicProfileRow = {
   bio: string | null;
   created_at: string;
   updated_at: string;
+  legacy_question_eligible?: boolean | null;
+  prologue_part3_seen_at?: string | null;
+  prologue_part3_status?: "completed" | "skipped" | null;
 };
 
 function mapProfile(row: PublicProfileRow): PublicProfile {
@@ -28,7 +34,10 @@ function mapProfile(row: PublicProfileRow): PublicProfile {
     avatarUrl: row.avatar_url,
     bio: row.bio,
     createdAt: row.created_at,
-    updatedAt: row.updated_at
+    updatedAt: row.updated_at,
+    legacyQuestionEligible: Boolean(row.legacy_question_eligible),
+    prologuePart3SeenAt: row.prologue_part3_seen_at ?? null,
+    prologuePart3Status: row.prologue_part3_status ?? null
   };
 }
 
@@ -119,7 +128,7 @@ export async function loadProfilesByUserIds(userIds: string[]) {
   const supabase = createAdminClient() as SupabaseClient<any, "public", any>;
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, display_name, avatar_url, bio, created_at, updated_at")
+    .select("id, display_name, avatar_url, bio, created_at, updated_at, legacy_question_eligible, prologue_part3_seen_at, prologue_part3_status")
     .in("id", uniqueIds);
 
   if (error) {
@@ -139,7 +148,7 @@ export async function loadProfileByUserId(userId: string) {
   const supabase = createAdminClient() as SupabaseClient<any, "public", any>;
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, display_name, avatar_url, bio, created_at, updated_at")
+    .select("id, display_name, avatar_url, bio, created_at, updated_at, legacy_question_eligible, prologue_part3_seen_at, prologue_part3_status")
     .eq("id", userId)
     .maybeSingle();
 
@@ -157,15 +166,22 @@ export async function upsertProfileForUser(
     displayName: string | null;
     bio?: string | null;
     avatarUrl?: string | null;
+    legacyQuestionEligible?: boolean;
   }
 ) {
-  const { error } = await supabase.from("profiles").upsert(
-    {
-      id: input.userId,
-      display_name: input.displayName,
-      bio: input.bio ?? null,
-      avatar_url: input.avatarUrl ?? null
-    },
+  const payload: Record<string, any> = {
+    id: input.userId,
+    display_name: input.displayName,
+    bio: input.bio ?? null,
+    avatar_url: input.avatarUrl ?? null
+  };
+
+  if (typeof input.legacyQuestionEligible === "boolean") {
+    payload.legacy_question_eligible = input.legacyQuestionEligible;
+  }
+
+  const { error } = await (supabase.from("profiles") as any).upsert(
+    payload,
     {
       onConflict: "id"
     }

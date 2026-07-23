@@ -4,7 +4,8 @@
 import type { FormEvent, KeyboardEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { submitLegacyQuestionEntryForm } from "@/app/legacy-question/actions";
+import { submitLegacyQuestionEntryForm, markProloguePart2CompleteAction } from "@/app/legacy-question/actions";
+import { PrologueVideoPlayerOverlay } from "@/components/legacy-question/PrologueVideoPlayerOverlay";
 import { SiteLogo } from "@/components/SiteDesign";
 import { publicSupportEmail } from "@/lib/site-config";
 
@@ -74,6 +75,7 @@ export function LegacyQuestionScrollScene({
   const [memoryError, setMemoryError] = useState("");
   const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus>("idle");
   const [successMessage, setSuccessMessage] = useState("");
+  const [activePart2SubmissionId, setActivePart2SubmissionId] = useState<string | null>(null);
 
   // Element refs
   const emailInputRef = useRef<HTMLInputElement | null>(null);
@@ -296,6 +298,10 @@ export function LegacyQuestionScrollScene({
 
       setSubmissionStatus("success");
       setSuccessMessage(result.message);
+
+      if (result.showPart2 && result.submissionId) {
+        setActivePart2SubmissionId(result.submissionId);
+      }
     } catch (error) {
       const message =
         error instanceof Error
@@ -309,6 +315,21 @@ export function LegacyQuestionScrollScene({
 
   return (
     <div className="relative min-h-screen bg-[#11100e] text-[#f8f1e7]">
+      {activePart2SubmissionId ? (
+        <PrologueVideoPlayerOverlay
+          videoSrc="/videos/legacy-question/prologue-part2.mp4"
+          title="The Sanctuary Awakens — Prologue Part II"
+          subtitle="Your response is preserved. The doors are unlocking..."
+          skipLabel="Skip to Confirmation"
+          onComplete={async ({ status }) => {
+            const subId = activePart2SubmissionId;
+            setActivePart2SubmissionId(null);
+            if (subId) {
+              await markProloguePart2CompleteAction({ submissionId: subId, status });
+            }
+          }}
+        />
+      ) : null}
       {/* Top Header Bar */}
       <header className="relative z-30 mx-auto flex w-full max-w-[1086px] items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" aria-label="Return to The Life Archive Grand Hall">

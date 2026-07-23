@@ -39,6 +39,7 @@ export type AccountContext = {
   // Temporary compatibility alias for consumers that still expect one archive.
   archive: AccountArchive | null;
   archiveLookupFailed: boolean;
+  prologuePart3Eligible: boolean;
 };
 
 export async function getAccountContext(): Promise<AccountContext> {
@@ -55,7 +56,8 @@ export async function getAccountContext(): Promise<AccountContext> {
       archives: [],
       defaultArchive: null,
       archive: null,
-      archiveLookupFailed: false
+      archiveLookupFailed: false,
+      prologuePart3Eligible: false
     };
   }
 
@@ -72,7 +74,8 @@ export async function getAccountContext(): Promise<AccountContext> {
       archives: [],
       defaultArchive: null,
       archive: null,
-      archiveLookupFailed: false
+      archiveLookupFailed: false,
+      prologuePart3Eligible: false
     };
   }
 
@@ -84,7 +87,7 @@ export async function getAccountContext(): Promise<AccountContext> {
 
   const { data: profileRow, error: profileError } = await supabase
     .from("profiles")
-    .select("id, display_name, avatar_url, bio, created_at, updated_at")
+    .select("id, display_name, avatar_url, bio, created_at, updated_at, legacy_question_eligible, prologue_part3_seen_at, prologue_part3_status")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -110,16 +113,23 @@ export async function getAccountContext(): Promise<AccountContext> {
   }));
   const defaultArchive =
     archives.find((archive) => archive.relationshipToOwner === "self") ?? null;
-  const profile = profileRow
+  const profile: PublicProfile | null = profileRow
     ? {
         id: profileRow.id,
         displayName: profileRow.display_name,
         avatarUrl: profileRow.avatar_url,
         bio: profileRow.bio,
         createdAt: profileRow.created_at,
-        updatedAt: profileRow.updated_at
+        updatedAt: profileRow.updated_at,
+        legacyQuestionEligible: Boolean(profileRow.legacy_question_eligible),
+        prologuePart3SeenAt: profileRow.prologue_part3_seen_at ?? null,
+        prologuePart3Status: profileRow.prologue_part3_status ?? null
       }
     : null;
+
+  const prologuePart3Eligible = Boolean(
+    profile?.legacyQuestionEligible && !profile?.prologuePart3SeenAt
+  );
 
   return {
     isConfigured: true,
@@ -138,7 +148,8 @@ export async function getAccountContext(): Promise<AccountContext> {
     archives,
     defaultArchive,
     archive: defaultArchive,
-    archiveLookupFailed: Boolean(archiveError)
+    archiveLookupFailed: Boolean(archiveError),
+    prologuePart3Eligible
   };
 }
 
