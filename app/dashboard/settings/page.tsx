@@ -14,6 +14,7 @@ import {
   changePasswordAction,
   saveProfileAction
 } from "@/app/dashboard/settings/actions";
+import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 import { getAccountContext } from "@/lib/account";
 import {
   archiveBuildingMobileScenes,
@@ -438,6 +439,9 @@ export default async function DashboardSettingsPage({
         </div>
       </div>
       </ArchiveMobileScene>
+      <AuthenticatedMobileBottomNavigation
+        activeArchiveSlug={account.defaultArchive?.slug ?? account.archives[0]?.slug ?? null}
+      />
     </>
   );
 }

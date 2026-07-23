@@ -8,6 +8,7 @@ import {
   ArchiveSoftHighlight,
   ArchiveMobileScene
 } from "@/components/archive-building/ArchiveBuildingShell";
+import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 import { canCurrentUserAddMemory, getAccountContext } from "@/lib/account";
 import {
   archiveBuildingMobileScenes,
@@ -645,6 +646,9 @@ export default async function AddMemoryPage({
         </AddMemoryForm>
       </div>
       </ArchiveMobileScene>
+      {account.user ? (
+        <AuthenticatedMobileBottomNavigation activeArchiveSlug={slug} />
+      ) : null}
     </>
   );
 }

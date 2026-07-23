@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { QRPreview } from "@/components/QRPreview";
 import { SuccessMessage } from "@/components/SuccessMessage";
+import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 import {
   DesignBackdrop,
   DesignImageButtonLink,
@@ -542,6 +543,9 @@ export default async function ArchivePage({
           </section>
         ) : null}
       </div>
+      {account.user ? (
+        <AuthenticatedMobileBottomNavigation activeArchiveSlug={slug} />
+      ) : null}
     </main>
   );
 }

@@ -11,6 +11,7 @@ import {
   ArchiveOverlayRegion,
   ArchiveMobileScene
 } from "@/components/archive-building/ArchiveBuildingShell";
+import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 import { getArchiveBySlug } from "@/lib/archive-data";
 import { getAccountContext } from "@/lib/account";
 import {
@@ -302,6 +303,9 @@ export default async function QRPage({ params }: QRPageProps) {
           </div>
       </div>
     </ArchiveMobileScene>
+    {account.user ? (
+      <AuthenticatedMobileBottomNavigation activeArchiveSlug={slug} />
+    ) : null}
     </>
   );
 }

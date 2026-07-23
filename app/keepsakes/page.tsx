@@ -3,12 +3,12 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { SiteFooter } from "@/components/SiteFooter";
-import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
 import {
   ArchiveBuildingShell,
   ArchiveOverlayRegion,
   ArchiveMobileScene
 } from "@/components/archive-building/ArchiveBuildingShell";
+import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 import { getAccountContext } from "@/lib/account";
 import {
   archiveBuildingMobileScenes,
@@ -787,6 +787,9 @@ export default async function KeepsakesPage({
         <SiteFooter archiveSlug={checkoutArchiveSlug} signedIn={isSignedIn} className="mt-12 rounded-3xl" />
       </div>
       </ArchiveMobileScene>
+      {isSignedIn ? (
+        <AuthenticatedMobileBottomNavigation activeArchiveSlug={checkoutArchiveSlug} />
+      ) : null}
     </>
   );
 }

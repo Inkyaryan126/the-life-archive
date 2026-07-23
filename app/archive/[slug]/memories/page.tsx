@@ -4,6 +4,7 @@ import { MemoryCard } from "@/components/MemoryCard";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import { DesignBackdrop } from "@/components/SiteDesign";
 import { HashScroller } from "./HashScroller";
+import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 import type { MemoryType } from "@/lib/types";
@@ -157,6 +158,9 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
           </section>
         )}
       </div>
+      {account.user ? (
+        <AuthenticatedMobileBottomNavigation activeArchiveSlug={slug} />
+      ) : null}
     </main>
   );
 }

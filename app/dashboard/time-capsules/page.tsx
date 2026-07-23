@@ -11,6 +11,7 @@ import {
   ArchiveMobileScene
 } from "@/components/archive-building/ArchiveBuildingShell";
 import { TimeCapsuleConfirmAction } from "@/components/time-capsules/TimeCapsuleConfirmAction";
+import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 import { getAccountContext } from "@/lib/account";
 import {
   archiveBuildingMobileScenes,
@@ -319,6 +320,9 @@ export default async function TimeCapsulesPage({
         </div>
       </div>
       </ArchiveMobileScene>
+      <AuthenticatedMobileBottomNavigation
+        activeArchiveSlug={account.defaultArchive?.slug ?? account.archives[0]?.slug ?? null}
+      />
     </>
   );
 }

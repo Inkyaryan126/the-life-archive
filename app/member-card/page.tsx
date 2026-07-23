@@ -9,6 +9,7 @@ import {
   getRequestSiteUrl,
   svgToDataUri
 } from "@/lib/qr";
+import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 import { getAccountContext } from "@/lib/account";
 import { SuccessMessage } from "@/components/SuccessMessage";
 import { AccessPrompt } from "@/components/AccessPrompt";
@@ -375,6 +376,9 @@ export default async function MemberCardPage({
         </div>
       </div>
       </ArchiveMobileScene>
+      <AuthenticatedMobileBottomNavigation
+        activeArchiveSlug={livingArchive?.slug ?? account.defaultArchive?.slug ?? account.archives[0]?.slug ?? null}
+      />
     </>
   );
 }
