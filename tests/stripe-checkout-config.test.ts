@@ -94,7 +94,7 @@ import {
   const requiredTypes: CheckoutType[] = ["member-card", "card", "keychain", "dogtag", "plaque"];
   const expectedEnvs: Record<CheckoutType, string> = {
     "member-card": "STRIPE_PRICE_MEMBER_CARD",
-    card: "STRIPE_PRICE_MEMORIAL_CARD",
+    card: "STRIPE_PRICE_MEMORY_CARD",
     keychain: "STRIPE_PRICE_MEMORIAL_KEYCHAIN",
     dogtag: "STRIPE_PRICE_MEMORIAL_DOG_TAG",
     plaque: "STRIPE_PRICE_MEMORIAL_PLAQUE"

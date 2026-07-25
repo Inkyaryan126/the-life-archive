@@ -109,11 +109,11 @@ const keepsakes: Keepsake[] = [
     }
   },
   {
-    name: "The Life Archive Memorial Card",
+    name: "The Life Archive Memory Card",
     price: "$19",
     stripeProductId: "prod_Umoxxb4aF5MuPL",
     eyebrow: "Memorial Keepsake",
-    headline: "A quiet memorial card that keeps their story within reach.",
+    headline: "A quiet memory card that keeps their story within reach.",
     story:
       "Designed for memorial archives, remembrance displays, family sharing, funeral use, and final-wishes storage. This is a remembrance keepsake rather than the personal Member Card used by a living archive owner.",
     craftsmanship:
@@ -124,10 +124,10 @@ const keepsakes: Keepsake[] = [
     bestFor: "Memorial archives, remembrance displays, funeral sharing, and family keepsake storage.",
     visual: "card",
     checkoutType: "card",
-    ctaLabel: "Order Memorial Card",
+    ctaLabel: "Order Memory Card",
     image: {
       src: "/images/keepsakes/memory-card.png",
-      alt: "The Life Archive Memorial Card display with archive QR"
+      alt: "The Life Archive Memory Card display with archive QR"
     }
   },
   {
@@ -353,7 +353,7 @@ const keepsakes: Keepsake[] = [
 const launchProductNames = [
   "The Life Archive Member Card",
   "The Life Archive Memorial Keychain",
-  "The Life Archive Memorial Card",
+  "The Life Archive Memory Card",
   "The Life Archive Memorial Dog Tag",
   "The Life Archive Memorial Plaque"
 ];

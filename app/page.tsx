@@ -139,7 +139,7 @@ export default async function HomePage() {
       title: "Keepsakes",
       href: "/keepsakes",
       description:
-        "Member Cards, Memorial Keychains, Memorial Cards, QR Plaques, and Storykeeper Cards can become a doorway back into an archive or memorial.",
+        "Member Cards, Memorial Keychains, Memory Cards, QR Plaques, and Storykeeper Cards can become a doorway back into an archive or memorial.",
       ariaLabel: "Visit Keepsakes",
       position: { left: 39.1, top: 49.2, width: 21.2, height: 6.8 }
     },
@@ -645,7 +645,7 @@ function BelowDirectoryContent({ timeCapsulesHref }: { timeCapsulesHref: string 
           />
           <InfoPanel
             title="Optional keepsakes"
-            copy="Member Cards, Memorial Keychains, Memorial Cards, QR Plaques, and Storykeeper Cards can make an archive easier to find in the physical world."
+            copy="Member Cards, Memorial Keychains, Memory Cards, QR Plaques, and Storykeeper Cards can make an archive easier to find in the physical world."
             href="/keepsakes"
             linkText="Visit the Keepsake Store"
           />

@@ -16,8 +16,8 @@ export const keepsakeProducts: Record<CheckoutType, KeepsakeProductConfig> = {
   },
   card: {
     checkoutType: "card",
-    name: "The Life Archive Memorial Card",
-    priceIdEnv: "STRIPE_PRICE_MEMORIAL_CARD",
+    name: "The Life Archive Memory Card",
+    priceIdEnv: "STRIPE_PRICE_MEMORY_CARD",
     requiresArchive: true
   },
   keychain: {
