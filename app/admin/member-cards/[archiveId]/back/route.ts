@@ -2,11 +2,21 @@ import { NextResponse } from "next/server";
 import { getAdminAccess } from "@/lib/admin";
 import {
   buildMemberCardEngravingPng,
+  buildMemberCardEngravingSvg,
   getMemberCardEngravingCandidate,
   getMemberCardEngravingFilename
 } from "@/lib/member-card-engraving";
 
 export const dynamic = "force-dynamic";
+
+function getRequestedFormat(request: Request): "png" | "svg" | "invalid" {
+  const { searchParams } = new URL(request.url);
+  const format = searchParams.get("format")?.trim().toLowerCase();
+
+  if (!format || format === "png") return "png";
+  if (format === "svg") return "svg";
+  return "invalid";
+}
 
 function pngHeaders(filename: string) {
   return new Headers({
@@ -18,8 +28,18 @@ function pngHeaders(filename: string) {
   });
 }
 
+function svgHeaders(filename: string) {
+  return new Headers({
+    "Content-Type": "image/svg+xml; charset=utf-8",
+    "Content-Disposition": `attachment; filename="${filename}"`,
+    "Cache-Control": "private, no-store, max-age=0",
+    "X-Content-Type-Options": "nosniff",
+    "X-Robots-Tag": "noindex"
+  });
+}
+
 export async function GET(
-  _request: Request,
+  request: Request,
   {
     params
   }: {
@@ -32,6 +52,14 @@ export async function GET(
 
   if (!account.user || !adminEmailsConfigured || !isAdmin) {
     return new NextResponse("Forbidden", { status: 403 });
+  }
+
+  const format = getRequestedFormat(request);
+
+  if (format === "invalid") {
+    return new NextResponse("Invalid format requested. Supported formats are png and svg.", {
+      status: 400
+    });
   }
 
   const { archiveId } = await params;
@@ -47,9 +75,20 @@ export async function GET(
       return new NextResponse("Archive not found.", { status: 404 });
     }
 
+    if (format === "svg") {
+      const svg = await buildMemberCardEngravingSvg(candidate, "back");
+      return new NextResponse(svg, {
+        headers: svgHeaders(
+          getMemberCardEngravingFilename(candidate, "back", "svg")
+        )
+      });
+    }
+
     const png = await buildMemberCardEngravingPng(candidate, "back");
     return new NextResponse(png, {
-      headers: pngHeaders(getMemberCardEngravingFilename(candidate, "back"))
+      headers: pngHeaders(
+        getMemberCardEngravingFilename(candidate, "back", "png")
+      )
     });
   } catch (error) {
     const message =

@@ -141,31 +141,54 @@ function CandidateCard({
             {isReady ? (
               <>
                 <a
-                  href={`/admin/member-cards/${candidate.archiveId}/front`}
+                  href={`/admin/member-cards/${candidate.archiveId}/front?format=svg`}
                   className="rounded-full bg-archive-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
-                  download={frontFilename}
+                  download={getMemberCardEngravingFilename(candidate, "front", "svg")}
                 >
-                  Download Front PNG
+                  Front SVG (Vector — Recommended)
                 </a>
                 <a
-                  href={`/admin/member-cards/${candidate.archiveId}/back`}
+                  href={`/admin/member-cards/${candidate.archiveId}/back?format=svg`}
+                  className="rounded-full bg-archive-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+                  download={getMemberCardEngravingFilename(candidate, "back", "svg")}
+                >
+                  Back SVG (Vector — Recommended)
+                </a>
+                <a
+                  href={`/admin/member-cards/${candidate.archiveId}/front?format=png`}
+                  className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-champagne transition hover:border-archive-gold hover:bg-white/[0.08]"
+                  download={frontFilename}
+                >
+                  Front PNG (600 DPI)
+                </a>
+                <a
+                  href={`/admin/member-cards/${candidate.archiveId}/back?format=png`}
                   className="rounded-full border border-archive-gold/30 bg-white/[0.04] px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-champagne transition hover:border-archive-gold hover:bg-white/[0.08]"
                   download={backFilename}
                 >
-                  Download Back PNG
+                  Back PNG (600 DPI)
                 </a>
               </>
             ) : (
               <>
                 <span className="cursor-not-allowed rounded-full bg-archive-gold/30 px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian/45">
-                  Download Front PNG
+                  Front SVG (Vector)
+                </span>
+                <span className="cursor-not-allowed rounded-full bg-archive-gold/30 px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian/45">
+                  Back SVG (Vector)
                 </span>
                 <span className="cursor-not-allowed rounded-full border border-archive-gold/18 bg-white/[0.02] px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-ivory/35">
-                  Download Back PNG
+                  Front PNG (600 DPI)
+                </span>
+                <span className="cursor-not-allowed rounded-full border border-archive-gold/18 bg-white/[0.02] px-5 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-ivory/35">
+                  Back PNG (600 DPI)
                 </span>
               </>
             )}
           </div>
+          <p className="mt-3 text-xs text-archive-ivory/60">
+            SVG keeps text and QR edges perfectly sharp. PNG remains available for machines that require raster artwork.
+          </p>
         </div>
 
         <div className="w-full max-w-xl xl:w-[28rem]">

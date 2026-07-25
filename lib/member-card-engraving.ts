@@ -1,14 +1,18 @@
-import "server-only";
-
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import sharp from "sharp";
 import QRCode from "qrcode";
 import * as opentype from "opentype.js";
 import type { Font as OpenTypeFont, Path as OpenTypePath } from "opentype.js";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { getSiteUrl } from "@/lib/qr";
-import { loadProfilesByUserIds, type PublicProfile } from "@/lib/profiles";
+import { getSiteUrl } from "./qr";
+
+type PublicProfile = {
+  id: string;
+  displayName: string;
+  avatarPath: string | null;
+  avatarUrl: string | null;
+  updatedAt: string | null;
+};
 
 type ArchiveRow = {
   id: string;
@@ -72,6 +76,12 @@ const BACK_TEMPLATE_HEIGHT = 995;
 const OUTPUT_WIDTH = 2026;
 const OUTPUT_HEIGHT = 1276;
 const OUTPUT_DENSITY = 600;
+
+// Standard CR80 Physical Metal Card dimensions in mm
+export const CARD_WIDTH_MM = 85.6;
+export const CARD_HEIGHT_MM = 53.98;
+export const SAFE_MARGIN_MM = 2.0;
+
 const FONT_DIR = join(process.cwd(), "assets", "fonts");
 
 const NAME_FONT_PATH = join(
@@ -168,20 +178,29 @@ function sanitizeText(value: string | null | undefined) {
     .replace(/\s+/g, " ");
 }
 
-async function loadFont(filePath: string) {
+async function loadFont(filePath: string): Promise<OpenTypeFont> {
   const cached = FONT_CACHE.get(filePath);
   if (cached) {
     return cached;
   }
 
-  const promise = readFile(filePath).then((buffer) => opentype.parse(buffer)).catch((error) => {
-    const message =
-      error instanceof Error
-        ? error.message
-        : `Unable to load font asset at ${filePath}`;
+  const promise = (async () => {
+    const buffer = await readFile(filePath);
+    const opentypeModule = opentype as any;
+    const parseFn = opentypeModule.parse || opentypeModule.default?.parse;
+    const font = parseFn(buffer);
 
-    throw new Error(`Member card font asset missing or unreadable: ${filePath}. ${message}`);
+    if (!font || typeof font.stringToGlyphs !== "function") {
+      throw new Error(`Member card font asset missing or unreadable: ${filePath}.`);
+    }
+
+    return font as OpenTypeFont;
+  })();
+
+  promise.catch(() => {
+    FONT_CACHE.delete(filePath);
   });
+
   FONT_CACHE.set(filePath, promise);
   return promise;
 }
@@ -193,8 +212,10 @@ function buildTextLinePath(
   letterSpacing: number
 ) {
   const sanitized = sanitizeText(text);
-  const path = new (opentype as any).Path();
   const fontAny = font as any;
+  const opentypeModule = opentype as any;
+  const PathClass = opentypeModule.Path || opentypeModule.default?.Path;
+  const path = new PathClass();
   const glyphs = fontAny.stringToGlyphs(sanitized);
   const scale = fontSize / fontAny.unitsPerEm;
   let cursorX = 0;
@@ -538,6 +559,7 @@ function getArchiveTypeLabel(memorialMode: boolean | null) {
 }
 
 async function loadOwnerLookup(ownerId: string): Promise<OwnerLookup> {
+  const { createAdminClient } = require("./supabase/admin");
   const supabase = createAdminClient();
 
   const { data, error } = await supabase.auth.admin.getUserById(ownerId);
@@ -591,6 +613,8 @@ function buildCandidateRecord(
 }
 
 export async function listMemberCardEngravingCandidates(query?: string) {
+  const { createAdminClient } = require("./supabase/admin");
+  const { loadProfilesByUserIds } = require("./profiles");
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("archives")
@@ -612,7 +636,7 @@ export async function listMemberCardEngravingCandidates(query?: string) {
     ownerIds.map(async (ownerId) => ({
       ownerId,
       owner: await loadOwnerLookup(ownerId),
-      profile: profiles.get(ownerId) ?? null
+      profile: (profiles as Map<string, PublicProfile>).get(ownerId) ?? null
     }))
   );
 
@@ -655,6 +679,8 @@ export async function listMemberCardEngravingCandidates(query?: string) {
 }
 
 export async function getMemberCardEngravingCandidate(archiveId: string) {
+  const { createAdminClient } = require("./supabase/admin");
+  const { loadProfilesByUserIds } = require("./profiles");
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("archives")
@@ -681,7 +707,7 @@ export async function getMemberCardEngravingCandidate(archiveId: string) {
     loadOwnerLookup(row.owner_id)
   ]);
 
-  return buildCandidateRecord(row, owner, profiles.get(row.owner_id) ?? null);
+  return buildCandidateRecord(row, owner, (profiles as Map<string, PublicProfile>).get(row.owner_id) ?? null);
 }
 
 async function generateQrOverlay(value: string, box: TextBox) {
@@ -849,6 +875,97 @@ export async function buildMemberCardEngravingPng(
   return flattenMemberCardPng(candidate, side);
 }
 
+export async function buildMemberCardEngravingSvg(
+  candidate: MemberCardEngravingCandidate,
+  side: MemberCardEngravingSide
+): Promise<string> {
+  const scaleX = CARD_WIDTH_MM / FRONT_TEMPLATE_WIDTH;
+  const scaleY = CARD_HEIGHT_MM / FRONT_TEMPLATE_HEIGHT;
+
+  if (side === "front") {
+    if (!candidate.profileDisplayName || !candidate.archiveName || !candidate.createdYear) {
+      throw new Error(
+        `Missing required front-side data: ${candidate.frontMissingFields.join(", ")}`
+      );
+    }
+
+    const nameBox = scaleBox(FRONT_OVERLAY.frontNameBox, scaleX, scaleY);
+    const yearBox = scaleBox(FRONT_OVERLAY.memberSinceBox, scaleX, scaleY);
+    const displayName = sanitizeText(candidate.profileDisplayName);
+    const yearText = `${candidate.createdYear}`;
+    const nameFont = await loadFont(NAME_FONT_PATH);
+    const yearFont = await loadFont(YEAR_FONT_PATH);
+    assertRenderableText(displayName, nameFont, "member display name");
+    assertRenderableText(yearText, yearFont, "member-since year");
+
+    const namePaths = renderTextPathsInBox({
+      box: nameBox,
+      text: displayName,
+      maxFontSize: 6.5,
+      minFontSize: 2.8,
+      maxLines: 2,
+      font: nameFont,
+      letterSpacing: 0,
+      allowWrap: true
+    });
+
+    const yearPaths = renderTextPathsInBox({
+      box: yearBox,
+      text: yearText,
+      maxFontSize: 3.5,
+      minFontSize: 1.8,
+      maxLines: 1,
+      font: yearFont,
+      letterSpacing: 0,
+      allowWrap: false
+    });
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="85.6mm" height="53.98mm" viewBox="0 0 85.6 53.98">
+  <g id="front-engraving-layer">
+    ${namePaths}
+    ${yearPaths}
+  </g>
+</svg>`;
+  }
+
+  if (!candidate.archiveName || !candidate.archiveSlug || !candidate.legacyActivationCode || !candidate.qrDestination) {
+    throw new Error(
+      `Missing required back-side data: ${candidate.backMissingFields.join(", ")}`
+    );
+  }
+
+  const qrScaleX = CARD_WIDTH_MM / BACK_TEMPLATE_WIDTH;
+  const qrScaleY = CARD_HEIGHT_MM / BACK_TEMPLATE_HEIGHT;
+  const qrGuideBox = scaleBox(BACK_OVERLAY.qrBox, qrScaleX, qrScaleY);
+  const qrBox = centerSquareBox(qrGuideBox);
+  const activationBox = scaleBox(BACK_OVERLAY.activationCodeBox, qrScaleX, qrScaleY);
+
+  const activationFont = await loadFont(CODE_FONT_PATH);
+  const activationCode = sanitizeText(candidate.legacyActivationCode);
+  assertRenderableText(activationCode, activationFont, "legacy activation code");
+
+  const qrOverlay = await generateQrOverlay(candidate.qrDestination, qrBox);
+  const activationPaths = renderTextPathsInBox({
+    box: activationBox,
+    text: activationCode,
+    maxFontSize: 3.0,
+    minFontSize: 1.3,
+    maxLines: 1,
+    font: activationFont,
+    letterSpacing: 0.005,
+    allowWrap: false
+  });
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="85.6mm" height="53.98mm" viewBox="0 0 85.6 53.98">
+  <g id="back-engraving-layer">
+    ${qrOverlay}
+    ${activationPaths}
+  </g>
+</svg>`;
+}
+
 export async function buildMemberCardEngravingDataUri(
   candidate: MemberCardEngravingCandidate,
   side: MemberCardEngravingSide
@@ -859,7 +976,8 @@ export async function buildMemberCardEngravingDataUri(
 
 export function getMemberCardEngravingFilename(
   candidate: MemberCardEngravingCandidate,
-  side: MemberCardEngravingSide
+  side: MemberCardEngravingSide,
+  format: "png" | "svg" = "png"
 ) {
   const source = candidate.archiveSlug || candidate.archiveName || candidate.archiveId;
   const safe = source
@@ -870,5 +988,5 @@ export function getMemberCardEngravingFilename(
     .toLowerCase();
 
   const base = safe || "member-card";
-  return `life-archive-member-card-${side}-${base}.png`;
+  return `life-archive-member-card-${side}-${base}.${format}`;
 }
