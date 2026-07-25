@@ -38,9 +38,31 @@ export function LegacyProloguePlayer({
   const [duration, setDuration] = useState(VERIFIED_VIDEO_DURATION);
   const [isLoading, setIsLoading] = useState(true);
   const [showFinalCta, setShowFinalCta] = useState(false);
-
+  const [isOpeningSoundPromptActive, setIsOpeningSoundPromptActive] = useState(true);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const completionNotifiedRef = useRef(false);
+  const openingHoldTimerRef = useRef<number | null>(null);
+
+  // Opening hold timer for initial sound attention (3.0 seconds)
+  useEffect(() => {
+    if (!isMuted || !isOpeningSoundPromptActive) {
+      return;
+    }
+
+    openingHoldTimerRef.current = window.setTimeout(() => {
+      setIsOpeningSoundPromptActive(false);
+      const video = videoRef.current;
+      if (video && video.paused && !isEnded) {
+        video.play().catch(() => {});
+      }
+    }, 3000);
+
+    return () => {
+      if (openingHoldTimerRef.current !== null) {
+        window.clearTimeout(openingHoldTimerRef.current);
+      }
+    };
+  }, [isMuted, isOpeningSoundPromptActive, isEnded]);
 
   // Fallback check for saveData preference
   useEffect(() => {
@@ -63,7 +85,7 @@ export function LegacyProloguePlayer({
           video.pause();
         }
       } else {
-        if (isPlaying && !isEnded && video.paused) {
+        if (isPlaying && !isEnded && video.paused && !isOpeningSoundPromptActive) {
           video.play().catch(() => {});
         }
       }
@@ -71,23 +93,54 @@ export function LegacyProloguePlayer({
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isPlaying, isEnded, useFallback]);
+  }, [isPlaying, isEnded, useFallback, isOpeningSoundPromptActive]);
+
+  const beginWithSound = useCallback(() => {
+    if (openingHoldTimerRef.current !== null) {
+      window.clearTimeout(openingHoldTimerRef.current);
+    }
+    setIsOpeningSoundPromptActive(false);
+    setIsMuted(false);
+
+    const video = videoRef.current;
+    if (video) {
+      video.muted = false;
+      video.volume = 1;
+      if (video.paused && !isEnded) {
+        video.play().catch(() => {});
+      }
+    }
+    setIsPlaying(true);
+  }, [isEnded]);
+
+  const continueWithoutSound = useCallback(() => {
+    if (openingHoldTimerRef.current !== null) {
+      window.clearTimeout(openingHoldTimerRef.current);
+    }
+    setIsOpeningSoundPromptActive(false);
+    setIsMuted(true);
+
+    const video = videoRef.current;
+    if (video) {
+      video.muted = true;
+      if (video.paused && !isEnded) {
+        video.play().catch(() => {});
+      }
+    }
+    setIsPlaying(true);
+  }, [isEnded]);
 
   const toggleSound = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
 
     if (isMuted) {
-      video.muted = false;
-      setIsMuted(false);
-      if (video.paused && !isEnded) {
-        video.play().catch(() => {});
-      }
+      beginWithSound();
     } else {
       video.muted = true;
       setIsMuted(true);
     }
-  }, [isMuted, isEnded]);
+  }, [isMuted, beginWithSound]);
 
   const togglePlayback = useCallback(() => {
     const video = videoRef.current;
@@ -98,6 +151,9 @@ export function LegacyProloguePlayer({
       setIsEnded(false);
       setShowFinalCta(false);
       completionNotifiedRef.current = false;
+      if (isMuted) {
+        setIsOpeningSoundPromptActive(true);
+      }
       video.play().catch(() => {});
       setIsPlaying(true);
       return;
@@ -110,9 +166,13 @@ export function LegacyProloguePlayer({
       video.play().catch(() => {});
       setIsPlaying(true);
     }
-  }, [isEnded, isPlaying]);
+  }, [isEnded, isPlaying, isMuted]);
 
   const skip = useCallback(() => {
+    if (openingHoldTimerRef.current !== null) {
+      window.clearTimeout(openingHoldTimerRef.current);
+    }
+    setIsOpeningSoundPromptActive(false);
     const video = videoRef.current;
     if (video) {
       video.pause();
@@ -224,16 +284,34 @@ export function LegacyProloguePlayer({
           <p>The Life Archive begins with one question… What would you say?</p>
         </div>
 
-        {/* Initial Muted Sound Prompt */}
-        {isMuted && !isEnded ? (
-          <button
-            type="button"
-            className={styles.soundPrompt}
-            aria-label="Enable prologue sound"
-            onClick={toggleSound}
-          >
-            Enable sound
-          </button>
+        {/* Prominent Opening Sound Prompt Overlay */}
+        {isOpeningSoundPromptActive && !isEnded ? (
+          <div className={styles.openingSoundOverlay} role="dialog" aria-label="Prologue sound experience">
+            <div className={styles.openingSoundCard}>
+              <p className={styles.openingEyebrow}>The Life Archive</p>
+              <h2 className={styles.openingTitle}>This story is meant to be heard.</h2>
+              <p className={styles.openingSubtitle}>Enable sound for the full experience.</p>
+
+              <button
+                type="button"
+                className={`${styles.beginWithSoundButton} ${styles.soundButtonPulse}`}
+                onClick={beginWithSound}
+                aria-label="Begin prologue with sound"
+              >
+                <SpeakerWaveIcon />
+                <span>Begin With Sound</span>
+              </button>
+
+              <button
+                type="button"
+                className={styles.continueMutedButton}
+                onClick={continueWithoutSound}
+                aria-label="Continue prologue without sound"
+              >
+                Continue Without Sound
+              </button>
+            </div>
+          </div>
         ) : null}
 
         {/* Final CTA Overlay when near end or ended */}
@@ -282,36 +360,59 @@ export function LegacyProloguePlayer({
           Skip
         </button>
 
-        <button
-          type="button"
-          aria-label={
-            isEnded
-              ? "Replay the prologue"
-              : isPlaying
-                ? "Pause the prologue"
-                : "Continue the prologue"
-          }
-          onClick={togglePlayback}
-        >
-          {isEnded ? "Replay" : isPlaying ? "Pause" : "Continue"}
-        </button>
+        {!isOpeningSoundPromptActive ? (
+          <>
+            <button
+              type="button"
+              aria-label={
+                isEnded
+                  ? "Replay the prologue"
+                  : isPlaying
+                    ? "Pause the prologue"
+                    : "Continue the prologue"
+              }
+              onClick={togglePlayback}
+            >
+              {isEnded ? "Replay" : isPlaying ? "Pause" : "Continue"}
+            </button>
 
-        <a
-          href={finalSecondaryHref || "/login"}
-          aria-label="Log in to an existing Life Archive account"
-        >
-          Log In
-        </a>
+            <a
+              href={finalSecondaryHref || "/login"}
+              aria-label="Log in to an existing Life Archive account"
+            >
+              Log In
+            </a>
 
-        <button
-          type="button"
-          aria-label={isMuted ? "Enable prologue sound" : "Mute prologue sound"}
-          aria-pressed={!isMuted}
-          onClick={toggleSound}
-        >
-          {isMuted ? "Enable sound" : "Mute"}
-        </button>
+            <button
+              type="button"
+              aria-label={isMuted ? "Enable prologue sound" : "Mute prologue sound"}
+              aria-pressed={!isMuted}
+              onClick={toggleSound}
+            >
+              {isMuted ? "Enable sound" : "Mute"}
+            </button>
+          </>
+        ) : null}
       </div>
     </main>
+  );
+}
+
+function SpeakerWaveIcon({ className = "h-5 w-5 shrink-0" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+      />
+    </svg>
   );
 }

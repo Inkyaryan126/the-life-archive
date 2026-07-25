@@ -106,6 +106,7 @@ export function ImageSequenceProloguePlayer({
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const [isSoundAvailable, setIsSoundAvailable] = useState(true);
   const [wasAutoplayBlocked, setWasAutoplayBlocked] = useState<boolean | null>(null);
+  const [isOpeningSoundPromptActive, setIsOpeningSoundPromptActive] = useState(true);
   const startedAtRef = useRef<number | null>(null);
   const pausedAtRef = useRef<number | null>(null);
   const animationRef = useRef<number | null>(null);
@@ -114,6 +115,24 @@ export function ImageSequenceProloguePlayer({
   const sceneProgressRef = useRef(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasAttemptedAutoplayRef = useRef(false);
+  const openingHoldTimerRef = useRef<number | null>(null);
+
+  // Opening hold timer for initial sound attention (3.0 seconds)
+  useEffect(() => {
+    if (loadState !== "ready" || isSoundEnabled || !isOpeningSoundPromptActive) {
+      return;
+    }
+
+    openingHoldTimerRef.current = window.setTimeout(() => {
+      setIsOpeningSoundPromptActive(false);
+    }, 3000);
+
+    return () => {
+      if (openingHoldTimerRef.current !== null) {
+        window.clearTimeout(openingHoldTimerRef.current);
+      }
+    };
+  }, [loadState, isSoundEnabled, isOpeningSoundPromptActive]);
 
   const timeline = useMemo<TimelineFrame[]>(
     () =>
@@ -254,52 +273,50 @@ export function ImageSequenceProloguePlayer({
       audio.removeEventListener("play", handlePlay);
       audio.removeEventListener("pause", handlePause);
       audio.removeEventListener("error", handleError);
-      audio.removeAttribute("src");
-      audio.load();
       audioRef.current = null;
     };
   }, []);
 
-  const playSoundFromTimeline = useCallback(async (source: "autoplay" | "gesture" | "resume") => {
-    const audio = audioRef.current;
-
-    if (!audio) {
-      setIsSoundAvailable(false);
-      logPrologueAudio("unavailable", { source: SOUND_BED_SRC });
-      return false;
-    }
-
-    audio.volume = SOUND_VOLUME;
-    audio.muted = false;
-    audio.currentTime = clamp(timelineTimeSeconds, 0, Math.max(audio.duration || totalDuration / 1000, 0));
-
-    try {
-      await audio.play();
-      setIsSoundEnabled(true);
-      setWasAutoplayBlocked(source === "autoplay" ? false : wasAutoplayBlocked);
-      logPrologueAudio("play-promise-resolved", {
-        source,
-        src: SOUND_BED_SRC,
-        timelineTimeSeconds: Number(timelineTimeSeconds.toFixed(2)),
-        audioTimeSeconds: Number(audio.currentTime.toFixed(2)),
-        muted: audio.muted,
-        volume: audio.volume
-      });
-      return true;
-    } catch (error) {
-      if (source === "autoplay") {
-        setWasAutoplayBlocked(true);
+  const playSoundFromTimeline = useCallback(
+    async (source: "autoplay" | "gesture" | "resume") => {
+      const audio = audioRef.current;
+      if (!audio) {
+        return false;
       }
-      setIsSoundEnabled(false);
-      logPrologueAudio("play-promise-rejected", {
-        source,
-        src: SOUND_BED_SRC,
-        timelineTimeSeconds: Number(timelineTimeSeconds.toFixed(2)),
-        error: error instanceof Error ? error.message : String(error)
-      });
-      return false;
-    }
-  }, [timelineTimeSeconds, totalDuration, wasAutoplayBlocked]);
+
+      audio.volume = SOUND_VOLUME;
+      audio.muted = false;
+      audio.currentTime = clamp(timelineTimeSeconds, 0, Math.max(audio.duration || totalDuration / 1000, 0));
+
+      try {
+        await audio.play();
+        setIsSoundEnabled(true);
+        setWasAutoplayBlocked(source === "autoplay" ? false : wasAutoplayBlocked);
+        logPrologueAudio("play-promise-resolved", {
+          source,
+          src: SOUND_BED_SRC,
+          timelineTimeSeconds: Number(timelineTimeSeconds.toFixed(2)),
+          audioTimeSeconds: Number(audio.currentTime.toFixed(2)),
+          muted: audio.muted,
+          volume: audio.volume
+        });
+        return true;
+      } catch (error) {
+        if (source === "autoplay") {
+          setWasAutoplayBlocked(true);
+        }
+        setIsSoundEnabled(false);
+        logPrologueAudio("play-promise-rejected", {
+          source,
+          src: SOUND_BED_SRC,
+          timelineTimeSeconds: Number(timelineTimeSeconds.toFixed(2)),
+          error: error instanceof Error ? error.message : String(error)
+        });
+        return false;
+      }
+    },
+    [timelineTimeSeconds, totalDuration, wasAutoplayBlocked]
+  );
 
   useEffect(() => {
     if (loadState !== "ready" || hasAttemptedAutoplayRef.current) {
@@ -339,6 +356,21 @@ export function ImageSequenceProloguePlayer({
     }
   }, [isComplete, isPlaying, isSoundEnabled, playSoundFromTimeline, timelineTimeSeconds]);
 
+  const beginWithSound = useCallback(async () => {
+    if (openingHoldTimerRef.current !== null) {
+      window.clearTimeout(openingHoldTimerRef.current);
+    }
+    setIsOpeningSoundPromptActive(false);
+    await playSoundFromTimeline("gesture");
+  }, [playSoundFromTimeline]);
+
+  const continueWithoutSound = useCallback(() => {
+    if (openingHoldTimerRef.current !== null) {
+      window.clearTimeout(openingHoldTimerRef.current);
+    }
+    setIsOpeningSoundPromptActive(false);
+  }, []);
+
   const toggleSound = useCallback(async () => {
     const audio = audioRef.current;
 
@@ -348,8 +380,8 @@ export function ImageSequenceProloguePlayer({
       return;
     }
 
-    await playSoundFromTimeline("gesture");
-  }, [isSoundEnabled, playSoundFromTimeline]);
+    await beginWithSound();
+  }, [isSoundEnabled, beginWithSound]);
 
   const advanceFrame = useCallback(() => {
     if (advancingRef.current) {
@@ -387,7 +419,7 @@ export function ImageSequenceProloguePlayer({
   }, [activeIndex]);
 
   useEffect(() => {
-    if (loadState !== "ready" || !isPlaying || isComplete) {
+    if (loadState !== "ready" || !isPlaying || isComplete || isOpeningSoundPromptActive) {
       return;
     }
 
@@ -420,7 +452,8 @@ export function ImageSequenceProloguePlayer({
     advanceFrame,
     isComplete,
     isPlaying,
-    loadState
+    loadState,
+    isOpeningSoundPromptActive
   ]);
 
   useEffect(() => {
@@ -762,15 +795,34 @@ export function ImageSequenceProloguePlayer({
           <p>{activeFrame.introCaption}</p>
         </div>
 
-        {soundPromptVisible ? (
-          <button
-            type="button"
-            className={styles.soundPrompt}
-            aria-label="Enable prologue sound"
-            onClick={toggleSound}
-          >
-            Enable sound
-          </button>
+        {/* Prominent Opening Sound Prompt Overlay */}
+        {isOpeningSoundPromptActive && !isComplete ? (
+          <div className={styles.openingSoundOverlay} role="dialog" aria-label="Prologue sound experience">
+            <div className={styles.openingSoundCard}>
+              <p className={styles.openingEyebrow}>The Life Archive</p>
+              <h2 className={styles.openingTitle}>This story is meant to be heard.</h2>
+              <p className={styles.openingSubtitle}>Enable sound for the full experience.</p>
+
+              <button
+                type="button"
+                className={`${styles.beginWithSoundButton} ${styles.soundButtonPulse}`}
+                onClick={beginWithSound}
+                aria-label="Begin prologue with sound"
+              >
+                <SpeakerWaveIcon />
+                <span>Begin With Sound</span>
+              </button>
+
+              <button
+                type="button"
+                className={styles.continueMutedButton}
+                onClick={continueWithoutSound}
+                aria-label="Continue prologue without sound"
+              >
+                Continue Without Sound
+              </button>
+            </div>
+          </div>
         ) : null}
 
         <div
@@ -807,30 +859,53 @@ export function ImageSequenceProloguePlayer({
         <button type="button" aria-label="Skip the prologue" onClick={skip}>
           Skip
         </button>
-        <button
-          type="button"
-          aria-label={isComplete ? "Replay the prologue" : isPlaying ? "Pause the prologue" : "Continue the prologue"}
-          onClick={togglePlayback}
-        >
-          {isComplete ? "Replay" : isPlaying ? "Pause" : "Continue"}
-        </button>
-        <a
-          href="/login"
-          aria-label="Log in to an existing Life Archive account"
-        >
-          Log In
-        </a>
-        {isSoundAvailable ? (
-          <button
-            type="button"
-            aria-label={isSoundEnabled ? "Mute prologue sound" : "Enable prologue sound"}
-            aria-pressed={isSoundEnabled}
-            onClick={toggleSound}
-          >
-            {isSoundEnabled ? "Mute" : "Enable sound"}
-          </button>
+        {!isOpeningSoundPromptActive ? (
+          <>
+            <button
+              type="button"
+              aria-label={isComplete ? "Replay the prologue" : isPlaying ? "Pause the prologue" : "Continue the prologue"}
+              onClick={togglePlayback}
+            >
+              {isComplete ? "Replay" : isPlaying ? "Pause" : "Continue"}
+            </button>
+            <a
+              href="/login"
+              aria-label="Log in to an existing Life Archive account"
+            >
+              Log In
+            </a>
+            {isSoundAvailable ? (
+              <button
+                type="button"
+                aria-label={isSoundEnabled ? "Mute prologue sound" : "Enable prologue sound"}
+                aria-pressed={isSoundEnabled}
+                onClick={toggleSound}
+              >
+                {isSoundEnabled ? "Mute" : "Enable sound"}
+              </button>
+            ) : null}
+          </>
         ) : null}
       </div>
     </main>
+  );
+}
+
+function SpeakerWaveIcon({ className = "h-5 w-5 shrink-0" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+      />
+    </svg>
   );
 }
