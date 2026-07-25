@@ -1,10 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
- headers } from "next/headers";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { PrintButton } from "@/components/PrintButton";
-import { DesignBackdrop } from "@/components/SiteDesign";
 import {
   ArchiveBuildingShell,
   ArchiveScene,
@@ -25,6 +23,8 @@ import {
   getRequestSiteUrl,
   svgToDataUri
 } from "@/lib/qr";
+import { createClient } from "@/lib/supabase/server";
+import { getPublicPassUrl } from "@/lib/share-passes";
 import { AppSidebar } from "@/components/AppSidebar";
 import { QRDesktopActions } from "./QRDesktopActions";
 
@@ -86,15 +86,46 @@ export default async function QRPage({ params }: QRPageProps) {
   const host = requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") || "http";
   const siteUrl = getRequestSiteUrl(host, protocol);
-  const randomMemoryUrl = getRandomMemoryUrl(archive.slug, siteUrl);
-  const qrSvg = await generateQrSvg(randomMemoryUrl);
+
+  let targetUrl = getRandomMemoryUrl(archive.slug, siteUrl);
+  let isPassTokenUrl = false;
+
+  const supabase = await createClient();
+  const { data: keepsake } = await supabase
+    .from("keepsakes")
+    .select("id, active_share_pass_id")
+    .eq("archive_id", archive.id)
+    .not("active_share_pass_id", "is", null)
+    .maybeSingle();
+
+  if (keepsake?.active_share_pass_id) {
+    const { data: pass } = await supabase
+      .from("archive_share_passes")
+      .select("id, token_version, status")
+      .eq("id", keepsake.active_share_pass_id)
+      .eq("status", "active")
+      .maybeSingle();
+
+    if (pass) {
+      try {
+        targetUrl = getPublicPassUrl(pass.id, pass.token_version ?? 1, siteUrl);
+        isPassTokenUrl = true;
+      } catch {
+        targetUrl = getRandomMemoryUrl(archive.slug, siteUrl);
+      }
+    }
+  }
+
+  const qrSvg = await generateQrSvg(targetUrl);
   const qrSrc = svgToDataUri(qrSvg);
-  const qrPngSrc = await generateQrPngDataUri(randomMemoryUrl);
+  const qrPngSrc = await generateQrPngDataUri(targetUrl);
+
   const desktopImage = {
     ...archiveBuildingScenes.qrCode,
     alt: "The Life Archive QR code room",
     priority: true
   };
+
   const desktopQrContent = (
     <>
       <ArchiveOverlayRegion
@@ -104,7 +135,7 @@ export default async function QRPage({ params }: QRPageProps) {
       >
         <Image
           src={qrSrc}
-          alt={`QR code for ${archive.personName}'s random memory page`}
+          alt={`QR code for ${archive.personName}`}
           width={288}
           height={288}
           unoptimized
@@ -130,7 +161,7 @@ export default async function QRPage({ params }: QRPageProps) {
         <QRDesktopActions
           archiveName={archive.archiveName}
           downloadHref={qrPngSrc}
-          shareUrl={randomMemoryUrl}
+          shareUrl={targetUrl}
         />
       </ArchiveOverlayRegion>
 
@@ -141,10 +172,10 @@ export default async function QRPage({ params }: QRPageProps) {
       >
         <div className="max-h-full w-full overflow-hidden rounded-[0.6rem] border border-archive-gold/14 bg-black/34 px-[clamp(0.6rem,0.9vw,0.95rem)] py-[clamp(0.45rem,0.75vw,0.8rem)] shadow-[0_14px_42px_rgba(0,0,0,0.22)] backdrop-blur-[1px]">
           <p className="text-[clamp(0.58rem,0.76vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-archive-gold">
-            Share link
+            {isPassTokenUrl ? "Tokenized Keepsake Guest Link" : "Share link"}
           </p>
           <p className="mt-[clamp(0.25rem,0.45vw,0.45rem)] max-h-[4.8em] overflow-hidden break-all text-[clamp(0.56rem,0.72vw,0.78rem)] leading-[1.35] text-archive-ivory/72">
-            {randomMemoryUrl}
+            {targetUrl}
           </p>
         </div>
       </ArchiveOverlayRegion>
@@ -177,135 +208,112 @@ export default async function QRPage({ params }: QRPageProps) {
         image={{ ...archiveBuildingMobileScenes.qrCode, priority: true }}
         sceneLabel="QR Code mobile archive room"
         title={"QR CODE"}
-        subtitle={"One scan can open a lifetime."}
+        subtitle={isPassTokenUrl ? "Tokenized physical keepsake pass." : "One scan can open a lifetime."}
         className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
       >
-<div className={`relative z-10 mx-auto w-full max-w-[96rem] ${isOwner ? "lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8" : ""}`}>
-        {isOwner ? (
-          <AppSidebar
-            active="qr"
-            archiveSlug={archive.slug}
-            archiveName={archive.archiveName}
-            archivePersonName={archive.personName}
-          />
-        ) : null}
-
-        <div className="min-w-0">
-          <nav className="no-print">
-            <Link
-              href={`/archive/${archive.slug}`}
-              className="text-sm font-semibold text-archive-ivory/80 underline-offset-4 hover:text-archive-gold sm:text-base"
-            >
-              Back to archive
-            </Link>
-          </nav>
-
-          <header className="no-print py-12">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
-              {archive.archiveName}
-            </p>
-            <h1 className="mt-3 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-              QR code for {archive.personName}
-            </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-archive-ivory/78">
-              Scan to reveal a random memory.
-            </p>
-            <p className="mt-2 max-w-2xl text-base leading-7 text-archive-ivory/62">
-              {archive.visibility === "public"
-                ? "Anyone who scans this code can view the archive. Public archives may also appear on The Life Archive homepage."
-                : "Only the archive owner and authorized members can open this private archive after signing in."}
-            </p>
-          </header>
-
-          <section className="no-print grid gap-6 lg:grid-cols-[360px_1fr]">
-          <div className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury">
-            <Image
-              src={qrSrc}
-              alt={`QR code for ${archive.personName}'s random memory page`}
-              width={288}
-              height={288}
-              unoptimized
-              className="mx-auto rounded-md bg-white p-4 ring-1 ring-archive-gold/10"
+        <div className={`relative z-10 mx-auto w-full max-w-[96rem] ${isOwner ? "lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8" : ""}`}>
+          {isOwner ? (
+            <AppSidebar
+              active="qr"
+              archiveSlug={archive.slug}
+              archiveName={archive.archiveName}
+              archivePersonName={archive.personName}
             />
-          </div>
+          ) : null}
 
-          <div className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
-              Share this link
-            </p>
-            <p className="mt-3 break-all rounded-md bg-archive-obsidian/70 px-4 py-3 text-sm leading-6 text-archive-ivory/74">
-              {randomMemoryUrl}
-            </p>
-            <div className="mt-6 grid gap-3 text-sm leading-6 text-archive-ivory/70">
-              <p>
-                Archive:{" "}
-                <span className="font-semibold text-archive-ivory">
-                  {archive.archiveName}
-                </span>
-              </p>
-              <p>
-                Preserving:{" "}
-                <span className="font-semibold text-archive-ivory">
-                  {archive.personName}
-                </span>
-              </p>
-            </div>
-            <PrintButton>Print Free QR Card</PrintButton>
-          </div>
-          </section>
-
-          {/* Keepsake Upsell Block */}
-          <section className="no-print mt-8 rounded-[2rem] border border-archive-gold/22 bg-archive-obsidian p-6 text-archive-ivory shadow-soft">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-archive-gold">
-              The Life Archive Keepsakes
-            </p>
-            <h3 className="mt-2 font-serif text-3xl text-archive-ivory">
-              Print this QR free, then place it on a keepsake.
-            </h3>
-            <p className="mt-2 text-base leading-7 text-archive-ivory/70">
-              Download your QR at no cost, or order a premium keychain, card, pendant, plaque, or tag connected to this archive.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-3">
+          <div className="min-w-0">
+            <nav className="no-print">
               <Link
-                href="/keepsakes"
-                className="rounded-full bg-archive-gold px-5 py-2.5 text-sm font-bold text-archive-obsidian shadow transition hover:bg-archive-champagne"
+                href={`/archive/${archive.slug}`}
+                className="text-sm font-semibold text-archive-ivory/80 underline-offset-4 hover:text-archive-gold sm:text-base"
               >
-                View Keepsakes Portfolio
+                Back to archive
               </Link>
-            </div>
-          </section>
+            </nav>
 
-          <section className="qr-print-card mt-10 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-8 text-center shadow-luxury">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
-              The Life Archive Home
-            </p>
-            <h2 className="mt-3 font-serif text-4xl text-archive-ivory">
-              {archive.personName}
-            </h2>
-            <p className="mt-2 text-base text-archive-ivory/68">
-              {archive.archiveName}
-            </p>
-            <Image
-              src={qrSrc}
-              alt={`Printable QR code for ${archive.personName}`}
-              width={288}
-              height={288}
-              unoptimized
-              className="mx-auto mt-7 bg-white p-3"
-            />
-            <p className="mt-5 text-lg font-semibold text-archive-ivory">
-              Scan to reveal a random memory.
-            </p>
-            <p className="mx-auto mt-3 max-w-md break-all text-sm leading-6 text-archive-ivory/56">
-              {randomMemoryUrl}
-            </p>
-          </section>
+            <header className="no-print py-12">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                {archive.archiveName}
+              </p>
+              <h1 className="mt-3 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
+                QR code for {archive.personName}
+              </h1>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-archive-ivory/78">
+                {isPassTokenUrl
+                  ? "Tokenized guest pass. Scanners will see only the specific memories approved for this keepsake."
+                  : "Scan to reveal a random memory."}
+              </p>
+            </header>
+
+            <section className="no-print grid gap-6 lg:grid-cols-[360px_1fr]">
+              <div className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury">
+                <Image
+                  src={qrSrc}
+                  alt={`QR code for ${archive.personName}`}
+                  width={288}
+                  height={288}
+                  unoptimized
+                  className="mx-auto rounded-md bg-white p-4 ring-1 ring-archive-gold/10"
+                />
+              </div>
+
+              <div className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                  {isPassTokenUrl ? "Tokenized Guest Link" : "Share this link"}
+                </p>
+                <p className="mt-3 break-all rounded-md bg-archive-obsidian/70 px-4 py-3 text-sm leading-6 text-archive-ivory/74">
+                  {targetUrl}
+                </p>
+                <div className="mt-6 grid gap-3 text-sm leading-6 text-archive-ivory/70">
+                  <p>
+                    Archive:{" "}
+                    <span className="font-semibold text-archive-ivory">
+                      {archive.archiveName}
+                    </span>
+                  </p>
+                  <p>
+                    Preserving:{" "}
+                    <span className="font-semibold text-archive-ivory">
+                      {archive.personName}
+                    </span>
+                  </p>
+                </div>
+                <PrintButton>Print Free QR Card</PrintButton>
+              </div>
+            </section>
+
+            <section className="qr-print-card mt-10 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-8 text-center shadow-luxury">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
+                The Life Archive Home
+              </p>
+              <h2 className="mt-3 font-serif text-4xl text-archive-ivory">
+                {archive.personName}
+              </h2>
+              <p className="mt-2 text-base text-archive-ivory/68">
+                {archive.archiveName}
+              </p>
+              <Image
+                src={qrSrc}
+                alt={`Printable QR code for ${archive.personName}`}
+                width={288}
+                height={288}
+                unoptimized
+                className="mx-auto mt-7 bg-white p-3"
+              />
+              <p className="mt-5 text-lg font-semibold text-archive-ivory">
+                {isPassTokenUrl ? "Scan to view keepsake memory pass." : "Scan to reveal a random memory."}
+              </p>
+              <p className="mx-auto mt-3 max-w-md break-all text-sm leading-6 text-archive-ivory/56">
+                {targetUrl}
+              </p>
+            </section>
           </div>
-      </div>
-    </ArchiveMobileScene>
-    {account.user ? (
-      <AuthenticatedMobileBottomNavigation activeArchiveSlug={slug} />
-    ) : null}
+        </div>
+      </ArchiveMobileScene>
+
+      {account.user ? (
+        <AuthenticatedMobileBottomNavigation activeArchiveSlug={slug} />
+      ) : null}
     </>
   );
 }

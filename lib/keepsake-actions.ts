@@ -3,6 +3,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { getAccountContext } from "@/lib/account";
 import type { Keepsake, ArchiveSharePass } from "@/lib/types";
+import {
+  deriveSharePassPublicToken,
+  hashSharePassToken
+} from "@/lib/share-pass-tokens";
 
 export type ActionResponse<T = undefined> = {
   success: boolean;
@@ -125,6 +129,18 @@ export async function createDisabledSharePassAction(
       return { success: false, error: "Failed to create share pass." };
     }
 
+    const publicToken = deriveSharePassPublicToken(passId, 1);
+    const tokenHash = hashSharePassToken(publicToken);
+
+    await supabase
+      .from("archive_share_passes")
+      .update({
+        token_hash: tokenHash,
+        token_version: 1,
+        token_created_at: new Date().toISOString()
+      })
+      .eq("id", passId);
+
     const { data: inserted } = await supabase
       .from("archive_share_passes")
       .select()
@@ -149,6 +165,60 @@ export async function createDisabledSharePassAction(
     };
   } catch (err) {
     console.error("[createDisabledSharePassAction] Error:", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "An unexpected error occurred."
+    };
+  }
+}
+
+export async function rotatePassTokenAction(
+  passId: string,
+  archiveId: string
+): Promise<ActionResponse<{ newVersion: number }>> {
+  try {
+    await verifyArchiveOwner(archiveId);
+    const supabase = await createClient();
+
+    const { data: pass, error: fetchErr } = await supabase
+      .from("archive_share_passes")
+      .select("id, token_version")
+      .eq("id", passId)
+      .maybeSingle();
+
+    if (fetchErr || !pass) {
+      return { success: false, error: "Share pass not found." };
+    }
+
+    const nextVersion = (pass.token_version ?? 1) + 1;
+    const newPublicToken = deriveSharePassPublicToken(passId, nextVersion);
+    const newTokenHash = hashSharePassToken(newPublicToken);
+
+    const { error: updateErr } = await supabase
+      .from("archive_share_passes")
+      .update({
+        token_version: nextVersion,
+        token_hash: newTokenHash,
+        token_rotated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", passId);
+
+    if (updateErr) {
+      return { success: false, error: "Failed to rotate pass token." };
+    }
+
+    console.info({
+      event: "keepsake_pass_rotated",
+      timestamp: new Date().toISOString()
+    });
+
+    return {
+      success: true,
+      data: { newVersion: nextVersion }
+    };
+  } catch (err) {
+    console.error("[rotatePassTokenAction] Error:", err);
     return {
       success: false,
       error: err instanceof Error ? err.message : "An unexpected error occurred."
@@ -199,6 +269,26 @@ export async function activatePassAction(
 ): Promise<ActionResponse> {
   try {
     const supabase = await createClient();
+
+    const { data: pass } = await supabase
+      .from("archive_share_passes")
+      .select("id, token_hash, token_version")
+      .eq("id", passId)
+      .maybeSingle();
+
+    if (pass && (!pass.token_hash || !pass.token_version)) {
+      const publicToken = deriveSharePassPublicToken(passId, 1);
+      const tokenHash = hashSharePassToken(publicToken);
+
+      await supabase
+        .from("archive_share_passes")
+        .update({
+          token_hash: tokenHash,
+          token_version: 1,
+          token_created_at: new Date().toISOString()
+        })
+        .eq("id", passId);
+    }
 
     const { error } = await callTypedRpc<void>(
       supabase,
