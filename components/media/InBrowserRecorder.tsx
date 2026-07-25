@@ -59,8 +59,8 @@ export function InBrowserRecorder({
   }
 
   const bgContainerClass = darkTheme
-    ? "rounded-xl border border-archive-gold/25 bg-black/40 p-4 text-archive-ivory"
-    : "rounded-xl border border-[#8a6427]/35 bg-[#f4dfb7]/30 p-4 text-[#24190d]";
+    ? "w-full max-w-full min-w-0 box-border overflow-hidden rounded-xl border border-archive-gold/25 bg-black/40 p-4 text-archive-ivory"
+    : "w-full max-w-full min-w-0 box-border overflow-hidden rounded-xl border border-[#8a6427]/35 bg-[#f4dfb7]/30 p-4 text-[#24190d]";
 
   return (
     <div className={`${bgContainerClass} ${className}`}>

@@ -511,6 +511,68 @@ function BelowDirectoryContent({ timeCapsulesHref }: { timeCapsulesHref: string 
         </div>
       </section>
 
+      <section className="border-t border-archive-gold/14 bg-[#080705] px-5 py-16 text-archive-ivory sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto w-full max-w-[1180px]">
+          <div className="max-w-3xl">
+            <Eyebrow>Generational Wisdom</Eyebrow>
+            <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
+              Your family should not have to start over every generation.
+            </h2>
+            <p className="mt-6 text-base leading-8 text-archive-ivory/76 sm:text-lg">
+              Every life produces knowledge—about love, loss, family, money, mistakes, survival, faith, work, relationships, and what truly matters. But most of that wisdom disappears when a life ends, leaving the next generation to begin again. The Life Archive gives families a place to preserve those lessons, voices, stories, and memories so the people who come next can start further ahead.
+            </p>
+            <p className="mt-4 text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
+              Preserve what you learned. Let the next generation build on it.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.025] p-6 shadow-luxury">
+              <h3 className="font-serif text-xl text-archive-champagne">
+                Life Lessons & Hard-Won Wisdom
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-archive-ivory/68">
+                Record the principles, philosophies, warnings, and guidelines that took an entire lifetime to formulate, saving descendants from learning everything the hard way.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.025] p-6 shadow-luxury">
+              <h3 className="font-serif text-xl text-archive-champagne">
+                Voices & Video Messages
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-archive-ivory/68">
+                Give future generations access to the spoken cadences, laughter, tone, and presence of parents and grandparents when they need encouragement most.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.025] p-6 shadow-luxury">
+              <h3 className="font-serif text-xl text-archive-champagne">
+                Stories, Letters & Heritage
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-archive-ivory/68">
+                Preserve personal histories, written letters, songs, family origins, and milestone advice for future marriages, parenting, and turning points.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-10 rounded-2xl border border-archive-gold/22 bg-archive-gold/[0.06] p-6 sm:p-8">
+            <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <h3 className="font-serif text-2xl text-archive-ivory">
+                  A legacy that grows across generations instead of resetting.
+                </h3>
+                <p className="mt-3 max-w-3xl text-sm leading-7 text-archive-ivory/74 sm:text-base">
+                  Start with a living archive while life is being lived or a memorial archive in honor of someone lost. Descendants can access that guidance when facing their own milestones—and contribute what they learn so the family archive expands for generations to come.
+                </p>
+              </div>
+              <div className="shrink-0">
+                <PrimaryCta href="/create">Start Your Archive</PrimaryCta>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section
         id="how-it-works"
         className="bg-[#120f0b] px-5 py-16 text-archive-ivory sm:px-8 lg:px-10 lg:py-24"
@@ -623,6 +685,9 @@ function BelowDirectoryContent({ timeCapsulesHref }: { timeCapsulesHref: string 
           <h2 className="font-serif text-4xl leading-tight sm:text-6xl">
             Some stories deserve somewhere to go.
           </h2>
+          <p className="mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
+            Do not make the next generation start from scratch.
+          </p>
           <p className="mt-5 text-base leading-8 text-archive-ivory/68 sm:text-lg">
             Begin with a full archive, one question, or a guide for the moment
             you are in.

@@ -21,6 +21,10 @@ const faqs = [
     a: "A Life Archive is a private digital home for a person's stories, photos, lessons, songs, voice notes, and memories. It can be connected to a QR code so family can return to the archive from a card, keychain, plaque, or other keepsake."
   },
   {
+    q: "Why does The Life Archive focus on generational wisdom?",
+    a: "We inherit possessions, photographs, and names—but rarely the lifetime of wisdom gathered by those who came before us. The Life Archive preserves lessons, guidance, stories, and voices so descendants do not have to start from scratch every generation."
+  },
+  {
     q: "Is creating an archive free?",
     a: "Creating a Life Archive is currently free. Optional physical keepsakes are purchased separately."
   },

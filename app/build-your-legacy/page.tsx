@@ -172,10 +172,10 @@ export default async function BuildYourLegacyPage() {
               The Quiet Fade of a Generation
             </h2>
             <p className="mt-6 text-sm leading-7 text-archive-ivory/70">
-              Within three generations, most family details are lost. The specific tone of a mother&apos;s laugh, the values that navigated a grandfather through difficulty, the stories told over kitchen tables—they slip away, leaving behind only dates on a cold headstone and a box of silent, unlabeled photographs.
+              Within three generations, most family details are lost. The specific tone of a mother&apos;s laugh, the values that navigated a grandfather through difficulty, the stories told over kitchen tables—they slip away, leaving behind only dates on a cold headstone and a box of silent, unlabeled photographs. Your family should not have to start over every generation.
             </p>
             <p className="mt-4 text-sm leading-7 text-archive-ivory/70">
-              We believe memory is too precious to be treated like fleeting digital content. The Life Archive was built to disrupt this fading. We offer a permanent, dignified museum for your identity—a place where grandchildren you may never meet can sit and hear your actual voice telling them how you lived.
+              We inherit possessions, photographs, and names—but rarely the wisdom gathered during an entire lifetime. The Life Archive preserves memories, lessons, voices, and guidance so the people who come after you do not have to learn everything the hard way. Each generation can build on what came before, allowing descendants to begin further ahead.
             </p>
           </div>
         </section>

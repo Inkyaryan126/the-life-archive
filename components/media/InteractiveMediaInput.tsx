@@ -37,8 +37,8 @@ export function InteractiveMediaInput({
     : "bg-white/50 text-[#3c2a17] hover:bg-white/70 font-semibold";
 
   return (
-    <div className="grid gap-2">
-      <div className="flex items-center gap-2 text-[0.62rem] uppercase tracking-wider">
+    <div className="grid gap-2 w-full max-w-full min-w-0 overflow-hidden box-border">
+      <div className="flex flex-wrap items-center gap-2 text-[0.62rem] uppercase tracking-wider w-full min-w-0">
         <button
           type="button"
           onClick={() => handleSourceChange("record")}
@@ -78,7 +78,7 @@ export function InteractiveMediaInput({
           }}
           className={
             fileInputClass ||
-            "w-full text-xs text-archive-ivory/78 file:mr-2 file:rounded-md file:border-0 file:bg-archive-gold file:px-2.5 file:py-1 file:text-xs file:font-semibold file:text-archive-obsidian"
+            "w-full min-w-0 max-w-full box-border overflow-hidden text-ellipsis text-xs text-archive-ivory/78 file:mr-2 file:rounded-md file:border-0 file:bg-archive-gold file:px-2.5 file:py-1 file:text-xs file:font-semibold file:text-archive-obsidian"
           }
         />
       )}

@@ -81,13 +81,13 @@ const letterJournalWritingRegion = { left: 41.55, top: 35.94, width: 41.35, heig
 const letterJournalFieldsRegion = { left: 39.1, top: 72.56, width: 34.6, height: 16.6 };
 
 const compactInputClass =
-  "w-full rounded-lg border border-[#8a6427]/36 bg-[#f4dfb7]/48 px-[clamp(0.55rem,0.8vw,0.9rem)] py-[clamp(0.45rem,0.65vw,0.72rem)] text-[clamp(0.76rem,0.9vw,1rem)] leading-tight text-[#24190d] outline-none ring-[#9e6f27]/25 placeholder:text-[#5c4326]/58 focus:ring-2";
+  "w-full min-w-0 max-w-full box-border break-words rounded-lg border border-[#8a6427]/36 bg-[#f4dfb7]/48 px-[clamp(0.55rem,0.8vw,0.9rem)] py-[clamp(0.45rem,0.65vw,0.72rem)] text-[clamp(0.76rem,0.9vw,1rem)] leading-tight text-[#24190d] outline-none ring-[#9e6f27]/25 placeholder:text-[#5c4326]/58 focus:ring-2";
 const compactDarkInputClass =
-  "w-full rounded-lg border border-archive-gold/30 bg-black/42 px-[clamp(0.55rem,0.8vw,0.9rem)] py-[clamp(0.45rem,0.65vw,0.72rem)] text-[clamp(0.76rem,0.9vw,1rem)] leading-tight text-archive-ivory outline-none ring-archive-gold/25 placeholder:text-archive-ivory/52 focus:ring-2";
+  "w-full min-w-0 max-w-full box-border break-words rounded-lg border border-archive-gold/30 bg-black/42 px-[clamp(0.55rem,0.8vw,0.9rem)] py-[clamp(0.45rem,0.65vw,0.72rem)] text-[clamp(0.76rem,0.9vw,1rem)] leading-tight text-archive-ivory outline-none ring-archive-gold/25 placeholder:text-archive-ivory/52 focus:ring-2";
 const compactButtonClass =
-  "rounded-lg bg-[#9e6f27] px-[clamp(0.9rem,1.25vw,1.35rem)] py-[clamp(0.55rem,0.78vw,0.85rem)] text-[clamp(0.66rem,0.78vw,0.88rem)] font-bold uppercase tracking-[0.12em] text-[#140f09] transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70";
+  "shrink-0 max-w-full rounded-lg bg-[#9e6f27] px-[clamp(0.9rem,1.25vw,1.35rem)] py-[clamp(0.55rem,0.78vw,0.85rem)] text-[clamp(0.66rem,0.78vw,0.88rem)] font-bold uppercase tracking-[0.12em] text-[#140f09] transition hover:bg-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70";
 const compactFileInputClass =
-  "w-full cursor-pointer rounded-xl border border-dashed border-[#8a6427]/48 bg-[#f4dfb7]/34 px-[clamp(0.55rem,0.8vw,0.9rem)] py-[clamp(0.55rem,0.8vw,0.9rem)] text-[clamp(0.7rem,0.82vw,0.92rem)] leading-tight text-[#3c2a17] outline-none transition file:mr-3 file:rounded-full file:border-0 file:bg-[#9e6f27] file:px-[clamp(0.65rem,0.95vw,1rem)] file:py-[clamp(0.42rem,0.6vw,0.66rem)] file:text-[clamp(0.62rem,0.72vw,0.82rem)] file:font-bold file:uppercase file:tracking-[0.08em] file:text-[#140f09] hover:bg-[#f4dfb7]/46 focus:ring-2 focus:ring-[#9e6f27]/30";
+  "w-full min-w-0 max-w-full box-border overflow-hidden text-ellipsis cursor-pointer rounded-xl border border-dashed border-[#8a6427]/48 bg-[#f4dfb7]/34 px-[clamp(0.55rem,0.8vw,0.9rem)] py-[clamp(0.55rem,0.5vw,0.72rem)] text-[clamp(0.7rem,0.82vw,0.92rem)] leading-tight text-[#3c2a17] outline-none transition file:mr-2 file:rounded-full file:border-0 file:bg-[#9e6f27] file:px-[clamp(0.55rem,0.8vw,0.85rem)] file:py-[clamp(0.35rem,0.5vw,0.55rem)] file:text-[clamp(0.6rem,0.7vw,0.78rem)] file:font-bold file:uppercase file:tracking-[0.08em] file:text-[#140f09] hover:bg-[#f4dfb7]/46 focus:ring-2 focus:ring-[#9e6f27]/30";
 
 function isSupportedMemoryType(value?: string): value is MemoryType {
   return Boolean(value && memoryTypes.includes(value as MemoryType));
@@ -495,156 +495,156 @@ export default async function AddMemoryPage({
         sceneLabel="Add Memory mobile archive room"
         title={mobileSceneTitle}
         subtitle={mobileSceneSubtitle}
-        className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
+        className="w-full max-w-full min-w-0 overflow-hidden px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
       >
-<div className="relative z-10 mx-auto max-w-3xl">
-        <nav className="pb-10">
-          <Link
-            href={`/archive/${archive.slug}`}
-            className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
-          >
-            Back to archive
-          </Link>
-        </nav>
-
-        <header className="pb-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
-            Add a chapter
-          </p>
-          <h1 className="mt-3 font-serif text-4xl leading-tight text-archive-ivory">
-            Preserve something that should be remembered.
-          </h1>
-        </header>
-
-        <AddMemoryForm action={saveMemory}>
-          {resolvedSearchParams?.error ? (
-            <div className="rounded-2xl border border-archive-gold/24 bg-archive-gold/10 px-4 py-4 text-archive-ivory">
-              <p className="font-serif text-xl leading-tight text-archive-ivory">
-                Your recording could not be uploaded
-              </p>
-              <p className="mt-2 text-sm leading-6 text-archive-ivory/70">
-                {resolvedSearchParams.error}
-              </p>
-            </div>
-          ) : null}
-          <div className="grid gap-5">
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-archive-ivory">
-                Title
-              </span>
-              <input
-                name="title"
-                required
-                defaultValue={resolvedSearchParams?.title ?? ""}
-                placeholder="The kitchen table rule"
-                className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
-              />
-            </label>
-
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-archive-ivory">
-                Chapter Type
-              </span>
-              <select
-                name="type"
-                defaultValue={defaultType}
-                className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
-              >
-                {memoryTypes.map((type) => (
-                  <option key={type} value={type} className="bg-archive-obsidian">
-                    {prettifyType(type)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-archive-ivory">
-                The Chapter Story
-              </span>
-              <textarea
-                name="content"
-                rows={6}
-                defaultValue={resolvedSearchParams?.content ?? ""}
-                placeholder="Write the memory, lesson, journal entry, or context for this media."
-                className="resize-y rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
-              />
-            </label>
-
-            <div className="grid gap-4 rounded-lg border border-archive-gold/10 bg-white/[0.02] px-4 py-4">
-              <p className="text-sm font-semibold text-archive-ivory">
-                Chapter media
-              </p>
-              <label className="grid gap-2">
-                <span className="text-sm font-medium text-archive-ivory/78">
-                  Upload a photo or voice file
-                </span>
-                <input
-                  name="mediaFile"
-                  type="file"
-                  accept="image/*,audio/*"
-                  className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-sm text-archive-ivory outline-none ring-archive-gold/30 transition file:mr-4 file:rounded-full file:border-0 file:bg-archive-gold file:px-4 file:py-2 file:text-sm file:font-semibold file:text-archive-obsidian focus:ring-4"
-                />
-              </label>
-              <label className="grid gap-2">
-                <span className="text-sm font-medium text-archive-ivory/78">
-                  Or paste a photo, voice file, or Spotify link
-                </span>
-                <input
-                  name="mediaUrl"
-                  type="url"
-                  defaultValue={resolvedSearchParams?.mediaUrl ?? ""}
-                  placeholder="Paste an Unsplash photo link, a hosted voice file, or Spotify song link"
-                  className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
-                />
-              </label>
-              <span className="text-sm leading-6 text-archive-ivory/58">
-                Photo memories can use an uploaded image or a photo link. Voice
-                memories can use an uploaded audio file or a hosted voice link.
-                Songs still use Spotify links.
-              </span>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold text-archive-ivory">
-                  Date
-                </span>
-                <input
-                  name="date"
-                  type="date"
-                  defaultValue={resolvedSearchParams?.date ?? ""}
-                  className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
-                />
-              </label>
-
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold text-archive-ivory">
-                  Tags
-                </span>
-                <input
-                  name="tags"
-                  defaultValue={resolvedSearchParams?.tags ?? ""}
-                  placeholder="family, lesson, home"
-                  className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
-                />
-              </label>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="submit"
-              className="rounded-full bg-archive-gold px-6 py-3 text-sm font-semibold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+        <div className="relative z-10 mx-auto w-full max-w-3xl min-w-0 overflow-hidden box-border">
+          <nav className="pb-10">
+            <Link
+              href={`/archive/${archive.slug}`}
+              className="text-sm font-semibold text-archive-ivory/80 transition hover:text-archive-gold"
             >
-              Preserve Chapter
-            </button>
-            <p className="text-sm leading-6 text-archive-ivory/60">
-              This chapter will become part of their story.
+              Back to archive
+            </Link>
+          </nav>
+
+          <header className="pb-12 min-w-0 max-w-full">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
+              Add a chapter
             </p>
-          </div>
-        </AddMemoryForm>
-      </div>
+            <h1 className="mt-3 font-serif text-3xl sm:text-4xl leading-tight text-archive-ivory break-words">
+              Preserve something that should be remembered.
+            </h1>
+          </header>
+
+          <AddMemoryForm action={saveMemory} className="w-full max-w-full min-w-0 overflow-hidden box-border grid gap-6">
+            {resolvedSearchParams?.error ? (
+              <div className="w-full max-w-full min-w-0 rounded-2xl border border-archive-gold/24 bg-archive-gold/10 px-4 py-4 text-archive-ivory break-words">
+                <p className="font-serif text-xl leading-tight text-archive-ivory">
+                  Your recording could not be uploaded
+                </p>
+                <p className="mt-2 text-sm leading-6 text-archive-ivory/70 break-words">
+                  {resolvedSearchParams.error}
+                </p>
+              </div>
+            ) : null}
+            <div className="grid gap-5 w-full max-w-full min-w-0">
+              <label className="grid gap-2 min-w-0 max-w-full">
+                <span className="text-sm font-semibold text-archive-ivory">
+                  Title
+                </span>
+                <input
+                  name="title"
+                  required
+                  defaultValue={resolvedSearchParams?.title ?? ""}
+                  placeholder="The kitchen table rule"
+                  className="w-full max-w-full min-w-0 box-border rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
+                />
+              </label>
+
+              <label className="grid gap-2 min-w-0 max-w-full">
+                <span className="text-sm font-semibold text-archive-ivory">
+                  Chapter Type
+                </span>
+                <select
+                  name="type"
+                  defaultValue={defaultType}
+                  className="w-full max-w-full min-w-0 box-border rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
+                >
+                  {memoryTypes.map((type) => (
+                    <option key={type} value={type} className="bg-archive-obsidian">
+                      {prettifyType(type)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="grid gap-2 min-w-0 max-w-full">
+                <span className="text-sm font-semibold text-archive-ivory">
+                  The Chapter Story
+                </span>
+                <textarea
+                  name="content"
+                  rows={6}
+                  defaultValue={resolvedSearchParams?.content ?? ""}
+                  placeholder="Write the memory, lesson, journal entry, or context for this media."
+                  className="w-full max-w-full min-w-0 box-border resize-y rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4 break-words"
+                />
+              </label>
+
+              <div className="grid gap-4 w-full max-w-full min-w-0 overflow-hidden box-border rounded-lg border border-archive-gold/10 bg-white/[0.02] px-4 py-4">
+                <p className="text-sm font-semibold text-archive-ivory">
+                  Chapter media
+                </p>
+                <label className="grid gap-2 min-w-0 max-w-full">
+                  <span className="text-sm font-medium text-archive-ivory/78">
+                    Upload a photo or voice file
+                  </span>
+                  <input
+                    name="mediaFile"
+                    type="file"
+                    accept="image/*,audio/*"
+                    className="w-full max-w-full min-w-0 box-border overflow-hidden text-ellipsis rounded-lg border border-archive-gold/20 bg-white/[0.04] px-3 py-3 text-xs text-archive-ivory outline-none ring-archive-gold/30 transition file:mr-2 file:rounded-full file:border-0 file:bg-archive-gold file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-archive-obsidian focus:ring-4"
+                  />
+                </label>
+                <label className="grid gap-2 min-w-0 max-w-full">
+                  <span className="text-sm font-medium text-archive-ivory/78">
+                    Or paste a photo, voice file, or Spotify link
+                  </span>
+                  <input
+                    name="mediaUrl"
+                    type="url"
+                    defaultValue={resolvedSearchParams?.mediaUrl ?? ""}
+                    placeholder="Paste an Unsplash photo link, a hosted voice file, or Spotify song link"
+                    className="w-full max-w-full min-w-0 box-border rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
+                  />
+                </label>
+                <span className="text-sm leading-6 text-archive-ivory/58 break-words min-w-0 max-w-full">
+                  Photo memories can use an uploaded image or a photo link. Voice
+                  memories can use an uploaded audio file or a hosted voice link.
+                  Songs still use Spotify links.
+                </span>
+              </div>
+
+              <div className="grid gap-5 min-w-0 max-w-full sm:grid-cols-2">
+                <label className="grid gap-2 min-w-0 max-w-full">
+                  <span className="text-sm font-semibold text-archive-ivory">
+                    Date
+                  </span>
+                  <input
+                    name="date"
+                    type="date"
+                    defaultValue={resolvedSearchParams?.date ?? ""}
+                    className="w-full max-w-full min-w-0 box-border rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
+                  />
+                </label>
+
+                <label className="grid gap-2 min-w-0 max-w-full">
+                  <span className="text-sm font-semibold text-archive-ivory">
+                    Tags
+                  </span>
+                  <input
+                    name="tags"
+                    defaultValue={resolvedSearchParams?.tags ?? ""}
+                    placeholder="family, lesson, home"
+                    className="w-full max-w-full min-w-0 box-border rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 min-w-0 max-w-full">
+              <button
+                type="submit"
+                className="rounded-full bg-archive-gold px-6 py-3 text-sm font-semibold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+              >
+                Preserve Chapter
+              </button>
+              <p className="text-sm leading-6 text-archive-ivory/60 break-words min-w-0">
+                This chapter will become part of their story.
+              </p>
+            </div>
+          </AddMemoryForm>
+        </div>
       </ArchiveMobileScene>
       {account.user ? (
         <AuthenticatedMobileBottomNavigation activeArchiveSlug={slug} />

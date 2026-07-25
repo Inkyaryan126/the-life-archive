@@ -3,11 +3,14 @@
   inset: 0;
   z-index: 1000;
   min-height: 100svh;
+  width: 100%;
+  max-width: 100vw;
   background: #050505;
   color: #f7f1e5;
   overflow: hidden;
   opacity: 1;
   transition: opacity 650ms ease;
+  box-sizing: border-box;
 }
 
 .shellExiting {
@@ -18,6 +21,9 @@
 .stage {
   position: fixed;
   inset: 0;
+  width: 100%;
+  max-width: 100vw;
+  overflow: hidden;
   isolation: isolate;
   background: #050505;
 }
@@ -439,25 +445,38 @@
 
 @media (max-width: 720px) {
   .copy {
-    left: max(24px, calc(env(safe-area-inset-left) + 6vw));
-    right: max(24px, calc(env(safe-area-inset-right) + 6vw));
-    bottom: calc(max(88px, env(safe-area-inset-bottom)) + 12vh);
-    max-width: min(88vw, 620px);
+    left: max(16px, env(safe-area-inset-left));
+    right: max(16px, env(safe-area-inset-right));
+    bottom: calc(max(76px, env(safe-area-inset-bottom)) + 10vh);
+    max-width: calc(100vw - max(32px, calc(env(safe-area-inset-left) + env(safe-area-inset-right))));
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+    word-break: break-word;
     text-align: left;
   }
 
+  .copy::before {
+    inset: -14px -10px -14px -10px;
+  }
+
   .copy p {
-    font-size: clamp(1.35rem, 6.4vw, 2.45rem);
-    line-height: 1.08;
+    font-size: clamp(1.15rem, 5.2vw, 2.1rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .introCopy p {
-    font-size: clamp(1.9rem, 10vw, 3.7rem);
+    font-size: clamp(1.6rem, 7.5vw, 3.2rem);
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .copyLong p {
-    font-size: clamp(1.05rem, 5.6vw, 1.75rem);
-    line-height: 1.28;
+    font-size: clamp(1rem, 4.6vw, 1.6rem);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .finalActions {
@@ -470,15 +489,21 @@
   }
 
   .controls {
-    left: max(14px, env(safe-area-inset-left));
-    right: max(14px, env(safe-area-inset-right));
+    left: max(12px, env(safe-area-inset-left));
+    right: max(12px, env(safe-area-inset-right));
+    max-width: calc(100vw - max(24px, calc(env(safe-area-inset-left) + env(safe-area-inset-right))));
+    box-sizing: border-box;
     justify-content: flex-end;
-    gap: 8px;
+    gap: 6px;
   }
 
-  .controls button {
+  .controls button,
+  .controls a {
     min-height: 38px;
     padding: 0 10px;
+    font-size: 0.68rem;
+    white-space: nowrap;
+    max-width: 100%;
   }
 
   .phoneRevealDesktop {
