@@ -7,13 +7,31 @@ import {
 } from "@/lib/admin-emails";
 
 export async function getAdminAccess() {
-  const account = await getAccountContext();
-  const email = account.user?.email ?? null;
-  const adminEmails = getConfiguredAdminEmails();
+  try {
+    const account = await getAccountContext();
+    const email = account.user?.email ?? null;
+    const adminEmails = getConfiguredAdminEmails();
 
-  return {
-    account,
-    isAdmin: isConfiguredAdminEmail(email),
-    adminEmailsConfigured: adminEmails.length > 0
-  };
+    return {
+      account,
+      isAdmin: isConfiguredAdminEmail(email),
+      adminEmailsConfigured: adminEmails.length > 0
+    };
+  } catch (error) {
+    console.error("Unable to verify admin access:", error);
+    return {
+      account: {
+        isConfigured: false,
+        user: null,
+        profile: null,
+        archives: [],
+        defaultArchive: null,
+        archive: null,
+        archiveLookupFailed: true,
+        prologuePart3Eligible: false
+      },
+      isAdmin: false,
+      adminEmailsConfigured: false
+    };
+  }
 }

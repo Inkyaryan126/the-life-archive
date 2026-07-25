@@ -149,30 +149,36 @@ function formatPersonName(row: AdminArchiveRow) {
 }
 
 async function listAllAuthUsers() {
-  const supabase = createAdminClient();
-  const users: User[] = [];
-  let page = 1;
+  try {
+    const supabase = createAdminClient();
+    const users: User[] = [];
+    let page = 1;
 
-  while (true) {
-    const { data, error } = await supabase.auth.admin.listUsers({
-      page,
-      perPage: 1000
-    });
+    while (true) {
+      const { data, error } = await supabase.auth.admin.listUsers({
+        page,
+        perPage: 1000
+      });
 
-    if (error) {
-      throw new Error(error.message);
+      if (error) {
+        console.error("Unable to list auth users:", error.message);
+        break;
+      }
+
+      users.push(...(data.users ?? []));
+
+      if (!data.users || data.users.length < 1000) {
+        break;
+      }
+
+      page += 1;
     }
 
-    users.push(...(data.users ?? []));
-
-    if (!data.users || data.users.length < 1000) {
-      break;
-    }
-
-    page += 1;
+    return users;
+  } catch (error) {
+    console.error("listAllAuthUsers error:", error);
+    return [];
   }
-
-  return users;
 }
 
 export async function countAdminAccounts() {
@@ -349,7 +355,7 @@ export async function getAdminArchivePreview(
   }
 
   const [ownerResult, profileResult, memoriesResult] = await Promise.all([
-    supabase.auth.admin.getUserById(archive.owner_id),
+    supabase.auth.admin.getUserById(archive.owner_id).catch(() => ({ data: { user: null }, error: null })),
     supabase
       .from("profiles")
       .select("id, display_name, created_at")
@@ -362,19 +368,7 @@ export async function getAdminArchivePreview(
       .order("memory_date", { ascending: false })
   ]);
 
-  if (ownerResult.error) {
-    throw new Error(ownerResult.error.message);
-  }
-
-  if (profileResult.error) {
-    throw new Error(profileResult.error.message);
-  }
-
-  if (memoriesResult.error) {
-    throw new Error(memoriesResult.error.message);
-  }
-
-  const ownerUser = ownerResult.data.user;
+  const ownerUser = ownerResult.data?.user ?? null;
   const profile = (profileResult.data ?? null) as ProfileRow | null;
   const visibility = normalizeVisibility(archive.visibility);
   const profilePhotoUrl = await resolveStorageImageUrl(

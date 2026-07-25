@@ -120,7 +120,12 @@ export default async function AdminArchivePreviewPage({
     notFound();
   }
 
-  const preview = await getAdminArchivePreview(archiveId);
+  let preview = null;
+  try {
+    preview = await getAdminArchivePreview(archiveId);
+  } catch (error) {
+    console.error("Unable to load admin archive preview:", error);
+  }
 
   if (!preview) {
     notFound();

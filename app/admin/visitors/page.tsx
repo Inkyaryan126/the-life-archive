@@ -263,17 +263,50 @@ export default async function AdminVisitorsPage() {
     return <AccessUnavailable />;
   }
 
-  const [stats, accountCount, orders, legacyRequests] = await Promise.all([
-    getSiteVisitStats(),
-    countAdminAccounts(),
-    listKeepsakeOrders(),
-    listLegacyActivationRequests()
-  ]);
+  let stats: SiteVisitStats = {
+    totalPublicVisits: 0,
+    visitsToday: 0,
+    visitsLast7Days: 0,
+    visitsLast30Days: 0,
+    humanPageViewsToday: 0,
+    humanPageViewsLast7Days: 0,
+    humanPageViewsLast30Days: 0,
+    uniqueVisitorsToday: 0,
+    uniqueVisitorsLast7Days: 0,
+    uniqueVisitorsLast30Days: 0,
+    uniqueVisitorsSinceTrackingBegan: 0,
+    newVisitorsLast30Days: 0,
+    returningVisitorsLast30Days: 0,
+    botProbeRequestsLast30Days: 0,
+    adminRequestsLast30Days: 0,
+    visitorIdTrackingStartedAt: null,
+    mostRecentVisit: null,
+    recentVisits: [],
+    recentBotProbeVisits: [],
+    topPaths: []
+  };
+  let accountCount = 0;
+  let newOrdersCount = 0;
+  let pendingReviewsCount = 0;
+  let loadError: string | null = null;
 
-  const newOrdersCount = orders.filter((o) => o.fulfillmentStatus === "New").length;
-  const pendingReviewsCount = legacyRequests.filter(
-    (r) => r.status === "pending_memorial_review"
-  ).length;
+  try {
+    const [statsData, accCount, ordersData, legacyRequestsData] = await Promise.all([
+      getSiteVisitStats(),
+      countAdminAccounts(),
+      listKeepsakeOrders(),
+      listLegacyActivationRequests()
+    ]);
+    stats = statsData;
+    accountCount = accCount;
+    newOrdersCount = ordersData.filter((o) => o.fulfillmentStatus === "New").length;
+    pendingReviewsCount = legacyRequestsData.filter(
+      (r) => r.status === "pending_memorial_review"
+    ).length;
+  } catch (error) {
+    loadError =
+      error instanceof Error ? error.message : "Unable to load visitor statistics.";
+  }
 
   const latestVisitDetail = stats.mostRecentVisit
     ? `${stats.mostRecentVisit.path} · ${formatVisitorAnalyticsDateTime(
@@ -306,6 +339,12 @@ export default async function AdminVisitorsPage() {
             Detailed breakdown of unique human visitors vs page views, timezone-aligned to {VISITOR_ANALYTICS_TIME_ZONE}. Bot/probe scans and admin activity are filtered automatically.
           </p>
         </header>
+
+        {loadError ? (
+          <p className="mb-6 rounded-2xl border border-red-300/20 bg-red-400/10 p-4 text-sm text-red-100">
+            {loadError}
+          </p>
+        ) : null}
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard

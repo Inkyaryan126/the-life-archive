@@ -13,14 +13,15 @@ export function createAdminClient() {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const apiKey = serviceRoleKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl || !apiKey) {
     throw new Error(
-      "Supabase Storage is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY."
+      "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY."
     );
   }
 
-  adminClient = createClient(supabaseUrl, serviceRoleKey, {
+  adminClient = createClient(supabaseUrl, apiKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false

@@ -40,13 +40,13 @@ export async function GET(
     return new NextResponse("Archive not found.", { status: 404 });
   }
 
-  const candidate = await getMemberCardEngravingCandidate(archiveId);
-
-  if (!candidate) {
-    return new NextResponse("Archive not found.", { status: 404 });
-  }
-
   try {
+    const candidate = await getMemberCardEngravingCandidate(archiveId);
+
+    if (!candidate) {
+      return new NextResponse("Archive not found.", { status: 404 });
+    }
+
     const png = await buildMemberCardEngravingPng(candidate, "back");
     return new NextResponse(png, {
       headers: pngHeaders(getMemberCardEngravingFilename(candidate, "back"))
