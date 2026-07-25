@@ -1,48 +1,13 @@
 import { NextResponse } from "next/server";
 import { getAccountContext } from "@/lib/account";
 import { createClient } from "@/lib/supabase/server";
-
-type CheckoutType = "member-card" | "card" | "keychain" | "dogtag" | "plaque";
-
-const products: Record<
-  CheckoutType,
-  {
-    name: string;
-    productId?: string;
-    unitAmount?: number;
-    priceIdEnv?: string;
-    requiresArchive: boolean;
-  }
-> = {
-  "member-card": {
-    name: "The Life Archive Member Card",
-    priceIdEnv: "STRIPE_PRICE_MEMBER_CARD",
-    requiresArchive: true
-  },
-  card: {
-    name: "The Life Archive Memorial Card",
-    productId: "prod_Umoxxb4aF5MuPL",
-    unitAmount: 1900,
-    requiresArchive: true
-  },
-  keychain: {
-    name: "The Life Archive Memorial Keychain",
-    productId: "prod_Umopvhs6gAemhj",
-    unitAmount: 2400,
-    requiresArchive: true
-  },
-  dogtag: {
-    name: "The Life Archive Memorial Dog Tag",
-    unitAmount: 2900,
-    requiresArchive: true
-  },
-  plaque: {
-    name: "The Life Archive Memorial Plaque",
-    productId: "prod_Ump23cb9KHhhNQ",
-    unitAmount: 7900,
-    requiresArchive: true
-  }
-};
+import {
+  isCheckoutType,
+  keepsakeProducts,
+  resolveStripePriceId,
+  validateStripeModeAndSecretKey,
+  type CheckoutType
+} from "@/lib/stripe-checkout-config";
 
 function getSiteOrigin(request: Request) {
   const { origin } = new URL(request.url);
@@ -143,15 +108,16 @@ async function resolveAuthorizedArchiveSlug(input: {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const type = searchParams.get("type") as CheckoutType | null;
-  const product = type ? products[type] : undefined;
-  const requestedArchiveSlug = searchParams.get("archive")?.trim() || null;
+  const typeParam = searchParams.get("type")?.trim() || null;
 
-  if (!type || !product) {
+  if (!isCheckoutType(typeParam)) {
     return redirectWithError(request, "That keepsake is not available for checkout yet.");
   }
 
-  const checkoutType: CheckoutType = type;
+  const checkoutType: CheckoutType = typeParam;
+  const product = keepsakeProducts[checkoutType];
+  const requestedArchiveSlug = searchParams.get("archive")?.trim() || null;
+
   const account = await getAccountContext();
   const { archiveSlug, error: archiveError } = await resolveAuthorizedArchiveSlug({
     account,
@@ -163,10 +129,18 @@ export async function GET(request: Request) {
     return redirectWithError(request, archiveError);
   }
 
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const modeKeyResult = validateStripeModeAndSecretKey(process.env);
 
-  if (!stripeSecretKey) {
-    return redirectWithError(request, "Checkout is not configured yet.");
+  if (!modeKeyResult.ok) {
+    console.error(modeKeyResult.logMessage);
+    return redirectWithError(request, modeKeyResult.error);
+  }
+
+  const priceResult = resolveStripePriceId(product.priceIdEnv, product.name, process.env);
+
+  if (!priceResult.ok) {
+    console.error(priceResult.logMessage);
+    return redirectWithError(request, priceResult.error);
   }
 
   const origin = getSiteOrigin(request);
@@ -175,36 +149,11 @@ export async function GET(request: Request) {
     success_url: `${origin}/keepsakes/thank-you?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/keepsakes`,
     "line_items[0][quantity]": "1",
+    "line_items[0][price]": priceResult.priceId,
     "metadata[keepsake_type]": checkoutType,
     "metadata[product_slug]": checkoutType,
     "metadata[product_name]": product.name
   });
-
-  if (product.priceIdEnv) {
-    const priceId = process.env[product.priceIdEnv];
-
-    if (!priceId) {
-      return redirectWithError(
-        request,
-        `${product.name} checkout is not configured yet. Missing ${product.priceIdEnv}.`
-      );
-    }
-
-    body.set("line_items[0][price]", priceId);
-  } else {
-    if (typeof product.unitAmount !== "number") {
-      return redirectWithError(request, "Checkout is not configured yet.");
-    }
-
-    body.set("line_items[0][price_data][currency]", "usd");
-    body.set("line_items[0][price_data][unit_amount]", String(product.unitAmount));
-
-    if (product.productId) {
-      body.set("line_items[0][price_data][product]", product.productId);
-    } else {
-      body.set("line_items[0][price_data][product_data][name]", product.name);
-    }
-  }
 
   if (archiveSlug) {
     body.set("metadata[archive_slug]", archiveSlug);
@@ -217,7 +166,7 @@ export async function GET(request: Request) {
   const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${stripeSecretKey}`,
+      Authorization: `Bearer ${modeKeyResult.secretKey}`,
       "Content-Type": "application/x-www-form-urlencoded"
     },
     body
