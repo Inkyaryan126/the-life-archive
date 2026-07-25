@@ -1,31 +1,34 @@
-import "server-only";
-
-import { createAdminClient } from "./supabase/admin";
 import {
   acceptedAudioFormatLabel,
   acceptedAudioMimeTypes,
+  acceptedImageFormatLabel,
+  acceptedImageMimeTypes,
   acceptedVideoFormatLabel,
   acceptedVideoMimeTypes,
   maxAudioUploadBytes,
   maxAudioUploadMegabytes,
   maxImageUploadBytes,
+  maxImageUploadMegabytes,
   maxVideoUploadBytes,
   maxVideoUploadMegabytes
 } from "./media-upload-constants";
 
+function getAdminStorage() {
+  const { createAdminClient } = require("./supabase/admin");
+  return createAdminClient().storage;
+}
+
 export const archiveMediaBucket = "archive-media";
 
-const imageExtensionByMimeType: Record<string, string> = {
+export const imageExtensionByMimeType: Record<string, string> = {
   "image/jpeg": "jpg",
-  "image/jpg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
   "image/gif": "gif",
   "image/avif": "avif"
 };
 
-const allowedImageMimeTypes = new Set(Object.keys(imageExtensionByMimeType));
-const audioExtensionByMimeType: Record<string, string> = {
+export const audioExtensionByMimeType: Record<string, string> = {
   "audio/mpeg": "mp3",
   "audio/mp3": "mp3",
   "audio/wav": "wav",
@@ -34,118 +37,189 @@ const audioExtensionByMimeType: Record<string, string> = {
   "audio/ogg": "ogg",
   "audio/mp4": "m4a",
   "audio/x-m4a": "m4a",
+  "audio/m4a": "m4a",
   "audio/aac": "aac"
 };
-const allowedAudioMimeTypes = new Set<string>(acceptedAudioMimeTypes);
 
-const videoExtensionByMimeType: Record<string, string> = {
+export const videoExtensionByMimeType: Record<string, string> = {
   "video/mp4": "mp4",
   "video/webm": "webm",
   "video/quicktime": "mov",
   "video/x-matroska": "mkv"
 };
+
+const allowedImageMimeTypes = new Set<string>(acceptedImageMimeTypes);
+const allowedAudioMimeTypes = new Set<string>(acceptedAudioMimeTypes);
 const allowedVideoMimeTypes = new Set<string>(acceptedVideoMimeTypes);
 
-function normalizeMimeType(value: string) {
-  return value.toLowerCase().split(";")[0].trim();
-}
-
-function getExtensionFromFile(file: File) {
-  const mimeExtension = imageExtensionByMimeType[normalizeMimeType(file.type)];
-
-  if (mimeExtension) {
-    return mimeExtension;
+export function normalizeMimeType(value: string | null | undefined): string {
+  if (!value) {
+    return "";
   }
 
-  return "jpg";
+  const cleaned = value.toLowerCase().trim().split(";")[0]?.trim() ?? "";
+
+  if (cleaned === "application/octet-stream") {
+    return "";
+  }
+
+  return cleaned;
 }
 
-function getArrayBuffer(file: File) {
-  return file.arrayBuffer().then((buffer) => Buffer.from(buffer));
+export function validatePathSegment(segment: string, segmentName: string): string {
+  if (!segment || typeof segment !== "string") {
+    throw new Error(`${segmentName} cannot be empty.`);
+  }
+
+  const trimmed = segment.trim();
+
+  if (!trimmed) {
+    throw new Error(`${segmentName} cannot be empty.`);
+  }
+
+  if (
+    trimmed.includes("/") ||
+    trimmed.includes("\\") ||
+    trimmed.includes("..") ||
+    /[\u0000-\u001f\u007f]/.test(trimmed)
+  ) {
+    throw new Error(`${segmentName} contains invalid characters.`);
+  }
+
+  if (!/^[a-zA-Z0-9_-]{1,64}$/.test(trimmed)) {
+    throw new Error(`${segmentName} format is invalid.`);
+  }
+
+  return trimmed;
 }
 
-export function validateImageUpload(file: File, fieldName: string) {
-  if (!allowedImageMimeTypes.has(normalizeMimeType(file.type))) {
-    throw new Error(
-      `${fieldName} must be a JPG, PNG, WebP, GIF, or AVIF image.`
-    );
+export function validateImageUpload(file: File, fieldName: string): { normalizedMime: string; extension: string } {
+  if (!file || file.size === 0) {
+    throw new Error(`${fieldName} cannot be empty.`);
   }
 
   if (file.size > maxImageUploadBytes) {
-    throw new Error(`${fieldName} must be smaller than 10 MB.`);
+    throw new Error(`${fieldName} must be smaller than ${maxImageUploadMegabytes} MB.`);
   }
+
+  const normalizedMime = normalizeMimeType(file.type);
+
+  if (!normalizedMime || !allowedImageMimeTypes.has(normalizedMime)) {
+    throw new Error(`${fieldName} must be a supported image format: ${acceptedImageFormatLabel}.`);
+  }
+
+  const extension = imageExtensionByMimeType[normalizedMime];
+
+  if (!extension) {
+    throw new Error(`${fieldName} file format is not supported.`);
+  }
+
+  return { normalizedMime, extension };
 }
 
-export function validateAudioUpload(file: File, fieldName: string) {
-  if (!allowedAudioMimeTypes.has(normalizeMimeType(file.type))) {
-    throw new Error(
-      `${fieldName} must be a supported audio file: ${acceptedAudioFormatLabel}.`
-    );
+export function validateAudioUpload(file: File, fieldName: string): { normalizedMime: string; extension: string } {
+  if (!file || file.size === 0) {
+    throw new Error(`${fieldName} cannot be empty.`);
   }
 
   if (file.size > maxAudioUploadBytes) {
     throw new Error(`${fieldName} must be smaller than ${maxAudioUploadMegabytes} MB.`);
   }
+
+  const normalizedMime = normalizeMimeType(file.type);
+
+  if (!normalizedMime || !allowedAudioMimeTypes.has(normalizedMime)) {
+    throw new Error(`${fieldName} must be a supported audio format: ${acceptedAudioFormatLabel}.`);
+  }
+
+  const extension = audioExtensionByMimeType[normalizedMime];
+
+  if (!extension) {
+    throw new Error(`${fieldName} audio format is not supported.`);
+  }
+
+  return { normalizedMime, extension };
 }
 
-export function validateVideoUpload(file: File, fieldName: string) {
-  if (!allowedVideoMimeTypes.has(normalizeMimeType(file.type))) {
-    throw new Error(
-      `${fieldName} must be a supported video file: ${acceptedVideoFormatLabel}.`
-    );
+export function validateVideoUpload(file: File, fieldName: string): { normalizedMime: string; extension: string } {
+  if (!file || file.size === 0) {
+    throw new Error(`${fieldName} cannot be empty.`);
   }
 
   if (file.size > maxVideoUploadBytes) {
     throw new Error(`${fieldName} must be smaller than ${maxVideoUploadMegabytes} MB.`);
   }
-}
 
-export function buildArchiveCoverPath(archiveId: string, file: File) {
-  return `archives/${archiveId}/cover/original.${getExtensionFromFile(file)}`;
-}
+  const normalizedMime = normalizeMimeType(file.type);
 
-export function buildMemoryPhotoPath(archiveId: string, memoryId: string, file: File) {
-  return `archives/${archiveId}/memories/${memoryId}/original.${getExtensionFromFile(file)}`;
-}
-
-function getAudioExtension(file: File) {
-  const mimeExtension = audioExtensionByMimeType[normalizeMimeType(file.type)];
-
-  if (mimeExtension) {
-    return mimeExtension;
+  if (!normalizedMime || !allowedVideoMimeTypes.has(normalizedMime)) {
+    throw new Error(`${fieldName} must be a supported video format: ${acceptedVideoFormatLabel}.`);
   }
 
-  return "mp3";
-}
+  const extension = videoExtensionByMimeType[normalizedMime];
 
-function getVideoExtension(file: File) {
-  const mimeExtension = videoExtensionByMimeType[normalizeMimeType(file.type)];
-
-  if (mimeExtension) {
-    return mimeExtension;
+  if (!extension) {
+    throw new Error(`${fieldName} video format is not supported.`);
   }
 
-  return "mp4";
+  return { normalizedMime, extension };
 }
 
-export function buildMemoryVoicePath(archiveId: string, memoryId: string, file: File) {
-  return `archives/${archiveId}/memories/${memoryId}/original.${getAudioExtension(file)}`;
+export function buildArchiveCoverPath(archiveId: string, file: File): { path: string; normalizedMime: string } {
+  const safeArchiveId = validatePathSegment(archiveId, "Archive ID");
+  const { normalizedMime, extension } = validateImageUpload(file, "Cover photo");
+
+  return {
+    path: `archives/${safeArchiveId}/cover/original.${extension}`,
+    normalizedMime
+  };
 }
 
-export function buildMemoryVideoPath(archiveId: string, memoryId: string, file: File) {
-  return `archives/${archiveId}/memories/${memoryId}/original.${getVideoExtension(file)}`;
+export function buildMemoryPhotoPath(archiveId: string, memoryId: string, file: File): { path: string; normalizedMime: string } {
+  const safeArchiveId = validatePathSegment(archiveId, "Archive ID");
+  const safeMemoryId = validatePathSegment(memoryId, "Memory ID");
+  const { normalizedMime, extension } = validateImageUpload(file, "Memory photo");
+
+  return {
+    path: `archives/${safeArchiveId}/memories/${safeMemoryId}/original.${extension}`,
+    normalizedMime
+  };
 }
 
-export async function uploadArchiveCoverImage(
-  archiveId: string,
-  file: File
-) {
-  const storage = createAdminClient().storage;
-  const path = buildArchiveCoverPath(archiveId, file);
+export function buildMemoryVoicePath(archiveId: string, memoryId: string, file: File): { path: string; normalizedMime: string } {
+  const safeArchiveId = validatePathSegment(archiveId, "Archive ID");
+  const safeMemoryId = validatePathSegment(memoryId, "Memory ID");
+  const { normalizedMime, extension } = validateAudioUpload(file, "Voice memory");
+
+  return {
+    path: `archives/${safeArchiveId}/memories/${safeMemoryId}/original.${extension}`,
+    normalizedMime
+  };
+}
+
+export function buildMemoryVideoPath(archiveId: string, memoryId: string, file: File): { path: string; normalizedMime: string } {
+  const safeArchiveId = validatePathSegment(archiveId, "Archive ID");
+  const safeMemoryId = validatePathSegment(memoryId, "Memory ID");
+  const { normalizedMime, extension } = validateVideoUpload(file, "Video memory");
+
+  return {
+    path: `archives/${safeArchiveId}/memories/${safeMemoryId}/original.${extension}`,
+    normalizedMime
+  };
+}
+
+async function getArrayBuffer(file: File): Promise<Buffer> {
+  const buffer = await file.arrayBuffer();
+  return Buffer.from(buffer);
+}
+
+export async function uploadArchiveCoverImage(archiveId: string, file: File): Promise<string> {
+  const { path, normalizedMime } = buildArchiveCoverPath(archiveId, file);
   const bytes = await getArrayBuffer(file);
+  const storage = getAdminStorage();
 
   const { error } = await storage.from(archiveMediaBucket).upload(path, bytes, {
-    contentType: file.type || "image/jpeg",
+    contentType: normalizedMime,
     upsert: true
   });
 
@@ -156,17 +230,13 @@ export async function uploadArchiveCoverImage(
   return path;
 }
 
-export async function uploadMemoryPhoto(
-  archiveId: string,
-  memoryId: string,
-  file: File
-) {
-  const storage = createAdminClient().storage;
-  const path = buildMemoryPhotoPath(archiveId, memoryId, file);
+export async function uploadMemoryPhoto(archiveId: string, memoryId: string, file: File): Promise<string> {
+  const { path, normalizedMime } = buildMemoryPhotoPath(archiveId, memoryId, file);
   const bytes = await getArrayBuffer(file);
+  const storage = getAdminStorage();
 
   const { error } = await storage.from(archiveMediaBucket).upload(path, bytes, {
-    contentType: file.type || "image/jpeg",
+    contentType: normalizedMime,
     upsert: true
   });
 
@@ -177,19 +247,13 @@ export async function uploadMemoryPhoto(
   return path;
 }
 
-export async function uploadMemoryVoice(
-  archiveId: string,
-  memoryId: string,
-  file: File
-) {
-  validateAudioUpload(file, "Voice memory");
-
-  const storage = createAdminClient().storage;
-  const path = buildMemoryVoicePath(archiveId, memoryId, file);
+export async function uploadMemoryVoice(archiveId: string, memoryId: string, file: File): Promise<string> {
+  const { path, normalizedMime } = buildMemoryVoicePath(archiveId, memoryId, file);
   const bytes = await getArrayBuffer(file);
+  const storage = getAdminStorage();
 
   const { error } = await storage.from(archiveMediaBucket).upload(path, bytes, {
-    contentType: file.type || "audio/mpeg",
+    contentType: normalizedMime,
     upsert: true
   });
 
@@ -200,19 +264,13 @@ export async function uploadMemoryVoice(
   return path;
 }
 
-export async function uploadMemoryVideo(
-  archiveId: string,
-  memoryId: string,
-  file: File
-) {
-  validateVideoUpload(file, "Video memory");
-
-  const storage = createAdminClient().storage;
-  const path = buildMemoryVideoPath(archiveId, memoryId, file);
+export async function uploadMemoryVideo(archiveId: string, memoryId: string, file: File): Promise<string> {
+  const { path, normalizedMime } = buildMemoryVideoPath(archiveId, memoryId, file);
   const bytes = await getArrayBuffer(file);
+  const storage = getAdminStorage();
 
   const { error } = await storage.from(archiveMediaBucket).upload(path, bytes, {
-    contentType: file.type || "video/mp4",
+    contentType: normalizedMime,
     upsert: true
   });
 
@@ -223,17 +281,13 @@ export async function uploadMemoryVideo(
   return path;
 }
 
-
-export async function resolveStorageImageUrl(
-  storagePath?: string | null,
-  fallbackUrl?: string | null
-) {
+export async function resolveStorageImageUrl(storagePath?: string | null, fallbackUrl?: string | null): Promise<string> {
   if (!storagePath) {
     return fallbackUrl || "";
   }
 
   try {
-    const { data, error } = await createAdminClient().storage
+    const { data, error } = await getAdminStorage()
       .from(archiveMediaBucket)
       .createSignedUrl(storagePath, 60 * 60);
 
@@ -247,9 +301,9 @@ export async function resolveStorageImageUrl(
   }
 }
 
-export async function deleteStorageObject(storagePath: string) {
+export async function deleteStorageObject(storagePath: string): Promise<boolean> {
   try {
-    const { error } = await createAdminClient().storage
+    const { error } = await getAdminStorage()
       .from(archiveMediaBucket)
       .remove([storagePath]);
 
