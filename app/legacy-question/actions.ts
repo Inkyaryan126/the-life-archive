@@ -9,6 +9,12 @@ import {
 } from "@/lib/legacy-question-submissions";
 import { processLegacyQuestionSubmission } from "@/lib/legacy-question-onboarding";
 import { validateAudioUpload } from "@/lib/storage-media";
+import { VISITOR_ID_COOKIE_NAME } from "@/lib/site-visit-utils";
+import {
+  evaluateLegacyQuestionRateLimits,
+  extractClientIp,
+  recordSuccessfulEmailQuota
+} from "@/lib/rate-limit";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const textMinLength = 20;
@@ -184,6 +190,28 @@ export async function submitLegacyQuestionEntry(
   const referrer = trimToNull(requestHeaders.get("referer"))?.slice(0, 500) ?? null;
   const userAgent = trimToNull(requestHeaders.get("user-agent"))?.slice(0, 500) ?? null;
 
+  const clientIp = extractClientIp(requestHeaders);
+  const cookieHeader = requestHeaders.get("cookie") ?? "";
+  const visitorIdMatch = cookieHeader.match(new RegExp(`${VISITOR_ID_COOKIE_NAME}=([^;]+)`));
+  const visitorId = visitorIdMatch ? visitorIdMatch[1] : null;
+
+  const rateLimitResult = await evaluateLegacyQuestionRateLimits({
+    clientIp,
+    visitorId,
+    email,
+    cardBatch,
+    entryType,
+    textContent: entryType === "text" ? textContent : null,
+    audioFile
+  });
+
+  if (!rateLimitResult.allowed) {
+    return {
+      success: false,
+      message: "We're receiving a high volume of memories right now. Please wait a few minutes before trying again."
+    };
+  }
+
   let createdSubmissionId: string | null = null;
 
   try {
@@ -210,6 +238,10 @@ export async function submitLegacyQuestionEntry(
     const processingStatus = processed?.processingStatus ?? "failed";
     const isComplete = processingStatus === "email_sent";
     const isMediaPending = processingStatus === "media_pending";
+
+    if (isComplete) {
+      await recordSuccessfulEmailQuota(email);
+    }
 
     if (!isComplete && entryType === "voice" && !processed?.firstMemoryId) {
       return {
