@@ -56,17 +56,43 @@ async function runTests() {
   const clickableMatches = pageContent.match(/id: "(?!eternism-divider")[^"]+"/g) || [];
   assert.equal(clickableMatches.length, 9, "Must have exactly 9 clickable directory rows");
 
-  // 5. Verify non-clickable ETERNISM divider heading
-  assert.match(pageContent, /id: "eternism-divider"/);
-  assert.match(pageContent, /isHeader: true/);
+  // 5. Verify NO standalone Eternism divider text is rendered
+  assert.doesNotMatch(
+    pageContent,
+    /id: "eternism-divider"/,
+    "No standalone Eternism divider heading should be in directoryRowGeometries"
+  );
+  assert.doesNotMatch(
+    pageContent,
+    /isHeader: true/,
+    "isHeader flag must not be present for any divider heading"
+  );
 
-  // 6. Verify destination routes
+  // Verify the decorative divider region remains visually unused by HTML text overlays
+  // Top 5 rows end around 46.04% (top 41.07 + height 4.97)
+  // First lower section row starts after the decorative divider (top >= 46.85%)
+  assert.match(pageContent, /top:\ 41\.07,\s*height:\ 4\.97/, "Top 5 Archive rows geometry must not be altered");
+  assert.match(pageContent, /top:\ 46\.85/, "Eternism destination row overlay must be moved upward to top: 46.85%");
+
+  // 6. Verify clickable ETERNISM destination remains present and destination routes exist
+  assert.ok(pageContent.includes('title: "Eternism"'), 'Clickable ETERNISM destination must remain present');
   assert.match(pageContent, /href: "\/create"/);
   assert.match(pageContent, /href: "\/keepsakes"/);
   assert.match(pageContent, /href: "\/eternism"/);
   assert.match(pageContent, /href: "\/eternism\/observatory"/);
   assert.match(pageContent, /href: "\/eternism\/manifesto"/);
   assert.match(pageContent, /href: "\/eternism\/faq"/);
+
+  // 7. Verify no row geometry regresses (strictly increasing top coordinates for all 9 rows)
+  const topMatches = [...pageContent.matchAll(/top:\s*([0-9.]+)/g)].map((m) => parseFloat(m[1]));
+  const directoryTops = topMatches.slice(0, 9);
+  assert.equal(directoryTops.length, 9, "Must extract top coordinates for exactly 9 directory rows");
+  for (let i = 1; i < directoryTops.length; i++) {
+    assert.ok(
+      directoryTops[i] > directoryTops[i - 1],
+      `Row ${i} top (${directoryTops[i]}%) must be strictly greater than row ${i - 1} top (${directoryTops[i - 1]}%)`
+    );
+  }
 
   console.log("Grand Hall directory verification tests passed cleanly!");
 }

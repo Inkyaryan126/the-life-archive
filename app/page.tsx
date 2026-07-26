@@ -159,19 +159,6 @@ export default async function HomePage() {
       left: desktopBoardLeft,
       width: desktopBoardWidth
     },
-    // Decorative Divider (Non-clickable)
-    {
-      id: "eternism-divider",
-      title: "ETERNISM",
-      subtitle: "",
-      href: "#",
-      ariaLabel: "Eternism Section Divider",
-      isHeader: true,
-      top: 46.22,
-      height: 5.52,
-      left: desktopBoardLeft,
-      width: desktopBoardWidth
-    },
     // Bottom Section (4 Rows)
     {
       id: "eternism",
@@ -179,8 +166,8 @@ export default async function HomePage() {
       subtitle: "The practice of becoming harder to destroy.",
       href: "/eternism",
       ariaLabel: "Explore Eternism. The practice of becoming harder to destroy.",
-      top: 52.03,
-      height: 7.64,
+      top: 46.85,
+      height: 6.60,
       left: desktopBoardLeft,
       width: desktopBoardWidth
     },
@@ -190,8 +177,8 @@ export default async function HomePage() {
       subtitle: "Explore science, identity, and humanity’s future.",
       href: "/eternism/observatory",
       ariaLabel: "Open The Observatory. Explore science, identity, and humanity’s future.",
-      top: 59.85,
-      height: 7.55,
+      top: 54.10,
+      height: 7.00,
       left: desktopBoardLeft,
       width: desktopBoardWidth
     },
@@ -201,8 +188,8 @@ export default async function HomePage() {
       subtitle: "Read the philosophy and pledge.",
       href: "/eternism/manifesto",
       ariaLabel: "Read The Manifesto. Read the philosophy and pledge.",
-      top: 67.59,
-      height: 7.55,
+      top: 61.60,
+      height: 5.50,
       left: desktopBoardLeft,
       width: desktopBoardWidth
     },
@@ -212,8 +199,8 @@ export default async function HomePage() {
       subtitle: "Understand the mission.",
       href: "/eternism/faq",
       ariaLabel: "Open Eternism FAQ. Understand the mission.",
-      top: 75.32,
-      height: 7.73,
+      top: 67.80,
+      height: 5.50,
       left: desktopBoardLeft,
       width: desktopBoardWidth
     }
