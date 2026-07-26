@@ -1,8 +1,5 @@
-import "server-only";
-
 import { randomBytes } from "crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 const codeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const codePrefixes = ["TLA", "LAC"] as const;
@@ -46,6 +43,7 @@ type LegacyActivationRequestRow = {
 };
 
 function getAdminClient() {
+  const { createAdminClient } = require("./supabase/admin");
   return createAdminClient() as SupabaseClient<any, "public", any>;
 }
 

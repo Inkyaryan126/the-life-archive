@@ -2,6 +2,7 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { generateUniqueLegacyActivationCode } from "@/lib/legacy-activation";
 import { issueLegacyQuestionClaimToken } from "@/lib/legacy-question-claims";
 import { processSingleOnboardingEmailSend } from "@/lib/legacy-question-email-processor";
 import {
@@ -84,6 +85,21 @@ async function resolveLegacyQuestionAuthUser(input: {
   };
 }
 
+async function repairStarterArchiveActivationCode(
+  supabase: AdminClient,
+  archive: { id: string; legacy_activation_code?: string | null; memorial_mode?: boolean }
+) {
+  if (!archive.legacy_activation_code && archive.memorial_mode === false) {
+    const newCode = await generateUniqueLegacyActivationCode();
+    await supabase
+      .from("archives")
+      .update({ legacy_activation_code: newCode })
+      .eq("id", archive.id)
+      .is("legacy_activation_code", null)
+      .eq("memorial_mode", false);
+  }
+}
+
 async function ensureStarterArchive(input: {
   submission: LegacyQuestionSubmission;
   ownerId: string;
@@ -93,7 +109,7 @@ async function ensureStarterArchive(input: {
   if (input.submission.starterArchiveId) {
     const { data: existing, error } = await supabase
       .from("archives")
-      .select("id, slug, archive_name")
+      .select("id, slug, archive_name, legacy_activation_code, memorial_mode")
       .eq("id", input.submission.starterArchiveId)
       .maybeSingle();
 
@@ -102,6 +118,7 @@ async function ensureStarterArchive(input: {
     }
 
     if (existing) {
+      await repairStarterArchiveActivationCode(supabase, existing as any);
       return {
         id: existing.id as string,
         slug: existing.slug as string,
@@ -112,7 +129,7 @@ async function ensureStarterArchive(input: {
 
   const { data: bySubmission, error: lookupError } = await supabase
     .from("archives")
-    .select("id, slug, archive_name")
+    .select("id, slug, archive_name, legacy_activation_code, memorial_mode")
     .eq("legacy_question_submission_id", input.submission.id)
     .maybeSingle();
 
@@ -121,6 +138,7 @@ async function ensureStarterArchive(input: {
   }
 
   if (bySubmission) {
+    await repairStarterArchiveActivationCode(supabase, bySubmission as any);
     return {
       id: bySubmission.id as string,
       slug: bySubmission.slug as string,
@@ -135,6 +153,7 @@ async function ensureStarterArchive(input: {
       : `${displayName}'s Starter Life Archive`;
   const slug = getStarterSlug(input.submission);
   const now = new Date().toISOString();
+  const legacyActivationCode = await generateUniqueLegacyActivationCode();
 
   const { data, error } = await supabase
     .from("archives")
@@ -151,6 +170,7 @@ async function ensureStarterArchive(input: {
       is_demo: false,
       relationship_to_owner: "self",
       legacy_question_submission_id: input.submission.id,
+      legacy_activation_code: legacyActivationCode,
       created_at: now,
       updated_at: now
     })
