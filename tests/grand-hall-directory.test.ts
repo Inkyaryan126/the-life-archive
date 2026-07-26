@@ -157,6 +157,10 @@ async function runTests() {
   assert.match(pageContent, /href: "\/eternism\/manifesto"/);
   assert.match(pageContent, /href: "\/eternism\/faq"/);
 
+  // 7. Verify refined title (#D6AD5A) and subtitle (#D8D2C7/82) typography hierarchy
+  assert.match(pageContent, /text-\[#D6AD5A\]/, "Directory titles must use warm antique-gold #D6AD5A");
+  assert.match(pageContent, /text-\[#D8D2C7\]\/82/, "Directory subtitles must use stone-ivory #D8D2C7 at 82% opacity");
+
   console.log("Grand Hall directory verification tests passed cleanly!");
 }
 

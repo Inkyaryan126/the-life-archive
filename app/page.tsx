@@ -377,11 +377,11 @@ function GrandHallHero({
                     aria-label={row.ariaLabel}
                     className="group relative flex h-full w-full flex-col items-center justify-center overflow-hidden px-1 text-center leading-none transition duration-300 hover:bg-archive-gold/[0.06] focus:outline-none focus:ring-2 focus:ring-archive-gold/75"
                   >
-                    <span className="block font-serif text-[clamp(0.48rem,0.64vw,0.80rem)] uppercase tracking-[0.07em] text-archive-ivory transition group-hover:text-archive-champagne group-hover:drop-shadow-[0_0_8px_rgba(232,207,136,0.4)] drop-shadow-[0_2px_8px_rgba(0,0,0,0.92)] leading-tight">
+                    <span className="block font-serif text-[clamp(0.48rem,0.64vw,0.80rem)] uppercase tracking-[0.07em] text-[#D6AD5A] transition duration-200 group-hover:text-[#E8C274] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight">
                       {row.title}
                     </span>
                     {row.subtitle ? (
-                      <span className="mt-[1.5%] max-w-[98%] leading-tight text-[clamp(0.36rem,0.44vw,0.54rem)] text-archive-ivory/68 transition group-hover:text-archive-ivory/90">
+                      <span className="mt-[1.5%] max-w-[98%] text-[clamp(0.36rem,0.44vw,0.54rem)] leading-tight text-[#D8D2C7]/82 transition duration-200 group-hover:text-[#D8D2C7]/98">
                         {row.subtitle}
                       </span>
                     ) : null}
@@ -426,11 +426,11 @@ function GrandHallHero({
                     className="mobile-directory-row group relative flex min-h-0 flex-1 flex-col justify-center px-[6%] py-1.5 text-center transition hover:bg-archive-gold/[0.045] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-archive-gold/80"
                     key={entry.title}
                   >
-                    <span className="font-serif text-[clamp(0.64rem,2.8vw,0.85rem)] uppercase leading-tight tracking-[0.055em] text-archive-ivory drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
+                    <span className="font-serif text-[clamp(0.64rem,2.8vw,0.85rem)] uppercase leading-tight tracking-[0.055em] text-[#D6AD5A] transition duration-200 group-hover:text-[#E8C274] drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
                       {entry.title}
                     </span>
 
-                    <span className="mt-0.5 text-[clamp(0.42rem,1.8vw,0.54rem)] leading-tight text-archive-ivory/64">
+                    <span className="mt-0.5 text-[clamp(0.42rem,1.8vw,0.54rem)] leading-tight text-[#D8D2C7]/82 transition duration-200 group-hover:text-[#D8D2C7]/98">
                       {entry.subtitle}
                     </span>
                   </Link>
