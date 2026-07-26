@@ -533,7 +533,7 @@ export function LegacyQuestionScrollScene({
             </div>
 
             {/* EMAIL ADDRESS INPUT (Region 8 - Left Field) */}
-            <div className="absolute left-[28.821%] top-[50.622%] z-20 h-[2.279%] w-[23.941%]">
+            <div className="absolute left-[28.821%] top-[50.622%] z-20 flex h-[2.348%] w-[23.941%] items-center min-w-0 box-border">
               <input
                 type="email"
                 id="legacy-email-address"
@@ -548,12 +548,12 @@ export function LegacyQuestionScrollScene({
                   setEmail(e.target.value);
                   setEmailError("");
                 }}
-                className="h-full w-full rounded-md border-none bg-transparent px-2 font-sans text-[clamp(11px,1.2vw,16px)] font-medium text-[#211912] placeholder:text-[#73685c]/60 outline-none focus:ring-1 focus:ring-[#8e6b2f]/40"
+                className="h-full w-full min-w-0 box-border rounded-md border-none bg-transparent px-1.5 sm:px-2 py-0 my-auto font-sans text-[clamp(11px,1.2vw,16px)] font-medium leading-none text-[#211912] placeholder:text-[#73685c]/60 outline-none focus:ring-1 focus:ring-[#8e6b2f]/40"
               />
             </div>
 
             {/* FIRST NAME INPUT (Region 9 - Right Field) */}
-            <div className="absolute left-[57.551%] top-[50.622%] z-20 h-[2.348%] w-[23.204%]">
+            <div className="absolute left-[57.551%] top-[50.622%] z-20 flex h-[2.348%] w-[23.204%] items-center min-w-0 box-border">
               <input
                 type="text"
                 id="legacy-first-name"
@@ -563,7 +563,7 @@ export function LegacyQuestionScrollScene({
                 maxLength={60}
                 placeholder="First Name"
                 onChange={(e) => setFirstName(e.target.value)}
-                className="h-full w-full rounded-md border-none bg-transparent px-2 font-sans text-[clamp(11px,1.2vw,16px)] font-medium text-[#211912] placeholder:text-[#73685c]/60 outline-none focus:ring-1 focus:ring-[#8e6b2f]/40"
+                className="h-full w-full min-w-0 box-border rounded-md border-none bg-transparent px-1.5 sm:px-2 py-0 my-auto font-sans text-[clamp(11px,1.2vw,16px)] font-medium leading-none text-[#211912] placeholder:text-[#73685c]/60 outline-none focus:ring-1 focus:ring-[#8e6b2f]/40"
               />
             </div>
 
