@@ -6,6 +6,7 @@ import { buildLegacyQuestionClaimEmail } from "@/lib/legacy-question-claim-email
 import { issueLegacyQuestionClaimToken } from "@/lib/legacy-question-claims";
 import { getAdminAccess } from "@/lib/admin";
 import { processLegacyQuestionSubmission } from "@/lib/legacy-question-onboarding";
+import { processSingleOnboardingEmailSend } from "@/lib/legacy-question-email-processor";
 import {
   deleteLegacyQuestionTestSubmission,
   isLegacyQuestionStatus,
@@ -79,46 +80,27 @@ async function getArchiveNameAndOwner(submissionId: string) {
 }
 
 async function sendFreshClaimEmailForSubmission(submissionId: string) {
-  const { submission, archive } = await getArchiveNameAndOwner(submissionId);
-  const claim = await issueLegacyQuestionClaimToken({
-    submissionId: submission.id,
-    archiveId: archive.id,
-    userId: archive.ownerId,
-    email: submission.email
+  const { submission } = await getArchiveNameAndOwner(submissionId);
+  const supabase: any = createAdminClient();
+
+  // Reset status to pending for immediate manual retry without inflating max attempts
+  await supabase
+    .from("legacy_question_submissions")
+    .update({
+      email_status: "pending",
+      email_next_attempt_at: new Date().toISOString(),
+      email_error_category: null,
+      email_error_code: null,
+      email_error_message: null
+    })
+    .eq("id", submission.id);
+
+  console.info({
+    event: "legacy_question_email_manual_retry_requested",
+    submissionId: submission.id
   });
-  const claimUrl = `${process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "http://localhost:3000"}/claim/${claim.rawToken}`;
-  const email = buildLegacyQuestionClaimEmail({
-    archiveName: archive.archiveName,
-    displayName: getDisplayName(submission.email, submission.firstName),
-    claimUrl,
-    expiresAt: claim.expiresAt
-  });
 
-  try {
-    await sendEmail({
-      to: submission.email,
-      ...email
-    });
-
-    await updateLegacyQuestionProcessing(submission.id, {
-      invitationSentAt: new Date().toISOString(),
-      welcomeEmailSentAt: new Date().toISOString(),
-      processingStatus: "email_sent",
-      processingStage: "email_sent",
-      processingError: null
-    });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unable to send a fresh claim email.";
-
-    await updateLegacyQuestionProcessing(submission.id, {
-      processingStatus: "failed",
-      processingStage: "email_send",
-      processingError: message
-    });
-
-    throw error;
-  }
+  await processSingleOnboardingEmailSend(submission.id);
 }
 
 export async function updateLegacyQuestionSubmissionAction(

@@ -1,11 +1,9 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getSiteUrl } from "@/lib/qr";
-import { buildLegacyQuestionClaimEmail } from "@/lib/legacy-question-claim-email";
-import { sendEmail } from "@/lib/resend-email";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { issueLegacyQuestionClaimToken } from "@/lib/legacy-question-claims";
+import { processSingleOnboardingEmailSend } from "@/lib/legacy-question-email-processor";
 import {
   deleteStorageObject,
   uploadMemoryVoice,
@@ -296,6 +294,30 @@ async function ensureFirstMemory(input: {
   return { id: memoryId, mediaStoragePath: filePath, mediaMimeType: mediaFile.type };
 }
 
+async function ensureClaimToken(input: {
+  submissionId: string;
+  archiveId: string;
+  userId: string;
+  email: string;
+}) {
+  const supabase = getAdminClient();
+  const { data: existingClaim } = await supabase
+    .from("legacy_question_claim_tokens")
+    .select("*")
+    .eq("submission_id", input.submissionId)
+    .is("claimed_at", null)
+    .is("revoked_at", null)
+    .gt("expires_at", new Date().toISOString())
+    .order("created_at", { ascending: false })
+    .maybeSingle();
+
+  if (existingClaim) {
+    return existingClaim;
+  }
+
+  return issueLegacyQuestionClaimToken(input);
+}
+
 export async function processLegacyQuestionSubmission(
   submissionId: string,
   options: { mediaFile?: File | null } = {}
@@ -398,56 +420,22 @@ export async function processLegacyQuestionSubmission(
       processingStage: currentStage
     });
 
-    if (!refreshedAfterArchive.welcomeEmailSentAt) {
-      currentStage = "claim_link_create";
-      await updateLegacyQuestionProcessing(submission.id, {
-        processingStage: currentStage
-      });
-
-      const claim = await issueLegacyQuestionClaimToken({
-        submissionId: submission.id,
-        archiveId: archive.id,
-        userId: owner.userId,
-        email: submission.email
-      });
-
-      const claimUrl = `${getSiteUrl().replace(/\/$/, "")}/claim/${claim.rawToken}`;
-      const email = buildLegacyQuestionClaimEmail({
-        archiveName: archive.archiveName,
-        displayName: getDisplayName(submission),
-        claimUrl,
-        expiresAt: claim.expiresAt
-      });
-
-      currentStage = "claim_link_created";
-      await updateLegacyQuestionProcessing(submission.id, {
-        processingStatus: "claim_link_created",
-        processingStage: currentStage
-      });
-
-      currentStage = "email_send";
-      await updateLegacyQuestionProcessing(submission.id, {
-        processingStage: currentStage
-      });
-
-      await sendEmail({
-        to: submission.email,
-        ...email
-      });
-
-      await updateLegacyQuestionProcessing(submission.id, {
-        invitationSentAt: new Date().toISOString()
-      });
-    }
-
-    currentStage = "email_sent";
-    await updateLegacyQuestionProcessing(submission.id, {
-      welcomeEmailSentAt: new Date().toISOString(),
-      processingStatus: "email_sent",
-      processingStage: currentStage,
-      submissionStatus: "archived",
-      processingError: null
+    // Ensure canonical claim token
+    currentStage = "claim_link_create";
+    await ensureClaimToken({
+      submissionId: submission.id,
+      archiveId: archive.id,
+      userId: owner.userId,
+      email: submission.email
     });
+
+    // Send onboarding email via processor
+    currentStage = "email_send";
+    await updateLegacyQuestionProcessing(submission.id, {
+      processingStage: currentStage
+    });
+
+    await processSingleOnboardingEmailSend(submission.id);
 
     return getLegacyQuestionSubmission(submission.id);
   } catch (error) {

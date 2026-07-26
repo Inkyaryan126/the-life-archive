@@ -5,6 +5,7 @@ type SendEmailInput = {
   subject: string;
   html: string;
   text: string;
+  idempotencyKey?: string;
 };
 
 function getFromEmail() {
@@ -32,13 +33,19 @@ export async function sendEmail(input: SendEmailInput) {
   const timeout = globalThis.setTimeout(() => controller.abort(), 15000);
   let response: Response;
 
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${getResendApiKey()}`,
+    "Content-Type": "application/json"
+  };
+
+  if (input.idempotencyKey) {
+    headers["Idempotency-Key"] = input.idempotencyKey;
+  }
+
   try {
     response = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${getResendApiKey()}`,
-        "Content-Type": "application/json"
-      },
+      headers,
       body: JSON.stringify({
         from: getFromEmail(),
         to: [input.to],
@@ -71,11 +78,12 @@ export async function sendEmail(input: SendEmailInput) {
   }
 
   if (!response.ok) {
-    let message = `Resend email failed with status ${response.status}.`;
-
-    message = body.message || body.name || message;
-
-    throw new Error(message);
+    const statusText = `Resend email failed with status ${response.status}.`;
+    const message = body.message || body.name || statusText;
+    const error: any = new Error(message);
+    error.status = response.status;
+    error.name = body.name || "ResendApiError";
+    throw error;
   }
 
   if (!body.id) {

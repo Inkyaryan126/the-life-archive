@@ -58,6 +58,13 @@ export type LegacyQuestionSubmission = {
   consentPrivateDefault: boolean;
   consentContact: boolean;
   notes: string;
+  emailStatus?: string | null;
+  emailAttemptCount?: number | null;
+  emailMaxAttempts?: number | null;
+  emailNextAttemptAt?: string | null;
+  resendMessageId?: string | null;
+  emailErrorCategory?: string | null;
+  emailErrorMessage?: string | null;
   prologuePart2SeenAt: string | null;
   prologuePart2Status: "completed" | "skipped" | null;
   prologuePart3SeenAt: string | null;
@@ -184,7 +191,14 @@ function mapSubmission(
     prologuePart2Status: row.prologue_part2_status ?? null,
     prologuePart3SeenAt: row.prologue_part3_seen_at ?? null,
     prologuePart3Status: row.prologue_part3_status ?? null,
-    claimedUserId: row.claimed_user_id ?? null
+    claimedUserId: row.claimed_user_id ?? null,
+    emailStatus: (row as any).email_status ?? "pending",
+    emailAttemptCount: (row as any).email_attempt_count ?? 0,
+    emailMaxAttempts: (row as any).email_max_attempts ?? 5,
+    emailNextAttemptAt: (row as any).email_next_attempt_at ?? null,
+    resendMessageId: (row as any).resend_message_id ?? null,
+    emailErrorCategory: (row as any).email_error_category ?? null,
+    emailErrorMessage: (row as any).email_error_message ?? null
   };
 }
 

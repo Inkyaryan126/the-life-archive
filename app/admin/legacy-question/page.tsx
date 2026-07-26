@@ -282,6 +282,31 @@ function SubmissionCard({
 
           <div className="mt-5 rounded-xl border border-archive-gold/10 bg-archive-obsidian/60 p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
+              Email Delivery Monitoring
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-archive-gold/30 bg-archive-gold/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-archive-champagne">
+                {submission.emailStatus ? submission.emailStatus.replace(/_/g, " ") : "pending"}
+              </span>
+              <span className="text-xs text-archive-ivory/58">
+                Attempts: {submission.emailAttemptCount || 0} / {submission.emailMaxAttempts || 5}
+              </span>
+              {submission.resendMessageId ? (
+                <span className="break-all font-mono text-xs text-archive-ivory/58">
+                  Message ID: {submission.resendMessageId}
+                </span>
+              ) : null}
+            </div>
+            {submission.emailErrorCategory || submission.emailErrorMessage ? (
+              <p className="mt-3 rounded-xl border border-red-300/18 bg-red-400/10 p-3 text-xs text-red-100">
+                <strong className="uppercase">{submission.emailErrorCategory || "Error"}:</strong>{" "}
+                {submission.emailErrorMessage}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="mt-5 rounded-xl border border-archive-gold/10 bg-archive-obsidian/60 p-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
               Claim Token & Account Link
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
