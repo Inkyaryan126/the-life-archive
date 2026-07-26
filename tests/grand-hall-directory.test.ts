@@ -76,12 +76,32 @@ async function runTests() {
 
   const seenGeometries = new Set<string>();
 
+  // Verify exact expected measured outer guide geometries from archive-map-guide.png
+  const expectedGeometries: Record<string, { top: number; left: number; width: number; height: number }> = {
+    "my-archives": { top: 22.4678, left: 40.6768, width: 21.1326, height: 5.1565 },
+    "create-archive": { top: 28.4530, left: 40.6077, width: 21.1326, height: 5.2486 },
+    "continuity-capsule": { top: 34.5304, left: 40.6768, width: 21.1326, height: 5.1565 },
+    "time-capsules": { top: 40.6998, left: 40.8149, width: 21.1326, height: 5.1565 },
+    "keepsakes": { top: 46.4088, left: 40.5387, width: 21.2017, height: 5.1565 },
+    "eternism": { top: 56.0773, left: 40.5387, width: 21.2017, height: 5.2486 },
+    "observatory": { top: 61.9705, left: 40.5387, width: 21.2017, height: 5.2486 },
+    "manifesto": { top: 67.7716, left: 40.6077, width: 21.1326, height: 5.1565 },
+    "faq": { top: 73.8490, left: 40.6077, width: 21.1326, height: 5.1565 }
+  };
+
   geomMatches.forEach((m, idx) => {
     const id = m[1];
     const top = parseFloat(m[2]);
     const rowHeight = parseFloat(m[3]);
     const left = parseFloat(m[4]);
     const rowWidth = parseFloat(m[5]);
+
+    const exp = expectedGeometries[id];
+    assert.ok(exp, `Row ID ${id} must be recognized`);
+    assert.equal(top, exp.top, `Row ${id} top must equal ${exp.top}`);
+    assert.equal(left, exp.left, `Row ${id} left must equal ${exp.left}`);
+    assert.equal(rowWidth, exp.width, `Row ${id} width must equal ${exp.width}`);
+    assert.equal(rowHeight, exp.height, `Row ${id} height must equal ${exp.height}`);
 
     // Percentage checks
     assert.ok(top > 0 && top < 100, `Row ${id} top (${top}%) must be between 0 and 100%`);
@@ -104,6 +124,18 @@ async function runTests() {
       assert.ok(top > prevTop, `Row ${id} top (${top}%) must be strictly greater than previous row top (${prevTop}%)`);
     }
   });
+
+  // Verify NO internal icon spacer exists inside the text box container
+  assert.doesNotMatch(
+    pageContent,
+    /w-\[21%\]/,
+    "No internal 21% icon spacer should exist inside the guide box text container"
+  );
+  assert.doesNotMatch(
+    pageContent,
+    /flex-shrink-0/,
+    "No flex-shrink-0 icon spacer should exist inside the guide box text container"
+  );
 
   // 5. Verify NO standalone Eternism divider text is rendered
   assert.doesNotMatch(
