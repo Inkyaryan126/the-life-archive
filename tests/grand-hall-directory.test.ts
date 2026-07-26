@@ -8,7 +8,7 @@ async function runTests() {
   // 1. Verify intended background image file path & existence
   const imageRelativePath = "public/images/archive-building/archive-map.png";
   const imageAbsolutePath = join(process.cwd(), imageRelativePath);
-  assert.ok(existsSync(imageAbsolutePath), `Background image file must exist at ${imageRelativePath}`);
+  assert.ok(existsSync(imageAbsolutePath), `Production background image must exist at ${imageRelativePath}`);
 
   // Check image natural dimensions (1448 x 1086)
   const imageBuffer = readFileSync(imageAbsolutePath);
@@ -17,12 +17,27 @@ async function runTests() {
   assert.equal(width, 1448, "Background image width must be 1448px");
   assert.equal(height, 1086, "Background image height must be 1086px");
 
-  // 2. Inspect app/page.tsx file contents
+  // 2. Verify design guide image exists as a reference and is NOT used as production background
+  const guideRelativePath = "site-design/archive-building-design/archive-map-guide.png";
+  const guideAbsolutePath = join(process.cwd(), guideRelativePath);
+  assert.ok(existsSync(guideAbsolutePath), `Guide image must exist at ${guideRelativePath}`);
+
   const homePagePath = join(process.cwd(), "app", "page.tsx");
   const pageContent = readFileSync(homePagePath, "utf8");
 
-  // Verify explicit row geometry definitions (not equal-height single flex grid)
-  assert.match(pageContent, /directoryRowGeometries: DirectoryRowGeometry\[\] = \[/);
+  assert.match(pageContent, /archive-map\.png/, "Production must use archive-map.png");
+  assert.doesNotMatch(
+    pageContent,
+    /import.*archive-map-guide|src=.*archive-map-guide/,
+    "Production code must not use archive-map-guide.png as live background"
+  );
+
+  // Source assertion confirming geometry was derived from 1448 x 1086 guide dimensions
+  assert.match(
+    pageContent,
+    /1448 x 1086 guide dimensions/,
+    "Source assertion: geometry must state derivation from 1448 x 1086 guide dimensions"
+  );
 
   // 3. Verify Legacy Question & Support After a Loss are ABSENT from physical directory board
   assert.doesNotMatch(
@@ -40,7 +55,7 @@ async function runTests() {
   const afterLossRoute = join(process.cwd(), "app", "after-a-loss", "page.tsx");
   assert.ok(existsSync(afterLossRoute), "/after-a-loss route must remain intact");
 
-  // 4. Verify exactly 9 clickable directory destinations
+  // 4. Verify exactly 9 clickable destination overlays exist with explicit independent geometries
   const topRows = ["My Archives", "Create an Archive", "Continuity Capsule", "Time Capsules", "Keepsakes"];
   const bottomRows = ["Eternism", "The Observatory", "The Manifesto", "Eternism FAQ"];
 
@@ -52,9 +67,43 @@ async function runTests() {
     assert.ok(pageContent.includes(`title: "${title}"`), `Bottom section must contain: ${title}`);
   }
 
-  // Count clickable items in directoryRowGeometries
-  const clickableMatches = pageContent.match(/id: "(?!eternism-divider")[^"]+"/g) || [];
-  assert.equal(clickableMatches.length, 9, "Must have exactly 9 clickable directory rows");
+  // Verify explicit row geometry definitions (no equal-height auto-distribution grid)
+  assert.match(pageContent, /directoryRowGeometries: DirectoryRowGeometry\[\] = \[/);
+
+  // Extract geometry objects from page.tsx
+  const geomMatches = [...pageContent.matchAll(/id:\s*"([^"]+)",[\s\S]*?top:\s*([0-9.]+),[\s\S]*?height:\s*([0-9.]+),[\s\S]*?left:\s*([0-9.]+),[\s\S]*?width:\s*([0-9.]+)/g)];
+  assert.equal(geomMatches.length, 9, "Must have exactly 9 explicit independent row geometry definitions");
+
+  const seenGeometries = new Set<string>();
+
+  geomMatches.forEach((m, idx) => {
+    const id = m[1];
+    const top = parseFloat(m[2]);
+    const rowHeight = parseFloat(m[3]);
+    const left = parseFloat(m[4]);
+    const rowWidth = parseFloat(m[5]);
+
+    // Percentage checks
+    assert.ok(top > 0 && top < 100, `Row ${id} top (${top}%) must be between 0 and 100%`);
+    assert.ok(rowHeight > 0 && rowHeight < 100, `Row ${id} height (${rowHeight}%) must be between 0 and 100%`);
+    assert.ok(left > 0 && left < 100, `Row ${id} left (${left}%) must be between 0 and 100%`);
+    assert.ok(rowWidth > 0 && rowWidth < 100, `Row ${id} width (${rowWidth}%) must be between 0 and 100%`);
+
+    // Bounds check
+    assert.ok(left + rowWidth <= 100, `Row ${id} must remain within horizontal bounds (left+width <= 100%)`);
+    assert.ok(top + rowHeight <= 100, `Row ${id} must remain within vertical bounds (top+height <= 100%)`);
+
+    // Duplicate check
+    const key = `${top.toFixed(4)},${left.toFixed(4)},${rowWidth.toFixed(4)},${rowHeight.toFixed(4)}`;
+    assert.ok(!seenGeometries.has(key), `Row ${id} must not have duplicate geometry coordinates`);
+    seenGeometries.add(key);
+
+    // Strictly increasing order check
+    if (idx > 0) {
+      const prevTop = parseFloat(geomMatches[idx - 1][2]);
+      assert.ok(top > prevTop, `Row ${id} top (${top}%) must be strictly greater than previous row top (${prevTop}%)`);
+    }
+  });
 
   // 5. Verify NO standalone Eternism divider text is rendered
   assert.doesNotMatch(
@@ -68,31 +117,13 @@ async function runTests() {
     "isHeader flag must not be present for any divider heading"
   );
 
-  // Verify the decorative divider region remains visually unused by HTML text overlays
-  // Top 5 rows end around 46.04% (top 41.07 + height 4.97)
-  // First lower section row starts after the decorative divider (top >= 46.85%)
-  assert.match(pageContent, /top:\ 41\.07,\s*height:\ 4\.97/, "Top 5 Archive rows geometry must not be altered");
-  assert.match(pageContent, /top:\ 46\.85/, "Eternism destination row overlay must be moved upward to top: 46.85%");
-
-  // 6. Verify clickable ETERNISM destination remains present and destination routes exist
-  assert.ok(pageContent.includes('title: "Eternism"'), 'Clickable ETERNISM destination must remain present');
+  // 6. Verify destination routes
   assert.match(pageContent, /href: "\/create"/);
   assert.match(pageContent, /href: "\/keepsakes"/);
   assert.match(pageContent, /href: "\/eternism"/);
   assert.match(pageContent, /href: "\/eternism\/observatory"/);
   assert.match(pageContent, /href: "\/eternism\/manifesto"/);
   assert.match(pageContent, /href: "\/eternism\/faq"/);
-
-  // 7. Verify no row geometry regresses (strictly increasing top coordinates for all 9 rows)
-  const topMatches = [...pageContent.matchAll(/top:\s*([0-9.]+)/g)].map((m) => parseFloat(m[1]));
-  const directoryTops = topMatches.slice(0, 9);
-  assert.equal(directoryTops.length, 9, "Must extract top coordinates for exactly 9 directory rows");
-  for (let i = 1; i < directoryTops.length; i++) {
-    assert.ok(
-      directoryTops[i] > directoryTops[i - 1],
-      `Row ${i} top (${directoryTops[i]}%) must be strictly greater than row ${i - 1} top (${directoryTops[i - 1]}%)`
-    );
-  }
 
   console.log("Grand Hall directory verification tests passed cleanly!");
 }

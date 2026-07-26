@@ -91,7 +91,14 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams
+}: {
+  searchParams?: Promise<{ directoryDebug?: string }>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const isDebug = resolvedSearchParams.directoryDebug === "1";
+
   const account = await getAccountContext();
   const isSignedIn = Boolean(account.user);
   const myArchivesHref = isSignedIn ? "/dashboard" : "/login";
@@ -102,6 +109,7 @@ export default async function HomePage() {
     ? "/dashboard/continuity"
     : "/login?next=%2Fdashboard%2Fcontinuity";
 
+  // Exact guide box geometry derived from 1448 x 1086 guide dimensions
   const directoryRowGeometries: DirectoryRowGeometry[] = [
     // Top Section (5 Rows)
     {
@@ -110,10 +118,10 @@ export default async function HomePage() {
       subtitle: "Manage your life and memorial archives.",
       href: myArchivesHref,
       ariaLabel: "Open My Archives. Manage your life and memorial archives.",
-      top: 20.44,
-      height: 4.97,
-      left: desktopBoardLeft,
-      width: desktopBoardWidth
+      top: 22.4678, // x=589, y=244, w=306, h=56
+      height: 5.1565,
+      left: 40.6768,
+      width: 21.1326
     },
     {
       id: "create-archive",
@@ -121,10 +129,10 @@ export default async function HomePage() {
       subtitle: "Begin a new life story.",
       href: "/create",
       ariaLabel: "Create an Archive. Begin a new life story.",
-      top: 25.60,
-      height: 4.97,
-      left: desktopBoardLeft,
-      width: desktopBoardWidth
+      top: 28.4530, // x=588, y=309, w=306, h=57
+      height: 5.2486,
+      left: 40.6077,
+      width: 21.1326
     },
     {
       id: "continuity-capsule",
@@ -132,10 +140,10 @@ export default async function HomePage() {
       subtitle: "Define who you are becoming.",
       href: continuityHref,
       ariaLabel: "Open Continuity Capsule. Define who you are becoming.",
-      top: 30.76,
-      height: 4.97,
-      left: desktopBoardLeft,
-      width: desktopBoardWidth
+      top: 34.5304, // x=589, y=375, w=306, h=56
+      height: 5.1565,
+      left: 40.6768,
+      width: 21.1326
     },
     {
       id: "time-capsules",
@@ -143,10 +151,10 @@ export default async function HomePage() {
       subtitle: "Send memories into the future.",
       href: timeCapsulesHref,
       ariaLabel: "Open Time Capsules. Send memories into the future.",
-      top: 35.91,
-      height: 4.97,
-      left: desktopBoardLeft,
-      width: desktopBoardWidth
+      top: 40.6998, // x=591, y=442, w=306, h=56
+      height: 5.1565,
+      left: 40.8149,
+      width: 21.1326
     },
     {
       id: "keepsakes",
@@ -154,22 +162,22 @@ export default async function HomePage() {
       subtitle: "Keep their story close.",
       href: "/keepsakes",
       ariaLabel: "Visit Keepsakes. Keep their story close.",
-      top: 41.07,
-      height: 4.97,
-      left: desktopBoardLeft,
-      width: desktopBoardWidth
+      top: 46.4088, // x=587, y=504, w=307, h=56
+      height: 5.1565,
+      left: 40.5387,
+      width: 21.2017
     },
-    // Bottom Section (4 Rows)
+    // Bottom Section (4 Rows) - Decorative divider in artwork spans y=559..609 (no HTML text)
     {
       id: "eternism",
       title: "Eternism",
       subtitle: "The practice of becoming harder to destroy.",
       href: "/eternism",
       ariaLabel: "Explore Eternism. The practice of becoming harder to destroy.",
-      top: 46.85,
-      height: 6.60,
-      left: desktopBoardLeft,
-      width: desktopBoardWidth
+      top: 56.0773, // x=587, y=609, w=307, h=57
+      height: 5.2486,
+      left: 40.5387,
+      width: 21.2017
     },
     {
       id: "observatory",
@@ -177,10 +185,10 @@ export default async function HomePage() {
       subtitle: "Explore science, identity, and humanity’s future.",
       href: "/eternism/observatory",
       ariaLabel: "Open The Observatory. Explore science, identity, and humanity’s future.",
-      top: 54.10,
-      height: 7.00,
-      left: desktopBoardLeft,
-      width: desktopBoardWidth
+      top: 61.9705, // x=587, y=673, w=307, h=57
+      height: 5.2486,
+      left: 40.5387,
+      width: 21.2017
     },
     {
       id: "manifesto",
@@ -188,10 +196,10 @@ export default async function HomePage() {
       subtitle: "Read the philosophy and pledge.",
       href: "/eternism/manifesto",
       ariaLabel: "Read The Manifesto. Read the philosophy and pledge.",
-      top: 61.60,
-      height: 5.50,
-      left: desktopBoardLeft,
-      width: desktopBoardWidth
+      top: 67.7716, // x=588, y=736, w=306, h=56
+      height: 5.1565,
+      left: 40.6077,
+      width: 21.1326
     },
     {
       id: "faq",
@@ -199,10 +207,10 @@ export default async function HomePage() {
       subtitle: "Understand the mission.",
       href: "/eternism/faq",
       ariaLabel: "Open Eternism FAQ. Understand the mission.",
-      top: 67.80,
-      height: 5.50,
-      left: desktopBoardLeft,
-      width: desktopBoardWidth
+      top: 73.8490, // x=588, y=802, w=306, h=56
+      height: 5.1565,
+      left: 40.6077,
+      width: 21.1326
     }
   ];
 
@@ -213,6 +221,7 @@ export default async function HomePage() {
         myArchivesHref={myArchivesHref}
         timeCapsulesHref={timeCapsulesHref}
         continuityHref={continuityHref}
+        isDebug={isDebug}
       />
       <BelowDirectoryContent timeCapsulesHref={timeCapsulesHref} />
       <SiteFooter
@@ -227,12 +236,14 @@ function GrandHallHero({
   rows,
   myArchivesHref,
   timeCapsulesHref,
-  continuityHref
+  continuityHref,
+  isDebug = false
 }: {
   rows: DirectoryRowGeometry[];
   myArchivesHref: string;
   timeCapsulesHref: string;
   continuityHref: string;
+  isDebug?: boolean;
 }) {
   const mobileEntries = [
     {
@@ -348,7 +359,11 @@ function GrandHallHero({
               return (
                 <div
                   key={row.id}
-                  className="absolute overflow-hidden"
+                  className={`absolute overflow-hidden ${
+                    isDebug
+                      ? "border-2 border-emerald-400/80 bg-emerald-500/10 shadow-[0_0_12px_rgba(52,211,153,0.5)]"
+                      : ""
+                  }`}
                   style={{
                     left: `${row.left}%`,
                     top: `${row.top}%`,
@@ -360,14 +375,26 @@ function GrandHallHero({
                   <Link
                     href={row.href}
                     aria-label={row.ariaLabel}
-                    className="group flex h-full w-full flex-col justify-center items-center overflow-hidden px-[4%] text-center transition duration-300 hover:bg-archive-gold/[0.06] focus:outline-none focus:ring-2 focus:ring-archive-gold/75"
+                    className="group relative flex h-full w-full items-center overflow-hidden transition duration-300 hover:bg-archive-gold/[0.06] focus:outline-none focus:ring-2 focus:ring-archive-gold/75"
                   >
-                    <span className="block font-serif text-[clamp(0.52rem,0.72vw,0.88rem)] uppercase tracking-[0.075em] text-archive-ivory transition group-hover:text-archive-champagne group-hover:drop-shadow-[0_0_8px_rgba(232,207,136,0.4)] drop-shadow-[0_2px_8px_rgba(0,0,0,0.92)]">
-                      {row.title}
-                    </span>
-                    {row.subtitle ? (
-                      <span className="mx-auto mt-[0.3%] max-w-[92%] truncate text-[clamp(0.38rem,0.46vw,0.56rem)] leading-tight text-archive-ivory/68 transition group-hover:text-archive-ivory/90">
-                        {row.subtitle}
+                    {/* Left Icon Medallion Area Reservation */}
+                    <div className="h-full w-[21%] flex-shrink-0" aria-hidden="true" />
+
+                    {/* Right Open Text Region */}
+                    <div className="flex flex-1 flex-col items-center justify-center px-0.5 text-center leading-none">
+                      <span className="block font-serif text-[clamp(0.48rem,0.64vw,0.80rem)] uppercase tracking-[0.07em] text-archive-ivory transition group-hover:text-archive-champagne group-hover:drop-shadow-[0_0_8px_rgba(232,207,136,0.4)] drop-shadow-[0_2px_8px_rgba(0,0,0,0.92)] leading-tight">
+                        {row.title}
+                      </span>
+                      {row.subtitle ? (
+                        <span className="mt-[1.5%] max-w-[98%] text-[clamp(0.36rem,0.44vw,0.54rem)] leading-tight text-archive-ivory/68 transition group-hover:text-archive-ivory/90">
+                          {row.subtitle}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    {isDebug ? (
+                      <span className="pointer-events-none absolute right-1 top-0.5 text-[0.45rem] font-mono text-emerald-300">
+                        {row.id}
                       </span>
                     ) : null}
                   </Link>
