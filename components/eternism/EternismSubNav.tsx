@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/eternism", label: "Overview" },
+  { href: "/eternism/trial", label: "Trial" },
   { href: "/eternism/observatory", label: "Observatory" },
   { href: "/eternism/manifesto", label: "Manifesto" },
   { href: "/eternism/continuity", label: "Continuity Capsule" },
