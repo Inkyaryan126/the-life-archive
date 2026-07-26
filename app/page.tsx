@@ -38,14 +38,14 @@ type DesktopDirectoryEntry = {
   subtitle: string;
   href: string;
   ariaLabel: string;
-  featured?: boolean;
+  isHeader?: boolean;
 };
 
 const desktopDirectoryRegion = {
-  left: 39.05,
-  top: 16.79,
-  width: 21.17,
-  height: 65.67
+  left: 39.0,
+  top: 20.4,
+  width: 22.0,
+  height: 64.0
 };
 
 function PrimaryCta({
@@ -97,83 +97,80 @@ export default async function HomePage() {
   const timeCapsulesHref = isSignedIn
     ? "/dashboard/time-capsules"
     : "/login?next=%2Fdashboard%2Ftime-capsules";
+  const continuityHref = isSignedIn
+    ? "/dashboard/continuity"
+    : "/login?next=%2Fdashboard%2Fcontinuity";
 
   const directoryEntries: DirectoryEntry[] = [
     {
-      label: "Start here",
-      title: "The Legacy Question",
-      href: "/legacy-question",
-      description:
-        "Answer one meaningful question, preserve your words and memories, and leave something behind for someone you love.",
-      note:
-        "THE LIFE ARCHIVE IS FREE TO USE. The core archive experience is free. Physical keepsakes and other optional extras are available only if someone wants them. No purchase is required to preserve a story.",
-      ariaLabel: "Start here with The Legacy Question. The Life Archive is free to use.",
-      featured: true,
-      position: { left: 39.1, top: 16.8, width: 21.2, height: 12.0 }
-    },
-    {
       title: "My Archives",
       href: myArchivesHref,
-      description:
-        "Manage your archives and access voice, photos, videos, journals, letters, songs, lessons, and memories.",
+      description: "Manage your life and memorial archives.",
       ariaLabel: isSignedIn ? "Open My Archives" : "Sign in to open My Archives",
-      position: { left: 39.1, top: 28.8, width: 21.2, height: 6.8 }
+      position: { left: 39.1, top: 17.0, width: 21.2, height: 6.2 }
     },
     {
       title: "Create an Archive",
       href: "/create",
-      description:
-        "Create a private place for stories, memories, photographs, voice, video, letters, songs, lessons, and guidance.",
+      description: "Begin a new life story.",
       ariaLabel: "Create an archive",
-      position: { left: 39.1, top: 35.6, width: 21.2, height: 6.8 }
+      position: { left: 39.1, top: 23.2, width: 21.2, height: 6.2 }
+    },
+    {
+      title: "Continuity Capsule",
+      href: continuityHref,
+      description: "Define who you are becoming.",
+      ariaLabel: "Open Continuity Capsule",
+      position: { left: 39.1, top: 29.4, width: 21.2, height: 6.2 }
     },
     {
       title: "Time Capsules",
       href: timeCapsulesHref,
-      description:
-        "Write something today and schedule it to reach someone later.",
+      description: "Send memories into the future.",
       ariaLabel: "Open Time Capsules",
-      position: { left: 39.1, top: 42.4, width: 21.2, height: 6.8 }
+      position: { left: 39.1, top: 35.6, width: 21.2, height: 6.2 }
     },
     {
       title: "Keepsakes",
       href: "/keepsakes",
-      description:
-        "Member Cards, Memorial Keychains, Memory Cards, QR Plaques, and Storykeeper Cards can become a doorway back into an archive or memorial.",
+      description: "Keep their story close.",
       ariaLabel: "Visit Keepsakes",
-      position: { left: 39.1, top: 49.2, width: 21.2, height: 6.8 }
+      position: { left: 39.1, top: 41.8, width: 21.2, height: 6.2 }
     },
     {
-      title: "Member Card",
-      href: "/member-card",
-      description:
-        "A physical connection to your archive that can help loved ones find it later.",
-      ariaLabel: "Open Member Card",
-      position: { left: 39.1, top: 56.0, width: 21.2, height: 6.8 }
-    },
-    {
-      title: "Support After A Loss",
+      title: "Support After a Loss",
       href: "/after-a-loss",
-      description:
-        "A calm guide for the first hours, the next necessary decisions, children, practical details, grief care, and crisis resources.",
+      description: "Guidance when someone is gone.",
       ariaLabel: "Get support after a loss",
-      position: { left: 39.1, top: 62.8, width: 21.2, height: 6.8 }
+      position: { left: 39.1, top: 48.0, width: 21.2, height: 6.2 }
     },
     {
-      title: "How It Works",
-      href: "#how-it-works",
-      description:
-        "Create an archive, preserve memories, connect a QR code if desired, and let loved ones return whenever they need it.",
-      ariaLabel: "Read how The Life Archive works",
-      position: { left: 39.1, top: 76.4, width: 10.4, height: 6.0 }
+      title: "Eternism",
+      href: "/eternism",
+      description: "The practice of becoming harder to destroy.",
+      ariaLabel: "Explore Eternism",
+      position: { left: 39.1, top: 58.0, width: 21.2, height: 6.2 }
     },
     {
-      title: "Help, Privacy, And Information",
-      href: "#information",
-      description:
-        "Find help, privacy, terms, FAQ, contact, and the main public pages.",
-      ariaLabel: "Open help privacy and information links",
-      position: { left: 49.9, top: 76.4, width: 10.4, height: 6.0 }
+      title: "The Observatory",
+      href: "/eternism/observatory",
+      description: "Explore science, identity, and humanity’s future.",
+      ariaLabel: "Open The Observatory",
+      position: { left: 39.1, top: 64.2, width: 21.2, height: 6.2 }
+    },
+    {
+      title: "The Manifesto",
+      href: "/eternism/manifesto",
+      description: "Read the philosophy and pledge.",
+      ariaLabel: "Read The Manifesto",
+      position: { left: 39.1, top: 70.4, width: 21.2, height: 6.2 }
+    },
+    {
+      title: "Eternism FAQ",
+      href: "/eternism/faq",
+      description: "Understand the mission.",
+      ariaLabel: "Open Eternism FAQ",
+      position: { left: 39.1, top: 76.6, width: 21.2, height: 5.8 }
     }
   ];
 
@@ -183,6 +180,7 @@ export default async function HomePage() {
         entries={directoryEntries}
         myArchivesHref={myArchivesHref}
         timeCapsulesHref={timeCapsulesHref}
+        continuityHref={continuityHref}
       />
       <BelowDirectoryContent timeCapsulesHref={timeCapsulesHref} />
       <SiteFooter
@@ -196,31 +194,32 @@ export default async function HomePage() {
 function GrandHallHero({
   entries,
   myArchivesHref,
-  timeCapsulesHref
+  timeCapsulesHref,
+  continuityHref
 }: {
   entries: DirectoryEntry[];
   myArchivesHref: string;
   timeCapsulesHref: string;
+  continuityHref: string;
 }) {
   const desktopEntries: DesktopDirectoryEntry[] = [
     {
-      title: "The Legacy Question",
-      subtitle: "Leave words that matter.",
-      href: "/legacy-question",
-      ariaLabel: "Start with The Legacy Question. Leave words that matter.",
-      featured: true
-    },
-    {
       title: "My Archives",
-      subtitle: "Manage your archives.",
+      subtitle: "Manage your life and memorial archives.",
       href: myArchivesHref,
-      ariaLabel: "Open My Archives. Manage your archives."
+      ariaLabel: "Open My Archives. Manage your life and memorial archives."
     },
     {
       title: "Create an Archive",
       subtitle: "Begin a new life story.",
       href: "/create",
       ariaLabel: "Create an Archive. Begin a new life story."
+    },
+    {
+      title: "Continuity Capsule",
+      subtitle: "Define who you are becoming.",
+      href: continuityHref,
+      ariaLabel: "Open Continuity Capsule. Define who you are becoming."
     },
     {
       title: "Time Capsules",
@@ -241,36 +240,60 @@ function GrandHallHero({
       ariaLabel: "Open Support After a Loss. Guidance when someone is gone."
     },
     {
-      title: "Help, Privacy & Information",
-      subtitle: "Help, privacy and support.",
-      href: "#information",
-      ariaLabel: "Open Help, Privacy and Information. Help, privacy and support."
+      title: "ETERNISM",
+      subtitle: "",
+      href: "#",
+      ariaLabel: "Eternism Section",
+      isHeader: true
+    },
+    {
+      title: "Eternism",
+      subtitle: "The practice of becoming harder to destroy.",
+      href: "/eternism",
+      ariaLabel: "Explore Eternism. The practice of becoming harder to destroy."
+    },
+    {
+      title: "The Observatory",
+      subtitle: "Explore science, identity, and humanity’s future.",
+      href: "/eternism/observatory",
+      ariaLabel: "Open The Observatory. Explore science, identity, and humanity’s future."
+    },
+    {
+      title: "The Manifesto",
+      subtitle: "Read the philosophy and pledge.",
+      href: "/eternism/manifesto",
+      ariaLabel: "Read The Manifesto. Read the philosophy and pledge."
+    },
+    {
+      title: "Eternism FAQ",
+      subtitle: "Understand the mission.",
+      href: "/eternism/faq",
+      ariaLabel: "Open Eternism FAQ. Understand the mission."
     }
   ];
 
   const mobileEntries: DesktopDirectoryEntry[] = [
     {
-      title: "The Legacy Question",
-      subtitle: "Leave words that matter.",
-      href: "/legacy-question",
-      ariaLabel: "Start with The Legacy Question.",
-      featured: true
-    },
-    {
       title: "My Archives",
-      subtitle: "Return to your stories.",
+      subtitle: "Manage your life and memorial archives.",
       href: myArchivesHref,
       ariaLabel: "Open My Archives."
     },
     {
       title: "Create an Archive",
-      subtitle: "Begin a life story.",
+      subtitle: "Begin a new life story.",
       href: "/create",
       ariaLabel: "Create an Archive."
     },
     {
+      title: "Continuity Capsule",
+      subtitle: "Define who you are becoming.",
+      href: continuityHref,
+      ariaLabel: "Open Continuity Capsule."
+    },
+    {
       title: "Time Capsules",
-      subtitle: "Send words into the future.",
+      subtitle: "Send memories into the future.",
       href: timeCapsulesHref,
       ariaLabel: "Open Time Capsules."
     },
@@ -281,22 +304,34 @@ function GrandHallHero({
       ariaLabel: "Visit Keepsakes."
     },
     {
-      title: "Member Card",
-      subtitle: "Carry your archive with you.",
-      href: "/member-card",
-      ariaLabel: "Open Member Card."
-    },
-    {
       title: "Support After a Loss",
       subtitle: "Guidance when someone is gone.",
       href: "/after-a-loss",
       ariaLabel: "Open Support After a Loss."
     },
     {
-      title: "Help & Information",
-      subtitle: "Privacy, answers and support.",
-      href: "#information",
-      ariaLabel: "Open Help and Information."
+      title: "Eternism",
+      subtitle: "The practice of becoming harder to destroy.",
+      href: "/eternism",
+      ariaLabel: "Explore Eternism."
+    },
+    {
+      title: "The Observatory",
+      subtitle: "Explore science, identity, and humanity’s future.",
+      href: "/eternism/observatory",
+      ariaLabel: "Open The Observatory."
+    },
+    {
+      title: "The Manifesto",
+      subtitle: "Read the philosophy and pledge.",
+      href: "/eternism/manifesto",
+      ariaLabel: "Read The Manifesto."
+    },
+    {
+      title: "Eternism FAQ",
+      subtitle: "Understand the mission.",
+      href: "/eternism/faq",
+      ariaLabel: "Open Eternism FAQ."
     }
   ];
 
@@ -309,7 +344,7 @@ function GrandHallHero({
 
       <section className="relative z-10 mx-auto w-full max-w-[1280px]">
         <div className="hidden md:block">
-          <div className="relative mx-auto aspect-[1672/941] w-full overflow-hidden shadow-[0_40px_140px_rgba(0,0,0,0.74)]">
+          <div className="relative mx-auto aspect-[1448/1086] w-full overflow-hidden shadow-[0_40px_140px_rgba(0,0,0,0.74)]">
             <GrandHallArrival
               title="The Life Archive"
               subtitle="Every life has a story worth preserving."
@@ -328,7 +363,7 @@ function GrandHallHero({
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(237,190,98,0.1),transparent_26%),linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.14))]"
             />
             <div
-              className="absolute flex min-w-0 flex-col overflow-hidden px-[0.55%] py-[0.62%]"
+              className="absolute flex min-w-0 flex-col overflow-hidden px-[0.4%] py-[0.5%]"
               style={{
                 left: `${desktopDirectoryRegion.left}%`,
                 top: `${desktopDirectoryRegion.top}%`,
@@ -367,30 +402,20 @@ function GrandHallHero({
 
               <nav
                 aria-label="The Life Archive directory"
-                className="mobile-directory-interface absolute left-[20.1%] top-[26.3%] flex h-[53.1%] w-[57.8%] flex-col"
+                className="mobile-directory-interface absolute left-[20.1%] top-[26.3%] flex h-[53.1%] w-[57.8%] flex-col overflow-y-auto custom-scrollbar"
               >
                 {mobileEntries.map((entry) => (
                   <Link
                     href={entry.href}
                     aria-label={entry.ariaLabel}
-                    className={`mobile-directory-row group relative flex min-h-0 flex-1 flex-col justify-center px-[7%] text-center focus:outline-none focus:ring-2 focus:ring-inset focus:ring-archive-gold/80 ${
-                      entry.featured
-                        ? "bg-archive-gold/[0.055]"
-                        : "hover:bg-archive-gold/[0.045]"
-                    }`}
+                    className="mobile-directory-row group relative flex min-h-0 flex-1 flex-col justify-center px-[6%] py-1.5 text-center transition hover:bg-archive-gold/[0.045] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-archive-gold/80"
                     key={entry.title}
                   >
-                    {entry.featured ? (
-                      <span className="mb-0.5 text-[0.48rem] font-bold uppercase tracking-[0.18em] text-archive-gold">
-                        Start here
-                      </span>
-                    ) : null}
-
-                    <span className="font-serif text-[clamp(0.68rem,3vw,0.9rem)] uppercase leading-tight tracking-[0.055em] text-archive-ivory drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
+                    <span className="font-serif text-[clamp(0.64rem,2.8vw,0.85rem)] uppercase leading-tight tracking-[0.055em] text-archive-ivory drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
                       {entry.title}
                     </span>
 
-                    <span className="mt-0.5 text-[clamp(0.42rem,1.85vw,0.56rem)] leading-tight text-archive-ivory/64">
+                    <span className="mt-0.5 text-[clamp(0.42rem,1.8vw,0.54rem)] leading-tight text-archive-ivory/64">
                       {entry.subtitle}
                     </span>
                   </Link>
@@ -415,39 +440,46 @@ function DesktopDirectoryRow({
   index: number;
   isLast: boolean;
 }) {
+  if (entry.isHeader) {
+    return (
+      <div className="relative flex min-h-0 flex-none py-[0.8%] items-center justify-center">
+        <div className="flex w-[84%] items-center gap-2">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-archive-gold/50 to-transparent" />
+          <span className="font-serif text-[clamp(0.5rem,0.6vw,0.72rem)] font-bold uppercase tracking-[0.24em] text-archive-gold drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)]">
+            ETERNISM
+          </span>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-archive-gold/50 to-transparent" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className="desktop-directory-row relative flex min-h-0 flex-1"
-      style={{ animationDelay: `${index * 30}ms` }}
+      style={{ animationDelay: `${index * 25}ms` }}
     >
       <Link
         href={entry.href}
         aria-label={entry.ariaLabel}
-        className={`group flex min-h-0 w-full flex-col justify-center overflow-hidden px-[4%] py-[1.2%] text-center transition duration-300 focus:outline-none focus:ring-2 focus:ring-archive-gold/75 ${
-          entry.featured
-            ? "bg-archive-gold/[0.07] shadow-[0_0_28px_rgba(202,164,92,0.16)] hover:bg-archive-gold/[0.12]"
-            : "hover:bg-archive-gold/[0.055]"
-        }`}
+        className="group flex min-h-0 w-full flex-col justify-center overflow-hidden px-[4%] py-[0.6%] text-center transition duration-300 hover:bg-archive-gold/[0.06] focus:outline-none focus:ring-2 focus:ring-archive-gold/75"
       >
-        {entry.featured ? (
-          <span className="mb-[1%] text-[clamp(0.46rem,0.56vw,0.64rem)] font-bold uppercase tracking-[0.16em] text-archive-gold">
-            Start here
-          </span>
-        ) : null}
-        <span className="block font-serif text-[clamp(0.62rem,0.85vw,1.02rem)] uppercase tracking-[0.08em] text-archive-ivory drop-shadow-[0_2px_8px_rgba(0,0,0,0.92)]">
+        <span className="block font-serif text-[clamp(0.56rem,0.74vw,0.9rem)] uppercase tracking-[0.075em] text-archive-ivory transition group-hover:text-archive-champagne group-hover:drop-shadow-[0_0_8px_rgba(232,207,136,0.4)] drop-shadow-[0_2px_8px_rgba(0,0,0,0.92)]">
           {entry.title}
         </span>
-        <span className="mx-auto mt-[1.2%] max-w-full text-[clamp(0.46rem,0.56vw,0.68rem)] leading-snug text-archive-ivory/68">
-          {entry.subtitle}
-        </span>
+        {entry.subtitle ? (
+          <span className="mx-auto mt-[0.5%] max-w-full text-[clamp(0.4rem,0.5vw,0.6rem)] leading-snug text-archive-ivory/68 transition group-hover:text-archive-ivory/90">
+            {entry.subtitle}
+          </span>
+        ) : null}
       </Link>
       {!isLast ? (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-1/2 h-px w-[86%] -translate-x-1/2"
+          className="pointer-events-none absolute bottom-0 left-1/2 h-px w-[84%] -translate-x-1/2"
           style={{
             background:
-              "linear-gradient(90deg, transparent, rgba(202, 164, 92, 0.55), transparent)"
+              "linear-gradient(90deg, transparent, rgba(202, 164, 92, 0.4), transparent)"
           }}
         />
       ) : null}
