@@ -134,6 +134,12 @@ export function getNavGroupedItems(
         },
         {
           kind: "link",
+          href: "/eternism",
+          label: "Eternism",
+          active: "eternism"
+        },
+        {
+          kind: "link",
           href: "/#how-it-works",
           label: "How It Works",
           active: "how-it-works"

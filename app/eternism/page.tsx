@@ -1,429 +1,357 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DesignBackdrop, HeartbeatLogoDivider, SiteLogo } from "@/components/SiteDesign";
-import { SiteFooter } from "@/components/SiteFooter";
-import { MobileArchiveHeader } from "@/components/archive-building/MobileArchiveHeader";
-import {
-  ArchiveBuildingShell,
-  ArchiveOverlayRegion,
-  ArchiveMobileScene
-} from "@/components/archive-building/ArchiveBuildingShell";
-import { getAccountContext } from "@/lib/account";
-import {
-  archiveBuildingMobileScenes,
-  archiveBuildingScenes
-} from "@/lib/archive-building-scenes";
+import { HeartbeatLogoDivider } from "@/components/SiteDesign";
+import { EternismPageShell } from "@/components/eternism/EternismPageShell";
 import { publicSupportEmail } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Eternism and Human Continuity | The Life Archive",
+  title: "Eternism | Preserve the Life. Extend the Life. | The Life Archive",
   description:
-    "The Life Archive preserves memory, identity, voice, and human continuity while humanity works toward longer and healthier lives."
+    "Eternism is the belief that aging and involuntary death are problems to be solved—not traditions to be protected. The Life Archive preserves identity while humanity works to extend life.",
+  openGraph: {
+    title: "Eternism | Preserve the Life. Extend the Life.",
+    description:
+      "Eternism is the belief that aging and involuntary death are problems to be solved—not traditions to be protected."
+  },
+  twitter: {
+    card: "summary",
+    title: "Eternism | The Life Archive",
+    description:
+      "Eternism is the belief that aging and involuntary death are problems to be solved—not traditions to be protected."
+  }
 };
 
-const preservedToday = [
+const eternistBeliefs = [
   {
-    title: "Voice",
-    description: "Cadence, tone, laugh, spoken memories, and authentic spoken wisdom."
+    number: "01",
+    title: "Aging is a disease process",
+    description:
+      "Biological aging is a progressive cellular degradation that can be scientifically understood, targeted, and slowed or reversed through medicine."
   },
   {
-    title: "Video",
-    description: "Gestures, presence, expressions, and personal life recordings."
+    number: "02",
+    title: "Death should not be romanticized",
+    description:
+      "Rationalizing oblivion as 'natural' or 'sacred' is a psychological coping strategy from an era before medical technology was possible."
   },
   {
-    title: "Photographs",
-    description: "Curated moments, portraits, family milestones, and visual history."
+    number: "03",
+    title: "Human life has unfinished potential",
+    description:
+      "An 80-year lifespan is barely long enough to master a few disciplines, raise a family, and glimpse the universe. We deserve time to thrive."
   },
   {
-    title: "Journals",
-    description: "Written thoughts, personal reflections, diaries, and private notes."
+    number: "04",
+    title: "Science should pursue radical life extension",
+    description:
+      "Humanity has a moral duty to fund and accelerate longevity research, regenerative medicine, and biological preservation."
   },
   {
-    title: "Lessons",
-    description: "Hard-won advice, principles, values, and practical guidance."
+    number: "05",
+    title: "Memory and identity must be preserved",
+    description:
+      "While biological interventions are developed, preserving voice, identity, wisdom, and consciousness records guarantees human continuity."
   },
   {
-    title: "Values",
-    description: "Core beliefs, moral frameworks, and personal codes of living."
-  },
-  {
-    title: "Memories",
-    description: "Specific life events, defining moments, and quiet daily experiences."
-  },
-  {
-    title: "Creative Work",
-    description: "Writing, music, art, projects, essays, and intellectual legacy."
-  },
-  {
-    title: "Future Messages",
-    description: "Scheduled time capsules for future dates, milestones, and loved ones."
-  },
-  {
-    title: "Family History",
-    description: "Lineage, oral history, origin stories, and ancestral records."
+    number: "06",
+    title: "Future generations deserve more than resignation",
+    description:
+      "We refuse to pass down involuntary death to our children as an unalterable law of physics when courage and science can change it."
   }
 ];
 
-const futureContinuityUses = [
+const eternismIsNot = [
   {
-    title: "Revisiting earlier versions of yourself",
-    description: "Look back at your thoughts, voice, and aspirations across decades to maintain a true sense of personal identity."
+    title: "Pretending current technology makes people immortal",
+    description: "We do not claim that biological immortality exists today or that medical science has already defeated death."
   },
   {
-    title: "Preserving beliefs and identity over decades",
-    description: "Safeguard your core values, worldview, and personal evolution over long spans of time."
+    title: "Denying grief or human loss",
+    description: "Honoring those who have passed is essential. Rejecting involuntary death does not mean ignoring the reality of current loss."
   },
   {
-    title: "Recording family and relationship history",
-    description: "Keep living lineage, stories, and shared heritage intact for children and descendants."
+    title: "Promising biological resurrection",
+    description: "We make no claims of bringing back deceased individuals or transferring living consciousness into code."
   },
   {
-    title: "Safeguarding creative work",
-    description: "Protect written works, songs, art, and ideas in a durable, private digital sanctuary."
+    title: "Replacing spiritual or personal faith",
+    description: "Eternism is a practical medical and philosophical movement focused on health, choice, and longevity—not a religious doctrine."
   },
   {
-    title: "Storing messages for future versions of yourself",
-    description: "Prepare letters, audio, or video messages to be received by future versions of yourself or family members."
+    title: "Ignoring quality of life",
+    description: "Extending lifespan without extending healthspan is meaningless. The goal is vibrant, healthy, functional life."
   },
   {
-    title: "Creating a record before major milestones or transitions",
-    description: "Build a complete archive before dangerous travel, major medical procedures, cryonics preservation, or long separations."
+    title: "Forcing anyone to live forever",
+    description: "Eternism is rooted in autonomy. Choice is the moral core: no person should be forced to die before they are ready."
   }
 ];
 
-const whatTLADoesNotPromise = [
-  {
-    title: "Resurrection",
-    description: "The Life Archive does not promise bringing anyone back from death or reversing mortality."
-  },
-  {
-    title: "Consciousness Uploading",
-    description: "We do not claim to transfer human consciousness, mind, or soul into digital code."
-  },
-  {
-    title: "Biological Immortality",
-    description: "We do not offer medical treatments, biological reverse-aging, or physical immortality."
-  },
-  {
-    title: "Medical Treatment",
-    description: "We are not a medical provider and make no claims regarding health interventions or clinical outcomes."
-  },
-  {
-    title: "An AI Replacement for a Human Being",
-    description: "We do not build synthetic AI clones to replace or impersonate living or deceased human beings."
-  }
-];
-
-const observatoryNavRegion = {
-  left: 0.78,
-  top: 19.73,
-  width: 14.27,
-  height: 74.02
-};
-
-const observatoryContentRegion = {
-  left: 17.5,
-  top: 19.73,
-  width: 78.0,
-  height: 74.02
-};
-
-export default async function EternismPage() {
-  const account = await getAccountContext();
-
-  function EternismContentBody() {
-    return (
-      <div className="space-y-12">
+export default function EternismLandingPage() {
+  return (
+    <EternismPageShell>
+      <div className="space-y-14">
         {/* Hero Section */}
         <header className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold sm:text-sm">
-            Eternism &amp; Human Continuity
+          <p className="text-xs font-bold uppercase tracking-[0.26em] text-archive-gold sm:text-sm">
+            Preserve the life. Extend the life.
           </p>
           <h1 className="mx-auto mt-4 max-w-4xl font-serif text-3xl leading-tight text-archive-ivory sm:text-5xl lg:text-6xl">
-            Human life is too valuable to disappear.
+            Death has ruled humanity long enough.
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-archive-ivory/78 sm:text-lg sm:leading-8">
-            The Life Archive preserves the person we are today while humanity
-            continues the longer fight to preserve human life itself.
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-archive-ivory/80 sm:text-lg sm:leading-8">
+            Eternism is the belief that aging and involuntary death are problems
+            to be solved—not traditions to be protected.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
             <Link
-              href="/create"
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-archive-gold px-7 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
+              href="/eternism/observatory"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-archive-gold px-8 py-3.5 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
             >
-              Begin Your Archive
+              Enter the Observatory
             </Link>
             <Link
-              href="#two-fronts"
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-7 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
+              href="/eternism/manifesto"
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-8 py-3.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
             >
-              Read The Philosophy
+              Read the Manifesto
             </Link>
           </div>
         </header>
 
         <HeartbeatLogoDivider />
 
-        {/* Section 1: The Problem */}
-        <section id="problem">
-          <div className="rounded-[2rem] border border-archive-gold/18 bg-black/55 p-8 shadow-luxury sm:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-archive-gold">
-              The Fundamental Challenge
+        {/* Section: The Forbidden Question */}
+        <section id="forbidden-question">
+          <div className="rounded-[2.5rem] border border-archive-gold/22 bg-black/60 p-8 shadow-luxury sm:p-12">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-archive-gold">
+              The Forbidden Question
             </p>
-            <h2 className="mt-3 font-serif text-2xl leading-snug text-archive-champagne sm:text-3xl">
-              “We lose people twice: first when life ends, and again when their
-              voice, perspective, lessons, and inner world disappear.”
+            <h2 className="mt-4 font-serif text-2xl leading-snug text-archive-champagne sm:text-4xl">
+              “What if death is not the meaning of life?
+              <br />
+              What if it is simply the oldest unsolved problem?”
             </h2>
-            <div className="mt-6 grid gap-6 text-base leading-8 text-archive-ivory/76">
-              <p>
-                When a life reaches its conclusion, the physical absence is immediate
-                and profound. But over the decades that follow, a second loss occurs:
-                the gradual erosion of who that person truly was. Their specific tone
-                of voice, their unique humor, their hard-won life lessons, and their
-                ways of seeing the world quietly fade from living memory.
-              </p>
-              <p>
-                Without deliberate preservation, even the most vibrant identity is
-                reduced to a few static photographs, official documents, and sparse
-                dates. Eternism begins with the conviction that human identity is too
-                rich, complex, and irreplaceable to be allowed to dissolve.
-              </p>
-            </div>
-          </div>
-        </section>
 
-        {/* Section 2: Two Fronts */}
-        <section id="two-fronts">
-          <div className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-              The Dual Mission
-            </p>
-            <h2 className="mt-3 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
-              Preserve the life. Extend the life.
-            </h2>
-            <p className="mx-auto mt-3 max-w-3xl font-serif text-base italic text-archive-champagne/90 sm:text-lg">
-              “The Life Archive preserves who we are while humanity works toward
-              preserving that we are.”
-            </p>
-          </div>
-
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-            <article className="rounded-[2rem] border border-archive-gold/22 bg-black/55 p-8 shadow-luxury">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-archive-gold">
-                Front One · Preservation Now
-              </p>
-              <h3 className="mt-3 font-serif text-2xl text-archive-ivory">
-                The Life Archive
-              </h3>
-              <p className="mt-4 text-base leading-7 text-archive-ivory/72">
-                The Life Archive works on the urgent, practical preservation of
-                identity, memory, voice, and meaning today. It provides a quiet,
-                permanent sanctuary for stories, lessons, and personal guidance
-                across a lifetime and beyond.
-              </p>
-            </article>
-
-            <article className="rounded-[2rem] border border-archive-gold/22 bg-black/55 p-8 shadow-luxury">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-archive-gold">
-                Front Two · The Long Horizon
-              </p>
-              <h3 className="mt-3 font-serif text-2xl text-archive-ivory">
-                Eternism
-              </h3>
-              <p className="mt-4 text-base leading-7 text-archive-ivory/72">
-                Eternism represents the broader philosophy and intellectual refusal
-                to accept involuntary death as humanity’s permanent, unalterable ceiling.
-                It champions the long-term work of scientific research, longevity, and
-                preserving human life itself.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        {/* Section 3: Continuity Across Time */}
-        <section id="continuity">
-          <div className="rounded-[2rem] border border-archive-gold/18 bg-black/55 p-8 sm:p-10">
-            <div className="max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-                Human Continuity
-              </p>
-              <h2 className="mt-3 font-serif text-2xl leading-snug text-archive-ivory sm:text-3xl">
-                “Even a life that lasts centuries would still need memory, context, and continuity.”
-              </h2>
-              <p className="mt-4 text-base leading-7 text-archive-ivory/72">
-                Preservation is not only for the end of life. A Living Archive can also
-                become your <strong className="font-semibold text-archive-champagne">Continuity Archive</strong>—a record of who you were, who you are, and who you are becoming across decades.
-              </p>
-            </div>
-
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {futureContinuityUses.map((use) => (
-                <article key={use.title} className="rounded-xl border border-archive-gold/14 bg-white/[0.03] p-5">
-                  <h3 className="font-serif text-lg text-archive-champagne">
-                    {use.title}
-                  </h3>
-                  <p className="mt-2.5 text-sm leading-6 text-archive-ivory/68">
-                    {use.description}
-                  </p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Section 4: What TLA Can Preserve Today */}
-        <section>
-          <div className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-              Capabilities Today
-            </p>
-            <h2 className="mt-3 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
-              What The Life Archive Can Preserve Today
-            </h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-archive-ivory/68">
-              A refined suite of media and records designed to keep human identity whole and accessible.
-            </p>
-          </div>
-
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {preservedToday.map((item) => (
-              <div key={item.title} className="rounded-xl border border-archive-gold/16 bg-black/55 p-5">
-                <h3 className="font-serif text-lg text-archive-gold">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-xs leading-5 text-archive-ivory/68">
-                  {item.description}
+            <div className="mt-8 grid gap-6 text-base leading-8 text-archive-ivory/80 md:grid-cols-2">
+              <div className="space-y-4">
+                <p>
+                  For centuries, humanity accepted infectious diseases, infant mortality,
+                  and organ failure as inevitable aspects of nature. Pain and early death
+                  were framed as divine will or cosmic balance. Then, medical science
+                  refused to surrender.
+                </p>
+                <p>
+                  Vaccines, antibiotics, surgical hygiene, and organ transplantation
+                  fundamentally redefined what society considered natural. Today, biological
+                  aging stands as the last major hurdle.
                 </p>
               </div>
+
+              <div className="space-y-4">
+                <p>
+                  Aging is not a mystical clock; it is biological machinery that degrades
+                  over time. Eternism demands that we investigate this machinery with the
+                  same scientific courage we brought to polio or heart disease.
+                </p>
+                <p>
+                  Eternism does not promise biological immortality today. Rather, it rejects
+                  surrender as a moral ideal and demands that we work toward a future where
+                  life is protected by knowledge and choice.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section: What Eternism Believes (6 Pillars) */}
+        <section id="pillars">
+          <div className="text-center">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-archive-gold">
+              The Six Pillars
+            </p>
+            <h2 className="mt-3 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
+              What Eternism Believes
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/70">
+              A clear, rational framework for extending human healthspan and safeguarding memory.
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {eternistBeliefs.map((belief) => (
+              <article
+                key={belief.number}
+                className="rounded-[2rem] border border-archive-gold/18 bg-black/50 p-6 shadow-luxury transition hover:border-archive-gold/40"
+              >
+                <span className="font-mono text-xs font-bold tracking-widest text-archive-gold/70">
+                  {belief.number}
+                </span>
+                <h3 className="mt-2 font-serif text-xl text-archive-champagne">
+                  {belief.title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-archive-ivory/72">
+                  {belief.description}
+                </p>
+              </article>
             ))}
           </div>
         </section>
 
-        {/* Section 5: What TLA Does Not Promise */}
-        <section id="preserve-and-promise">
-          <div className="rounded-[2rem] border border-archive-gold/20 bg-black/65 p-8 sm:p-10">
+        {/* Section: Eternism Is Not */}
+        <section id="is-not">
+          <div className="rounded-[2.5rem] border border-archive-gold/18 bg-black/60 p-8 sm:p-12">
             <div className="max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold">
-                Clarity &amp; Integrity
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-archive-gold">
+                Boundaries &amp; Integrity
               </p>
               <h2 className="mt-3 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
-                What The Life Archive Does Not Promise
+                What Eternism Is Not
               </h2>
-              <p className="mt-4 text-base leading-7 text-archive-ivory/72">
-                We maintain absolute transparency about our role. The Life Archive is a
-                dedicated memory and continuity platform, grounded in real technology
-                and human emotion. We do not make speculative or unproven claims.
+              <p className="mt-4 text-base leading-7 text-archive-ivory/76">
+                Eternism is grounded in medical reality and intellectual honesty. It is essential
+                to distinguish our philosophy from hype or false promises.
               </p>
             </div>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {whatTLADoesNotPromise.map((item) => (
-                <div key={item.title} className="rounded-xl border border-archive-gold/14 bg-white/[0.03] p-5">
-                  <span className="text-xs font-bold uppercase tracking-[0.14em] text-archive-gold/80">
-                    Not Offered
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {eternismIsNot.map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-archive-gold/14 bg-white/[0.03] p-5"
+                >
+                  <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold/80">
+                    Clarification
                   </span>
-                  <h3 className="mt-2 font-serif text-lg text-archive-ivory">
+                  <h3 className="mt-2 font-serif text-base text-archive-ivory">
                     {item.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-6 text-archive-ivory/64">
+                  <p className="mt-2 text-xs leading-5 text-archive-ivory/66">
                     {item.description}
                   </p>
                 </div>
               ))}
             </div>
+
+            <div className="mt-10 rounded-2xl border border-archive-gold/30 bg-archive-gold/10 p-6 text-center">
+              <p className="font-serif text-lg italic text-archive-champagne sm:text-xl">
+                “No person should be forced to die because medicine failed to arrive in time.”
+              </p>
+            </div>
           </div>
         </section>
 
-        {/* Section 6: Closing Invitation & CTA */}
-        <section className="py-8 text-center sm:py-12">
-          <div className="mx-auto max-w-3xl rounded-[2.5rem] border border-archive-gold/24 bg-black/70 p-8 shadow-luxury sm:p-12">
-            <HeartbeatLogoDivider className="py-2" />
+        {/* Section: The Bridge to The Life Archive */}
+        <section id="bridge">
+          <div className="rounded-[2.5rem] border border-archive-gold/22 bg-black/60 p-8 shadow-luxury sm:p-12">
+            <div className="text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-archive-gold">
+                The Dual Mission
+              </p>
+              <h2 className="mt-3 font-serif text-3xl leading-tight text-archive-ivory sm:text-4xl">
+                The Bridge to The Life Archive
+              </h2>
+              <p className="mx-auto mt-4 max-w-3xl font-serif text-xl italic text-archive-champagne">
+                “The Life Archive preserves the person while humanity works to preserve the life.”
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-6 text-sm leading-7 text-archive-ivory/76 md:grid-cols-2">
+              <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.02] p-6">
+                <h3 className="font-serif text-lg text-archive-gold">
+                  1. Identity is Human Continuity
+                </h3>
+                <p className="mt-2">
+                  Stories, voice, lessons, memories, and values form the true architecture of
+                  who we are. Preserving identity matters today—whether a life lasts 80 years
+                  or several centuries.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.02] p-6">
+                <h3 className="font-serif text-lg text-archive-gold">
+                  2. Living Archives Define Us Now
+                </h3>
+                <p className="mt-2">
+                  Archives are not merely memorials for the deceased. A Living Archive serves
+                  as a personal sanctuary where individuals define their values, record their
+                  authentic voice, and guide future generations today.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.02] p-6">
+                <h3 className="font-serif text-lg text-archive-gold">
+                  3. Preserving Options for the Future
+                </h3>
+                <p className="mt-2">
+                  Future technologies may interact with preserved memory data in ways impossible
+                  today. By establishing high-fidelity voice, text, and media records now, we safeguard options for tomorrow.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-archive-gold/14 bg-white/[0.02] p-6">
+                <h3 className="font-serif text-lg text-archive-gold">
+                  4. Responsible Commitment
+                </h3>
+                <p className="mt-2">
+                  The Life Archive does not make unsupported claims to recreate deceased individuals.
+                  We provide a secure, durable, and private sanctuary for authentic human memory.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section: Next Navigation CTAs */}
+        <section className="py-6 text-center">
+          <div className="mx-auto max-w-4xl rounded-[2.5rem] border border-archive-gold/24 bg-black/75 p-8 shadow-luxury sm:p-12">
             <h2 className="font-serif text-2xl leading-tight text-archive-ivory sm:text-4xl">
-              “If death remains, your story remains.
-              <br />
-              If life expands, your continuity remains.”
+              Explore the Mission &amp; Science
             </h2>
-            <p className="mt-5 text-base leading-8 text-archive-ivory/72 sm:text-lg">
-              Whether life ends too soon or stretches farther than any generation
-              before us imagined, your story should remain intact.
+            <p className="mt-4 text-sm leading-7 text-archive-ivory/74 sm:text-base">
+              Step into the Eternist Observatory to examine longevity science, read the full
+              Eternist Manifesto, or create your own Living Archive.
             </p>
-            <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link
                 href="/create"
-                className="inline-flex min-h-11 items-center justify-center rounded-full bg-archive-gold px-8 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-archive-gold px-7 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
               >
-                Begin Your Archive
+                Create Your Living Archive
               </Link>
               <Link
-                href="/"
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-8 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
+                href="/eternism/observatory"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-archive-gold/40 bg-archive-gold/14 px-7 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-champagne transition hover:border-archive-gold hover:bg-archive-gold/25 focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
               >
-                Return to Grand Hall
+                Enter Observatory
+              </Link>
+              <Link
+                href="/eternism/manifesto"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-archive-gold/30 bg-white/[0.04] px-7 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
+              >
+                Read Manifesto
+              </Link>
+              <Link
+                href="/eternism/faq"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-archive-gold/30 bg-white/[0.04] px-7 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
+              >
+                Read FAQ
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Footer */}
+        {/* Footer info */}
         <footer className="border-t border-archive-gold/14 pt-8 text-center text-xs text-archive-ivory/46">
           <p>© 2026 The Life Archive. All rights reserved.</p>
-          <p className="mt-2">Questions regarding Eternism and archive continuity can be directed to {publicSupportEmail}.</p>
+          <p className="mt-2">
+            Direct inquiries regarding Eternism and human continuity to {publicSupportEmail}.
+          </p>
         </footer>
       </div>
-    );
-  }
-
-  return (
-    <>
-      <ArchiveBuildingShell
-        image={{ ...archiveBuildingScenes.eternistObservatory, priority: true }}
-        active="eternism"
-        archiveSlug={account.defaultArchive?.slug ?? null}
-        archiveName={account.defaultArchive?.archiveName ?? null}
-        archivePersonName={account.defaultArchive?.personName ?? null}
-        showArchiveActions={Boolean(account.defaultArchive?.slug)}
-        navRegion={observatoryNavRegion}
-        sceneLabel="Eternist Observatory archive-building scene"
-      >
-        <ArchiveOverlayRegion
-          region={observatoryContentRegion}
-          className="overflow-hidden p-6 text-archive-ivory"
-          ariaLabel="Eternist Observatory Content"
-        >
-          <div className="h-full overflow-y-auto pr-3 custom-scrollbar">
-            <EternismContentBody />
-          </div>
-        </ArchiveOverlayRegion>
-      </ArchiveBuildingShell>
-
-      <ArchiveMobileScene
-        image={{ ...archiveBuildingMobileScenes.study, priority: true }}
-        sceneLabel="Eternist Observatory mobile archive room"
-        title="ETERNIST OBSERVATORY"
-        subtitle="Memory, identity, and human continuity."
-        className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
-      >
-        <div className="relative z-10 mx-auto w-full max-w-5xl pt-3">
-          <MobileArchiveHeader
-            active="eternism"
-            archiveSlug={account.defaultArchive?.slug ?? null}
-            signedIn={Boolean(account.user)}
-          />
-          <main className="relative mt-6 min-h-screen overflow-hidden rounded-3xl border border-archive-gold/18 bg-archive-obsidian/90 px-4 py-8 text-archive-ivory sm:px-8">
-            <DesignBackdrop />
-            <div className="relative z-10 mx-auto w-full max-w-5xl">
-              <EternismContentBody />
-            </div>
-          </main>
-          <SiteFooter
-            archiveSlug={account.defaultArchive?.slug ?? null}
-            signedIn={Boolean(account.user)}
-            className="mt-8 rounded-3xl"
-          />
-        </div>
-      </ArchiveMobileScene>
-    </>
+    </EternismPageShell>
   );
 }

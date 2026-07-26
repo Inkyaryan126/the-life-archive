@@ -20,6 +20,7 @@ assert.deepEqual(labels, [
   "Help for Families",
   "Build Your Legacy",
   "Preserve Their Voice",
+  "Eternism",
   "How It Works",
   "FAQ",
   "---",
