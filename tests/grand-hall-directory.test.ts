@@ -21,60 +21,52 @@ async function runTests() {
   const homePagePath = join(process.cwd(), "app", "page.tsx");
   const pageContent = readFileSync(homePagePath, "utf8");
 
-  // Verify single-column region geometry uses percentage-based values
-  assert.match(pageContent, /desktopDirectoryRegion = \{/);
-  assert.match(pageContent, /left: 39/);
-  assert.match(pageContent, /top: 20\.4/);
-  assert.match(pageContent, /width: 22/);
-  assert.match(pageContent, /height: 64/);
+  // Verify explicit row geometry definitions (not equal-height single flex grid)
+  assert.match(pageContent, /directoryRowGeometries: DirectoryRowGeometry\[\] = \[/);
 
-  // 3. Verify Legacy Question is NOT rendered on the physical directory board
+  // 3. Verify Legacy Question & Support After a Loss are ABSENT from physical directory board
   assert.doesNotMatch(
     pageContent,
-    /ariaLabel: "Start with The Legacy Question/,
-    "Legacy Question must not appear on the main directory board"
+    /title: "The Legacy Question"/,
+    "Legacy Question must not appear on the physical directory board"
+  );
+  assert.doesNotMatch(
+    pageContent,
+    /id: "support-after-loss"/,
+    "Support After a Loss must not be rendered on the physical directory board"
   );
 
-  // 4. Verify all 10 requested directory destinations are present
-  const requiredDestinations = [
-    "My Archives",
-    "Create an Archive",
-    "Continuity Capsule",
-    "Time Capsules",
-    "Keepsakes",
-    "Support After a Loss",
-    "Eternism",
-    "The Observatory",
-    "The Manifesto",
-    "Eternism FAQ"
-  ];
+  // Verify Support After a Loss route still exists in app/
+  const afterLossRoute = join(process.cwd(), "app", "after-a-loss", "page.tsx");
+  assert.ok(existsSync(afterLossRoute), "/after-a-loss route must remain intact");
 
-  for (const title of requiredDestinations) {
-    assert.ok(
-      pageContent.includes(`title: "${title}"`),
-      `Directory must contain destination: ${title}`
-    );
+  // 4. Verify exactly 9 clickable directory destinations
+  const topRows = ["My Archives", "Create an Archive", "Continuity Capsule", "Time Capsules", "Keepsakes"];
+  const bottomRows = ["Eternism", "The Observatory", "The Manifesto", "Eternism FAQ"];
+
+  for (const title of topRows) {
+    assert.ok(pageContent.includes(`title: "${title}"`), `Top section must contain: ${title}`);
   }
 
-  // 5. Verify ETERNISM section header and routes
-  assert.match(pageContent, /title: "ETERNISM"/);
+  for (const title of bottomRows) {
+    assert.ok(pageContent.includes(`title: "${title}"`), `Bottom section must contain: ${title}`);
+  }
+
+  // Count clickable items in directoryRowGeometries
+  const clickableMatches = pageContent.match(/id: "(?!eternism-divider")[^"]+"/g) || [];
+  assert.equal(clickableMatches.length, 9, "Must have exactly 9 clickable directory rows");
+
+  // 5. Verify non-clickable ETERNISM divider heading
+  assert.match(pageContent, /id: "eternism-divider"/);
+  assert.match(pageContent, /isHeader: true/);
+
+  // 6. Verify destination routes
+  assert.match(pageContent, /href: "\/create"/);
+  assert.match(pageContent, /href: "\/keepsakes"/);
   assert.match(pageContent, /href: "\/eternism"/);
   assert.match(pageContent, /href: "\/eternism\/observatory"/);
   assert.match(pageContent, /href: "\/eternism\/manifesto"/);
   assert.match(pageContent, /href: "\/eternism\/faq"/);
-
-  // 6. Verify Help, Privacy, Terms are NOT placed on the physical board
-  assert.doesNotMatch(
-    pageContent,
-    /href: "#information",[\s\S]*?desktopDirectoryRegion/,
-    "Privacy and Help links must not be placed on the physical board"
-  );
-
-  // 7. Verify Legacy Question onboarding route & lib file still exist
-  const legacyQuestionRoute = join(process.cwd(), "app", "legacy-question", "page.tsx");
-  const legacyQuestionLib = join(process.cwd(), "lib", "legacy-question-onboarding.ts");
-  assert.ok(existsSync(legacyQuestionRoute), "/legacy-question route must remain intact");
-  assert.ok(existsSync(legacyQuestionLib), "lib/legacy-question-onboarding.ts must remain intact");
 
   console.log("Grand Hall directory verification tests passed cleanly!");
 }

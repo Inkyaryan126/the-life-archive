@@ -33,20 +33,21 @@ type DirectoryEntry = {
   featured?: boolean;
 };
 
-type DesktopDirectoryEntry = {
+export type DirectoryRowGeometry = {
+  id: string;
   title: string;
   subtitle: string;
   href: string;
   ariaLabel: string;
   isHeader?: boolean;
+  top: number;
+  height: number;
+  left: number;
+  width: number;
 };
 
-const desktopDirectoryRegion = {
-  left: 39.0,
-  top: 20.4,
-  width: 22.0,
-  height: 64.0
-};
+const desktopBoardLeft = 39.0;
+const desktopBoardWidth = 22.0;
 
 function PrimaryCta({
   href,
@@ -101,83 +102,127 @@ export default async function HomePage() {
     ? "/dashboard/continuity"
     : "/login?next=%2Fdashboard%2Fcontinuity";
 
-  const directoryEntries: DirectoryEntry[] = [
+  const directoryRowGeometries: DirectoryRowGeometry[] = [
+    // Top Section (5 Rows)
     {
+      id: "my-archives",
       title: "My Archives",
+      subtitle: "Manage your life and memorial archives.",
       href: myArchivesHref,
-      description: "Manage your life and memorial archives.",
-      ariaLabel: isSignedIn ? "Open My Archives" : "Sign in to open My Archives",
-      position: { left: 39.1, top: 17.0, width: 21.2, height: 6.2 }
+      ariaLabel: "Open My Archives. Manage your life and memorial archives.",
+      top: 20.44,
+      height: 4.97,
+      left: desktopBoardLeft,
+      width: desktopBoardWidth
     },
     {
+      id: "create-archive",
       title: "Create an Archive",
+      subtitle: "Begin a new life story.",
       href: "/create",
-      description: "Begin a new life story.",
-      ariaLabel: "Create an archive",
-      position: { left: 39.1, top: 23.2, width: 21.2, height: 6.2 }
+      ariaLabel: "Create an Archive. Begin a new life story.",
+      top: 25.60,
+      height: 4.97,
+      left: desktopBoardLeft,
+      width: desktopBoardWidth
     },
     {
+      id: "continuity-capsule",
       title: "Continuity Capsule",
+      subtitle: "Define who you are becoming.",
       href: continuityHref,
-      description: "Define who you are becoming.",
-      ariaLabel: "Open Continuity Capsule",
-      position: { left: 39.1, top: 29.4, width: 21.2, height: 6.2 }
+      ariaLabel: "Open Continuity Capsule. Define who you are becoming.",
+      top: 30.76,
+      height: 4.97,
+      left: desktopBoardLeft,
+      width: desktopBoardWidth
     },
     {
+      id: "time-capsules",
       title: "Time Capsules",
+      subtitle: "Send memories into the future.",
       href: timeCapsulesHref,
-      description: "Send memories into the future.",
-      ariaLabel: "Open Time Capsules",
-      position: { left: 39.1, top: 35.6, width: 21.2, height: 6.2 }
+      ariaLabel: "Open Time Capsules. Send memories into the future.",
+      top: 35.91,
+      height: 4.97,
+      left: desktopBoardLeft,
+      width: desktopBoardWidth
     },
     {
+      id: "keepsakes",
       title: "Keepsakes",
+      subtitle: "Keep their story close.",
       href: "/keepsakes",
-      description: "Keep their story close.",
-      ariaLabel: "Visit Keepsakes",
-      position: { left: 39.1, top: 41.8, width: 21.2, height: 6.2 }
+      ariaLabel: "Visit Keepsakes. Keep their story close.",
+      top: 41.07,
+      height: 4.97,
+      left: desktopBoardLeft,
+      width: desktopBoardWidth
     },
+    // Decorative Divider (Non-clickable)
     {
-      title: "Support After a Loss",
-      href: "/after-a-loss",
-      description: "Guidance when someone is gone.",
-      ariaLabel: "Get support after a loss",
-      position: { left: 39.1, top: 48.0, width: 21.2, height: 6.2 }
+      id: "eternism-divider",
+      title: "ETERNISM",
+      subtitle: "",
+      href: "#",
+      ariaLabel: "Eternism Section Divider",
+      isHeader: true,
+      top: 46.22,
+      height: 5.52,
+      left: desktopBoardLeft,
+      width: desktopBoardWidth
     },
+    // Bottom Section (4 Rows)
     {
+      id: "eternism",
       title: "Eternism",
+      subtitle: "The practice of becoming harder to destroy.",
       href: "/eternism",
-      description: "The practice of becoming harder to destroy.",
-      ariaLabel: "Explore Eternism",
-      position: { left: 39.1, top: 58.0, width: 21.2, height: 6.2 }
+      ariaLabel: "Explore Eternism. The practice of becoming harder to destroy.",
+      top: 52.03,
+      height: 7.64,
+      left: desktopBoardLeft,
+      width: desktopBoardWidth
     },
     {
+      id: "observatory",
       title: "The Observatory",
+      subtitle: "Explore science, identity, and humanity’s future.",
       href: "/eternism/observatory",
-      description: "Explore science, identity, and humanity’s future.",
-      ariaLabel: "Open The Observatory",
-      position: { left: 39.1, top: 64.2, width: 21.2, height: 6.2 }
+      ariaLabel: "Open The Observatory. Explore science, identity, and humanity’s future.",
+      top: 59.85,
+      height: 7.55,
+      left: desktopBoardLeft,
+      width: desktopBoardWidth
     },
     {
+      id: "manifesto",
       title: "The Manifesto",
+      subtitle: "Read the philosophy and pledge.",
       href: "/eternism/manifesto",
-      description: "Read the philosophy and pledge.",
-      ariaLabel: "Read The Manifesto",
-      position: { left: 39.1, top: 70.4, width: 21.2, height: 6.2 }
+      ariaLabel: "Read The Manifesto. Read the philosophy and pledge.",
+      top: 67.59,
+      height: 7.55,
+      left: desktopBoardLeft,
+      width: desktopBoardWidth
     },
     {
+      id: "faq",
       title: "Eternism FAQ",
+      subtitle: "Understand the mission.",
       href: "/eternism/faq",
-      description: "Understand the mission.",
-      ariaLabel: "Open Eternism FAQ",
-      position: { left: 39.1, top: 76.6, width: 21.2, height: 5.8 }
+      ariaLabel: "Open Eternism FAQ. Understand the mission.",
+      top: 75.32,
+      height: 7.73,
+      left: desktopBoardLeft,
+      width: desktopBoardWidth
     }
   ];
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#070605] text-archive-ivory">
       <GrandHallHero
-        entries={directoryEntries}
+        rows={directoryRowGeometries}
         myArchivesHref={myArchivesHref}
         timeCapsulesHref={timeCapsulesHref}
         continuityHref={continuityHref}
@@ -192,87 +237,17 @@ export default async function HomePage() {
 }
 
 function GrandHallHero({
-  entries,
+  rows,
   myArchivesHref,
   timeCapsulesHref,
   continuityHref
 }: {
-  entries: DirectoryEntry[];
+  rows: DirectoryRowGeometry[];
   myArchivesHref: string;
   timeCapsulesHref: string;
   continuityHref: string;
 }) {
-  const desktopEntries: DesktopDirectoryEntry[] = [
-    {
-      title: "My Archives",
-      subtitle: "Manage your life and memorial archives.",
-      href: myArchivesHref,
-      ariaLabel: "Open My Archives. Manage your life and memorial archives."
-    },
-    {
-      title: "Create an Archive",
-      subtitle: "Begin a new life story.",
-      href: "/create",
-      ariaLabel: "Create an Archive. Begin a new life story."
-    },
-    {
-      title: "Continuity Capsule",
-      subtitle: "Define who you are becoming.",
-      href: continuityHref,
-      ariaLabel: "Open Continuity Capsule. Define who you are becoming."
-    },
-    {
-      title: "Time Capsules",
-      subtitle: "Send memories into the future.",
-      href: timeCapsulesHref,
-      ariaLabel: "Open Time Capsules. Send memories into the future."
-    },
-    {
-      title: "Keepsakes",
-      subtitle: "Keep their story close.",
-      href: "/keepsakes",
-      ariaLabel: "Visit Keepsakes. Keep their story close."
-    },
-    {
-      title: "Support After a Loss",
-      subtitle: "Guidance when someone is gone.",
-      href: "/after-a-loss",
-      ariaLabel: "Open Support After a Loss. Guidance when someone is gone."
-    },
-    {
-      title: "ETERNISM",
-      subtitle: "",
-      href: "#",
-      ariaLabel: "Eternism Section",
-      isHeader: true
-    },
-    {
-      title: "Eternism",
-      subtitle: "The practice of becoming harder to destroy.",
-      href: "/eternism",
-      ariaLabel: "Explore Eternism. The practice of becoming harder to destroy."
-    },
-    {
-      title: "The Observatory",
-      subtitle: "Explore science, identity, and humanity’s future.",
-      href: "/eternism/observatory",
-      ariaLabel: "Open The Observatory. Explore science, identity, and humanity’s future."
-    },
-    {
-      title: "The Manifesto",
-      subtitle: "Read the philosophy and pledge.",
-      href: "/eternism/manifesto",
-      ariaLabel: "Read The Manifesto. Read the philosophy and pledge."
-    },
-    {
-      title: "Eternism FAQ",
-      subtitle: "Understand the mission.",
-      href: "/eternism/faq",
-      ariaLabel: "Open Eternism FAQ. Understand the mission."
-    }
-  ];
-
-  const mobileEntries: DesktopDirectoryEntry[] = [
+  const mobileEntries = [
     {
       title: "My Archives",
       subtitle: "Manage your life and memorial archives.",
@@ -302,12 +277,6 @@ function GrandHallHero({
       subtitle: "Keep their story close.",
       href: "/keepsakes",
       ariaLabel: "Visit Keepsakes."
-    },
-    {
-      title: "Support After a Loss",
-      subtitle: "Guidance when someone is gone.",
-      href: "/after-a-loss",
-      ariaLabel: "Open Support After a Loss."
     },
     {
       title: "Eternism",
@@ -362,24 +331,62 @@ function GrandHallHero({
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(237,190,98,0.1),transparent_26%),linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.14))]"
             />
-            <div
-              className="absolute flex min-w-0 flex-col overflow-hidden px-[0.4%] py-[0.5%]"
-              style={{
-                left: `${desktopDirectoryRegion.left}%`,
-                top: `${desktopDirectoryRegion.top}%`,
-                width: `${desktopDirectoryRegion.width}%`,
-                height: `${desktopDirectoryRegion.height}%`
-              }}
-            >
-              {desktopEntries.map((entry, index) => (
-                <DesktopDirectoryRow
-                  entry={entry}
-                  index={index}
-                  isLast={index === desktopEntries.length - 1}
-                  key={entry.title}
-                />
-              ))}
-            </div>
+
+            {/* Explicit Row Overlays */}
+            {rows.map((row, index) => {
+              if (row.isHeader) {
+                return (
+                  <div
+                    key={row.id}
+                    aria-hidden="true"
+                    className="absolute flex items-center justify-center text-center overflow-hidden"
+                    style={{
+                      left: `${row.left}%`,
+                      top: `${row.top}%`,
+                      width: `${row.width}%`,
+                      height: `${row.height}%`
+                    }}
+                  >
+                    <div className="flex w-[84%] items-center gap-2">
+                      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-archive-gold/55 to-transparent" />
+                      <span className="font-serif text-[clamp(0.52rem,0.64vw,0.78rem)] font-bold uppercase tracking-[0.26em] text-archive-gold drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)]">
+                        ETERNISM
+                      </span>
+                      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-archive-gold/55 to-transparent" />
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div
+                  key={row.id}
+                  className="absolute overflow-hidden"
+                  style={{
+                    left: `${row.left}%`,
+                    top: `${row.top}%`,
+                    width: `${row.width}%`,
+                    height: `${row.height}%`,
+                    animationDelay: `${index * 25}ms`
+                  }}
+                >
+                  <Link
+                    href={row.href}
+                    aria-label={row.ariaLabel}
+                    className="group flex h-full w-full flex-col justify-center items-center overflow-hidden px-[4%] text-center transition duration-300 hover:bg-archive-gold/[0.06] focus:outline-none focus:ring-2 focus:ring-archive-gold/75"
+                  >
+                    <span className="block font-serif text-[clamp(0.52rem,0.72vw,0.88rem)] uppercase tracking-[0.075em] text-archive-ivory transition group-hover:text-archive-champagne group-hover:drop-shadow-[0_0_8px_rgba(232,207,136,0.4)] drop-shadow-[0_2px_8px_rgba(0,0,0,0.92)]">
+                      {row.title}
+                    </span>
+                    {row.subtitle ? (
+                      <span className="mx-auto mt-[0.3%] max-w-[92%] truncate text-[clamp(0.38rem,0.46vw,0.56rem)] leading-tight text-archive-ivory/68 transition group-hover:text-archive-ivory/90">
+                        {row.subtitle}
+                      </span>
+                    ) : null}
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -428,62 +435,6 @@ function GrandHallHero({
         </div>
       </section>
     </header>
-  );
-}
-
-function DesktopDirectoryRow({
-  entry,
-  index,
-  isLast
-}: {
-  entry: DesktopDirectoryEntry;
-  index: number;
-  isLast: boolean;
-}) {
-  if (entry.isHeader) {
-    return (
-      <div className="relative flex min-h-0 flex-none py-[0.8%] items-center justify-center">
-        <div className="flex w-[84%] items-center gap-2">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-archive-gold/50 to-transparent" />
-          <span className="font-serif text-[clamp(0.5rem,0.6vw,0.72rem)] font-bold uppercase tracking-[0.24em] text-archive-gold drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)]">
-            ETERNISM
-          </span>
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-archive-gold/50 to-transparent" />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="desktop-directory-row relative flex min-h-0 flex-1"
-      style={{ animationDelay: `${index * 25}ms` }}
-    >
-      <Link
-        href={entry.href}
-        aria-label={entry.ariaLabel}
-        className="group flex min-h-0 w-full flex-col justify-center overflow-hidden px-[4%] py-[0.6%] text-center transition duration-300 hover:bg-archive-gold/[0.06] focus:outline-none focus:ring-2 focus:ring-archive-gold/75"
-      >
-        <span className="block font-serif text-[clamp(0.56rem,0.74vw,0.9rem)] uppercase tracking-[0.075em] text-archive-ivory transition group-hover:text-archive-champagne group-hover:drop-shadow-[0_0_8px_rgba(232,207,136,0.4)] drop-shadow-[0_2px_8px_rgba(0,0,0,0.92)]">
-          {entry.title}
-        </span>
-        {entry.subtitle ? (
-          <span className="mx-auto mt-[0.5%] max-w-full text-[clamp(0.4rem,0.5vw,0.6rem)] leading-snug text-archive-ivory/68 transition group-hover:text-archive-ivory/90">
-            {entry.subtitle}
-          </span>
-        ) : null}
-      </Link>
-      {!isLast ? (
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-1/2 h-px w-[84%] -translate-x-1/2"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent, rgba(202, 164, 92, 0.4), transparent)"
-          }}
-        />
-      ) : null}
-    </div>
   );
 }
 
