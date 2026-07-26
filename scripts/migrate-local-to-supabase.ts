@@ -1,79 +1,97 @@
 import { createClient } from "@supabase/supabase-js";
-import { readFile } from "fs/promises";
-import path from "path";
+import { parseMigrationOptions, runLocalMigration } from "../lib/local-migration";
 
-async function migrate() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+async function main() {
+  const args = process.argv.slice(2);
 
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
-    throw new Error("Missing Supabase URL or Service Role Key");
+  if (args.includes("--help") || args.includes("-h")) {
+    console.log("Idempotent Local-to-Supabase Migration Script");
+    console.log("\nUsage:");
+    console.log("  npm run db:migrate-local -- --dry-run --owner-email <email>");
+    console.log("  npm run db:migrate-local -- --verify --owner-id <uuid>");
+    console.log("  npm run db:migrate-local -- --apply --owner-email <email> --production-confirm --confirm-plan <planHash>");
+    console.log("\nOptions:");
+    console.log("  --dry-run             Inspect local source & generate planHash without database writes");
+    console.log("  --verify              Reconcile source against destination and ledger records");
+    console.log("  --apply               Execute safe migration writes");
+    console.log("  --owner-email <email> Target user email address");
+    console.log("  --owner-id <uuid>     Target user UUID");
+    console.log("  --source <path>       Path to local JSON file (default: data/life-archive.json)");
+    console.log("  --production-confirm  Confirmation flag required for apply mode");
+    console.log("  --confirm-plan <hash> Matching plan hash generated during dry-run");
+    console.log("  --json                Output clean JSON summary block to stdout");
+    process.exit(0);
   }
 
-  const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+  let options;
 
-  const dataPath = path.join(process.cwd(), "data", "life-archive.json");
-  const rawData = await readFile(dataPath, "utf8");
-  const { archives, memories } = JSON.parse(rawData);
+  try {
+    options = parseMigrationOptions(args);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Migration Argument Error: ${message}`);
+    console.error("\nRun with --help for CLI options.");
+    process.exit(1);
+  }
 
-  // Filter out protected example seeds.
-  const seedSlugs = new Set(["dustin-sigley-2"]);
-  const archivesToMigrate = archives.filter(
-    (a: any) => !seedSlugs.has(a.slug)
-  );
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  console.log(`Migrating ${archivesToMigrate.length} archives...`);
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error("Fatal Error: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables are required.");
+    process.exit(1);
+  }
 
-  for (const archive of archivesToMigrate) {
-    const { data: archiveRow, error: archiveError } = await supabase
-      .from("archives")
-      .insert({
-        slug: archive.slug,
-        archive_name: archive.archiveName,
-        person_name: archive.personName,
-        bio: archive.bio,
-        profile_photo_url: archive.profilePhotoUrl,
-        visibility: archive.visibility,
-        memorial_mode: archive.memorialMode,
-        created_at: archive.createdAt,
-        is_demo: false, // Actual users
-        owner_id: "00000000-0000-0000-0000-000000000000", // Placeholder owner
-      })
-      .select()
-      .single();
-
-    if (archiveError) {
-      console.error(`Error migrating archive ${archive.slug}:`, archiveError);
-      continue;
+  const supabase = createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
     }
+  });
 
-    const archiveMemories = memories.filter(
-      (m: any) => m.archiveSlug === archive.slug
-    );
+  try {
+    const summary = await runLocalMigration(supabase, options);
 
-    console.log(
-      `Migrating ${archiveMemories.length} memories for ${archive.slug}...`
-    );
+    if (options.json) {
+      console.log(JSON.stringify(summary, null, 2));
+    } else {
+      console.log("\n=======================================================");
+      console.log(` THE LIFE ARCHIVE - LOCAL TO SUPABASE MIGRATION [${summary.mode.toUpperCase()}]`);
+      console.log("=======================================================");
+      console.log(`Source File        : ${summary.sourceFile}`);
+      console.log(`Target Owner ID    : ${summary.ownerId}`);
+      console.log(`Target Owner Email : ${summary.ownerEmailMasked}`);
+      console.log(`Calculated PlanHash: ${summary.planHash}`);
+      console.log("-------------------------------------------------------");
+      console.log(`Archives  - Create: ${summary.archivesCreate} | Update: ${summary.archivesUpdate} | Unchanged: ${summary.archivesUnchanged} | Conflicts: ${summary.archiveConflicts}`);
+      console.log(`Memories  - Create: ${summary.memoriesCreate} | Update: ${summary.memoriesUpdate} | Unchanged: ${summary.memoriesUnchanged} | Missing: ${summary.memoriesMissing}`);
+      console.log(`Ledger    - Creates: ${summary.ledgerCreates} | Updates: ${summary.ledgerUpdates}`);
+      console.log("-------------------------------------------------------");
+      console.log(`Status             : ${summary.status}`);
 
-    for (const memory of archiveMemories) {
-      const { error: memoryError } = await supabase.from("memories").insert({
-        archive_id: archiveRow.id,
-        title: memory.title,
-        type: memory.type,
-        content: memory.content,
-        media_url: memory.mediaUrl,
-        memory_date: memory.date,
-        tags: memory.tags,
-        created_at: memory.date,
-      });
+      if (summary.errors.length > 0) {
+        console.error("\nErrors encountered:");
+        for (const err of summary.errors) {
+          console.error(` - ${err}`);
+        }
+      }
 
-      if (memoryError) {
-        console.error(`Error migrating memory ${memory.id}:`, memoryError);
+      if (options.mode === "dry-run" && summary.status === "READY") {
+        console.log("\nTo apply this migration safely, execute:");
+        console.log(`  npm run db:migrate-local -- --apply ${options.ownerId ? `--owner-id ${options.ownerId}` : `--owner-email ${options.ownerEmail}`} --production-confirm --confirm-plan ${summary.planHash}\n`);
       }
     }
-  }
 
-  console.log("Migration complete.");
+    if (summary.status === "ERROR" || summary.status === "PLAN_MISMATCH" || summary.status === "VERIFY_FAILED" || summary.errors.length > 0) {
+      process.exit(1);
+    }
+  } catch (fatalError) {
+    const message = fatalError instanceof Error ? fatalError.message : String(fatalError);
+    console.error(`Fatal Migration Failure: ${message}`);
+    process.exit(1);
+  }
 }
 
-migrate().catch(console.error);
+if (require.main === module) {
+  main();
+}

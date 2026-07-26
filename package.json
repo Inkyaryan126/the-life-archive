@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "next lint",
+    "db:migrate-local": "ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' scripts/migrate-local-to-supabase.ts",
     "test": "set -e; for test_file in tests/*.test.ts; do ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' \"$test_file\"; done"
   },
   "dependencies": {
