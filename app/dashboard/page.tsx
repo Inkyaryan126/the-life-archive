@@ -654,18 +654,26 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               </div>
             </details>
 
-            <details className="border-t border-archive-gold/14">
+            <details className="border-t border-archive-gold/14" open>
               <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-5 text-sm font-semibold text-archive-champagne focus:outline-none focus:ring-2 focus:ring-inset focus:ring-archive-gold/70">
-                <span>Continuity &amp; Legacy</span>
+                <span>Continuity Capsule</span>
                 <span aria-hidden="true" className="text-archive-gold/70">+</span>
               </summary>
               <div className="border-t border-archive-gold/10 bg-black/24 p-4 text-xs leading-5 text-archive-ivory/70">
-                <p>
-                  A Living Archive can also become your Continuity Archive—a record of who you were, who you are, and who you are becoming.
+                <p className="font-semibold text-archive-ivory">
+                  Define who you are becoming.
                 </p>
-                <Link href="/eternism" className="mt-2 inline-block font-semibold text-archive-gold hover:underline">
-                  Learn about Eternism &amp; The Observatory →
-                </Link>
+                <p className="mt-1">
+                  Build your guided 5-stage personal continuity blueprint, identity snapshot, and growth declaration.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link href="/dashboard/continuity" className="inline-flex min-h-9 items-center rounded-full bg-archive-gold px-4 text-xs font-bold text-archive-obsidian hover:bg-archive-champagne">
+                    Build Continuity Capsule
+                  </Link>
+                  <Link href="/eternism/continuity" className="inline-flex min-h-9 items-center rounded-full border border-archive-gold/30 px-3 text-xs font-semibold text-archive-ivory hover:border-archive-gold">
+                    Learn Philosophy
+                  </Link>
+                </div>
               </div>
             </details>
 

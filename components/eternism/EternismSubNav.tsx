@@ -7,6 +7,7 @@ const navItems = [
   { href: "/eternism", label: "Overview" },
   { href: "/eternism/observatory", label: "Observatory" },
   { href: "/eternism/manifesto", label: "Manifesto" },
+  { href: "/eternism/continuity", label: "Continuity Capsule" },
   { href: "/eternism/faq", label: "FAQ" }
 ];
 
