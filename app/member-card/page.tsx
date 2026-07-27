@@ -1,9 +1,7 @@
 import Link from "next/link";
-import {
- headers } from "next/headers";
-import { MemberCard } from "@/components/MemberCard";
+import { headers } from "next/headers";
+import { MemberCard, MemberCardFront, MemberCardBack } from "@/components/MemberCard";
 import { MemberCardActions } from "@/components/MemberCardActions";
-import { DesignBackdrop } from "@/components/SiteDesign";
 import {
   generateQrSvg,
   getRequestSiteUrl,
@@ -81,20 +79,21 @@ function MemberCardSidePreview({
   createdYear
 }: MemberCardSidePreviewProps) {
   return (
-    <div
-      className={`flex h-full w-full items-center justify-center overflow-hidden ${
-        side === "front"
-          ? "[&_.member-card-back]:hidden"
-          : "[&_.member-card-front]:hidden"
-      } [&_.member-card-face>img]:!object-contain [&_.member-card-face]:!h-full [&_.member-card-face]:!w-auto [&_.member-card-face]:!max-w-full [&_.member-card-face]:!rounded-[0.55rem] [&_.member-card-print-area]:!flex [&_.member-card-print-area]:!h-full [&_.member-card-print-area]:!w-full [&_.member-card-print-area]:!items-center [&_.member-card-print-area]:!justify-center [&_.member-card-print-area]:!gap-0`}
-    >
-      <MemberCard
-        hasArchive={hasArchive}
-        memberName={memberName}
-        qrSrc={qrSrc}
-        legacyActivationCode={legacyActivationCode}
-        createdYear={createdYear}
-      />
+    <div className="flex h-full w-full items-center justify-center p-1">
+      {side === "front" ? (
+        <MemberCardFront
+          memberName={memberName}
+          createdYear={createdYear}
+          className="!h-full !w-auto !max-w-full !rounded-[0.55rem]"
+        />
+      ) : (
+        <MemberCardBack
+          hasArchive={hasArchive}
+          qrSrc={qrSrc}
+          legacyActivationCode={legacyActivationCode}
+          className="!h-full !w-auto !max-w-full !rounded-[0.55rem]"
+        />
+      )}
     </div>
   );
 }
@@ -219,7 +218,7 @@ export default async function MemberCardPage({
           className="flex items-center justify-center overflow-hidden"
           ariaLabel="Member card actions"
         >
-          <div className="h-full w-full [&>div]:grid [&>div]:h-full [&>div]:w-full [&>div]:grid-cols-[167fr_197fr_197fr_174fr] [&>div]:gap-0 [&>div]:overflow-hidden [&>div>div]:contents [&_a]:flex [&_a]:h-full [&_a]:min-w-0 [&_a]:items-center [&_a]:justify-center [&_a]:whitespace-nowrap [&_a]:rounded-none [&_a]:border-0 [&_a]:px-1 [&_a]:py-0 [&_a]:text-[clamp(0.42rem,0.64vw,0.72rem)] [&_a]:tracking-[0.06em] [&_button]:h-full [&_button]:min-w-0 [&_button]:whitespace-nowrap [&_button]:rounded-none [&_button]:border-0 [&_button]:px-1 [&_button]:py-0 [&_button]:text-[clamp(0.42rem,0.64vw,0.72rem)] [&_button]:tracking-[0.06em]">
+          <div className="flex h-full w-full items-center justify-center p-1">
             <MemberCardActions
               continueHref={continueHref}
               continueLabel={continueLabel}
@@ -236,145 +235,147 @@ export default async function MemberCardPage({
         subtitle={"Your archive, carried with you."}
         className="px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] sm:px-6"
       >
-<div className="no-print relative mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
-        <AppSidebar
-          active="member-card"
-          archiveSlug={livingArchive.slug}
-          archiveName={livingArchive.archiveName}
-          archivePersonName={livingArchive.personName}
-          showArchiveActions={Boolean(livingArchive.slug)}
-        />
+        <div className="no-print relative mx-auto w-full max-w-[96rem] lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
+          <AppSidebar
+            active="member-card"
+            archiveSlug={livingArchive.slug}
+            archiveName={livingArchive.archiveName}
+            archivePersonName={livingArchive.personName}
+            showArchiveActions={Boolean(livingArchive.slug)}
+          />
 
-        <div className="min-w-0">
-          <div className="no-print relative pt-2 lg:hidden">
-            <MobileArchiveHeader
-              active="member-card"
-              archiveSlug={livingArchive.slug}
-              signedIn={Boolean(user)}
-            />
-          </div>
-
-          <section className="no-print relative mx-auto max-w-3xl pb-10 pt-14 text-center sm:pt-20">
-            {isNewMember ? (
-              <SuccessMessage
-                eyebrow="Your membership begins here"
-                message="Your place in The Life Archive is confirmed. This card is the first promise that your story can remain within reach."
+          <div className="min-w-0">
+            <div className="no-print relative pt-2 lg:hidden">
+              <MobileArchiveHeader
+                active="member-card"
+                archiveSlug={livingArchive.slug}
+                signedIn={Boolean(user)}
               />
-            ) : null}
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-              {isNewMember
-                ? "This card carries a promise"
-                : "Keep their story within reach"}
-            </p>
-            <h1 className="mt-5 font-serif text-4xl leading-tight sm:text-6xl">
-              {isNewMember
-                ? "A life should leave behind more than a name and two dates."
-                : "Carry what matters with you."}
-            </h1>
-            <p className="mt-4 font-serif text-xl italic text-archive-champagne sm:text-2xl">
-              {isNewMember
-                ? "Your stories, voice, lessons, and love deserve a way home."
-                : "A simple card can lead loved ones back to a lifetime of memories."}
-            </p>
-            <p className="mx-auto mt-7 max-w-2xl text-sm leading-7 text-archive-ivory/68 sm:text-base sm:leading-8">
-              {isNewMember
-                ? "Once you create your archive, this card becomes a path back to what you chose to preserve. Print it. Carry it. Keep it where someone you love can find it. Years from now, one scan may open the door to the memories that still sound and feel like you."
-                : "This card is intended to be printed and kept in your wallet. If something ever happens to you before you’ve shared your archive with loved ones, it can help them find the memories, stories, and legacy you chose to preserve."}
-            </p>
-
-            {confirmationPending ? (
-              <p className="mx-auto mt-6 max-w-xl rounded-xl border border-archive-gold/30 bg-archive-gold/10 px-5 py-4 text-sm leading-6 text-archive-champagne">
-                Check your email to confirm your account. After confirmation,
-                this card can connect directly to your archive.
-              </p>
-            ) : null}
-          </section>
-
-          <div className="member-card-print-shell relative mx-auto max-w-[34rem]">
-            <MemberCard
-              hasArchive={hasArchive}
-              memberName={memberName}
-              qrSrc={svgToDataUri(qrSvg)}
-              legacyActivationCode={legacyActivationCode}
-              createdYear={createdYear}
-            />
-          </div>
-
-          <div className="no-print relative mx-auto mt-10 max-w-3xl">
-            <MemberCardActions
-              continueHref={continueHref}
-              continueLabel={continueLabel}
-            />
-            <p className="mx-auto mt-4 max-w-2xl text-center text-xs leading-6 text-archive-ivory/55">
-              If you want to print the card on both sides of one piece of
-              paper, use Front Only and Back Only separately so you can match
-              the two faces in your printer.
-            </p>
-            {livingArchive ? (
-              <p className="mx-auto mt-5 max-w-xl text-center text-sm leading-6 text-archive-ivory/60">
-                {livingArchive.visibility === "public"
-                  ? "This card opens a public archive that anyone can view. Public archives may also appear on The Life Archive homepage."
-                  : "This card opens a private archive. Only you and authorized members can view it after signing in."}
-              </p>
-            ) : null}
-          </div>
-
-          <aside className="no-print relative mx-auto mt-16 max-w-4xl rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-6 text-center sm:p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-              Keep the story close
-            </p>
-            <h2 className="mt-3 font-serif text-2xl sm:text-3xl">
-              Made to carry. Ready to share.
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/60">
-              Print this card, keep it in a wallet, or share the archive link
-              with the people who should always be able to find it.
-            </p>
-            <div className="mt-6 flex flex-wrap justify-center gap-2 text-xs uppercase tracking-[0.15em] text-archive-champagne/75">
-              <span className="rounded-full border border-archive-gold/20 px-4 py-2">
-                Wallet card
-              </span>
-              <span className="rounded-full border border-archive-gold/20 px-4 py-2">
-                Archive QR
-              </span>
-              <span className="rounded-full border border-archive-gold/20 px-4 py-2">
-                Shareable link
-              </span>
-              <span className="rounded-full border border-archive-gold/20 px-4 py-2">
-                A story kept close
-              </span>
             </div>
-          </aside>
 
-          <section className="no-print relative mx-auto mt-12 max-w-4xl border-t border-archive-gold/15 pt-12">
-            <div className="relative overflow-hidden rounded-[2rem] border border-archive-gold/15 bg-gradient-to-b from-white/[0.03] to-transparent p-8 text-center shadow-luxury backdrop-blur-[2px] sm:p-10">
-              <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-archive-gold/5 blur-3xl" />
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-                Premium Keepsake Option
+            <section className="no-print relative mx-auto max-w-3xl pb-10 pt-14 text-center sm:pt-20">
+              {isNewMember ? (
+                <SuccessMessage
+                  eyebrow="Your membership begins here"
+                  message="Your place in The Life Archive is confirmed. This card is the first promise that your story can remain within reach."
+                />
+              ) : null}
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
+                {isNewMember
+                  ? "This card carries a promise"
+                  : "Keep their story within reach"}
               </p>
-              <h2 className="mb-4 font-serif text-2xl leading-tight text-archive-ivory sm:text-3xl">
-                The Life Archive Memory Card
+              <h1 className="mt-5 font-serif text-4xl leading-tight sm:text-6xl">
+                {isNewMember
+                  ? "A life should leave behind more than a name and two dates."
+                  : "Carry what matters with you."}
+              </h1>
+              <p className="mt-4 font-serif text-xl italic text-archive-champagne sm:text-2xl">
+                {isNewMember
+                  ? "Your stories, voice, lessons, and love deserve a way home."
+                  : "A simple card can lead loved ones back to a lifetime of memories."}
+              </p>
+              <p className="mx-auto mt-7 max-w-2xl text-sm leading-7 text-archive-ivory/68 sm:text-base sm:leading-8">
+                {isNewMember
+                  ? "Once you create your archive, this card becomes a path back to what you chose to preserve. Print it. Carry it. Keep it where someone you love can find it. Years from now, one scan may open the door to the memories that still sound and feel like you."
+                  : "This card is intended to be printed and kept in your wallet. If something ever happens to you before you’ve shared your archive with loved ones, it can help them find the memories, stories, and legacy you chose to preserve."}
+              </p>
+
+              {confirmationPending ? (
+                <p className="mx-auto mt-6 max-w-xl rounded-xl border border-archive-gold/30 bg-archive-gold/10 px-5 py-4 text-sm leading-6 text-archive-champagne">
+                  Check your email to confirm your account. After confirmation,
+                  this card can connect directly to your archive.
+                </p>
+              ) : null}
+            </section>
+
+            {/* Canonical Member Card Print Shell */}
+            <div className="member-card-print-shell relative mx-auto max-w-[34rem]">
+              <MemberCard
+                hasArchive={hasArchive}
+                memberName={memberName}
+                qrSrc={svgToDataUri(qrSvg)}
+                legacyActivationCode={legacyActivationCode}
+                createdYear={createdYear}
+                side="both"
+              />
+            </div>
+
+            <div className="no-print relative mx-auto mt-10 max-w-3xl">
+              <MemberCardActions
+                continueHref={continueHref}
+                continueLabel={continueLabel}
+              />
+              <p className="mx-auto mt-4 max-w-2xl text-center text-xs leading-6 text-archive-ivory/55">
+                If you want to print the card on both sides of one piece of
+                paper, use Front Only and Back Only separately so you can match
+                the two faces in your printer.
+              </p>
+              {livingArchive ? (
+                <p className="mx-auto mt-5 max-w-xl text-center text-sm leading-6 text-archive-ivory/60">
+                  {livingArchive.visibility === "public"
+                    ? "This card opens a public archive that anyone can view. Public archives may also appear on The Life Archive homepage."
+                    : "This card opens a private archive. Only you and authorized members can view it after signing in."}
+                </p>
+              ) : null}
+            </div>
+
+            <aside className="no-print relative mx-auto mt-16 max-w-4xl rounded-2xl border border-archive-gold/20 bg-white/[0.035] p-6 text-center sm:p-8">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+                Keep the story close
+              </p>
+              <h2 className="mt-3 font-serif text-2xl sm:text-3xl">
+                Made to carry. Ready to share.
               </h2>
-              <p className="mx-auto mb-4 max-w-2xl text-sm leading-7 text-archive-ivory/68">
-                Order a heavier, more permanent card connected to this same
-                archive. We confirm the QR, name treatment, and finish before
-                production.
+              <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-archive-ivory/60">
+                Print this card, keep it in a wallet, or share the archive link
+                with the people who should always be able to find it.
               </p>
-              <Link
-                href="/keepsakes"
-                className="mb-5 inline-flex rounded-full border border-archive-gold/30 bg-white/[0.04] px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
-              >
-                View Keepsake Store
-              </Link>
-              <p className="text-xs italic font-serif text-archive-gold/80">
-                &ldquo;Constructed to endure centuries of touch, holding your
-                living legacy with physical weight.&rdquo;
-              </p>
-            </div>
-          </section>
-          <SiteFooter archiveSlug={livingArchive.slug} signedIn={Boolean(user)} className="no-print mt-12" />
+              <div className="mt-6 flex flex-wrap justify-center gap-2 text-xs uppercase tracking-[0.15em] text-archive-champagne/75">
+                <span className="rounded-full border border-archive-gold/20 px-4 py-2">
+                  Wallet card
+                </span>
+                <span className="rounded-full border border-archive-gold/20 px-4 py-2">
+                  Archive QR
+                </span>
+                <span className="rounded-full border border-archive-gold/20 px-4 py-2">
+                  Shareable link
+                </span>
+                <span className="rounded-full border border-archive-gold/20 px-4 py-2">
+                  A story kept close
+                </span>
+              </div>
+            </aside>
+
+            <section className="no-print relative mx-auto mt-12 max-w-4xl border-t border-archive-gold/15 pt-12">
+              <div className="relative overflow-hidden rounded-[2rem] border border-archive-gold/15 bg-gradient-to-b from-white/[0.03] to-transparent p-8 text-center shadow-luxury backdrop-blur-[2px] sm:p-10">
+                <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-archive-gold/5 blur-3xl" />
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
+                  Premium Keepsake Option
+                </p>
+                <h2 className="mb-4 font-serif text-2xl leading-tight text-archive-ivory sm:text-3xl">
+                  The Life Archive Memory Card
+                </h2>
+                <p className="mx-auto mb-4 max-w-2xl text-sm leading-7 text-archive-ivory/68">
+                  Order a heavier, more permanent card connected to this same
+                  archive. We confirm the QR, name treatment, and finish before
+                  production.
+                </p>
+                <Link
+                  href="/keepsakes"
+                  className="mb-5 inline-flex rounded-full border border-archive-gold/30 bg-white/[0.04] px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
+                >
+                  View Keepsake Store
+                </Link>
+                <p className="text-xs italic font-serif text-archive-gold/80">
+                  &ldquo;Constructed to endure centuries of touch, holding your
+                  living legacy with physical weight.&rdquo;
+                </p>
+              </div>
+            </section>
+            <SiteFooter archiveSlug={livingArchive.slug} signedIn={Boolean(user)} className="no-print mt-12" />
+          </div>
         </div>
-      </div>
       </ArchiveMobileScene>
       <AuthenticatedMobileBottomNavigation
         activeArchiveSlug={livingArchive?.slug ?? account.defaultArchive?.slug ?? account.archives[0]?.slug ?? null}
