@@ -442,7 +442,7 @@ export default async function ArchivePage({
                 Carry This Story Anywhere
               </h4>
               <p className="mt-2 text-sm leading-6 text-archive-ivory/62">
-                Turn this digital sanctuary into a physical wallet card, keychain, pendant, or brass plaque. Hand-finished keys of remembrance.
+                Turn this digital sanctuary into a physical wallet card, keychain, pendant, or engraved slate plaque. Hand-finished keepsakes made to carry their story beyond the screen.
               </p>
               <Link
                 href="/keepsakes"
