@@ -226,3 +226,41 @@ export async function recordSuccessfulEmailQuota(email: string): Promise<void> {
     });
   }
 }
+
+export async function checkRateLimit(input: {
+  identifier: string;
+  limit: number;
+  windowSeconds: number;
+}): Promise<{ allowed: boolean }> {
+  const secret = getHashSecret();
+  if (!secret) {
+    return { allowed: true };
+  }
+
+  const rateKey = computeHmac(input.identifier, secret);
+  const checks: RateLimitCheckItem[] = [
+    {
+      rate_key: rateKey,
+      action_type: "general",
+      max_requests: input.limit,
+      window_seconds: input.windowSeconds
+    }
+  ];
+
+  try {
+    const { createAdminClient } = require("./supabase/admin");
+    const supabase = createAdminClient();
+    const { data, error } = await supabase.rpc("check_and_record_visitor_rate_limits", {
+      p_checks: checks
+    });
+
+    if (error || !data) {
+      return { allowed: true };
+    }
+
+    const row = Array.isArray(data) ? data[0] : data;
+    return { allowed: Boolean(row?.allowed ?? true) };
+  } catch {
+    return { allowed: true };
+  }
+}

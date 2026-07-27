@@ -12,7 +12,8 @@ type AppSidebarProps = {
     | "add-memory"
     | "edit"
     | "qr"
-    | "legacy-instructions";
+    | "legacy-instructions"
+    | "contributors";
   archiveSlug?: string | null;
   archiveName?: string | null;
   archivePersonName?: string | null;
@@ -100,6 +101,7 @@ export function AppSidebar({
               />
               <SidebarLink href={`${archiveHref}/qr`} label="QR Keepsake" active={active === "qr"} />
               <SidebarLink href={`${archiveHref}/legacy-instructions`} label="Legacy Instructions" active={active === "legacy-instructions"} />
+              <SidebarLink href={`${archiveHref}/contributors`} label="Contributors" active={active === "contributors"} />
               <SidebarLink href={`${archiveHref}/edit`} label="Edit Archive" active={active === "edit"} />
               <SidebarLink href={archiveHref} label="Share Archive" active={false} />
             </>

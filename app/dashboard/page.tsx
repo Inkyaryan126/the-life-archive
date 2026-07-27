@@ -1039,6 +1039,45 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     </div>
                   </section>
                 ) : null}
+
+                {account.sharedArchives && account.sharedArchives.length > 0 ? (
+                  <section className="mt-12">
+                    <div className="flex flex-wrap items-end justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-archive-gold">Collaborative Access</p>
+                        <h2 className="mt-2 font-serif text-2xl sm:text-3xl text-archive-ivory">Archives Shared With Me</h2>
+                      </div>
+                    </div>
+                    <div className="mt-5 grid gap-3">
+                      {account.sharedArchives.map((shared) => (
+                        <article key={shared.slug} className="rounded-2xl border border-archive-gold/18 bg-white/[0.035] p-5 shadow-luxury">
+                          <div className="flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="rounded-full bg-archive-gold/14 border border-archive-gold/30 px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-archive-champagne">
+                                  Contributor
+                                </span>
+                                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-archive-gold">{shared.personName}</span>
+                              </div>
+                              <h3 className="mt-2 font-serif text-xl leading-tight text-archive-ivory">{shared.archiveName}</h3>
+                              <p className="mt-1 text-sm text-archive-ivory/52">
+                                {shared.memorialMode ? "Memorial Archive" : "Living Archive"}
+                              </p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              <Link href={`/archive/${shared.slug}`} className="rounded-full bg-archive-gold px-4 py-2 text-xs font-bold text-archive-obsidian transition hover:bg-archive-champagne">
+                                Open Archive
+                              </Link>
+                              <Link href={`/archive/${shared.slug}/add-memory`} className="rounded-full border border-archive-gold/30 bg-black/40 px-4 py-2 text-xs font-semibold text-archive-ivory transition hover:border-archive-gold">
+                                Add Memory
+                              </Link>
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
               </>
             ) : null}
           </div>

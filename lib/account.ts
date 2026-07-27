@@ -22,6 +22,7 @@ export type AccountArchive = {
   memorialActivatedBy: string | null;
   relationshipToOwner: ArchiveRelationshipToOwner;
   createdAt: string;
+  isShared?: boolean;
 };
 
 export type AccountContext = {
@@ -35,6 +36,7 @@ export type AccountContext = {
   } | null;
   profile: PublicProfile | null;
   archives: AccountArchive[];
+  sharedArchives: AccountArchive[];
   defaultArchive: AccountArchive | null;
   // Temporary compatibility alias for consumers that still expect one archive.
   archive: AccountArchive | null;
@@ -54,6 +56,7 @@ export async function getAccountContext(): Promise<AccountContext> {
       user: null,
       profile: null,
       archives: [],
+      sharedArchives: [],
       defaultArchive: null,
       archive: null,
       archiveLookupFailed: false,
@@ -72,6 +75,7 @@ export async function getAccountContext(): Promise<AccountContext> {
       user: null,
       profile: null,
       archives: [],
+      sharedArchives: [],
       defaultArchive: null,
       archive: null,
       archiveLookupFailed: false,
@@ -84,6 +88,11 @@ export async function getAccountContext(): Promise<AccountContext> {
     .select("*")
     .eq("owner_id", user.id)
     .order("created_at", { ascending: true });
+
+  const { data: memberRows } = await (supabase
+    .from("archive_members" as any) as any)
+    .select("archive_id, role, archives(*)")
+    .eq("user_id", user.id);
 
   const { data: profileRow, error: profileError } = await supabase
     .from("profiles")
@@ -109,8 +118,33 @@ export async function getAccountContext(): Promise<AccountContext> {
     relationshipToOwner: normalizeArchiveRelationshipToOwner(
       archive.relationship_to_owner
     ),
-    createdAt: archive.created_at
+    createdAt: archive.created_at,
+    isShared: false
   }));
+
+  const sharedArchives: AccountArchive[] = (memberRows ?? [])
+    .filter((member: any) => member.archives && member.archives.owner_id !== user.id)
+    .map((member: any) => {
+      const archive = member.archives;
+      return {
+        slug: archive.slug,
+        archiveName: archive.archive_name,
+        personName: archive.person_name,
+        visibility: archive.visibility as ArchiveVisibility,
+        memorialMode: archive.memorial_mode,
+        legacyActivationCode: archive.legacy_activation_code ?? null,
+        legacyCodeUsedAt: archive.legacy_code_used_at ?? null,
+        legacyActivatedBy: archive.legacy_activated_by ?? null,
+        memorialActivatedAt: archive.memorial_activated_at ?? null,
+        memorialActivatedBy: archive.memorial_activated_by ?? null,
+        relationshipToOwner: normalizeArchiveRelationshipToOwner(
+          archive.relationship_to_owner
+        ),
+        createdAt: archive.created_at,
+        isShared: true
+      };
+    });
+
   const defaultArchive =
     archives.find((archive) => archive.relationshipToOwner === "self") ?? null;
   const profile: PublicProfile | null = profileRow
@@ -146,6 +180,7 @@ export async function getAccountContext(): Promise<AccountContext> {
     },
     profile,
     archives,
+    sharedArchives,
     defaultArchive,
     archive: defaultArchive,
     archiveLookupFailed: Boolean(archiveError),
@@ -162,6 +197,10 @@ export async function canCurrentUserAddMemory(
   }
 
   if (account.archives.some((archive) => archive.slug === archiveSlug)) {
+    return true;
+  }
+
+  if (account.sharedArchives?.some((archive) => archive.slug === archiveSlug)) {
     return true;
   }
 
@@ -183,5 +222,9 @@ export async function canCurrentUserAddMemory(
     .eq("user_id", account.user.id)
     .maybeSingle();
 
-  return membership?.role === "editor";
+  return Boolean(
+    membership?.role === "editor" ||
+      membership?.role === "contributor" ||
+      membership?.role === "manager"
+  );
 }

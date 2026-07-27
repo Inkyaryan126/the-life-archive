@@ -159,6 +159,12 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
             {loading ? "Preserving..." : "Save Archive Changes"}
           </button>
           <Link
+            href={`/archive/${archive.slug}/contributors`}
+            className="flex items-center rounded-full border border-archive-gold/30 bg-black/40 px-6 py-3 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:bg-white/[0.06]"
+          >
+            Manage Contributors
+          </Link>
+          <Link
             href={`/archive/${archive.slug}`}
             className="flex items-center rounded-full border border-white/10 bg-white/[0.02] px-6 py-3 text-sm font-semibold text-archive-ivory transition hover:bg-white/[0.06]"
           >

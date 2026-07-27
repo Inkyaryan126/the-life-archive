@@ -62,6 +62,8 @@ export type Memory = {
   photoPath?: string | null;
   date: string;
   tags: string[];
+  createdBy?: string | null;
+  createdByDisplayName?: string | null;
 };
 
 export type VisitorMessage = {

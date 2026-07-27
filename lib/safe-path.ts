@@ -1,8 +1,10 @@
 const defaultAllowedPrefixes = [
   "/dashboard",
+  "/archive",
   "/claim",
   "/create",
   "/forgot-password",
+  "/invite",
   "/login",
   "/reset-password"
 ];

@@ -107,6 +107,7 @@ type MemoryRow = {
   photo_path: string | null;
   memory_date: string;
   tags: string[];
+  created_by?: string | null;
 };
 
 type VoiceUploadDiagnosticStage =
@@ -267,7 +268,8 @@ async function mapMemoryRowWithResolvedMedia(
     ),
     photoPath: row.photo_path,
     date: row.memory_date,
-    tags: row.tags
+    tags: row.tags,
+    createdBy: row.created_by ?? null
   };
 }
 
