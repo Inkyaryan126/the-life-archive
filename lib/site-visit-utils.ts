@@ -48,6 +48,14 @@ export type ClassifiableVisit = {
   isAdmin?: boolean;
 };
 
+export type JourneyStep = {
+  id: string;
+  path: string;
+  createdAt: string;
+  durationMs: number | null;
+  durationFormatted: string;
+};
+
 export type RecentSiteVisit = {
   id: string;
   path: string;
@@ -57,6 +65,12 @@ export type RecentSiteVisit = {
   createdAt: string;
   visitorStatus: VisitorStatus;
   visitorDisplayName: string;
+  userEmail: string | null;
+  userDisplayName: string | null;
+  isCurrentUser: boolean;
+  isMultiPage: boolean;
+  totalSessionDurationMs: number;
+  totalSessionDurationFormatted: string;
   location: string;
   totalPageViews: number;
   firstSeenAt: string | null;
@@ -65,6 +79,7 @@ export type RecentSiteVisit = {
     path: string;
     createdAt: string;
   }>;
+  journeySteps: JourneyStep[];
 };
 
 export type BotProbeVisit = {
@@ -88,6 +103,8 @@ export type SiteVisitStats = {
   uniqueVisitorsSinceTrackingBegan: number;
   newVisitorsLast30Days: number;
   returningVisitorsLast30Days: number;
+  multiPageVisitorsLast30Days: number;
+  signedInVisitorsLast30Days: number;
   botProbeRequestsLast30Days: number;
   adminRequestsLast30Days: number;
   visitorIdTrackingStartedAt: string | null;
@@ -110,19 +127,28 @@ export type SiteVisitRow = {
   visitor_city: string | null;
   visitor_region: string | null;
   visitor_country: string | null;
+  user_email?: string | null;
+  user_display_name?: string | null;
   created_at: string;
 };
 
 type VisitorSummary = {
   displayName: string;
+  userEmail: string | null;
+  userDisplayName: string | null;
+  isCurrentUser: boolean;
+  isMultiPage: boolean;
+  totalSessionDurationMs: number;
+  totalSessionDurationFormatted: string;
   location: string;
-  totalPageViews: number;
   firstSeenAt: string | null;
+  totalPageViews: number;
   recentPages: Array<{
     id: string;
     path: string;
     createdAt: string;
   }>;
+  journeySteps: JourneyStep[];
 };
 
 const visitorDateTimeFormatter = new Intl.DateTimeFormat("en-US", {
@@ -432,9 +458,9 @@ export function formatReferrerSource(referrer: string | null | undefined) {
 
 function getRowLocation(row: SiteVisitRow): VisitorLocation {
   return {
-    city: row.visitor_city,
-    region: row.visitor_region,
-    country: row.visitor_country
+    city: row.visitor_city ?? null,
+    region: row.visitor_region ?? null,
+    country: row.visitor_country ?? null
   };
 }
 
@@ -476,43 +502,129 @@ function getVisitorIdTrackingStartedAt(rows: SiteVisitRow[]) {
   );
 }
 
-function getVisitorSummaryById(rows: SiteVisitRow[]) {
+export function formatDurationMs(ms: number | null): string {
+  if (ms === null || !Number.isFinite(ms) || ms < 0) {
+    return "Active / Current page";
+  }
+
+  if (ms < 1000) {
+    return "<1s";
+  }
+
+  const totalSeconds = Math.floor(ms / 1000);
+
+  if (totalSeconds < 60) {
+    return `${totalSeconds}s`;
+  }
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainingSeconds = totalSeconds % 60;
+
+  if (minutes >= 60) {
+    const hours = (minutes / 60).toFixed(1);
+    return `${hours}h`;
+  }
+
+  return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+}
+
+function getVisitorSummaryById(
+  rows: SiteVisitRow[],
+  currentAdminEmail?: string | null,
+  currentAdminName?: string | null
+) {
   const rowsByVisitorId = new Map<string, SiteVisitRow[]>();
 
   for (const row of rows) {
-    if (!row.anonymous_visitor_id) {
-      continue;
-    }
-
-    rowsByVisitorId.set(row.anonymous_visitor_id, [
-      ...(rowsByVisitorId.get(row.anonymous_visitor_id) ?? []),
-      row
-    ]);
+    const key = row.anonymous_visitor_id || row.user_email || `row-${row.id}`;
+    rowsByVisitorId.set(key, [...(rowsByVisitorId.get(key) ?? []), row]);
   }
 
   return new Map(
-    Array.from(rowsByVisitorId.entries()).map(([visitorId, visitorRows]) => {
-      const sortedRows = [...visitorRows].sort(
+    Array.from(rowsByVisitorId.entries()).map(([visitorKey, visitorRows]) => {
+      // Sort chronologically ascending to build step-by-step movement path and durations
+      const ascRows = [...visitorRows].sort(
         (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       );
-      const latestRow = sortedRows[0];
-      const oldestRow = sortedRows[sortedRows.length - 1];
+      const descRows = [...ascRows].reverse();
+
+      const latestRow = descRows[0];
+      const oldestRow = ascRows[0];
+
+      // Determine signed-in user identity & recognition ("Is this me?")
+      const userEmail = ascRows.find((r) => r.user_email)?.user_email ?? null;
+      const userDisplayName =
+        ascRows.find((r) => r.user_display_name)?.user_display_name ?? null;
+      const isAdminSession = ascRows.some((r) => r.is_admin);
+
+      const isCurrentUser = Boolean(
+        (currentAdminEmail &&
+          userEmail &&
+          userEmail.toLowerCase() === currentAdminEmail.toLowerCase()) ||
+          (isAdminSession && currentAdminName)
+      );
+
+      const displayName = isCurrentUser
+        ? `★ ${currentAdminName || userDisplayName || "Inky Aryan"} (You)`
+        : userDisplayName
+          ? `👤 ${userDisplayName}`
+          : userEmail
+            ? `👤 ${userEmail}`
+            : getVisitorDisplayName(visitorKey);
+
+      // Build step-by-step journey with exact duration spent on each page
+      const journeySteps: JourneyStep[] = ascRows.map((row, idx) => {
+        let durationMs: number | null = null;
+
+        if (idx < ascRows.length - 1) {
+          durationMs = Math.max(
+            0,
+            new Date(ascRows[idx + 1].created_at).getTime() -
+              new Date(row.created_at).getTime()
+          );
+        }
+
+        return {
+          id: row.id,
+          path: row.path,
+          createdAt: row.created_at,
+          durationMs,
+          durationFormatted: formatDurationMs(durationMs)
+        };
+      });
+
+      // Total session duration calculation
+      const oldestTime = new Date(oldestRow.created_at).getTime();
+      const latestTime = new Date(latestRow.created_at).getTime();
+      const totalSessionDurationMs = Math.max(0, latestTime - oldestTime);
+      const totalSessionDurationFormatted =
+        totalSessionDurationMs > 0
+          ? formatDurationMs(totalSessionDurationMs)
+          : "Just started";
+
       const summary: VisitorSummary = {
-        displayName: getVisitorDisplayName(visitorId),
+        displayName,
+        userEmail,
+        userDisplayName,
+        isCurrentUser,
+        isMultiPage: visitorRows.length > 1,
+        totalSessionDurationMs,
+        totalSessionDurationFormatted,
         location: latestRow
           ? formatVisitorLocation(getRowLocation(latestRow))
           : "Unknown location",
         firstSeenAt: oldestRow?.created_at ?? latestRow?.created_at ?? null,
         totalPageViews: visitorRows.length,
-        recentPages: sortedRows.slice(0, 4).map((row) => ({
+        recentPages: descRows.slice(0, 6).map((row) => ({
           id: row.id,
           path: row.path,
           createdAt: row.created_at
-        }))
+        })),
+        journeySteps
       };
 
-      return [visitorId, summary];
+      return [visitorKey, summary];
     })
   );
 }
@@ -522,9 +634,8 @@ function toRecentVisit(
   firstVisitByVisitorId: Map<string, string>,
   visitorSummaryById: Map<string, VisitorSummary>
 ): RecentSiteVisit {
-  const visitorSummary = row.anonymous_visitor_id
-    ? visitorSummaryById.get(row.anonymous_visitor_id)
-    : null;
+  const visitorKey = row.anonymous_visitor_id || row.user_email || `row-${row.id}`;
+  const visitorSummary = visitorSummaryById.get(visitorKey);
 
   return {
     id: row.id,
@@ -541,6 +652,14 @@ function toRecentVisit(
     visitorDisplayName:
       visitorSummary?.displayName ??
       getVisitorDisplayName(row.anonymous_visitor_id),
+    userEmail: visitorSummary?.userEmail ?? row.user_email ?? null,
+    userDisplayName:
+      visitorSummary?.userDisplayName ?? row.user_display_name ?? null,
+    isCurrentUser: visitorSummary?.isCurrentUser ?? false,
+    isMultiPage: visitorSummary?.isMultiPage ?? false,
+    totalSessionDurationMs: visitorSummary?.totalSessionDurationMs ?? 0,
+    totalSessionDurationFormatted:
+      visitorSummary?.totalSessionDurationFormatted ?? "Just started",
     location: visitorSummary?.location ?? formatVisitorLocation(getRowLocation(row)),
     totalPageViews: visitorSummary?.totalPageViews ?? 1,
     firstSeenAt: visitorSummary?.firstSeenAt ?? row.created_at,
@@ -551,7 +670,16 @@ function toRecentVisit(
           path: row.path,
           createdAt: row.created_at
         }
-      ]
+      ],
+    journeySteps: visitorSummary?.journeySteps ?? [
+      {
+        id: row.id,
+        path: row.path,
+        createdAt: row.created_at,
+        durationMs: null,
+        durationFormatted: "Active / Current page"
+      }
+    ]
   };
 }
 
@@ -608,6 +736,8 @@ function getVisitorWindowSummary(
 export function summarizeSiteVisitRows(input: {
   allRows: SiteVisitRow[];
   recentRows: SiteVisitRow[];
+  currentAdminEmail?: string | null;
+  currentAdminName?: string | null;
   now?: Date;
 }): SiteVisitStats {
   const now = input.now ?? new Date();
@@ -635,7 +765,11 @@ export function summarizeSiteVisitRows(input: {
   );
   const firstVisitByVisitorId = getFirstVisitByVisitorId(allHumanRows);
   const visitorIdTrackingStartedAt = getVisitorIdTrackingStartedAt(allHumanRows);
-  const visitorSummaryById = getVisitorSummaryById(allHumanRows);
+  const visitorSummaryById = getVisitorSummaryById(
+    allHumanRows,
+    input.currentAdminEmail,
+    input.currentAdminName
+  );
   const visitorWindowSummary = getVisitorWindowSummary(
     firstVisitByVisitorId,
     recentHumanRows,
@@ -660,6 +794,14 @@ export function summarizeSiteVisitRows(input: {
       .filter((id): id is string => Boolean(id))
   ).size;
 
+  const multiPageVisitorsLast30Days = Array.from(
+    visitorSummaryById.values()
+  ).filter((s) => s.isMultiPage).length;
+
+  const signedInVisitorsLast30Days = Array.from(
+    visitorSummaryById.values()
+  ).filter((s) => Boolean(s.userEmail)).length;
+
   return {
     totalPublicVisits: allHumanRows.length,
     visitsToday: uniqueVisitorsToday,
@@ -674,6 +816,8 @@ export function summarizeSiteVisitRows(input: {
     uniqueVisitorsSinceTrackingBegan: firstVisitByVisitorId.size,
     newVisitorsLast30Days: visitorWindowSummary.newVisitors,
     returningVisitorsLast30Days: visitorWindowSummary.returningVisitors,
+    multiPageVisitorsLast30Days,
+    signedInVisitorsLast30Days,
     botProbeRequestsLast30Days: recentBotProbeRows.length,
     adminRequestsLast30Days: recentAdminRows.length,
     visitorIdTrackingStartedAt,
@@ -681,7 +825,7 @@ export function summarizeSiteVisitRows(input: {
       ? toRecentVisit(recentHumanRows[0], firstVisitByVisitorId, visitorSummaryById)
       : null,
     recentVisits: recentHumanRows
-      .slice(0, 25)
+      .slice(0, 30)
       .map((row) =>
         toRecentVisit(row, firstVisitByVisitorId, visitorSummaryById)
       ),
@@ -761,14 +905,51 @@ export function formatVisitorAnalyticsRelativeTime(
 export function getApproximateVisitorLocation(
   headers: Pick<Headers, "get">
 ): VisitorLocation {
-  return {
-    city: getDecodedLocationValue(headers.get("x-vercel-ip-city")),
-    region: getDecodedLocationValue(headers.get("x-vercel-ip-country-region")),
-    country: getDecodedLocationValue(
-      headers.get("x-vercel-ip-country") ?? headers.get("cf-ipcountry"),
+  const city =
+    getDecodedLocationValue(headers.get("x-vercel-ip-city")) ||
+    getDecodedLocationValue(headers.get("cf-ipcity")) ||
+    getDecodedLocationValue(headers.get("x-appengine-city")) ||
+    getDecodedLocationValue(headers.get("x-geo-city"));
+
+  const region =
+    getDecodedLocationValue(headers.get("x-vercel-ip-country-region")) ||
+    getDecodedLocationValue(headers.get("cf-region")) ||
+    getDecodedLocationValue(headers.get("x-appengine-region")) ||
+    getDecodedLocationValue(headers.get("x-geo-region"));
+
+  const country =
+    getDecodedLocationValue(
+      headers.get("x-vercel-ip-country") ??
+        headers.get("cf-ipcountry") ??
+        headers.get("x-appengine-country") ??
+        headers.get("x-geo-country"),
       80
-    )
-  };
+    );
+
+  if (city || region || country) {
+    return { city, region, country };
+  }
+
+  // Detect local development or admin workstation loopback
+  const host = headers.get("host") || "";
+  const forwardedFor = headers.get("x-forwarded-for") || "";
+  const realIp = headers.get("x-real-ip") || "";
+
+  if (
+    host.includes("localhost") ||
+    host.includes("127.0.0.1") ||
+    forwardedFor.includes("127.0.0.1") ||
+    realIp === "127.0.0.1" ||
+    realIp === "::1"
+  ) {
+    return {
+      city: "Local Workstation",
+      region: "Dev Environment",
+      country: "Admin HQ"
+    };
+  }
+
+  return { city: null, region: null, country: null };
 }
 
 export function formatVisitorLocation(location: VisitorLocation) {

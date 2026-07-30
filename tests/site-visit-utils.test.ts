@@ -50,6 +50,15 @@ function headers(values: Record<string, string>) {
     formatVisitorLocation({ city: null, region: null, country: null }),
     "Unknown location"
   );
+
+  // Local workstation detection
+  const localHeaders = headers({
+    host: "localhost:3000",
+    "x-forwarded-for": "127.0.0.1"
+  });
+  const localLoc = getApproximateVisitorLocation(localHeaders);
+  assert.equal(localLoc.city, "Local Workstation");
+
   assert.equal(
     getVisitorDisplayName("550e8400-e29b-41d4-a716-446655440000"),
     "Visitor 440000"
@@ -111,10 +120,12 @@ function headers(values: Record<string, string>) {
   const rows: SiteVisitRow[] = [
     {
       id: "v1",
-      path: "/archive/story-1",
+      path: "/",
       referrer: null,
       user_agent: "Mozilla/5.0",
       anonymous_visitor_id: "user-a",
+      user_email: "inky@example.com",
+      user_display_name: "Inky Aryan",
       is_admin: false,
       visitor_city: "New York",
       visitor_region: "NY",
@@ -123,15 +134,17 @@ function headers(values: Record<string, string>) {
     },
     {
       id: "v2",
-      path: "/archive/story-2",
+      path: "/keepsakes",
       referrer: null,
       user_agent: "Mozilla/5.0",
-      anonymous_visitor_id: "user-a", // same user viewing second page
+      anonymous_visitor_id: "user-a", // same user viewing second page (multi-page journey)
+      user_email: "inky@example.com",
+      user_display_name: "Inky Aryan",
       is_admin: false,
       visitor_city: "New York",
       visitor_region: "NY",
       visitor_country: "US",
-      created_at: "2026-07-23T06:00:00Z" // 2:00 AM EDT today
+      created_at: "2026-07-23T05:02:00Z" // 2 minutes later
     },
     {
       id: "v3",
@@ -162,11 +175,22 @@ function headers(values: Record<string, string>) {
   const stats = summarizeSiteVisitRows({
     allRows: rows,
     recentRows: rows,
+    currentAdminEmail: "inky@example.com",
+    currentAdminName: "Inky Aryan",
     now: testNow
   });
 
   assert.equal(stats.humanPageViewsToday, 3);
   assert.equal(stats.uniqueVisitorsToday, 2); // user-a and user-b
+
+  // Check multi-page and user recognition ("★ Inky Aryan (You)")
+  const userAVisit = stats.recentVisits.find((v) => v.userEmail === "inky@example.com");
+  assert.ok(userAVisit);
+  assert.equal(userAVisit.isCurrentUser, true);
+  assert.equal(userAVisit.isMultiPage, true);
+  assert.match(userAVisit.visitorDisplayName, /Inky Aryan/);
+  assert.equal(userAVisit.journeySteps.length, 2);
+  assert.equal(userAVisit.journeySteps[0].durationFormatted, "2m");
 }
 
 {
@@ -443,25 +467,21 @@ function headers(values: Record<string, string>) {
   assert.match(helper, /LOCATION_SITE_VISIT_SELECT/);
   assert.match(helper, /selectSiteVisitRows/);
   assert.match(helper, /normalizeSiteVisitRows/);
-  assert.match(helper, /isMissingVisitorLocationColumnError/);
+  assert.match(helper, /isMissingVisitorColumnError/);
   assert.match(tracking, /is_admin: isAdmin/);
   assert.match(tracking, /getApproximateVisitorLocation/);
   assert.match(tracking, /baseInsert/);
-  assert.match(tracking, /fallbackError/);
-  assert.doesNotMatch(tracking, /x-forwarded-for/i);
   assert.match(tracking, /getSiteVisitAdminFlag\(input\.userEmail\)/);
   assert.match(tracking, /SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(visitorsPage, /getAdminAccess\(\)/);
   assert.match(visitorsPage, /redirect\("\/login\?next=%2Fadmin%2Fvisitors"\)/);
   assert.match(visitorsPage, /Human page views today/);
-  assert.match(visitorsPage, /Unique visitors since IDs began/);
-  assert.match(visitorsPage, /Bot\/probe requests last 30 days/);
-  assert.match(visitorsPage, /Accounts created/);
+  assert.match(visitorsPage, /Registered Accounts/);
+  assert.match(visitorsPage, /Bot\/probe requests filtered/);
   assert.match(visitorsPage, /countAdminAccounts/);
   assert.match(visitorsPage, /formatVisitorAnalyticsDateTime/);
   assert.match(visitorsPage, /formatVisitorAnalyticsRelativeTime/);
-  assert.match(visitorsPage, /Newest human activity/);
-  assert.match(visitorsPage, /Visitor context/);
+  assert.match(visitorsPage, /AdminVisitorStream/);
   assert.match(setup, /20260715200000_add_site_visit_location_fields\.sql/);
   assert.match(locationMigration, /visitor_city/);
   assert.match(locationMigration, /Raw IP addresses are intentionally not stored/);

@@ -70,22 +70,22 @@ function StatCard({
   badge?: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury transition hover:border-archive-gold/25">
+    <div className="relative overflow-hidden rounded-2xl border border-archive-gold/18 bg-[#171511]/80 p-5 shadow-luxury transition hover:border-archive-gold/35">
       <div className="flex items-center justify-between">
-        <p className="text-xs uppercase tracking-[0.18em] text-archive-ivory/50">
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-archive-gold/90">
           {label}
         </p>
         {badge ? (
-          <span className="rounded-full border border-archive-gold/25 bg-archive-gold/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-archive-gold">
+          <span className="rounded-full border border-archive-gold/30 bg-archive-gold/15 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-archive-gold shadow-soft">
             {badge}
           </span>
         ) : null}
       </div>
-      <p className="mt-3 font-serif text-4xl text-archive-gold">
+      <p className="mt-3 font-serif text-4xl text-archive-ivory">
         {typeof value === "number" ? value.toLocaleString("en-US") : value}
       </p>
       {detail ? (
-        <p className="mt-2 text-xs leading-5 text-archive-ivory/55">{detail}</p>
+        <p className="mt-2 text-xs leading-5 text-archive-ivory/60">{detail}</p>
       ) : null}
     </div>
   );
@@ -99,27 +99,30 @@ function SiteVisitSection({ stats }: { stats: SiteVisitStats }) {
     : "No human page views yet.";
 
   return (
-    <section className="mb-10 rounded-2xl border border-archive-gold/14 bg-white/[0.02] p-6 shadow-luxury">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-archive-gold/10 pb-4">
+    <section className="mb-10 rounded-3xl border border-archive-gold/20 bg-[#171511]/90 p-6 shadow-luxury backdrop-blur-md sm:p-8">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-archive-gold/15 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-              Live Visitor Traffic Analytics
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+            </span>
+            <p className="text-xs font-bold uppercase tracking-[0.28em] text-archive-gold">
+              Live Visitor Movement Radar
             </p>
           </div>
           <h2 className="mt-2 font-serif text-3xl text-archive-ivory">
-            Human Site Activity
+            Site Intelligence & Movement
           </h2>
-          <p className="mt-1 text-xs text-archive-ivory/58">
-            Timezone normalized to {VISITOR_ANALYTICS_TIME_ZONE} · Most recent: {latestHumanVisit}
+          <p className="mt-1 text-xs text-archive-ivory/60">
+            Timezone: {VISITOR_ANALYTICS_TIME_ZONE} · Latest: {latestHumanVisit}
           </p>
         </div>
         <Link
           href="/admin/visitors"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-archive-gold underline-offset-4 hover:underline"
+          className="inline-flex items-center gap-2 rounded-xl border border-archive-gold/30 bg-archive-gold/15 px-4 py-2 text-xs font-bold text-archive-gold transition hover:bg-archive-gold hover:text-archive-obsidian"
         >
-          View Full Traffic Analytics &rarr;
+          View Interactive Movement Radar &rarr;
         </Link>
       </div>
 
@@ -127,42 +130,48 @@ function SiteVisitSection({ stats }: { stats: SiteVisitStats }) {
         <StatCard
           label="Unique Visitors Today"
           value={stats.uniqueVisitorsToday}
-          detail="Individual human visitors observed today"
-          badge="Today"
+          detail="Human visitors observed today"
+          badge="Live Today"
         />
         <StatCard
           label="Human Page Views Today"
           value={stats.humanPageViewsToday}
           detail="Total pages viewed today"
-          badge="Today"
+          badge="Live Today"
         />
         <StatCard
-          label="Unique Visitors (7 Days)"
-          value={stats.uniqueVisitorsLast7Days}
-          detail={`${stats.humanPageViewsLast7Days.toLocaleString("en-US")} total page views`}
+          label="Multi-Page Journeys (30d)"
+          value={stats.multiPageVisitorsLast30Days}
+          detail="Visitors navigating 2+ pages"
+          badge="Explorers"
         />
         <StatCard
           label="Total Public Visits"
           value={stats.totalPublicVisits}
-          detail="Lifetime verified human page views"
+          detail="Lifetime verified human views"
         />
       </div>
 
-      <div className="mt-6 rounded-xl border border-archive-gold/10 bg-archive-obsidian/40 p-4">
-        <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-archive-champagne">
-          Top Active Pages Today & Recent
-        </h3>
+      <div className="mt-6 rounded-2xl border border-archive-gold/15 bg-black/40 p-5">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-archive-gold">
+            Top Active Paths & Page Views
+          </h3>
+          <span className="text-[10px] text-archive-ivory/50">
+            Ranked by total page views
+          </span>
+        </div>
         {stats.topPaths.length > 0 ? (
-          <div className="mt-3 divide-y divide-archive-gold/10">
+          <div className="mt-4 divide-y divide-archive-gold/10">
             {stats.topPaths.map((path) => (
               <div
                 key={path.path}
                 className="flex flex-col gap-1 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between"
               >
-                <span className="break-all font-mono text-xs text-archive-champagne">
+                <span className="break-all font-mono text-xs text-archive-champagne font-semibold">
                   {path.path}
                 </span>
-                <span className="text-xs text-archive-ivory/60">
+                <span className="font-mono text-xs font-bold text-archive-gold">
                   {path.visitCount.toLocaleString("en-US")} views
                 </span>
               </div>
@@ -180,7 +189,7 @@ function SiteVisitSection({ stats }: { stats: SiteVisitStats }) {
 
 function OrderCard({ order }: { order: KeepsakeOrder }) {
   return (
-    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury transition hover:border-archive-gold/25">
+    <article className="rounded-2xl border border-archive-gold/18 bg-[#171511]/80 p-5 shadow-luxury transition hover:border-archive-gold/35">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -296,7 +305,7 @@ function LegacyActivationCard({
   const isPending = request.status === "pending_memorial_review";
 
   return (
-    <article className="rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 shadow-luxury transition hover:border-archive-gold/25">
+    <article className="rounded-2xl border border-archive-gold/18 bg-[#171511]/80 p-5 shadow-luxury transition hover:border-archive-gold/35">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <span className="rounded-full border border-archive-gold/25 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-archive-champagne">
@@ -365,7 +374,7 @@ export default async function AdminPage({
           <Link href="/">
             <SiteLogo width={160} height={40} />
           </Link>
-          <section className="mt-16 rounded-2xl border border-archive-gold/18 bg-white/[0.035] p-8 shadow-luxury">
+          <section className="mt-16 rounded-3xl border border-archive-gold/20 bg-white/[0.035] p-8 shadow-luxury">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
               Admin
             </p>
@@ -397,6 +406,8 @@ export default async function AdminPage({
     uniqueVisitorsSinceTrackingBegan: 0,
     newVisitorsLast30Days: 0,
     returningVisitorsLast30Days: 0,
+    multiPageVisitorsLast30Days: 0,
+    signedInVisitorsLast30Days: 0,
     botProbeRequestsLast30Days: 0,
     adminRequestsLast30Days: 0,
     visitorIdTrackingStartedAt: null,
@@ -411,7 +422,10 @@ export default async function AdminPage({
     [orders, legacyActivations, siteVisitStats] = await Promise.all([
       listKeepsakeOrders(),
       listLegacyActivationRequests(),
-      getSiteVisitStats()
+      getSiteVisitStats({
+        currentAdminEmail: account.user.email,
+        currentAdminName: account.user.displayName
+      })
     ]);
   } catch (error) {
     loadError =
@@ -441,15 +455,31 @@ export default async function AdminPage({
         />
 
         <header className="py-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-archive-gold">
-            Executive Control Center
-          </p>
-          <h1 className="mt-3 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
-            Admin Dashboard
-          </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-archive-ivory/68">
-            Fulfillment operations, legacy memorial reviews, revenue metrics, and real-time site visitor intelligence.
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.28em] text-archive-gold">
+                Executive Control Center
+              </p>
+              <h1 className="mt-3 font-serif text-5xl leading-tight text-archive-ivory sm:text-6xl">
+                Welcome back, {account.user.displayName || "Inky Aryan"}
+              </h1>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-archive-ivory/70">
+                Fulfillment operations, legacy memorial reviews, revenue metrics, and real-time site visitor intelligence.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-amber-400/40 bg-amber-400/10 p-4 shadow-luxury">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-amber-200">
+                ★ Signed-in Admin
+              </p>
+              <p className="mt-1 font-serif text-xl font-medium text-archive-ivory">
+                {account.user.displayName || "Inky Aryan"}
+              </p>
+              <p className="text-xs text-archive-champagne/80">
+                {account.user.email}
+              </p>
+            </div>
+          </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
@@ -477,33 +507,6 @@ export default async function AdminPage({
             />
           </div>
         </header>
-
-        <section className="mb-8 grid gap-4 rounded-2xl border border-archive-gold/14 bg-white/[0.025] p-5 sm:grid-cols-3">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Signed in Administrator
-            </p>
-            <p className="mt-1 font-serif text-xl text-archive-ivory">
-              {account.user?.displayName ?? "Archive Member"}
-            </p>
-          </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Email Address
-            </p>
-            <p className="mt-1 break-all text-sm text-archive-ivory/74">
-              {account.user?.email ?? "Email unavailable"}
-            </p>
-          </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-archive-gold">
-              Administrator ID
-            </p>
-            <p className="mt-1 break-all text-xs font-mono text-archive-ivory/60">
-              {account.user?.id ?? "Unavailable"}
-            </p>
-          </div>
-        </section>
 
         {params?.success ? (
           <p className="mb-6 rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4 text-sm text-emerald-100">

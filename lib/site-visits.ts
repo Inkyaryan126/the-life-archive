@@ -22,22 +22,30 @@ export { summarizeSiteVisitRows };
 const MAX_ANALYTICS_ROWS = 10_000;
 const BASE_SITE_VISIT_SELECT =
   "id,path,referrer,user_agent,anonymous_visitor_id,is_admin,created_at";
+const FULL_SITE_VISIT_SELECT =
+  "id,path,referrer,user_agent,anonymous_visitor_id,is_admin,visitor_city,visitor_region,visitor_country,user_email,user_display_name,created_at";
 const LOCATION_SITE_VISIT_SELECT =
   "id,path,referrer,user_agent,anonymous_visitor_id,is_admin,visitor_city,visitor_region,visitor_country,created_at";
 
 type RawSiteVisitRow = Omit<
   SiteVisitRow,
-  "visitor_city" | "visitor_region" | "visitor_country"
+  "visitor_city" | "visitor_region" | "visitor_country" | "user_email" | "user_display_name"
 > &
   Partial<
-    Pick<SiteVisitRow, "visitor_city" | "visitor_region" | "visitor_country">
+    Pick<
+      SiteVisitRow,
+      "visitor_city" | "visitor_region" | "visitor_country" | "user_email" | "user_display_name"
+    >
   >;
 
 function getSiteVisitClient() {
   return createAdminClient() as SupabaseClient<any, "public", any>;
 }
 
-export async function getSiteVisitStats(): Promise<SiteVisitStats> {
+export async function getSiteVisitStats(options?: {
+  currentAdminEmail?: string | null;
+  currentAdminName?: string | null;
+}): Promise<SiteVisitStats> {
   const supabase = getSiteVisitClient();
   const last30Days = new Date();
   last30Days.setDate(last30Days.getDate() - 30);
@@ -53,7 +61,9 @@ export async function getSiteVisitStats(): Promise<SiteVisitStats> {
 
   const stats = summarizeSiteVisitRows({
     allRows,
-    recentRows
+    recentRows,
+    currentAdminEmail: options?.currentAdminEmail,
+    currentAdminName: options?.currentAdminName
   });
 
   if (countResult.count !== null && countResult.count > stats.totalPublicVisits) {
@@ -67,6 +77,18 @@ async function selectSiteVisitRows(
   supabase: SupabaseClient<any, "public", any>,
   since?: string
 ) {
+  const fullQuery = supabase
+    .from("site_visits")
+    .select(FULL_SITE_VISIT_SELECT)
+    .order("created_at", { ascending: false })
+    .limit(MAX_ANALYTICS_ROWS);
+
+  const fullResult = since ? await fullQuery.gte("created_at", since) : await fullQuery;
+
+  if (!fullResult.error) {
+    return normalizeSiteVisitRows((fullResult.data ?? []) as RawSiteVisitRow[]);
+  }
+
   const query = supabase
     .from("site_visits")
     .select(LOCATION_SITE_VISIT_SELECT)
@@ -78,7 +100,7 @@ async function selectSiteVisitRows(
     return normalizeSiteVisitRows((result.data ?? []) as RawSiteVisitRow[]);
   }
 
-  if (!isMissingVisitorLocationColumnError(result.error)) {
+  if (!isMissingVisitorColumnError(result.error)) {
     throw new Error(result.error.message);
   }
 
@@ -105,14 +127,16 @@ function normalizeSiteVisitRows(rows: RawSiteVisitRow[]): SiteVisitRow[] {
     ...row,
     visitor_city: row.visitor_city ?? null,
     visitor_region: row.visitor_region ?? null,
-    visitor_country: row.visitor_country ?? null
+    visitor_country: row.visitor_country ?? null,
+    user_email: row.user_email ?? null,
+    user_display_name: row.user_display_name ?? null
   }));
 }
 
-function isMissingVisitorLocationColumnError(error: { code?: string; message?: string }) {
+function isMissingVisitorColumnError(error: { code?: string; message?: string }) {
   return (
     error.code === "42703" ||
     error.code === "PGRST204" ||
-    /visitor_(city|region|country)/i.test(error.message ?? "")
+    /visitor_|user_/i.test(error.message ?? "")
   );
 }

@@ -78,6 +78,7 @@ export async function recordSiteVisit(input: {
     : createVisitorId();
   const isAdmin = getSiteVisitAdminFlag(input.userEmail);
   const location = getApproximateVisitorLocation(input.request.headers);
+
   const baseInsert = {
     path,
     referrer: getSafeHeaderValue(input.request.headers.get("referer"), 500),
@@ -85,30 +86,49 @@ export async function recordSiteVisit(input: {
     is_admin: isAdmin,
     anonymous_visitor_id: visitorId
   };
+
   const supabase = getSiteVisitInsertClient(input.supabase);
 
+  // Try inserting with full location & user email fields first
   const { error } = await supabase
     .from("site_visits")
     .insert({
       ...baseInsert,
+      user_email: input.userEmail,
       visitor_city: location.city,
       visitor_region: location.region,
       visitor_country: location.country
     });
 
   if (error) {
-    if (!isMissingVisitorLocationColumnError(error)) {
+    if (!isMissingColumnError(error)) {
       console.error("Unable to record site visit:", error.message);
       return;
     }
 
-    const { error: fallbackError } = await supabase
-      .from("site_visits")
-      .insert(baseInsert);
+    // Fallback try with location only
+    const { error: locError } = await supabase.from("site_visits").insert({
+      ...baseInsert,
+      visitor_city: location.city,
+      visitor_region: location.region,
+      visitor_country: location.country
+    });
 
-    if (fallbackError) {
-      console.error("Unable to record site visit:", fallbackError.message);
-      return;
+    if (locError) {
+      if (!isMissingColumnError(locError)) {
+        console.error("Unable to record site visit:", locError.message);
+        return;
+      }
+
+      // Minimal fallback insert
+      const { error: fallbackError } = await supabase
+        .from("site_visits")
+        .insert(baseInsert);
+
+      if (fallbackError) {
+        console.error("Unable to record site visit:", fallbackError.message);
+        return;
+      }
     }
   }
 
@@ -129,13 +149,10 @@ export async function recordSiteVisit(input: {
   });
 }
 
-function isMissingVisitorLocationColumnError(error: {
-  code?: string;
-  message?: string;
-}) {
+function isMissingColumnError(error: { code?: string; message?: string }) {
   return (
     error.code === "42703" ||
     error.code === "PGRST204" ||
-    /visitor_(city|region|country)/i.test(error.message ?? "")
+    /visitor_|user_/i.test(error.message ?? "")
   );
 }
