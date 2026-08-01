@@ -52,6 +52,74 @@ export type LegacyInstruction = {
   updatedAt: string;
 };
 
+export type ServicePreference =
+  | "funeral"
+  | "memorial"
+  | "celebration_of_life"
+  | "private_gathering"
+  | "no_formal_service"
+  | "undecided"
+  | "custom";
+
+export type DispositionPreference =
+  | "burial"
+  | "cremation"
+  | "donation"
+  | "green_burial"
+  | "undecided"
+  | "custom";
+
+export type FinalWishSong = {
+  id: string;
+  finalWishesId?: string;
+  archiveId: string;
+  title: string;
+  artist?: string | null;
+  url?: string | null;
+  notes?: string | null;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type FinalWishes = {
+  id: string;
+  archiveId: string;
+  archiveSlug?: string;
+  userId: string;
+  servicePreference?: ServicePreference | null;
+  serviceCustomDescription?: string | null;
+  serviceLocation?: string | null;
+  traditions?: string | null;
+  serviceTone?: string | null;
+  serviceInstructions?: string | null;
+  dispositionPreference?: DispositionPreference | null;
+  dispositionLocation?: string | null;
+  ashesInstructions?: string | null;
+  donationNotes?: string | null;
+  dispositionInstructions?: string | null;
+  firstContact?: string | null;
+  preferredOfficiant?: string | null;
+  pallbearerSuggestions?: string | null;
+  peopleToInvolve?: string | null;
+  peopleNotResponsible?: string | null;
+  responsibilityNotes?: string | null;
+  obituaryName?: string | null;
+  obituaryRelationships?: string | null;
+  obituaryAccomplishments?: string | null;
+  obituaryCauses?: string | null;
+  obituaryNotes?: string | null;
+  obituaryExclusions?: string | null;
+  clothingPreference?: string | null;
+  displayPreferences?: string | null;
+  gatheringPreferences?: string | null;
+  finalMessage?: string | null;
+  additionalWishes?: string | null;
+  songs: FinalWishSong[];
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type Memory = {
   id: string;
   archiveSlug: string;
@@ -79,6 +147,7 @@ export type ArchiveStore = {
   memories: Memory[];
   legacyInstructions: LegacyInstruction[];
   visitorMessages?: VisitorMessage[];
+  finalWishes?: FinalWishes[];
 };
 
 export type SharePassStatus = "active" | "disabled" | "revoked";

@@ -13,6 +13,7 @@ type AppSidebarProps = {
     | "edit"
     | "qr"
     | "legacy-instructions"
+    | "final-wishes"
     | "contributors";
   archiveSlug?: string | null;
   archiveName?: string | null;
@@ -82,6 +83,7 @@ export function AppSidebar({
             Main
           </p>
           <SidebarLink href="/dashboard" label="My Archives" active={active === "dashboard"} />
+          <SidebarLink href="/dashboard/final-wishes" label="Final Wishes" active={active === "final-wishes"} />
           <SidebarLink href="/dashboard/settings" label="Profile Settings" active={active === "settings"} />
           <SidebarLink href="/dashboard/time-capsules" label="Time Capsules" active={active === "time-capsules"} />
           <SidebarLink href="/member-card" label="Member Card" active={active === "member-card"} />

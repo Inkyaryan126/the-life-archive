@@ -173,7 +173,7 @@ const domains: ObservatoryDomain[] = [
 
 export default function EternistObservatoryPage() {
   return (
-    <EternismPageShell>
+    <EternismPageShell variant="observatory">
       <div className="space-y-12">
         {/* Header */}
         <header className="text-center">

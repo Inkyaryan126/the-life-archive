@@ -18,7 +18,8 @@ export type ArchiveBuildingNavActive =
   | "how-it-works"
   | "faq"
   | "settings"
-  | "legacy-question";
+  | "legacy-question"
+  | "final-wishes";
 
 export type ArchiveBuildingMenuLink = {
   active: ArchiveBuildingNavActive;
@@ -60,6 +61,9 @@ export function getNavGroupedItems(
   const settingsHref = signedIn
     ? "/dashboard/settings"
     : "/login?next=%2Fdashboard%2Fsettings";
+  const finalWishesHref = signedIn
+    ? "/dashboard/final-wishes"
+    : "/login?next=%2Fdashboard%2Ffinal-wishes";
 
   return [
     {
@@ -70,6 +74,13 @@ export function getNavGroupedItems(
           href: dashboardHref,
           label: "My Archives",
           active: "dashboard",
+          requiresAuth: true
+        },
+        {
+          kind: "link",
+          href: finalWishesHref,
+          label: "Final Wishes",
+          active: "final-wishes",
           requiresAuth: true
         },
         { kind: "link", href: "/", label: "Grand Hall", active: "grand-hall" }

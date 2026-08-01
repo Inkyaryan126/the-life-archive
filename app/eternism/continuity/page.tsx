@@ -84,7 +84,7 @@ const healthspanDomains = [
 
 export default function EternismContinuityPublicPage() {
   return (
-    <EternismPageShell>
+    <EternismPageShell variant="continuity">
       <div className="space-y-14">
         {/* Hero Section */}
         <header className="text-center">

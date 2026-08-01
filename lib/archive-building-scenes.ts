@@ -9,6 +9,11 @@ export const archiveBuildingScenes = {
     width: 1535,
     height: 1024
   },
+  finalWishes: {
+    src: "/images/archive-building/final-wishes.png",
+    width: 1535,
+    height: 1024
+  },
   addVoiceSound: {
     src: "/images/archive-building/add-voice-sound.png",
     width: 1535,

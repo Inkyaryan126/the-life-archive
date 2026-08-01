@@ -6,28 +6,38 @@ import { ShareableQuote } from "@/components/eternism/ShareableQuote";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "The Eternist Manifesto | The Life Archive",
+  title: "The Eternist Manifesto | Preserve the Life. Extend the Life. | The Life Archive",
   description:
-    "A declaration on aging, involuntary death, memory, and the moral duty to extend human life.",
+    "A declaration for preserving identity, resisting involuntary death, creating a self worth preserving, and building a future shaped by science, dignity, and conscious evolution.",
   openGraph: {
-    title: "The Eternist Manifesto | The Life Archive",
+    title: "The Eternist Manifesto | Preserve the Life. Extend the Life.",
     description:
-      "A declaration on aging, involuntary death, memory, and the moral duty to extend human life."
+      "A declaration for preserving identity, resisting involuntary death, creating a self worth preserving, and building a future shaped by science, dignity, and conscious evolution."
   },
   twitter: {
     card: "summary",
     title: "The Eternist Manifesto | The Life Archive",
     description:
-      "A declaration on aging, involuntary death, memory, and the moral duty to extend human life."
+      "A declaration for preserving identity, resisting involuntary death, creating a self worth preserving, and building a future shaped by science, dignity, and conscious evolution."
   }
 };
 
-const manifestoPledge =
-  "We will preserve what we are. We will extend what we can. We will not call surrender wisdom. We will build toward a future where life is protected by choice, knowledge, and courage.";
+const shortPledge = `We will preserve what we are.
+We will extend what we can.
+We will not call surrender wisdom.
+We will build toward a future where life is protected by choice, knowledge, and courage.`;
+
+const fullPledge = `We will preserve what we are.
+We will create who we are becoming.
+We will strengthen the structures carrying us into the future.
+We will extend what science and courage make possible.
+We will not wait for humanity to embody what we refuse to practice ourselves.
+We will not call surrender wisdom.
+We will build toward a future where life is protected by choice, knowledge, dignity, and courage.`;
 
 export default function EternistManifestoPage() {
   return (
-    <EternismPageShell>
+    <EternismPageShell variant="manifesto">
       <div className="space-y-14">
         {/* Header */}
         <header className="text-center">
@@ -55,9 +65,10 @@ export default function EternistManifestoPage() {
               early death to be the natural order, aging to be wisdom, and oblivion to be peaceful rest.
             </p>
             <p>
-              This surrender was rational when humans possessed no tools to fight back. When cholera,
-              smallpox, and appendicitis killed half of every generation, myth was the only solace available.
-              But myths born of helplessness should not govern a species that has unlocked the genome.
+              This surrender was rational when humans possessed no tools to fight back. When infection,
+              childbirth, injury, and diseases now considered treatable routinely destroyed families,
+              myth was often the only solace available. But myths born of helplessness should not govern
+              a species that has unlocked the genome.
             </p>
           </div>
         </section>
@@ -92,8 +103,8 @@ export default function EternistManifestoPage() {
               proteins, senescent cell accumulation, mitochondrial decay, and epigenetic deregulation.
             </p>
             <p>
-              Machinery can be understood. What can be understood can be repaired. What can be repaired
-              can be mastered. We do not accept that human biology is uniquely beyond the reach of engineering.
+              Machinery can be understood. What can be understood may become repairable. What becomes repairable
+              no longer deserves to be called inevitable. We do not accept that human biology is uniquely beyond the reach of engineering.
             </p>
           </div>
         </section>
@@ -106,7 +117,7 @@ export default function EternistManifestoPage() {
           <div className="mt-4 space-y-4 text-base leading-8 text-archive-ivory/80">
             <p>
               If a cure for Alzheimer’s, heart failure, or biological frailty is possible, withholding our efforts is unethical.
-              Every year we delay longevity science, millions of minds and lives are lost to preventable biological decay.
+              Every year we delay healthspan research and public-health investment, millions of minds and lives are lost to preventable biological decay.
             </p>
             <p>
               The fight against involuntary death is not a luxury for the wealthy; it is the ultimate global public health challenge.
@@ -140,11 +151,11 @@ export default function EternistManifestoPage() {
           <div className="mt-4 space-y-4 text-base leading-8 text-archive-ivory/80">
             <p>
               While biology works to extend the physical frame, memory safeguards identity. Who we are is built from our experiences,
-              our spoken voice, our hard-won values, and our private reflections.
+              spoken voice, hard-won values, private reflections, and creative legacy. The Life Archive preserves the person while humanity works to preserve the life.
             </p>
             <p>
-              The Life Archive serves as the bridge. By recording living archives today, we maintain the thread of human identity
-              across time, ensuring that even if biology falters, the person is not forgotten.
+              Living archives preserve the evolving person, not merely the dead. Continuity is not resurrection, and preserved data does not equal transferred consciousness.
+              While preservation today may serve future uses we cannot yet fully predict, those possibilities must be labeled as speculative. The Life Archive does not claim to recreate or replace a deceased person.
             </p>
           </div>
         </section>
@@ -165,22 +176,83 @@ export default function EternistManifestoPage() {
           </div>
         </section>
 
-        {/* Section 8: A Future Worth Surviving For */}
+        {/* Section 8: The Self Worth Preserving */}
         <section className="rounded-[2.5rem] border border-archive-gold/18 bg-black/60 p-8 shadow-luxury sm:p-12">
           <h2 className="font-serif text-2xl text-archive-gold sm:text-3xl">
-            8. A Future Worth Surviving For
+            8. The Self Worth Preserving
           </h2>
           <div className="mt-4 space-y-4 text-base leading-8 text-archive-ivory/80">
+            <p className="font-serif text-lg italic text-archive-champagne/90">
+              “Eternism is the practice of becoming harder to destroy. Do not merely preserve yourself. Create a self worth preserving.”
+            </p>
             <p>
-              The future we seek is not a world of stagnant immortals, but a vibrant civilization of healthy, autonomous human beings
-              who choose when and how they live. A future built on love, knowledge, and courage.
+              Longer life is not enough. To extend an unconscious, destructive, undisciplined existence would merely extend the same mistakes. Survival alone is insufficient; the self is not a finished object.
+            </p>
+            <p>
+              We are not finished objects. We are lives under construction. Self-overcoming means strengthening body, mind, values, creativity, and character to become more deliberate, responsible, capable, and alive. Strength means responsibility, not domination.
             </p>
           </div>
         </section>
 
-        {/* Section 9: The Eternist Pledge */}
+        {/* Section 9: Conscious Evolution */}
+        <section className="rounded-[2.5rem] border border-archive-gold/18 bg-black/60 p-8 shadow-luxury sm:p-12">
+          <h2 className="font-serif text-2xl text-archive-gold sm:text-3xl">
+            9. Conscious Evolution
+          </h2>
+          <div className="mt-4 space-y-4 text-base leading-8 text-archive-ivory/80">
+            <p className="font-serif text-lg italic text-archive-champagne/90">
+              “You do not awaken the species by waiting for humanity to change. You awaken the part of humanity that is you.”
+            </p>
+            <p>
+              Technology alone cannot create a worthy future. Longer life without greater awareness would only extend our existing mistakes—multiplying fear, greed, and division. Personal evolution must accompany scientific progress.
+            </p>
+            <p>
+              The future of the species is built one consciously created human at a time. Compassion does not require weakness, surrender, or loss of boundaries, and interconnectedness may be explored philosophically without imposing religious dogma.
+            </p>
+          </div>
+        </section>
+
+        {/* Section 10: Freedom, Dignity, and Choice */}
+        <section className="rounded-[2.5rem] border border-archive-gold/18 bg-black/60 p-8 shadow-luxury sm:p-12">
+          <h2 className="font-serif text-2xl text-archive-gold sm:text-3xl">
+            10. Freedom, Dignity, and Choice
+          </h2>
+          <div className="mt-4 space-y-4 text-base leading-8 text-archive-ivory/80">
+            <p className="font-serif text-lg italic text-archive-champagne/90">
+              “The goal is not compulsory immortality. The goal is meaningful choice.”
+            </p>
+            <p>
+              Eternism does not seek to force endless life upon anyone. It seeks to end the condition in which death is forced upon everyone. Autonomy and quality of life are central: no person should be forced to live forever, and no person should be forced to die because medicine, timing, or access failed them.
+            </p>
+            <p>
+              Dignity, informed consent, and equitable access must guide every medical advance. Choice is the moral core of our movement.
+            </p>
+          </div>
+        </section>
+
+        {/* Section 11: A Future Worth Surviving For */}
+        <section className="rounded-[2.5rem] border border-archive-gold/18 bg-black/60 p-8 shadow-luxury sm:p-12">
+          <h2 className="font-serif text-2xl text-archive-gold sm:text-3xl">
+            11. A Future Worth Surviving For
+          </h2>
+          <div className="mt-4 space-y-4 text-base leading-8 text-archive-ivory/80">
+            <p>
+              The future we seek is not a world of stagnant immortals, but a vibrant civilization of healthy, autonomous, evolving human beings paired with deep responsibility and awareness. A future built on creativity, relationships, discovery, compassion, and contribution—with The Life Archive as a bridge between past identity and future possibility.
+            </p>
+            <p className="font-serif text-lg font-semibold text-archive-champagne">
+              We do not seek more life merely to remain who we are. We seek more life to become what humanity has never had enough time to become.
+            </p>
+          </div>
+        </section>
+
+        {/* Section: The Eternist Pledge */}
         <section id="pledge">
-          <ShareableQuote quoteText={manifestoPledge} title="The Eternist Pledge" />
+          <ShareableQuote
+            quoteText={shortPledge}
+            expandedQuoteText={fullPledge}
+            title="The Eternist Pledge"
+            expandedTitle="The Full Eternist Pledge"
+          />
         </section>
 
         {/* Navigation CTAs */}
@@ -190,12 +262,18 @@ export default function EternistManifestoPage() {
               Join the Mission
             </h2>
             <p className="mt-3 text-sm leading-7 text-archive-ivory/72">
-              Preserve your identity today or explore the scientific domains of the Eternist Observatory.
+              Preserve your identity today, test your structure, or explore the scientific domains of the Eternist Observatory.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-4">
               <Link
-                href="/create"
+                href="/eternism/trial"
                 className="inline-flex min-h-11 items-center justify-center rounded-full bg-archive-gold px-7 py-3 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+              >
+                Take the Eternism Trial →
+              </Link>
+              <Link
+                href="/create"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-7 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-archive-ivory transition hover:border-archive-gold"
               >
                 Create Living Archive
               </Link>

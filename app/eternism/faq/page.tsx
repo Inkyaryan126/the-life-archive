@@ -92,7 +92,7 @@ const faqs: FAQItem[] = [
 
 export default function EternismFAQPage() {
   return (
-    <EternismPageShell>
+    <EternismPageShell variant="faq">
       <div className="space-y-12">
         {/* Header */}
         <header className="text-center">

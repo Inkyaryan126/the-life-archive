@@ -29,7 +29,7 @@ export default async function EternismTrialPage() {
   const selfArchive = account.archives.find((a) => a.relationshipToOwner === "self" && !a.memorialMode) ?? null;
 
   return (
-    <EternismPageShell>
+    <EternismPageShell variant="trial">
       <EternismTrialClient
         signedIn={signedIn}
         hasSelfArchive={Boolean(selfArchive)}

@@ -84,6 +84,13 @@ const activeArchiveInfoRegion = {
   height: 36.72
 };
 
+const finalWishesRegion = {
+  left: 25.41,
+  top: 53.71,
+  width: 24.69,
+  height: 30.18
+};
+
 const shelfBookRegions = [
   { left: 61.04, top: 14.84, width: 6.06, height: 15.72 },
   { left: 68.73, top: 14.75, width: 6.12, height: 15.82 },
@@ -522,6 +529,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </ArchiveOverlayRegion>
           );
         })}
+
+        <ArchiveOverlayRegion
+          region={finalWishesRegion}
+          ariaLabel="Open Final Wishes"
+        >
+          <Link
+            href="/dashboard/final-wishes"
+            aria-label="Open Final Wishes"
+            className="group relative block h-full w-full rounded-md focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
+          >
+            <ArchiveSoftHighlight className="rounded-md bg-[radial-gradient(circle_at_center,rgba(232,207,136,0.56),rgba(232,207,136,0.24)_46%,transparent_80%)]" />
+          </Link>
+        </ArchiveOverlayRegion>
       </ArchiveBuildingShell>
 
       <ArchiveMobileScene
