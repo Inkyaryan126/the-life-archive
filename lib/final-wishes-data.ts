@@ -7,9 +7,85 @@ import path from "path";
 const storePath = path.join(process.cwd(), "data", "life-archive.json");
 const useSupabase = process.env.USE_SUPABASE === "true";
 
-export async function getFinalWishesByArchiveSlug(
+export async function requireEligibleFinalWishesArchive(
+  userId: string | null | undefined,
   slug: string
+) {
+  const archive = await getArchiveBySlug(slug);
+  if (!archive) {
+    throw new Error("Archive not found.");
+  }
+
+  if (archive.memorialMode) {
+    throw new Error("Final Wishes can only be accessed for a Living archive.");
+  }
+
+  if (useSupabase) {
+    const supabase = await createClient();
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error("Authentication required to access Final Wishes.");
+    }
+
+    const { data: archiveRow } = await supabase
+      .from("archives")
+      .select("id, owner_id, memorial_mode")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (!archiveRow) {
+      throw new Error("Archive not found.");
+    }
+
+    if (archiveRow.owner_id !== user.id) {
+      throw new Error("You do not have permission to modify Final Wishes for this archive.");
+    }
+
+    if (archiveRow.memorial_mode) {
+      throw new Error("Final Wishes can only be accessed for a Living archive.");
+    }
+
+    return { ...archive, id: archiveRow.id, ownerId: archiveRow.owner_id };
+  }
+
+  // Local JSON fallback check
+  try {
+    if (existsSync(storePath)) {
+      const json = readFileSync(storePath, "utf8");
+      const data = JSON.parse(json);
+      const archives = data.archives || [];
+      const found = archives.find((a: any) => a.slug === slug || a.id === archive.id);
+      if (found) {
+        if (found.memorialMode || found.memorial_mode) {
+          throw new Error("Final Wishes can only be accessed for a Living archive.");
+        }
+        if (userId && userId !== "local-user-id" && found.ownerId && found.ownerId !== userId) {
+          throw new Error("You do not have permission to modify Final Wishes for this archive.");
+        }
+      }
+    }
+  } catch (err: any) {
+    if (err.message?.includes("Living") || err.message?.includes("permission")) {
+      throw err;
+    }
+  }
+
+  return archive;
+}
+
+export async function getFinalWishesByArchiveSlug(
+  slug: string,
+  userId?: string
 ): Promise<FinalWishes | null> {
+  try {
+    await requireEligibleFinalWishesArchive(userId, slug);
+  } catch {
+    return null;
+  }
+
   const archive = await getArchiveBySlug(slug);
   if (!archive) {
     return null;
@@ -27,11 +103,11 @@ export async function getFinalWishesByArchiveSlug(
 
     const { data: archiveRow } = await supabase
       .from("archives")
-      .select("id, owner_id")
+      .select("id, owner_id, memorial_mode")
       .eq("slug", slug)
       .maybeSingle();
 
-    if (!archiveRow || archiveRow.owner_id !== user.id) {
+    if (!archiveRow || archiveRow.owner_id !== user.id || archiveRow.memorial_mode) {
       return null;
     }
 
@@ -119,12 +195,10 @@ export async function getFinalWishesByArchiveSlug(
 export async function saveFinalWishes(
   slug: string,
   wishesInput: Omit<Partial<FinalWishes>, "id" | "archiveId" | "userId" | "songs">,
-  songsInput: Array<Partial<FinalWishSong>>
+  songsInput: Array<Partial<FinalWishSong>>,
+  userId?: string
 ): Promise<FinalWishes> {
-  const archive = await getArchiveBySlug(slug);
-  if (!archive) {
-    throw new Error("Archive not found");
-  }
+  const archive = await requireEligibleFinalWishesArchive(userId, slug);
 
   // Validate song titles
   for (let i = 0; i < songsInput.length; i++) {
@@ -147,11 +221,11 @@ export async function saveFinalWishes(
 
     const { data: archiveRow } = await supabase
       .from("archives")
-      .select("id, owner_id")
+      .select("id, owner_id, memorial_mode")
       .eq("slug", slug)
       .maybeSingle();
 
-    if (!archiveRow || archiveRow.owner_id !== user.id) {
+    if (!archiveRow || archiveRow.owner_id !== user.id || archiveRow.memorial_mode) {
       throw new Error("You do not have permission to modify Final Wishes for this archive");
     }
 
@@ -239,7 +313,7 @@ export async function saveFinalWishes(
       if (songsErr) throw songsErr;
     }
 
-    const updated = await getFinalWishesByArchiveSlug(slug);
+    const updated = await getFinalWishesByArchiveSlug(slug, user.id);
     if (!updated) throw new Error("Failed to load updated Final Wishes");
     return updated;
   }
@@ -272,7 +346,7 @@ export async function saveFinalWishes(
     id: existingIdx >= 0 ? store.finalWishes[existingIdx].id : `wishes-${Date.now()}`,
     archiveId: archive.id,
     archiveSlug: slug,
-    userId: "local-user-id",
+    userId: userId || "local-user-id",
     ...wishesInput,
     songs: formattedSongs,
     createdAt: existingIdx >= 0 ? store.finalWishes[existingIdx].createdAt : now,

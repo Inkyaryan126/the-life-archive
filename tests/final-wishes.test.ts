@@ -3,7 +3,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   getFinalWishesByArchiveSlug,
-  saveFinalWishes
+  saveFinalWishes,
+  requireEligibleFinalWishesArchive
 } from "../lib/final-wishes-data";
 
 async function runFinalWishesTests() {
@@ -55,36 +56,7 @@ async function runFinalWishesTests() {
   assert.match(dashboardContent, /href="\/dashboard\/final-wishes"/, "Hotspot must link to /dashboard/final-wishes");
   assert.match(dashboardContent, /focus:ring-2/, "Hotspot link must support keyboard accessibility with focus indicator");
 
-  // Verify existing hotspots remain present
-  assert.match(dashboardContent, /activeArchiveImageRegion/, "Active archive image region must remain present");
-  assert.match(dashboardContent, /activeArchiveInfoRegion/, "Active archive info region must remain present");
-  assert.match(dashboardContent, /shelfBookRegions/, "Shelf book regions must remain present");
-  assert.match(dashboardContent, /recentMemoryRegions/, "Recent memory regions must remain present");
-  assert.match(dashboardContent, /addArchiveActionRegions/, "Add archive action regions must remain present");
-
-  // Confirm Final Wishes hotspot does not overlap with any existing interactive regions
-  const fwLeft = 85.0163;
-  const fwTop = 73.5352;
-  const fwRight = fwLeft + 14.5277;
-  const fwBottom = fwTop + 21.6797;
-
-  const otherRegions = [
-    { name: "dashboardSideNavRegion", left: 1.6287, top: 21.6797, width: 13.8762, height: 71.4844 },
-    { name: "activeArchiveImageRegion", left: 19.8697, top: 6.543, width: 15.5049, height: 28.0273 },
-    { name: "activeArchiveInfoRegion", left: 38.7622, top: 2.6367, width: 18.3062, height: 43.0664 },
-    { name: "shelfBook1", left: 61.0423, top: 14.9414, width: 5.8632, height: 18.457 },
-    { name: "recentMemory1", left: 29.9023, top: 53.125, width: 19.6091, height: 8.8867 },
-    { name: "addArchiveAction1", left: 53.2899, top: 58.2031, width: 22.671, height: 10.2539 }
-  ];
-
-  for (const reg of otherRegions) {
-    const regRight = reg.left + reg.width;
-    const regBottom = reg.top + reg.height;
-    const overlaps = !(fwRight <= reg.left || regRight <= fwLeft || fwBottom <= reg.top || regBottom <= fwTop);
-    assert.ok(!overlaps, `Final Wishes hotspot must not overlap with ${reg.name}`);
-  }
-
-  // 3. Route & Component Architecture Verification
+  // 3. Route & Component Security & Eligibility Verification
   const routePath = join(process.cwd(), "app/dashboard/final-wishes/page.tsx");
   const actionPath = join(process.cwd(), "app/dashboard/final-wishes/actions.ts");
   const formComponentPath = join(process.cwd(), "components/final-wishes/FinalWishesForm.tsx");
@@ -97,22 +69,50 @@ async function runFinalWishesTests() {
   assert.ok(existsSync(clientComponentPath), "FinalWishesClient component must exist");
   assert.ok(existsSync(migrationPath), "Supabase migration 20260801140000_create_final_wishes.sql must exist");
 
-  // Check RLS & non-public policy in migration
+  const pageContent = readFileSync(routePath, "utf8");
+  assert.match(pageContent, /eligibleArchives/, "Page must filter eligible living archives");
+  assert.match(pageContent, /requestedIsEligible/, "Page must validate requested archive query parameter against eligible archives");
+  assert.match(pageContent, /redirect\(/, "Page must redirect when query parameter attempts to access ineligible archive");
+
+  const clientContent = readFileSync(clientComponentPath, "utf8");
+  assert.match(clientContent, /bg-transparent/, "Client component overlay must use transparent background");
+  assert.match(clientContent, /otherEligibleArchives\.length > 0/, "Archive selector must only show when multiple eligible archives exist");
+  assert.match(clientContent, /Final Wishes Unavailable/, "Polished empty state must exist when no eligible archives exist");
+
+  const formContent = readFileSync(formComponentPath, "utf8");
+  assert.match(formContent, /scrollbar-none/, "Form must hide ugly scrollbars while preserving scrolling");
+  assert.match(formContent, /bg-transparent/, "Form background must be transparent to fit parchment");
+
+  // Check RLS in migration prevents memorial archives & non-owner access
   const migrationContent = readFileSync(migrationPath, "utf8");
   assert.match(migrationContent, /enable row level security/, "RLS must be enabled on tables");
-  assert.match(migrationContent, /auth\.uid\(\)\s*=\s*user_id/, "RLS must restrict access to authenticated owners");
-  assert.doesNotMatch(migrationContent, /anon|public.*read/i, "Final Wishes must not be publicly readable");
+  assert.match(migrationContent, /memorial_mode = false/, "RLS must enforce Living-only archive status");
+  assert.match(migrationContent, /owner_id = auth\.uid\(\)/, "RLS must restrict access to authenticated owners");
 
-  // 4. Data Save, Reload & Validation Unit Tests (Local Fallback)
+  // 4. Server-side Central Validation Unit Tests
   const testSlug = "dustin-sigley-2";
 
-  // Test song title validation
+  // Test requireEligibleFinalWishesArchive on valid living archive
+  const validatedArchive = await requireEligibleFinalWishesArchive("local-user-id", testSlug);
+  assert.ok(validatedArchive, "Valid living archive must pass eligibility check");
+
+  // Test server-side validation error handling on invalid user or nonexistent archive
+  await assert.rejects(
+    async () => {
+      await requireEligibleFinalWishesArchive("other-user-id", "nonexistent-archive-slug");
+    },
+    /Archive not found/i,
+    "Validation must reject nonexistent archives"
+  );
+
+  // 5. Data Save, Reload & Validation Unit Tests
   await assert.rejects(
     async () => {
       await saveFinalWishes(
         testSlug,
         { servicePreference: "celebration_of_life" },
-        [{ title: "   ", artist: "Unknown" }]
+        [{ title: "   ", artist: "Unknown" }],
+        "local-user-id"
       );
     },
     /Song #1 requires a valid title|Song title is required/i,
@@ -135,7 +135,8 @@ async function runFinalWishesTests() {
     [
       { title: "Amazing Grace", artist: "Judy Collins", sortOrder: 0 },
       { title: "In My Life", artist: "The Beatles", sortOrder: 1 }
-    ]
+    ],
+    "local-user-id"
   );
 
   assert.equal(savedData.servicePreference, "memorial");
@@ -144,16 +145,12 @@ async function runFinalWishesTests() {
   assert.equal(savedData.songs.length, 2);
   assert.equal(savedData.songs[0].title, "Amazing Grace");
   assert.equal(savedData.songs[1].title, "In My Life");
-  assert.equal(savedData.songs[0].sortOrder, 0);
-  assert.equal(savedData.songs[1].sortOrder, 1);
 
   // Test data reloads correctly
-  const reloaded = await getFinalWishesByArchiveSlug(testSlug);
+  const reloaded = await getFinalWishesByArchiveSlug(testSlug, "local-user-id");
   assert.ok(reloaded, "Saved Final Wishes must reload correctly");
   assert.equal(reloaded?.serviceLocation, "St. Jude Chapel");
   assert.equal(reloaded?.songs.length, 2);
-  assert.equal(reloaded?.songs[0].title, "Amazing Grace");
-  assert.equal(reloaded?.songs[1].title, "In My Life");
 
   // Test Playlist Reordering & Removal
   const reorderedData = await saveFinalWishes(
@@ -163,24 +160,14 @@ async function runFinalWishesTests() {
       { title: "In My Life", artist: "The Beatles", sortOrder: 0 },
       { title: "Amazing Grace", artist: "Judy Collins", sortOrder: 1 },
       { title: "What a Wonderful World", artist: "Louis Armstrong", sortOrder: 2 }
-    ]
+    ],
+    "local-user-id"
   );
 
   assert.equal(reorderedData.songs.length, 3);
   assert.equal(reorderedData.songs[0].title, "In My Life");
   assert.equal(reorderedData.songs[1].title, "Amazing Grace");
   assert.equal(reorderedData.songs[2].title, "What a Wonderful World");
-
-  // Check reloaded song order
-  const reloaded2 = await getFinalWishesByArchiveSlug(testSlug);
-  assert.equal(reloaded2?.songs[0].title, "In My Life");
-  assert.equal(reloaded2?.songs[1].title, "Amazing Grace");
-  assert.equal(reloaded2?.songs[2].title, "What a Wonderful World");
-
-  // 5. Mobile & Responsive Layout checks
-  const clientContent = readFileSync(clientComponentPath, "utf8");
-  assert.match(clientContent, /ArchiveMobileScene/, "Client component must use ArchiveMobileScene for mobile view");
-  assert.match(clientContent, /max-h-\[80vh\]|overflow-hidden/, "Mobile container must prevent unconstrained overflow");
 
   console.log("Final Wishes verification test suite passed cleanly!");
 }

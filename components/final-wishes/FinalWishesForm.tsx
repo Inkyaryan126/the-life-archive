@@ -235,71 +235,78 @@ export function FinalWishesForm({
   };
 
   return (
-    <form onSubmit={handleSave} className="flex h-full flex-col font-serif text-[#2a1d10]">
-      {/* Sticky Top Status & Save Header */}
-      <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-[#a88d57]/30 bg-[#f4ece0]/95 px-4 py-3 backdrop-blur-sm sm:px-6">
+    <div className="relative flex h-full flex-col font-serif text-[#2c1a0e] bg-transparent selection:bg-[#c5a059]/30">
+      {/* Sticky Parchment Header */}
+      <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-2 border-b border-[#7a5b28]/25 bg-[#dfd0b5]/90 px-4 py-2.5 backdrop-blur-sm">
         <div>
-          <h2 className="font-serif text-lg font-bold text-[#2a1d10] sm:text-xl">Final Wishes</h2>
-          <p className="text-xs text-[#6e583c]">Preserve personal posthumous desires & playlist for {archiveName}</p>
+          <h2 className="font-serif text-base font-bold tracking-wide text-[#2c1a0e]">Final Wishes</h2>
+          <p className="text-[0.68rem] font-serif text-[#5e472a] truncate">For {archiveName}</p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {saveStatus === "saved" && !isDirty ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-700/30 bg-emerald-100/80 px-3 py-1 text-xs font-semibold text-emerald-800">
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#2e5a1c]/30 bg-[#2e5a1c]/10 px-2.5 py-0.5 text-[0.68rem] font-bold text-[#2e5a1c]">
               ✓ Saved
             </span>
           ) : isDirty ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-700/30 bg-amber-100/90 px-3 py-1 text-xs font-semibold text-amber-900">
-              ● Unsaved changes
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#8b4513]/30 bg-[#8b4513]/10 px-2.5 py-0.5 text-[0.68rem] font-bold text-[#8b4513]">
+              ● Unsaved
             </span>
           ) : null}
 
           <button
-            type="submit"
+            type="button"
+            onClick={(e) => handleSave(e as any)}
             disabled={saveStatus === "saving"}
-            className="rounded-full bg-[#7a5b28] px-5 py-2 text-xs font-bold uppercase tracking-wider text-[#fffdfa] shadow-md transition hover:bg-[#5e441c] active:scale-95 disabled:opacity-50"
+            className="rounded-full bg-[#4a321a] px-4 py-1.5 text-xs font-serif font-bold uppercase tracking-wider text-[#f7f2e8] border border-[#9b7b38]/50 shadow-sm transition hover:bg-[#332110] active:scale-95 disabled:opacity-50"
           >
-            {saveStatus === "saving" ? "Saving..." : "Save Final Wishes"}
+            {saveStatus === "saving" ? "Saving..." : "Save Wishes"}
           </button>
         </div>
       </div>
 
+      {/* Top & Bottom Parchment Scroll Edge Gradient Fades */}
+      <div className="pointer-events-none absolute top-[3.25rem] left-0 right-0 h-4 bg-gradient-to-b from-[#dfd0b5]/80 via-[#dfd0b5]/30 to-transparent z-10" />
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-[#cbb792]/80 via-[#cbb792]/30 to-transparent z-10" />
+
       {errorMessage ? (
-        <div className="mx-4 mt-3 rounded-lg border border-red-400/40 bg-red-50 p-3 text-xs text-red-800 sm:mx-6">
+        <div className="mx-4 mt-2.5 rounded-md border border-red-700/30 bg-red-900/10 p-2.5 text-xs text-red-950">
           ⚠️ {errorMessage}
         </div>
       ) : null}
 
-      {/* Main Scrollable Form Body */}
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-8 sm:px-6">
+      {/* Main Scrollable Form Body (Hidden Scrollbar) */}
+      <form onSubmit={handleSave} className="flex-1 overflow-y-auto px-4 py-4 space-y-6 scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
         {/* 1. OVERVIEW */}
-        <section className="rounded-xl border border-[#9b824d]/30 bg-[#faf5ec]/90 p-4 shadow-sm sm:p-5">
-          <h3 className="text-base font-bold text-[#453118] border-b border-[#bda675]/30 pb-2">
-            1. Overview & Guidance
+        <section className="space-y-2.5 pb-4 border-b border-[#7a5b28]/25">
+          <h3 className="font-serif text-sm font-bold text-[#2c1a0e] border-b border-[#7a5b28]/20 pb-1 flex items-center gap-2">
+            <span className="text-[#8b6b2e] text-xs font-bold uppercase tracking-widest">1.</span>
+            <span>Overview & Guidance</span>
           </h3>
-          <p className="mt-2 text-xs leading-5 text-[#5e4b33]">
+          <p className="text-xs leading-relaxed text-[#4a3525]">
             Record your personal preferences, music, contacts, and tribute details. This record ensures your loved ones have gentle, clear guidance when honoring your life.
           </p>
-          <div className="mt-3 rounded-lg border border-[#a88a44]/30 bg-[#f3ebd9] p-3 text-xs font-sans italic text-[#594326]">
-            <strong>Note:</strong> These wishes are personal instructions and are not a replacement for a legally valid will, advance directive, or other legal document.
+          <div className="rounded-md border border-[#7a5b28]/20 bg-[#3c2a1e]/5 p-2.5 text-[0.72rem] italic text-[#5e472a]">
+            <strong>Note:</strong> These wishes are personal instructions and are not a replacement for a legally valid will or advance directive.
           </div>
         </section>
 
         {/* 2. FUNERAL OR MEMORIAL PREFERENCES */}
-        <section className="rounded-xl border border-[#9b824d]/30 bg-[#faf5ec]/90 p-4 shadow-sm sm:p-5 space-y-4">
-          <h3 className="text-base font-bold text-[#453118] border-b border-[#bda675]/30 pb-2">
-            2. Funeral or Memorial Preferences
+        <section className="space-y-3 pb-4 border-b border-[#7a5b28]/25">
+          <h3 className="font-serif text-sm font-bold text-[#2c1a0e] border-b border-[#7a5b28]/20 pb-1 flex items-center gap-2">
+            <span className="text-[#8b6b2e] text-xs font-bold uppercase tracking-widest">2.</span>
+            <span>Funeral or Memorial Preferences</span>
           </h3>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Service Preference
             </label>
             <select
               value={servicePreference}
               onChange={(e) => { setServicePreference(e.target.value as ServicePreference); markDirty(); }}
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:border-[#7a5b28] focus:outline-none focus:ring-1 focus:ring-[#7a5b28]"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#dcd0b8] px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:outline-none focus:ring-1 focus:ring-[#7a5b28]/40 transition"
             >
               {serviceOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -311,7 +318,7 @@ export function FinalWishesForm({
 
           {servicePreference === "custom" ? (
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+              <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
                 Custom Service Description
               </label>
               <input
@@ -319,13 +326,13 @@ export function FinalWishesForm({
                 value={serviceCustomDescription}
                 onChange={(e) => { setServiceCustomDescription(e.target.value); markDirty(); }}
                 placeholder="Describe your custom service vision..."
-                className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:border-[#7a5b28] focus:outline-none"
+                className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] placeholder-[#7a5b28]/50 focus:border-[#7a5b28] focus:bg-[#3c2a1e]/10 focus:outline-none focus:ring-1 focus:ring-[#7a5b28]/40 transition"
               />
             </div>
           ) : null}
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Desired Location
             </label>
             <input
@@ -333,12 +340,12 @@ export function FinalWishesForm({
               value={serviceLocation}
               onChange={(e) => { setServiceLocation(e.target.value); markDirty(); }}
               placeholder="e.g. Family garden, St. Mark's Chapel, coastal overlook..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:border-[#7a5b28] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] placeholder-[#7a5b28]/50 focus:border-[#7a5b28] focus:bg-[#3c2a1e]/10 focus:outline-none focus:ring-1 focus:ring-[#7a5b28]/40 transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Traditions (Religious, Cultural, or Personal)
             </label>
             <textarea
@@ -346,12 +353,12 @@ export function FinalWishesForm({
               value={traditions}
               onChange={(e) => { setTraditions(e.target.value); markDirty(); }}
               placeholder="Any specific rites, blessings, music, or cultural customs..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:border-[#7a5b28] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] placeholder-[#7a5b28]/50 focus:border-[#7a5b28] focus:bg-[#3c2a1e]/10 focus:outline-none focus:ring-1 focus:ring-[#7a5b28]/40 transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               General Atmosphere or Tone
             </label>
             <input
@@ -359,32 +366,33 @@ export function FinalWishesForm({
               value={serviceTone}
               onChange={(e) => { setServiceTone(e.target.value); markDirty(); }}
               placeholder="e.g. Joyful & intimate, reflective, acoustic music, bright colors..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:border-[#7a5b28] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] placeholder-[#7a5b28]/50 focus:border-[#7a5b28] focus:bg-[#3c2a1e]/10 focus:outline-none focus:ring-1 focus:ring-[#7a5b28]/40 transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Additional Service Instructions
             </label>
             <textarea
-              rows={3}
+              rows={2}
               value={serviceInstructions}
               onChange={(e) => { setServiceInstructions(e.target.value); markDirty(); }}
               placeholder="Any additional details regarding the service..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:border-[#7a5b28] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] placeholder-[#7a5b28]/50 focus:border-[#7a5b28] focus:bg-[#3c2a1e]/10 focus:outline-none focus:ring-1 focus:ring-[#7a5b28]/40 transition"
             />
           </div>
         </section>
 
         {/* 3. FUNERAL PLAYLIST */}
-        <section className="rounded-xl border border-[#9b824d]/30 bg-[#faf5ec]/90 p-4 shadow-sm sm:p-5 space-y-4">
-          <h3 className="text-base font-bold text-[#453118] border-b border-[#bda675]/30 pb-2">
-            3. Funeral Playlist
+        <section className="space-y-3 pb-4 border-b border-[#7a5b28]/25">
+          <h3 className="font-serif text-sm font-bold text-[#2c1a0e] border-b border-[#7a5b28]/20 pb-1 flex items-center gap-2">
+            <span className="text-[#8b6b2e] text-xs font-bold uppercase tracking-widest">3.</span>
+            <span>Funeral Playlist</span>
           </h3>
 
-          <p className="text-xs text-[#5e4b33]">
-            Curate meaningful songs to be played during the service, gathering, or quiet moments.
+          <p className="text-xs text-[#4a3525]">
+            Curate meaningful songs to be played during the service or gathering.
           </p>
 
           {/* Existing Songs List */}
@@ -393,14 +401,14 @@ export function FinalWishesForm({
               {songs.map((song, idx) => (
                 <div
                   key={song.id || idx}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#c2aa7a] bg-[#fffcf7] p-3 text-xs"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-[#7a5b28]/30 bg-[#3c2a1e]/5 p-2.5 text-xs font-serif"
                 >
                   <div className="min-w-0 flex-1">
-                    <span className="font-bold text-[#3a2818]">#{idx + 1} {song.title}</span>
-                    {song.artist ? <span className="ml-2 italic text-[#6e583c]">by {song.artist}</span> : null}
-                    {song.notes ? <p className="mt-1 text-[0.7rem] text-[#5e4b33]">{song.notes}</p> : null}
+                    <span className="font-bold text-[#2c1a0e]">#{idx + 1} {song.title}</span>
+                    {song.artist ? <span className="ml-2 italic text-[#5e472a]">by {song.artist}</span> : null}
+                    {song.notes ? <p className="mt-0.5 text-[0.7rem] text-[#4a3525]">{song.notes}</p> : null}
                     {song.url ? (
-                      <a href={song.url} target="_blank" rel="noopener noreferrer" className="mt-1 block truncate text-[0.7rem] text-[#7a5b28] underline">
+                      <a href={song.url} target="_blank" rel="noopener noreferrer" className="mt-0.5 block truncate text-[0.7rem] text-[#8b6b2e] underline">
                         {song.url}
                       </a>
                     ) : null}
@@ -411,7 +419,7 @@ export function FinalWishesForm({
                       type="button"
                       disabled={idx === 0}
                       onClick={() => handleMoveSong(idx, "up")}
-                      className="rounded border border-[#b89f6b] px-2 py-1 text-[0.65rem] font-bold disabled:opacity-30"
+                      className="rounded border border-[#7a5b28]/40 bg-[#4a321a]/10 hover:bg-[#4a321a]/20 text-[#3c2a1e] px-2 py-0.5 text-[0.65rem] font-bold disabled:opacity-30 transition"
                       title="Move up"
                     >
                       ▲
@@ -420,7 +428,7 @@ export function FinalWishesForm({
                       type="button"
                       disabled={idx === songs.length - 1}
                       onClick={() => handleMoveSong(idx, "down")}
-                      className="rounded border border-[#b89f6b] px-2 py-1 text-[0.65rem] font-bold disabled:opacity-30"
+                      className="rounded border border-[#7a5b28]/40 bg-[#4a321a]/10 hover:bg-[#4a321a]/20 text-[#3c2a1e] px-2 py-0.5 text-[0.65rem] font-bold disabled:opacity-30 transition"
                       title="Move down"
                     >
                       ▼
@@ -428,7 +436,7 @@ export function FinalWishesForm({
                     <button
                       type="button"
                       onClick={() => handleRemoveSong(idx)}
-                      className="rounded border border-red-400/50 bg-red-50 px-2 py-1 text-[0.65rem] font-bold text-red-800 hover:bg-red-100"
+                      className="rounded border border-red-700/40 bg-red-900/10 text-red-900 px-2 py-0.5 text-[0.65rem] font-bold hover:bg-red-900/20 transition"
                     >
                       Remove
                     </button>
@@ -437,14 +445,14 @@ export function FinalWishesForm({
               ))}
             </div>
           ) : (
-            <p className="text-xs italic text-[#7a6448]">No songs added to the playlist yet.</p>
+            <p className="text-xs italic text-[#5e472a]">No songs added to the playlist yet.</p>
           )}
 
           {/* Add Song Form */}
-          <div className="rounded-lg border border-[#b89f6b]/60 bg-[#f4ece0] p-3 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wide text-[#594326]">Add a Song to Playlist</h4>
+          <div className="rounded-md border border-[#7a5b28]/30 bg-[#3c2a1e]/5 p-3 space-y-2.5">
+            <h4 className="text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525]">Add a Song to Playlist</h4>
 
-            {songError ? <p className="text-xs font-bold text-red-700">⚠️ {songError}</p> : null}
+            {songError ? <p className="text-xs font-bold text-red-900">⚠️ {songError}</p> : null}
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <input
@@ -452,14 +460,14 @@ export function FinalWishesForm({
                 value={newSongTitle}
                 onChange={(e) => setNewSongTitle(e.target.value)}
                 placeholder="Song Title *"
-                className="rounded border border-[#b89f6b] bg-[#fffcf7] px-2.5 py-1.5 text-xs text-[#2a1d10] focus:outline-none"
+                className="rounded border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-2.5 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
               />
               <input
                 type="text"
                 value={newSongArtist}
                 onChange={(e) => setNewSongArtist(e.target.value)}
                 placeholder="Artist Name"
-                className="rounded border border-[#b89f6b] bg-[#fffcf7] px-2.5 py-1.5 text-xs text-[#2a1d10] focus:outline-none"
+                className="rounded border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-2.5 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
               />
             </div>
 
@@ -468,21 +476,21 @@ export function FinalWishesForm({
               value={newSongUrl}
               onChange={(e) => setNewSongUrl(e.target.value)}
               placeholder="Optional URL (Spotify, YouTube, Apple Music link...)"
-              className="w-full rounded border border-[#b89f6b] bg-[#fffcf7] px-2.5 py-1.5 text-xs text-[#2a1d10] focus:outline-none"
+              className="w-full rounded border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-2.5 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
 
             <input
               type="text"
               value={newSongNotes}
               onChange={(e) => setNewSongNotes(e.target.value)}
-              placeholder="Optional note (e.g. Play during family entry, favorite acoustic song...)"
-              className="w-full rounded border border-[#b89f6b] bg-[#fffcf7] px-2.5 py-1.5 text-xs text-[#2a1d10] focus:outline-none"
+              placeholder="Optional note (e.g. Play during family entry...)"
+              className="w-full rounded border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-2.5 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
 
             <button
               type="button"
               onClick={handleAddSong}
-              className="rounded-full bg-[#7a5b28] px-4 py-1.5 text-xs font-bold text-[#fffdfa] hover:bg-[#5e441c]"
+              className="rounded-full bg-[#4a321a] px-3.5 py-1 text-xs font-serif font-bold text-[#f7f2e8] hover:bg-[#332110] transition"
             >
               + Add Song
             </button>
@@ -490,19 +498,20 @@ export function FinalWishesForm({
         </section>
 
         {/* 4. BURIAL, CREMATION, OR OTHER WISHES */}
-        <section className="rounded-xl border border-[#9b824d]/30 bg-[#faf5ec]/90 p-4 shadow-sm sm:p-5 space-y-4">
-          <h3 className="text-base font-bold text-[#453118] border-b border-[#bda675]/30 pb-2">
-            4. Burial, Cremation, or Other Wishes
+        <section className="space-y-3 pb-4 border-b border-[#7a5b28]/25">
+          <h3 className="font-serif text-sm font-bold text-[#2c1a0e] border-b border-[#7a5b28]/20 pb-1 flex items-center gap-2">
+            <span className="text-[#8b6b2e] text-xs font-bold uppercase tracking-widest">4.</span>
+            <span>Burial, Cremation, or Other Wishes</span>
           </h3>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Disposition Preference
             </label>
             <select
               value={dispositionPreference}
               onChange={(e) => { setDispositionPreference(e.target.value as DispositionPreference); markDirty(); }}
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#dcd0b8] px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             >
               {dispositionOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -513,7 +522,7 @@ export function FinalWishesForm({
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Cemetery, Location, or Resting Destination
             </label>
             <input
@@ -521,12 +530,12 @@ export function FinalWishesForm({
               value={dispositionLocation}
               onChange={(e) => { setDispositionLocation(e.target.value); markDirty(); }}
               placeholder="e.g. Oakridge Cemetery Plot 42, scattered at Sea Cliff..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Ashes Instructions (if cremated)
             </label>
             <textarea
@@ -534,25 +543,25 @@ export function FinalWishesForm({
               value={ashesInstructions}
               onChange={(e) => { setAshesInstructions(e.target.value); markDirty(); }}
               placeholder="Instructions for urn, scattering, keepsake jewelry..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Organ or Body Donation Notes
             </label>
             <input
               type="text"
               value={donationNotes}
               onChange={(e) => { setDonationNotes(e.target.value); markDirty(); }}
-              placeholder="Donor registry status or specific medical school instructions..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              placeholder="Donor registry status or specific medical instructions..."
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Additional Disposition Instructions
             </label>
             <textarea
@@ -560,20 +569,21 @@ export function FinalWishesForm({
               value={dispositionInstructions}
               onChange={(e) => { setDispositionInstructions(e.target.value); markDirty(); }}
               placeholder="Any other specific wishes regarding burial or disposition..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
         </section>
 
         {/* 5. PEOPLE AND ROLES */}
-        <section className="rounded-xl border border-[#9b824d]/30 bg-[#faf5ec]/90 p-4 shadow-sm sm:p-5 space-y-4">
-          <h3 className="text-base font-bold text-[#453118] border-b border-[#bda675]/30 pb-2">
-            5. People and Key Roles
+        <section className="space-y-3 pb-4 border-b border-[#7a5b28]/25">
+          <h3 className="font-serif text-sm font-bold text-[#2c1a0e] border-b border-[#7a5b28]/20 pb-1 flex items-center gap-2">
+            <span className="text-[#8b6b2e] text-xs font-bold uppercase tracking-widest">5.</span>
+            <span>People and Key Roles</span>
           </h3>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+              <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
                 Who Should Be Contacted First
               </label>
               <input
@@ -581,12 +591,12 @@ export function FinalWishesForm({
                 value={firstContact}
                 onChange={(e) => { setFirstContact(e.target.value); markDirty(); }}
                 placeholder="Name, relationship, phone number..."
-                className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+                className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+              <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
                 Preferred Speaker or Officiant
               </label>
               <input
@@ -594,13 +604,13 @@ export function FinalWishesForm({
                 value={preferredOfficiant}
                 onChange={(e) => { setPreferredOfficiant(e.target.value); markDirty(); }}
                 placeholder="Pastor, friend, family speaker..."
-                className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+                className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Pallbearer Suggestions
             </label>
             <input
@@ -608,12 +618,12 @@ export function FinalWishesForm({
               value={pallbearerSuggestions}
               onChange={(e) => { setPallbearerSuggestions(e.target.value); markDirty(); }}
               placeholder="Names of suggested pallbearers..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               People You Want Involved
             </label>
             <textarea
@@ -621,12 +631,12 @@ export function FinalWishesForm({
               value={peopleToInvolve}
               onChange={(e) => { setPeopleToInvolve(e.target.value); markDirty(); }}
               placeholder="Friends or relatives you'd love to read, speak, or assist..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               People Who Should NOT Be Responsible for Arrangements
             </label>
             <input
@@ -634,12 +644,12 @@ export function FinalWishesForm({
               value={peopleNotResponsible}
               onChange={(e) => { setPeopleNotResponsible(e.target.value); markDirty(); }}
               placeholder="Anyone who should be spared arrangement burden..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               General Contact or Responsibility Notes
             </label>
             <textarea
@@ -647,19 +657,20 @@ export function FinalWishesForm({
               value={responsibilityNotes}
               onChange={(e) => { setResponsibilityNotes(e.target.value); markDirty(); }}
               placeholder="Additional guidance for your family..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
         </section>
 
         {/* 6. OBITUARY AND LIFE DETAILS */}
-        <section className="rounded-xl border border-[#9b824d]/30 bg-[#faf5ec]/90 p-4 shadow-sm sm:p-5 space-y-4">
-          <h3 className="text-base font-bold text-[#453118] border-b border-[#bda675]/30 pb-2">
-            6. Obituary and Life Details
+        <section className="space-y-3 pb-4 border-b border-[#7a5b28]/25">
+          <h3 className="font-serif text-sm font-bold text-[#2c1a0e] border-b border-[#7a5b28]/20 pb-1 flex items-center gap-2">
+            <span className="text-[#8b6b2e] text-xs font-bold uppercase tracking-widest">6.</span>
+            <span>Obituary and Life Details</span>
           </h3>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Preferred Name in Obituary
             </label>
             <input
@@ -667,12 +678,12 @@ export function FinalWishesForm({
               value={obituaryName}
               onChange={(e) => { setObituaryName(e.target.value); markDirty(); }}
               placeholder="Full name, nickname, or maiden name..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Important Relationships to Include
             </label>
             <textarea
@@ -680,12 +691,12 @@ export function FinalWishesForm({
               value={obituaryRelationships}
               onChange={(e) => { setObituaryRelationships(e.target.value); markDirty(); }}
               placeholder="Spouse, children, grandchildren, siblings, mentors..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Accomplishments or Milestones to Mention
             </label>
             <textarea
@@ -693,12 +704,12 @@ export function FinalWishesForm({
               value={obituaryAccomplishments}
               onChange={(e) => { setObituaryAccomplishments(e.target.value); markDirty(); }}
               placeholder="Career, military service, degrees, hobbies, lifelong passions..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Organizations, Causes, or Charities
             </label>
             <input
@@ -706,12 +717,12 @@ export function FinalWishesForm({
               value={obituaryCauses}
               onChange={(e) => { setObituaryCauses(e.target.value); markDirty(); }}
               placeholder="In lieu of flowers, donations may be made to..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Things That Should NOT Be Included
             </label>
             <input
@@ -719,19 +730,20 @@ export function FinalWishesForm({
               value={obituaryExclusions}
               onChange={(e) => { setObituaryExclusions(e.target.value); markDirty(); }}
               placeholder="Private details or topics to leave out of public obituary..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
         </section>
 
         {/* 7. PERSONAL DETAILS */}
-        <section className="rounded-xl border border-[#9b824d]/30 bg-[#faf5ec]/90 p-4 shadow-sm sm:p-5 space-y-4">
-          <h3 className="text-base font-bold text-[#453118] border-b border-[#bda675]/30 pb-2">
-            7. Personal Touches & Final Message
+        <section className="space-y-3 pb-4">
+          <h3 className="font-serif text-sm font-bold text-[#2c1a0e] border-b border-[#7a5b28]/20 pb-1 flex items-center gap-2">
+            <span className="text-[#8b6b2e] text-xs font-bold uppercase tracking-widest">7.</span>
+            <span>Personal Touches & Final Message</span>
           </h3>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Clothing & Attire Preference
             </label>
             <input
@@ -739,25 +751,25 @@ export function FinalWishesForm({
               value={clothingPreference}
               onChange={(e) => { setClothingPreference(e.target.value); markDirty(); }}
               placeholder="Favorite suit, navy dress, casual linen, favorite hat..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Flowers, Photos, or Displayed Objects
             </label>
             <textarea
               rows={2}
               value={displayPreferences}
               onChange={(e) => { setDisplayPreferences(e.target.value); markDirty(); }}
-              placeholder="White roses, family photo albums, favorite quilt or framed artwork..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              placeholder="White roses, family photo albums, favorite quilt..."
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Food, Drink, or Reception Preferences
             </label>
             <input
@@ -765,38 +777,38 @@ export function FinalWishesForm({
               value={gatheringPreferences}
               onChange={(e) => { setGatheringPreferences(e.target.value); markDirty(); }}
               placeholder="Italian comfort food, coffee & pastries, favorite wine toast..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Final Message or Closing Statement
             </label>
             <textarea
-              rows={4}
+              rows={3}
               value={finalMessage}
               onChange={(e) => { setFinalMessage(e.target.value); markDirty(); }}
               placeholder="A lasting personal note to your family and friends..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wide text-[#594326]">
+            <label className="block text-[0.72rem] font-serif font-bold uppercase tracking-wider text-[#4a3525] mb-1">
               Any Other Wishes
             </label>
             <textarea
-              rows={3}
+              rows={2}
               value={additionalWishes}
               onChange={(e) => { setAdditionalWishes(e.target.value); markDirty(); }}
               placeholder="Anything else you want your loved ones to know..."
-              className="mt-1 w-full rounded-lg border border-[#b89f6b] bg-[#fffcf7] px-3 py-2 text-sm text-[#2a1d10] focus:outline-none"
+              className="w-full rounded-md border border-[#7a5b28]/35 bg-[#3c2a1e]/5 px-3 py-1.5 text-xs font-serif text-[#2c1a0e] focus:outline-none"
             />
           </div>
         </section>
 
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }

@@ -19,25 +19,50 @@ export default async function FinalWishesPage({ searchParams }: PageProps) {
     redirect("/login");
   }
 
-  const { archives, defaultArchive } = account;
-
-  if (archives.length === 0) {
-    redirect("/create");
-  }
+  // Filter ONLY archives owned by user and ONLY Living (not memorial)
+  const eligibleArchives = account.archives.filter(
+    (a) => !a.memorialMode && !a.isShared
+  );
 
   const resolvedParams = await searchParams;
   const requestedSlug = resolvedParams?.archive;
-  const activeArchive =
-    (requestedSlug ? archives.find((a) => a.slug === requestedSlug) : null) ??
-    defaultArchive ??
-    archives[0];
+
+  // Check if requested archive slug is among user's eligible Living archives
+  const requestedIsEligible = requestedSlug
+    ? eligibleArchives.some((a) => a.slug === requestedSlug)
+    : false;
+
+  // If user requested an ineligible archive (memorial, shared, or unowned)
+  if (requestedSlug && !requestedIsEligible) {
+    if (eligibleArchives.length > 0) {
+      redirect(`/dashboard/final-wishes?archive=${encodeURIComponent(eligibleArchives[0].slug)}`);
+    }
+  }
+
+  // Determine active archive
+  const activeArchive = requestedIsEligible
+    ? eligibleArchives.find((a) => a.slug === requestedSlug)!
+    : eligibleArchives[0] || null;
+
+  // If user has NO eligible Living archives owned by them
+  if (!activeArchive) {
+    return (
+      <FinalWishesClient
+        archives={[]}
+        activeArchive={null}
+        archiveDetails={null}
+        initialWishes={null}
+        userDisplayName={account.user.displayName || "Archive Owner"}
+      />
+    );
+  }
 
   const archiveDetails = await getArchiveBySlug(activeArchive.slug);
-  const initialWishes = await getFinalWishesByArchiveSlug(activeArchive.slug);
+  const initialWishes = await getFinalWishesByArchiveSlug(activeArchive.slug, account.user.id);
 
   return (
     <FinalWishesClient
-      archives={archives}
+      archives={eligibleArchives}
       activeArchive={activeArchive}
       archiveDetails={archiveDetails}
       initialWishes={initialWishes}
