@@ -62,43 +62,36 @@
       "archiveSlug": "dustin-sigley-2",
       "userId": "local-user-id",
       "servicePreference": "memorial",
+      "serviceLocation": "St. Jude Chapel",
+      "dispositionPreference": "cremation",
+      "firstContact": "Jane Sigley",
+      "finalMessage": "Peace and love.",
       "songs": [
         {
-          "id": "song-0-1785684143238",
-          "archiveId": "f7d2eb3c-2c6c-4c11-b7f2-90c2d6c1c5be",
-          "title": "In My Life",
-          "artist": "The Beatles",
-          "url": null,
-          "notes": null,
-          "sortOrder": 0,
-          "createdAt": "2026-08-02T15:22:23.238Z",
-          "updatedAt": "2026-08-02T15:22:23.238Z"
-        },
-        {
-          "id": "song-1-1785684143238",
+          "id": "song-0-1785685681650",
           "archiveId": "f7d2eb3c-2c6c-4c11-b7f2-90c2d6c1c5be",
           "title": "Amazing Grace",
           "artist": "Judy Collins",
           "url": null,
           "notes": null,
-          "sortOrder": 1,
-          "createdAt": "2026-08-02T15:22:23.238Z",
-          "updatedAt": "2026-08-02T15:22:23.238Z"
+          "sortOrder": 0,
+          "createdAt": "2026-08-02T15:48:01.647Z",
+          "updatedAt": "2026-08-02T15:48:01.647Z"
         },
         {
-          "id": "song-2-1785684143238",
+          "id": "song-1-1785685681650",
           "archiveId": "f7d2eb3c-2c6c-4c11-b7f2-90c2d6c1c5be",
-          "title": "What a Wonderful World",
-          "artist": "Louis Armstrong",
+          "title": "In My Life",
+          "artist": "The Beatles",
           "url": null,
           "notes": null,
-          "sortOrder": 2,
-          "createdAt": "2026-08-02T15:22:23.238Z",
-          "updatedAt": "2026-08-02T15:22:23.238Z"
+          "sortOrder": 1,
+          "createdAt": "2026-08-02T15:48:01.647Z",
+          "updatedAt": "2026-08-02T15:48:01.647Z"
         }
       ],
       "createdAt": "2026-08-01T17:58:57.549Z",
-      "updatedAt": "2026-08-02T15:22:23.238Z"
+      "updatedAt": "2026-08-02T15:48:01.647Z"
     }
   ]
 }

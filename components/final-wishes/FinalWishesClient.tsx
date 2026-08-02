@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { AppSidebar } from "@/components/AppSidebar";
 import {
   ArchiveBuildingShell,
@@ -29,25 +28,28 @@ const dashboardSideNavRegion = {
   height: 71.4844
 };
 
-const activeArchiveImageRegion = {
-  left: 19.8697,
-  top: 6.543,
-  width: 15.5049,
-  height: 28.0273
+// 1. Upper-Left Identity Region measured directly from final-wishes-guide.png (x: 301, y: 37, w: 212, h: 70)
+const upperLeftIdentityRegion = {
+  left: 19.6091,
+  top: 3.6133,
+  width: 13.8111,
+  height: 6.8359
 };
 
-const activeArchiveInfoRegion = {
-  left: 38.7622,
-  top: 2.6367,
-  width: 18.3062,
-  height: 43.0664
+// 2. Upper-Right Navigation Region measured directly from final-wishes-guide.png (x: 1283, y: 28, w: 214, h: 71)
+const upperRightNavRegion = {
+  left: 83.5831,
+  top: 2.7344,
+  width: 13.9414,
+  height: 6.9336
 };
 
+// 3. Large Parchment Form Region measured directly from final-wishes-guide.png (x: 574, y: 454, w: 762, h: 494)
 const parchmentRegion = {
-  left: 44.3,
-  top: 44.43,
-  width: 41.69,
-  height: 52.73
+  left: 37.3941,
+  top: 44.3359,
+  width: 49.6417,
+  height: 48.2422
 };
 
 export function FinalWishesClient({
@@ -57,14 +59,6 @@ export function FinalWishesClient({
   initialWishes,
   userDisplayName
 }: FinalWishesClientProps) {
-  // Only eligible living archives owned by user
-  const eligibleArchives = archives.filter((a) => !a.memorialMode && !a.isShared);
-  const otherEligibleArchives = activeArchive
-    ? eligibleArchives.filter((a) => a.slug !== activeArchive.slug)
-    : [];
-
-  const photoUrl = archiveDetails?.profilePhotoUrl || null;
-
   return (
     <>
       {/* Desktop View */}
@@ -78,76 +72,37 @@ export function FinalWishesClient({
         navRegion={dashboardSideNavRegion}
         sceneLabel="Final Wishes scene"
       >
-        {/* Active Archive Image */}
+        {/* 1. Upper-Left Identity Region: Archive Name Only (No portrait, no avatar) */}
         {activeArchive ? (
           <ArchiveOverlayRegion
-            region={activeArchiveImageRegion}
-            ariaLabel="Active archive profile image"
+            region={upperLeftIdentityRegion}
+            className="flex flex-col justify-center px-3 py-1 text-archive-ivory"
+            ariaLabel="Active archive identity"
           >
-            <Link
-              href={`/archive/${activeArchive.slug}`}
-              className="group relative block h-full w-full overflow-hidden rounded-[0.2rem] focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
-              aria-label={`Open ${activeArchive.archiveName}`}
-            >
-              {photoUrl ? (
-                <Image
-                  src={photoUrl}
-                  alt={activeArchive.personName}
-                  fill
-                  priority
-                  className="object-cover object-[center_25%]"
-                  sizes="16vw"
-                />
-              ) : (
-                <div className="grid h-full place-items-center bg-black/26 text-center">
-                  <p className="font-serif text-4xl text-archive-gold">TLA</p>
-                </div>
-              )}
-            </Link>
+            <h1 className="line-clamp-2 font-serif text-sm font-bold tracking-wide text-archive-ivory drop-shadow-sm">
+              {activeArchive.archiveName}
+            </h1>
+            <p className="text-[0.6rem] font-semibold uppercase tracking-widest text-archive-gold/80">
+              Living Archive
+            </p>
           </ArchiveOverlayRegion>
         ) : null}
 
-        {/* Active Archive Information & Archive Selector */}
-        {activeArchive ? (
-          <ArchiveOverlayRegion
-            region={activeArchiveInfoRegion}
-            className="p-[clamp(1rem,1.55vw,1.75rem)] text-archive-ivory"
-            ariaLabel="Active archive information and selection"
+        {/* 2. Upper-Right Navigation Region: Return to My Archives Hotspot */}
+        <ArchiveOverlayRegion
+          region={upperRightNavRegion}
+          ariaLabel="Return to My Archives"
+        >
+          <Link
+            href="/dashboard"
+            aria-label="Return to My Archives"
+            className="flex h-full w-full items-center justify-center rounded-sm text-xs font-serif font-bold uppercase tracking-wider text-archive-gold/90 transition hover:text-archive-champagne focus:outline-none focus:ring-2 focus:ring-archive-gold/70"
           >
-            <div className="flex h-full flex-col justify-center">
-              <h1 className="line-clamp-2 font-serif text-[clamp(1.2rem,1.7vw,2.1rem)] leading-tight text-archive-ivory drop-shadow-[0_3px_14px_rgba(0,0,0,0.42)]">
-                {activeArchive.archiveName}
-              </h1>
-              <p className="mt-1 truncate text-[clamp(0.64rem,0.78vw,0.88rem)] font-semibold uppercase tracking-[0.14em] text-archive-gold/82">
-                {activeArchive.personName} · Living Archive
-              </p>
+            <span className="sr-only">Return to My Archives</span>
+          </Link>
+        </ArchiveOverlayRegion>
 
-              {otherEligibleArchives.length > 0 ? (
-                <div className="mt-3">
-                  <label className="block text-[0.62rem] uppercase tracking-wider text-archive-ivory/60">
-                    Go to a Different Archive
-                  </label>
-                  <select
-                    value={activeArchive.slug}
-                    onChange={(e) => {
-                      window.location.href = `/dashboard/final-wishes?archive=${encodeURIComponent(e.target.value)}`;
-                    }}
-                    className="mt-1 w-full rounded-md border border-archive-gold/30 bg-black/70 px-2 py-1 text-xs text-archive-champagne focus:outline-none focus:ring-1 focus:ring-archive-gold"
-                  >
-                    <option value={activeArchive.slug}>{activeArchive.archiveName}</option>
-                    {otherEligibleArchives.map((a) => (
-                      <option key={a.slug} value={a.slug}>
-                        {a.archiveName} ({a.personName})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : null}
-            </div>
-          </ArchiveOverlayRegion>
-        ) : null}
-
-        {/* Working Form overlay inside Parchment Area */}
+        {/* 3. Large Parchment Region: Final Wishes Form or Empty State */}
         <ArchiveOverlayRegion
           region={parchmentRegion}
           ariaLabel="Final Wishes parchment form content"
@@ -161,14 +116,14 @@ export function FinalWishesClient({
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center p-6 text-center font-serif text-[#2c1a0e]">
-              <span className="text-4xl text-[#9b7b38]">📜</span>
-              <h3 className="mt-3 text-lg font-bold text-[#2c1a0e]">Final Wishes Unavailable</h3>
+              <span className="text-4xl text-[#8b6b2e]">📜</span>
+              <h3 className="mt-3 text-base font-bold text-[#2c1a0e]">Final Wishes Unavailable</h3>
               <p className="mt-2 max-w-xs text-xs leading-relaxed text-[#5e472a]">
                 Final Wishes can only be recorded for a Living archive owned by your account. Memorial archives and contributor access cannot create or edit Final Wishes.
               </p>
               <Link
                 href="/create"
-                className="mt-4 rounded-full bg-[#4a321a] px-5 py-2 text-xs font-serif font-bold uppercase tracking-wider text-[#f7f2e8] border border-[#9b7b38]/40 shadow-sm transition hover:bg-[#332110]"
+                className="mt-4 rounded-full bg-[#4a321a] px-4 py-1.5 text-xs font-serif font-bold uppercase tracking-wider text-[#f7f2e8] border border-[#9b7b38]/40 shadow-sm transition hover:bg-[#332110]"
               >
                 Create a Living Archive
               </Link>
@@ -201,14 +156,14 @@ export function FinalWishesClient({
               />
             ) : (
               <div className="flex flex-col items-center justify-center p-6 text-center font-serif text-[#2c1a0e]">
-                <span className="text-4xl text-[#9b7b38]">📜</span>
-                <h3 className="mt-3 text-lg font-bold text-[#2c1a0e]">Final Wishes Unavailable</h3>
+                <span className="text-4xl text-[#8b6b2e]">📜</span>
+                <h3 className="mt-3 text-base font-bold text-[#2c1a0e]">Final Wishes Unavailable</h3>
                 <p className="mt-2 text-xs leading-relaxed text-[#5e472a]">
                   Final Wishes can only be recorded for a Living archive owned by your account.
                 </p>
                 <Link
                   href="/create"
-                  className="mt-4 rounded-full bg-[#4a321a] px-5 py-2 text-xs font-serif font-bold uppercase tracking-wider text-[#f7f2e8] shadow-sm"
+                  className="mt-4 rounded-full bg-[#4a321a] px-4 py-1.5 text-xs font-serif font-bold uppercase tracking-wider text-[#f7f2e8] shadow-sm"
                 >
                   Create a Living Archive
                 </Link>
