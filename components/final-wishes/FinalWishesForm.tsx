@@ -235,9 +235,12 @@ export function FinalWishesForm({
   };
 
   return (
-    <div className="relative flex h-full flex-col font-serif text-[#2c1a0e] bg-transparent selection:bg-[#c5a059]/30">
-      {/* Integrated Header / Top Bar on Parchment */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#7a5b28]/25 bg-transparent pb-2 px-1">
+    <div
+      className="relative flex h-full flex-col font-serif text-[#2c1a0e] bg-transparent selection:bg-[#c5a059]/30"
+      style={{ clipPath: "polygon(9.06% 0%, 90.03% 0%, 99.48% 100%, 0.52% 100%)" }}
+    >
+      {/* Integrated Header / Top Bar on Parchment (Inset for narrower top scroll width) */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#7a5b28]/25 bg-transparent pb-2 px-8 pt-1">
         <div>
           <h2 className="font-serif text-sm font-bold tracking-wide text-[#2c1a0e]">Final Wishes</h2>
           <p className="text-[0.65rem] font-serif text-[#5e472a]">For {archiveName}</p>
@@ -322,7 +325,7 @@ export function FinalWishesForm({
                 value={serviceCustomDescription}
                 onChange={(e) => { setServiceCustomDescription(e.target.value); markDirty(); }}
                 placeholder="Describe your custom service vision..."
-                className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#7a5b28]/50 focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+                className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
               />
             </div>
           ) : null}
@@ -336,7 +339,7 @@ export function FinalWishesForm({
               value={serviceLocation}
               onChange={(e) => { setServiceLocation(e.target.value); markDirty(); }}
               placeholder="e.g. Family garden, St. Mark's Chapel..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#7a5b28]/50 focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
           </div>
 
@@ -349,7 +352,7 @@ export function FinalWishesForm({
               value={traditions}
               onChange={(e) => { setTraditions(e.target.value); markDirty(); }}
               placeholder="Any specific rites, blessings, music..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#7a5b28]/50 focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
             />
           </div>
 
@@ -362,7 +365,7 @@ export function FinalWishesForm({
               value={serviceTone}
               onChange={(e) => { setServiceTone(e.target.value); markDirty(); }}
               placeholder="e.g. Joyful & intimate, reflective..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#7a5b28]/50 focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
           </div>
 
@@ -375,7 +378,7 @@ export function FinalWishesForm({
               value={serviceInstructions}
               onChange={(e) => { setServiceInstructions(e.target.value); markDirty(); }}
               placeholder="Any additional details regarding the service..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#7a5b28]/50 focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
             />
           </div>
         </section>
@@ -456,14 +459,14 @@ export function FinalWishesForm({
                 value={newSongTitle}
                 onChange={(e) => setNewSongTitle(e.target.value)}
                 placeholder="Song Title *"
-                className="bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+                className="bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
               />
               <input
                 type="text"
                 value={newSongArtist}
                 onChange={(e) => setNewSongArtist(e.target.value)}
                 placeholder="Artist Name"
-                className="bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+                className="bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
               />
             </div>
 
@@ -472,7 +475,7 @@ export function FinalWishesForm({
               value={newSongUrl}
               onChange={(e) => setNewSongUrl(e.target.value)}
               placeholder="Optional URL (Spotify, YouTube, Apple Music...)"
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
 
             <input
@@ -480,7 +483,7 @@ export function FinalWishesForm({
               value={newSongNotes}
               onChange={(e) => setNewSongNotes(e.target.value)}
               placeholder="Optional note (e.g. Play during family entry...)"
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
 
             <button
@@ -507,7 +510,7 @@ export function FinalWishesForm({
             <select
               value={dispositionPreference}
               onChange={(e) => { setDispositionPreference(e.target.value as DispositionPreference); markDirty(); }}
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             >
               {dispositionOptions.map((opt) => (
                 <option key={opt.value} value={opt.value} className="bg-[#ded0b6] text-[#2c1a0e]">
@@ -526,7 +529,7 @@ export function FinalWishesForm({
               value={dispositionLocation}
               onChange={(e) => { setDispositionLocation(e.target.value); markDirty(); }}
               placeholder="e.g. Oakridge Cemetery Plot 42..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
           </div>
 
@@ -539,7 +542,7 @@ export function FinalWishesForm({
               value={ashesInstructions}
               onChange={(e) => { setAshesInstructions(e.target.value); markDirty(); }}
               placeholder="Instructions for urn, scattering, keepsake jewelry..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
             />
           </div>
 
@@ -552,7 +555,7 @@ export function FinalWishesForm({
               value={donationNotes}
               onChange={(e) => { setDonationNotes(e.target.value); markDirty(); }}
               placeholder="Donor registry status or specific medical instructions..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
           </div>
 
@@ -565,7 +568,7 @@ export function FinalWishesForm({
               value={dispositionInstructions}
               onChange={(e) => { setDispositionInstructions(e.target.value); markDirty(); }}
               placeholder="Any other specific wishes regarding burial or disposition..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
             />
           </div>
         </section>
@@ -587,7 +590,7 @@ export function FinalWishesForm({
                 value={firstContact}
                 onChange={(e) => { setFirstContact(e.target.value); markDirty(); }}
                 placeholder="Name, relationship, phone number..."
-                className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+                className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
               />
             </div>
 
@@ -600,7 +603,7 @@ export function FinalWishesForm({
                 value={preferredOfficiant}
                 onChange={(e) => { setPreferredOfficiant(e.target.value); markDirty(); }}
                 placeholder="Pastor, friend, family speaker..."
-                className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+                className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
               />
             </div>
           </div>
@@ -614,7 +617,7 @@ export function FinalWishesForm({
               value={pallbearerSuggestions}
               onChange={(e) => { setPallbearerSuggestions(e.target.value); markDirty(); }}
               placeholder="Names of suggested pallbearers..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
           </div>
 
@@ -627,7 +630,7 @@ export function FinalWishesForm({
               value={peopleToInvolve}
               onChange={(e) => { setPeopleToInvolve(e.target.value); markDirty(); }}
               placeholder="Friends or relatives you'd love to read, speak, or assist..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
             />
           </div>
 
@@ -640,7 +643,7 @@ export function FinalWishesForm({
               value={peopleNotResponsible}
               onChange={(e) => { setPeopleNotResponsible(e.target.value); markDirty(); }}
               placeholder="Anyone who should be spared arrangement burden..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
           </div>
 
@@ -653,7 +656,7 @@ export function FinalWishesForm({
               value={responsibilityNotes}
               onChange={(e) => { setResponsibilityNotes(e.target.value); markDirty(); }}
               placeholder="Additional guidance for your family..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
             />
           </div>
         </section>
@@ -674,7 +677,7 @@ export function FinalWishesForm({
               value={obituaryName}
               onChange={(e) => { setObituaryName(e.target.value); markDirty(); }}
               placeholder="Full name, nickname, or maiden name..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
           </div>
 
@@ -687,7 +690,7 @@ export function FinalWishesForm({
               value={obituaryRelationships}
               onChange={(e) => { setObituaryRelationships(e.target.value); markDirty(); }}
               placeholder="Spouse, children, grandchildren, siblings, mentors..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
             />
           </div>
 
@@ -700,7 +703,7 @@ export function FinalWishesForm({
               value={obituaryAccomplishments}
               onChange={(e) => { setObituaryAccomplishments(e.target.value); markDirty(); }}
               placeholder="Career, military service, degrees, hobbies..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
             />
           </div>
 
@@ -713,7 +716,7 @@ export function FinalWishesForm({
               value={obituaryCauses}
               onChange={(e) => { setObituaryCauses(e.target.value); markDirty(); }}
               placeholder="In lieu of flowers, donations may be made to..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
           </div>
 
@@ -726,7 +729,7 @@ export function FinalWishesForm({
               value={obituaryExclusions}
               onChange={(e) => { setObituaryExclusions(e.target.value); markDirty(); }}
               placeholder="Private details or topics to leave out..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
           </div>
         </section>
@@ -747,7 +750,7 @@ export function FinalWishesForm({
               value={clothingPreference}
               onChange={(e) => { setClothingPreference(e.target.value); markDirty(); }}
               placeholder="Favorite suit, navy dress, casual linen..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
           </div>
 
@@ -760,7 +763,7 @@ export function FinalWishesForm({
               value={displayPreferences}
               onChange={(e) => { setDisplayPreferences(e.target.value); markDirty(); }}
               placeholder="White roses, family photo albums, favorite quilt..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
             />
           </div>
 
@@ -773,7 +776,7 @@ export function FinalWishesForm({
               value={gatheringPreferences}
               onChange={(e) => { setGatheringPreferences(e.target.value); markDirty(); }}
               placeholder="Italian comfort food, coffee & pastries..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none"
             />
           </div>
 
@@ -786,7 +789,7 @@ export function FinalWishesForm({
               value={finalMessage}
               onChange={(e) => { setFinalMessage(e.target.value); markDirty(); }}
               placeholder="A lasting personal note to your family and friends..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
             />
           </div>
 
@@ -799,7 +802,7 @@ export function FinalWishesForm({
               value={additionalWishes}
               onChange={(e) => { setAdditionalWishes(e.target.value); markDirty(); }}
               placeholder="Anything else you want your loved ones to know..."
-              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
+              className="w-full bg-transparent border-b border-[#7a5b28]/40 border-t-0 border-l-0 border-r-0 rounded-none px-1 py-1 text-xs font-serif text-[#2c1a0e] placeholder-[#6b4a2f] focus:border-[#7a5b28] focus:ring-0 focus:outline-none resize-none"
             />
           </div>
         </section>

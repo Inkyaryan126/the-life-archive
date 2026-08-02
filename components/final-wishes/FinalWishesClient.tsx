@@ -72,19 +72,16 @@ export function FinalWishesClient({
         navRegion={dashboardSideNavRegion}
         sceneLabel="Final Wishes scene"
       >
-        {/* 1. Upper-Left Identity Region: Archive Name Only (No portrait, no avatar) */}
+        {/* 1. Upper-Left Identity Region: Archive Name Only (No portrait, no avatar, no status subtitle) */}
         {activeArchive ? (
           <ArchiveOverlayRegion
             region={upperLeftIdentityRegion}
-            className="flex flex-col justify-center px-3 py-1 text-archive-ivory"
+            className="flex flex-col justify-center items-center px-2 py-1 text-archive-ivory text-center"
             ariaLabel="Active archive identity"
           >
-            <h1 className="line-clamp-2 font-serif text-sm font-bold tracking-wide text-archive-ivory drop-shadow-sm">
+            <h1 className="line-clamp-2 font-serif text-xs font-bold tracking-wide text-archive-ivory drop-shadow-sm text-center">
               {activeArchive.archiveName}
             </h1>
-            <p className="text-[0.6rem] font-semibold uppercase tracking-widest text-archive-gold/80">
-              Living Archive
-            </p>
           </ArchiveOverlayRegion>
         ) : null}
 

@@ -54,16 +54,26 @@ async function runFinalWishesTests() {
   // 3. UI Element Verification
   assert.doesNotMatch(clientContent, /activeArchiveImageRegion|profilePhotoUrl/i, "User photo / avatar must be removed from Final Wishes");
   assert.doesNotMatch(clientContent, /<select/i, "Archive selector dropdown must be removed from Final Wishes page");
+  const identityBlock = clientContent.slice(
+    clientContent.indexOf("region={upperLeftIdentityRegion}"),
+    clientContent.indexOf("</ArchiveOverlayRegion>")
+  );
+  assert.doesNotMatch(identityBlock, /Living Archive/i, "LIVING ARCHIVE subtitle must be removed from upper-left identity region");
 
+  assert.match(clientContent, /activeArchive\.archiveName/, "Identity box must render active archive name");
+  assert.match(clientContent, /line-clamp-2/, "Archive name must support balanced multi-line wrapping");
   assert.match(clientContent, /href="\/dashboard"/, "Upper-right navigation region must link to /dashboard");
   assert.match(clientContent, /aria-label="Return to My Archives"/, "Upper-right region must have accessible aria-label");
 
-  // 4. Form Styling & Parchment Integration Verification
+  // 4. Form Styling, Tapered Parchment Fit & Placeholder Contrast Verification
   const formComponentPath = join(process.cwd(), "components/final-wishes/FinalWishesForm.tsx");
   const formContent = readFileSync(formComponentPath, "utf8");
 
   assert.match(formContent, /bg-transparent/, "Form background must be transparent");
   assert.match(formContent, /scrollbar-none/, "Form must hide scrollbars while preserving scrolling");
+  assert.match(formContent, /polygon\(9\.06% 0%, 90\.03% 0%, 99\.48% 100%, 0\.52% 100%\)/, "Form must use tapered parchment clip-path polygon");
+  assert.match(formContent, /px-8/, "Header & Save control must be inset inside the top narrower safe width");
+  assert.match(formContent, /placeholder-\[#6b4a2f\]/, "Placeholder text must use dark brown contrast (#6b4a2f)");
   assert.match(formContent, /italic text-\[#5e472a\]/, "Disclaimer must be simple italic parchment text");
   assert.doesNotMatch(formContent, /rounded-md border border-\[#7a5b28\]\/35 bg-\[#3c2a1e\]\/5/i, "Form fields must not use solid card containers");
 
