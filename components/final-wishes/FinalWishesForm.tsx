@@ -235,12 +235,9 @@ export function FinalWishesForm({
   };
 
   return (
-    <div
-      className="relative flex h-full flex-col font-serif text-[#2c1a0e] bg-transparent selection:bg-[#c5a059]/30"
-      style={{ clipPath: "polygon(9.06% 0%, 90.03% 0%, 99.48% 100%, 0.52% 100%)" }}
-    >
-      {/* Integrated Header / Top Bar on Parchment (Inset for narrower top scroll width) */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#7a5b28]/25 bg-transparent pb-2 px-8 pt-1">
+    <div className="relative flex h-full flex-col font-serif text-[#2c1a0e] bg-transparent selection:bg-[#c5a059]/30">
+      {/* Integrated Header / Top Bar on Parchment (Fixed Safe Centered Column) */}
+      <div className="mx-auto w-full max-w-[560px] flex flex-wrap items-center justify-between gap-2 border-b border-[#7a5b28]/25 bg-transparent px-5 py-2">
         <div>
           <h2 className="font-serif text-sm font-bold tracking-wide text-[#2c1a0e]">Final Wishes</h2>
           <p className="text-[0.65rem] font-serif text-[#5e472a]">For {archiveName}</p>
@@ -265,7 +262,7 @@ export function FinalWishesForm({
       </div>
 
       {errorMessage ? (
-        <div className="my-2 text-xs font-bold text-red-900 border-b border-red-800/30 pb-1">
+        <div className="mx-auto w-full max-w-[560px] my-2 text-xs font-bold text-red-900 border-b border-red-800/30 pb-1 px-5">
           ⚠️ {errorMessage}
         </div>
       ) : null}
@@ -274,8 +271,9 @@ export function FinalWishesForm({
       <div className="pointer-events-none absolute top-10 left-0 right-0 h-3 bg-gradient-to-b from-[#dfd0b5]/50 via-[#dfd0b5]/20 to-transparent z-10" />
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-[#cbb792]/50 via-[#cbb792]/20 to-transparent z-10" />
 
-      {/* Scrollable Form Body (Hidden Native Scrollbar) */}
-      <form onSubmit={handleSave} className="flex-1 overflow-y-auto pt-3 pb-2 space-y-5 scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* Scrollable Form Body (Hidden Native Scrollbar, Fixed Safe Rectangular Content Column) */}
+      <form onSubmit={handleSave} className="flex-1 overflow-y-auto pt-3 pb-4 scrollbar-none [ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="mx-auto w-full max-w-[560px] px-5 space-y-5">
 
         {/* 1. OVERVIEW */}
         <section className="space-y-2 pb-4 border-b border-[#7a5b28]/25">
@@ -807,6 +805,7 @@ export function FinalWishesForm({
           </div>
         </section>
 
+        </div>
       </form>
     </div>
   );
