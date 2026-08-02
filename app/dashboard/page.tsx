@@ -64,52 +64,52 @@ const memoryBreakdownOrder: Array<{ type: MemoryType; label: string }> = [
 ];
 
 const dashboardSideNavRegion = {
-  left: 2.21,
-  top: 25.88,
-  width: 13.09,
-  height: 67.19
+  left: 1.6287,
+  top: 21.6797,
+  width: 13.8762,
+  height: 71.4844
 };
 
 const activeArchiveImageRegion = {
-  left: 20.13,
-  top: 6.05,
-  width: 15.18,
-  height: 26.17
+  left: 19.8697,
+  top: 6.543,
+  width: 15.5049,
+  height: 28.0273
 };
 
 const activeArchiveInfoRegion = {
-  left: 39.22,
-  top: 3.32,
-  width: 20.2,
-  height: 36.72
+  left: 38.7622,
+  top: 2.6367,
+  width: 18.3062,
+  height: 43.0664
 };
 
 const finalWishesRegion = {
-  left: 25.41,
-  top: 53.71,
-  width: 24.69,
-  height: 30.18
+  left: 85.0163,
+  top: 73.5352,
+  width: 14.5277,
+  height: 21.6797
 };
 
 const shelfBookRegions = [
-  { left: 61.04, top: 14.84, width: 6.06, height: 15.72 },
-  { left: 68.73, top: 14.75, width: 6.12, height: 15.82 },
-  { left: 76.55, top: 14.84, width: 6.12, height: 15.82 },
-  { left: 83.58, top: 14.94, width: 6.12, height: 15.82 },
-  { left: 90.88, top: 14.84, width: 6.06, height: 15.72 }
+  { left: 61.0423, top: 14.9414, width: 5.8632, height: 18.457 },
+  { left: 68.8599, top: 14.9414, width: 5.9283, height: 18.5547 },
+  { left: 76.6124, top: 15.0391, width: 5.9935, height: 18.5547 },
+  { left: 83.9739, top: 14.9414, width: 5.9283, height: 18.5547 },
+  { left: 90.9446, top: 14.8438, width: 5.9935, height: 18.6523 }
 ];
 
 const recentMemoryRegions = [
-  { left: 28.99, top: 48.73, width: 20.72, height: 7.03 },
-  { left: 28.4, top: 57.32, width: 20.78, height: 7.13 },
-  { left: 27.62, top: 66.02, width: 20.85, height: 7.13 },
-  { left: 26.84, top: 74.22, width: 20.85, height: 7.03 }
+  { left: 29.9023, top: 53.125, width: 19.6091, height: 8.8867 },
+  { left: 29.1205, top: 62.9883, width: 19.6743, height: 8.9844 },
+  { left: 27.7524, top: 72.9492, width: 19.6743, height: 8.9844 },
+  { left: 26.5147, top: 82.7148, width: 19.7394, height: 8.9844 }
 ];
 
 const addArchiveActionRegions = [
-  { left: 53.68, top: 54.59, width: 21.56, height: 8.5 },
-  { left: 53.94, top: 63.48, width: 21.3, height: 10.35 },
-  { left: 53.55, top: 71.78, width: 22.67, height: 10.94 }
+  { left: 53.2899, top: 58.2031, width: 22.671, height: 10.2539 },
+  { left: 53.2899, top: 68.6523, width: 22.671, height: 10.0586 },
+  { left: 53.1596, top: 78.9062, width: 22.7362, height: 10.8398 }
 ];
 
 const addArchiveActionsConfig: Array<{

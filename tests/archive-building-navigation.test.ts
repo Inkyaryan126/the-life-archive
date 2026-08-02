@@ -7,6 +7,7 @@ const labels = items.map((item) => (item.kind === "divider" ? "---" : item.label
 assert.deepEqual(labels, [
   "ARCHIVE",
   "My Archives",
+  "Final Wishes",
   "Grand Hall",
   "---",
   "PRESERVE",
