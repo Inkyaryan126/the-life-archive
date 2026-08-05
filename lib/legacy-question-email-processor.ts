@@ -18,7 +18,10 @@ export type EmailClassification = {
 const BACKOFF_MINUTES = [0, 5, 20, 60, 240];
 
 export function getClaimTokenSecret(): string {
-  const secret = process.env.CLAIM_TOKEN_SECRET?.trim();
+  const secret =
+    process.env.CLAIM_TOKEN_SECRET?.trim() ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
+    process.env.NEXTAUTH_SECRET?.trim();
   if (!secret) {
     throw new Error("CLAIM_TOKEN_SECRET is missing from server environment configuration.");
   }

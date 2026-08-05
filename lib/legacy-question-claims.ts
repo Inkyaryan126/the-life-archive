@@ -3,6 +3,7 @@ import "server-only";
 import crypto from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { deriveDeterministicClaimToken } from "@/lib/legacy-question-email-processor";
 
 export const legacyQuestionClaimStatuses = [
   "not_created",
@@ -181,20 +182,57 @@ export async function getLegacyQuestionClaimOverviewByRawToken(rawToken: string)
     throw new Error(error.message);
   }
 
-  if (!data) {
-    return null;
+  if (data) {
+    const row = data as LegacyQuestionClaimRow;
+
+    if (!safeTokenHashCompare(row.token_hash, tokenHash)) {
+      return null;
+    }
+
+    return {
+      ...mapOverview(row, row.submission_id),
+      row
+    };
   }
 
-  const row = data as LegacyQuestionClaimRow;
+  // Fallback for claim tokens generated prior to alignment or if token_hash wasn't updated:
+  if (rawToken.startsWith("lqc_")) {
+    const { data: activeClaims } = await supabase
+      .from("legacy_question_claim_tokens")
+      .select("*")
+      .is("claimed_at", null)
+      .is("revoked_at", null)
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false });
 
-  if (!safeTokenHashCompare(row.token_hash, tokenHash)) {
-    return null;
+    if (activeClaims && activeClaims.length > 0) {
+      for (const candidate of activeClaims) {
+        const candidateVersion = (candidate as any).token_version || 1;
+        let expectedRaw: string;
+        try {
+          expectedRaw = deriveDeterministicClaimToken(candidate.id, candidateVersion);
+        } catch {
+          continue;
+        }
+
+        if (expectedRaw === rawToken) {
+          // Repair token_hash in DB so future lookups match directly via index
+          await supabase
+            .from("legacy_question_claim_tokens")
+            .update({ token_hash: tokenHash })
+            .eq("id", candidate.id);
+
+          const repairedRow = { ...candidate, token_hash: tokenHash } as LegacyQuestionClaimRow;
+          return {
+            ...mapOverview(repairedRow, repairedRow.submission_id),
+            row: repairedRow
+          };
+        }
+      }
+    }
   }
 
-  return {
-    ...mapOverview(row, row.submission_id),
-    row
-  };
+  return null;
 }
 
 export async function issueLegacyQuestionClaimToken(input: {
@@ -203,9 +241,10 @@ export async function issueLegacyQuestionClaimToken(input: {
   userId: string;
   email: string;
 }) {
-  const { rawToken, tokenHash, expiresAt } =
-    generateLegacyQuestionClaimTokenValue();
+  const expiresAt = new Date(Date.now() + claimTokenExpiryHours * 60 * 60 * 1000);
   const supabase = getAdminClient();
+  const initialHash = crypto.randomBytes(32).toString("hex");
+
   const { data, error } = await supabase.rpc(
     "issue_legacy_question_claim_token",
     {
@@ -213,7 +252,7 @@ export async function issueLegacyQuestionClaimToken(input: {
       target_archive_id: input.archiveId,
       target_user_id: input.userId,
       target_email: input.email,
-      target_token_hash: tokenHash,
+      target_token_hash: initialHash,
       target_expires_at: expiresAt.toISOString()
     }
   );
@@ -222,11 +261,27 @@ export async function issueLegacyQuestionClaimToken(input: {
     throw new Error(error?.message || "Unable to create claim token.");
   }
 
+  const claimRow = data as LegacyQuestionClaimRow;
+  const tokenVersion = (claimRow as any).token_version || 1;
+  const rawToken = deriveDeterministicClaimToken(claimRow.id, tokenVersion);
+  const tokenHash = hashLegacyQuestionClaimToken(rawToken);
+
+  const { error: updateError } = await supabase
+    .from("legacy_question_claim_tokens")
+    .update({ token_hash: tokenHash })
+    .eq("id", claimRow.id);
+
+  if (updateError) {
+    throw new Error(updateError.message || "Unable to save claim token hash.");
+  }
+
+  const updatedClaimRow = { ...claimRow, token_hash: tokenHash };
+
   return {
     rawToken,
     tokenHash,
     expiresAt: expiresAt.toISOString(),
-    claim: data as LegacyQuestionClaimRow
+    claim: updatedClaimRow
   };
 }
 
