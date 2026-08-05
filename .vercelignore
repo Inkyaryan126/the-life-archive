@@ -4,4 +4,7 @@
 /Advertising/
 !/app/admin/advertising/
 *.mp4
+!public/video/
+!public/video/*.mp4
 !public/videos/
+!public/videos/**
