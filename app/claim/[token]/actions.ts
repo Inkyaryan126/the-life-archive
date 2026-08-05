@@ -15,7 +15,11 @@ import {
 } from "@/lib/auth-passwords";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getLegacyQuestionSubmission, updateLegacyQuestionProcessing } from "@/lib/legacy-question-submissions";
+import {
+  getLegacyQuestionSubmission,
+  markLegacyQuestionPart3Complete,
+  updateLegacyQuestionProcessing
+} from "@/lib/legacy-question-submissions";
 import { sendEmail } from "@/lib/resend-email";
 import {
   upsertProfileForUser,
@@ -308,4 +312,30 @@ export async function requestFreshLegacyQuestionClaimEmailAction(
 
   revalidatePath(`/claim/${encodeURIComponent(token)}`);
   redirect(`/claim/${encodeURIComponent(token)}?success=reissued`);
+}
+
+export async function markClaimProloguePart3CompleteAction(input: {
+  token: string;
+  status: "completed" | "skipped";
+}) {
+  const token = input.token.trim();
+
+  if (!token) {
+    return;
+  }
+
+  const claim = await getLegacyQuestionClaimOverviewByRawToken(token);
+
+  if (!claim || claim.claimStatus !== "active") {
+    return;
+  }
+
+  await markLegacyQuestionPart3Complete({
+    userId: claim.row.user_id,
+    submissionId: claim.row.submission_id,
+    status: input.status
+  });
+
+  revalidatePath(`/claim/${encodeURIComponent(token)}`);
+  revalidatePath("/dashboard");
 }

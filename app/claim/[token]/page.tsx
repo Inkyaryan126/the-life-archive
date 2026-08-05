@@ -11,6 +11,7 @@ import { FormButton } from "@/components/auth/FormButton";
 import { PasswordFields } from "@/components/auth/PasswordFields";
 import { maskEmailAddress } from "@/lib/auth-passwords";
 import { getAccountContext } from "@/lib/account";
+import { ClaimProloguePart3Gate } from "./ClaimProloguePart3Gate";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -57,16 +58,19 @@ export default async function ClaimPage({
   const maskedEmail = claim?.email ? maskEmailAddress(claim.email) : null;
   const canContinueWithSession =
     Boolean(account.user && claim?.userId && account.user.id === claim.userId);
+  const shouldPlayPart3 =
+    status === "active" && Boolean(submission) && !submission?.prologuePart3SeenAt;
 
   return (
     <main className="min-h-screen bg-[#11100e] text-[#f8f1e7]">
-      <StandalonePageHeader
-        title="Claim Archive"
-        backHref="/"
-        backLabel="Return to Grand Hall"
-        signedIn={Boolean(account.user)}
-      />
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-10">
+      <ClaimProloguePart3Gate token={resolvedParams.token} shouldPlay={shouldPlayPart3}>
+        <StandalonePageHeader
+          title="Claim Archive"
+          backHref="/"
+          backLabel="Return to Grand Hall"
+          signedIn={Boolean(account.user)}
+        />
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-10">
 
         <section className="rounded-3xl border border-[#c9a45c]/18 bg-white/[0.04] p-6 shadow-[0_28px_70px_rgba(0,0,0,0.32)] sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a45c]">
@@ -178,8 +182,9 @@ export default async function ClaimPage({
             </div>
           )}
         </section>
-      </div>
-      <SiteFooter signedIn={Boolean(account.user)} className="mt-10" />
+        </div>
+        <SiteFooter signedIn={Boolean(account.user)} className="mt-10" />
+      </ClaimProloguePart3Gate>
     </main>
   );
 }

@@ -430,12 +430,17 @@ export async function markLegacyQuestionPart3Complete(input: {
   const supabase = getAdminClient();
   const now = new Date().toISOString();
 
-  // Update profile
+  const { data: existingProfile } = await (supabase
+    .from("profiles") as any)
+    .select("prologue_part3_seen_at, prologue_part3_status")
+    .eq("id", input.userId)
+    .maybeSingle();
+
   const { error: profileError } = await (supabase
     .from("profiles") as any)
     .update({
-      prologue_part3_seen_at: now,
-      prologue_part3_status: input.status,
+      prologue_part3_seen_at: existingProfile?.prologue_part3_seen_at ?? now,
+      prologue_part3_status: existingProfile?.prologue_part3_status ?? input.status,
       legacy_question_eligible: true
     })
     .eq("id", input.userId);
@@ -444,22 +449,35 @@ export async function markLegacyQuestionPart3Complete(input: {
     console.error("mark_part3_profile_error", profileError.message);
   }
 
-  // Update submission if available
   if (input.submissionId) {
+    const { data: existingSubmission } = await (supabase
+      .from("legacy_question_submissions") as any)
+      .select("prologue_part3_seen_at, prologue_part3_status")
+      .eq("id", input.submissionId)
+      .maybeSingle();
+
     await (supabase
       .from("legacy_question_submissions") as any)
       .update({
-        prologue_part3_seen_at: now,
-        prologue_part3_status: input.status,
+        prologue_part3_seen_at: existingSubmission?.prologue_part3_seen_at ?? now,
+        prologue_part3_status: existingSubmission?.prologue_part3_status ?? input.status,
         claimed_user_id: input.userId
       })
       .eq("id", input.submissionId);
   } else {
+    const { data: existingSubmission } = await (supabase
+      .from("legacy_question_submissions") as any)
+      .select("prologue_part3_seen_at, prologue_part3_status")
+      .eq("claimed_user_id", input.userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
     await (supabase
       .from("legacy_question_submissions") as any)
       .update({
-        prologue_part3_seen_at: now,
-        prologue_part3_status: input.status
+        prologue_part3_seen_at: existingSubmission?.prologue_part3_seen_at ?? now,
+        prologue_part3_status: existingSubmission?.prologue_part3_status ?? input.status
       })
       .eq("claimed_user_id", input.userId);
   }
