@@ -1,6 +1,7 @@
-site-design/
-future-architecture/
-tests/
-Advertising/
+/site-design/
+/future-architecture/
+/tests/
+/Advertising/
+!/app/admin/advertising/
 *.mp4
 !public/videos/
