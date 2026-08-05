@@ -64,6 +64,20 @@ export type AdvertisingLink = {
   uniqueVisitorCount: number;
 };
 
+export type AdvertisingLinkJoined = AdvertisingLink & {
+  campaignName: string | null;
+  campaignSlug: string | null;
+  qrId: string | null;
+  qrName: string | null;
+  qrSlug: string | null;
+  materialTarget: string | null;
+  scanCount: number;
+  hasQrRecord: boolean;
+  conversionCount: number;
+  qrSvgPreview: string;
+  qrDataUri: string;
+};
+
 export type AdvertisingQrCode = {
   id: string;
   createdAt: string;
@@ -145,7 +159,68 @@ export function sanitizeCsvField(value: string | number | null | undefined): str
   return str;
 }
 
+export async function ensureSeedData(): Promise<void> {
+  const supabase = getAdmin();
+
+  // 1. Ensure "Business Card Test" Campaign exists
+  const { data: campaign } = await supabase
+    .from("advertising_campaigns")
+    .upsert(
+      {
+        name: "Business Card Test",
+        slug: "business-card-test",
+        platform: "Business Card",
+        destination_url: "/legacy-question",
+        is_physical: true,
+        material: "Black Metal Business Card",
+        status: "active",
+        updated_at: new Date().toISOString()
+      },
+      { onConflict: "slug" }
+    )
+    .select("id")
+    .single();
+
+  const campaignId = campaign?.id || null;
+
+  // 2. Ensure "Business Card Test QR" Link exists & is linked to campaign
+  const { data: link } = await supabase
+    .from("advertising_links")
+    .upsert(
+      {
+        campaign_id: campaignId,
+        link_name: "Business Card Test QR",
+        slug: "business-card-test",
+        destination_path: "/legacy-question",
+        utm_source: "business_card",
+        utm_medium: "card_qr",
+        utm_campaign: "business_card_test",
+        tla_material: "Black Metal Business Card"
+      },
+      { onConflict: "slug" }
+    )
+    .select("id")
+    .single();
+
+  if (link?.id) {
+    // 3. Ensure corresponding QR code record exists
+    await supabase.from("advertising_qr_codes").upsert(
+      {
+        link_id: link.id,
+        qr_name: "Business Card Test QR Code",
+        slug: "qr-business-card-test",
+        error_correction_level: "H",
+        print_suitable: true,
+        engraving_suitable: true,
+        material_target: "Black Metal Business Card"
+      },
+      { onConflict: "slug" }
+    );
+  }
+}
+
 export async function listCampaigns(): Promise<AdvertisingCampaign[]> {
+  await ensureSeedData().catch(() => {});
   const supabase = getAdmin();
   const { data, error } = await supabase
     .from("advertising_campaigns")
@@ -190,40 +265,88 @@ export async function listCampaigns(): Promise<AdvertisingCampaign[]> {
   }));
 }
 
-export async function listTrackableLinks(): Promise<AdvertisingLink[]> {
+export async function listTrackableLinksJoined(): Promise<AdvertisingLinkJoined[]> {
+  await ensureSeedData().catch(() => {});
   const supabase = getAdmin();
-  const { data, error } = await supabase
-    .from("advertising_links")
-    .select("*")
-    .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Unable to list trackable links:", error.message);
+  const [linksResult, campaignsResult, qrsResult, conversionsResult] = await Promise.all([
+    supabase.from("advertising_links").select("*").order("created_at", { ascending: false }),
+    supabase.from("advertising_campaigns").select("id, name, slug"),
+    supabase.from("advertising_qr_codes").select("*"),
+    supabase.from("advertising_conversions").select("link_id")
+  ]);
+
+  if (linksResult.error) {
+    console.error("Unable to list trackable links:", linksResult.error.message);
     return [];
   }
 
-  return (data ?? []).map((row: any) => ({
-    id: row.id,
-    createdAt: row.created_at,
-    campaignId: row.campaign_id,
-    linkName: row.link_name,
-    slug: row.slug,
-    destinationPath: row.destination_path,
-    utmSource: row.utm_source,
-    utmMedium: row.utm_medium,
-    utmCampaign: row.utm_campaign,
-    utmContent: row.utm_content,
-    utmTerm: row.utm_term,
-    tlaChannel: row.tla_channel,
-    tlaPlacement: row.tla_placement,
-    tlaVariant: row.tla_variant,
-    tlaMaterial: row.tla_material,
-    tlaLocation: row.tla_location,
-    tlaPartner: row.tla_partner,
-    isDisabled: Boolean(row.is_disabled),
-    clickCount: Number(row.click_count || 0),
-    uniqueVisitorCount: Number(row.unique_visitor_count || 0)
-  }));
+  const campaignMap = new Map<string, { name: string; slug: string }>();
+  for (const c of campaignsResult.data ?? []) {
+    campaignMap.set(c.id, { name: c.name, slug: c.slug });
+  }
+
+  const qrMap = new Map<string, any>();
+  for (const q of qrsResult.data ?? []) {
+    qrMap.set(q.link_id, q);
+  }
+
+  const conversionCountMap = new Map<string, number>();
+  for (const conv of conversionsResult.data ?? []) {
+    if (conv.link_id) {
+      conversionCountMap.set(conv.link_id, (conversionCountMap.get(conv.link_id) ?? 0) + 1);
+    }
+  }
+
+  const joinedLinks: AdvertisingLinkJoined[] = [];
+
+  for (const row of linksResult.data ?? []) {
+    const campaign = row.campaign_id ? campaignMap.get(row.campaign_id) : null;
+    const qr = qrMap.get(row.id);
+    const shortUrl = buildShortTrackableUrl(row.slug);
+    const qrAssets = await generateAdvertisingQrAssets(shortUrl);
+
+    joinedLinks.push({
+      id: row.id,
+      createdAt: row.created_at,
+      campaignId: row.campaign_id,
+      linkName: row.link_name,
+      slug: row.slug,
+      destinationPath: row.destination_path,
+      utmSource: row.utm_source,
+      utmMedium: row.utm_medium,
+      utmCampaign: row.utm_campaign,
+      utmContent: row.utm_content,
+      utmTerm: row.utm_term,
+      tlaChannel: row.tla_channel,
+      tlaPlacement: row.tla_placement,
+      tlaVariant: row.tla_variant,
+      tlaMaterial: row.tla_material,
+      tlaLocation: row.tla_location,
+      tlaPartner: row.tla_partner,
+      isDisabled: Boolean(row.is_disabled),
+      clickCount: Number(row.click_count || 0),
+      uniqueVisitorCount: Number(row.unique_visitor_count || 0),
+      campaignName: campaign?.name ?? (row.utm_campaign || null),
+      campaignSlug: campaign?.slug ?? null,
+      qrId: qr?.id ?? null,
+      qrName: qr?.qr_name ?? null,
+      qrSlug: qr?.slug ?? null,
+      materialTarget: row.tla_material || qr?.material_target || null,
+      scanCount: Number(qr?.scan_count || 0),
+      hasQrRecord: Boolean(qr),
+      conversionCount: conversionCountMap.get(row.id) ?? 0,
+      qrSvgPreview: qrAssets.svg,
+      qrDataUri: qrAssets.pngDataUri
+    });
+  }
+
+  return joinedLinks;
+}
+
+export async function listTrackableLinks(): Promise<AdvertisingLink[]> {
+  const joined = await listTrackableLinksJoined();
+  return joined.map(({ campaignName, campaignSlug, qrId, qrName, qrSlug, materialTarget, scanCount, hasQrRecord, conversionCount, qrSvgPreview, qrDataUri, ...base }) => base);
 }
 
 export async function listQrCodes(): Promise<AdvertisingQrCode[]> {
@@ -286,6 +409,14 @@ export async function getTrackableLinkBySlug(slug: string): Promise<AdvertisingL
     clickCount: Number(data.click_count || 0),
     uniqueVisitorCount: Number(data.unique_visitor_count || 0)
   };
+}
+
+export async function toggleLinkDisabled(linkId: string, isDisabled: boolean): Promise<void> {
+  const supabase = getAdmin();
+  await supabase
+    .from("advertising_links")
+    .update({ is_disabled: isDisabled })
+    .eq("id", linkId);
 }
 
 export async function recordLinkClick(linkId: string) {

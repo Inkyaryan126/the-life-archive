@@ -1,4 +1,8 @@
-import "server-only";
+try {
+  require("server-only");
+} catch {
+  // Ignored in ts-node/tsx test runners
+}
 
 import { createHash, randomBytes } from "node:crypto";
 import { createClient } from "./supabase/server";

@@ -1,21 +1,20 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/AdminNav";
+import { AdminTrackableLinksView } from "@/components/AdminTrackableLinksView";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { getAdminAccess } from "@/lib/admin";
 import {
   listCampaigns,
-  listTrackableLinks,
+  listTrackableLinksJoined,
   listQrCodes,
   listConversions,
   createCampaign,
   createTrackableLink,
   type AdvertisingCampaign,
-  type AdvertisingLink,
-  type AdvertisingQrCode,
   type AdvertisingConversion
 } from "@/lib/advertising-campaigns";
-import { buildShortTrackableUrl, generateAdvertisingQrAssets } from "@/lib/qr-generator";
+import { getSiteUrl } from "@/lib/qr";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +43,7 @@ async function createTrackableLinkAction(formData: FormData) {
   "use server";
   const linkName = formData.get("linkName")?.toString().trim();
   const slug = formData.get("slug")?.toString().trim();
+  const campaignId = formData.get("campaignId")?.toString().trim() || null;
   const destinationPath = formData.get("destinationPath")?.toString().trim() || "/legacy-question";
   const utmSource = formData.get("utmSource")?.toString().trim() || "direct";
   const utmMedium = formData.get("utmMedium")?.toString().trim() || "qr";
@@ -53,6 +53,7 @@ async function createTrackableLinkAction(formData: FormData) {
   if (!linkName || !slug) return;
 
   await createTrackableLink({
+    campaignId,
     linkName,
     slug,
     destinationPath,
@@ -62,7 +63,7 @@ async function createTrackableLinkAction(formData: FormData) {
     tlaMaterial
   });
 
-  redirect("/admin/advertising?success=link_created");
+  redirect("/admin/advertising?tab=links&success=link_created");
 }
 
 export default async function AdminAdvertisingPage({
@@ -93,16 +94,17 @@ export default async function AdminAdvertisingPage({
     );
   }
 
-  const [campaigns, links, qrs, conversions] = await Promise.all([
+  const [campaigns, linksJoined, qrs, conversions] = await Promise.all([
     listCampaigns(),
-    listTrackableLinks(),
+    listTrackableLinksJoined(),
     listQrCodes(),
     listConversions()
   ]);
 
   const activeCampaigns = campaigns.filter((c) => c.status === "active");
   const totalBudget = campaigns.reduce((acc, c) => acc + (c.budget || 0), 0);
-  const totalClicks = links.reduce((acc, l) => acc + l.clickCount, 0);
+  const totalClicks = linksJoined.reduce((acc, l) => acc + l.clickCount, 0);
+  const siteUrl = getSiteUrl();
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-archive-obsidian px-5 py-8 text-archive-ivory sm:px-8">
@@ -129,7 +131,7 @@ export default async function AdminAdvertisingPage({
                 {activeCampaigns.length} Active Campaigns
               </span>
               <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-4 py-2 text-xs font-bold text-emerald-200">
-                {links.length} Trackable Links
+                {linksJoined.length} Trackable Links
               </span>
             </div>
           </div>
@@ -170,7 +172,7 @@ export default async function AdminAdvertisingPage({
               <div className="rounded-2xl border border-archive-gold/18 bg-[#171511]/80 p-5">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-archive-gold">Tracked Redirect Clicks</p>
                 <p className="mt-2 font-serif text-3xl text-archive-ivory">{totalClicks.toLocaleString("en-US")}</p>
-                <p className="mt-1 text-xs text-archive-ivory/50">Across {links.length} trackable links</p>
+                <p className="mt-1 text-xs text-archive-ivory/50">Across {linksJoined.length} trackable links</p>
               </div>
               <div className="rounded-2xl border border-archive-gold/18 bg-[#171511]/80 p-5">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-archive-gold">Generated QR Codes</p>
@@ -279,58 +281,67 @@ export default async function AdminAdvertisingPage({
         {currentTab === "links" ? (
           <div className="mt-8 grid gap-8 lg:grid-cols-3">
             <section className="rounded-3xl border border-archive-gold/20 bg-[#171511]/90 p-6 shadow-luxury lg:col-span-2">
-              <h2 className="font-serif text-2xl text-archive-ivory">Trackable Short Links ({links.length})</h2>
-              <div className="mt-4 divide-y divide-archive-gold/10">
-                {links.map((link) => {
-                  const shortUrl = buildShortTrackableUrl(link.slug);
-                  return (
-                    <div key={link.id} className="py-4 flex flex-col gap-2">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <h3 className="font-serif text-lg text-archive-ivory">{link.linkName}</h3>
-                        <span className="rounded-md border border-archive-gold/30 bg-black/40 px-3 py-1 font-mono text-xs text-archive-gold">
-                          {link.clickCount} Clicks
-                        </span>
-                      </div>
-                      <p className="font-mono text-xs text-emerald-300 break-all">{shortUrl}</p>
-                      <p className="text-xs text-archive-ivory/60">
-                        Redirects to: <span className="font-mono text-archive-champagne">{link.destinationPath}</span> · Source: {link.utmSource || "direct"} · Medium: {link.utmMedium || "qr"}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
+              <AdminTrackableLinksView
+                links={linksJoined}
+                campaigns={campaigns}
+                siteUrl={siteUrl}
+              />
             </section>
 
             {/* Trackable Link & QR Builder Form */}
-            <section className="rounded-3xl border border-archive-gold/20 bg-[#171511]/90 p-6 shadow-luxury">
+            <section className="rounded-3xl border border-archive-gold/20 bg-[#171511]/90 p-6 shadow-luxury h-fit">
               <h2 className="font-serif text-xl text-archive-ivory">Build Trackable Link &amp; QR</h2>
+              <p className="mt-1 text-xs text-archive-ivory/60">Generate first-party short URLs (`/go/slug`) and crisp vector QR assets.</p>
+
               <form action={createTrackableLinkAction} className="mt-4 grid gap-4 text-xs">
                 <label className="grid gap-1">
-                  <span className="text-archive-gold">Link Name</span>
+                  <span className="text-archive-gold font-bold">Assign to Campaign</span>
+                  <select
+                    name="campaignId"
+                    className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none focus:border-archive-gold"
+                  >
+                    <option value="">-- Select Campaign (Optional) --</option>
+                    {campaigns.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.platform})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="grid gap-1">
+                  <span className="text-archive-gold font-bold">Link Name</span>
                   <input name="linkName" required placeholder="e.g. Canton Funeral Home Flyer QR" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
                 </label>
+
                 <label className="grid gap-1">
-                  <span className="text-archive-gold">Short URL Slug (/go/slug)</span>
+                  <span className="text-archive-gold font-bold">Short URL Slug (/go/slug)</span>
                   <input name="slug" required placeholder="e.g. canton-fh-flyer" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
                 </label>
+
                 <label className="grid gap-1">
-                  <span className="text-archive-gold">Destination Path</span>
+                  <span className="text-archive-gold font-bold">Destination Path</span>
                   <input name="destinationPath" defaultValue="/legacy-question" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
                 </label>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="grid gap-1">
+                    <span className="text-archive-gold font-bold">UTM Source</span>
+                    <input name="utmSource" defaultValue="business_card" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
+                  </label>
+                  <label className="grid gap-1">
+                    <span className="text-archive-gold font-bold">UTM Medium</span>
+                    <input name="utmMedium" defaultValue="card_qr" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
+                  </label>
+                </div>
+
                 <label className="grid gap-1">
-                  <span className="text-archive-gold">UTM Source</span>
-                  <input name="utmSource" defaultValue="funeral_home" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
+                  <span className="text-archive-gold font-bold">Physical Material Target</span>
+                  <input name="tlaMaterial" placeholder="e.g. Black Metal Business Card, Paper Flyer, Acrylic Plaque" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
                 </label>
-                <label className="grid gap-1">
-                  <span className="text-archive-gold">UTM Medium</span>
-                  <input name="utmMedium" defaultValue="flyer_qr" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
-                </label>
-                <label className="grid gap-1">
-                  <span className="text-archive-gold">Physical Material</span>
-                  <input name="tlaMaterial" placeholder="e.g. Paper Flyer, Metal Card, Acrylic Plaque" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
-                </label>
-                <button type="submit" className="mt-2 rounded-xl bg-archive-gold px-4 py-3 font-bold text-archive-obsidian hover:bg-archive-champagne transition">
-                  Generate Short Link &amp; QR
+
+                <button type="submit" className="mt-2 rounded-xl bg-archive-gold px-4 py-3 font-bold text-archive-obsidian hover:bg-archive-champagne transition shadow-luxury">
+                  Generate Short Link &amp; Vector QR
                 </button>
               </form>
             </section>

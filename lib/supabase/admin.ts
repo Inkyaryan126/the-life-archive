@@ -1,4 +1,8 @@
-import "server-only";
+try {
+  require("server-only");
+} catch {
+  // Ignored in ts-node/tsx test runners
+}
 
 import { createClient } from "@supabase/supabase-js";
 

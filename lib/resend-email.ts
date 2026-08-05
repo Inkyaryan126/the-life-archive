@@ -1,4 +1,8 @@
-import "server-only";
+try {
+  require("server-only");
+} catch {
+  // Ignored in ts-node/tsx test runners
+}
 
 type SendEmailInput = {
   to: string;

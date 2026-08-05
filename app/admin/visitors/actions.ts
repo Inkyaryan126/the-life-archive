@@ -19,3 +19,13 @@ export async function upsertVisitorNoteAction(input: {
 
   return upsertNoteInDb(input);
 }
+
+export async function toggleLinkDisabledAction(linkId: string, isDisabled: boolean) {
+  const { isAdmin } = await getAdminAccess();
+  if (!isAdmin) {
+    throw new Error("Unauthorized admin access required.");
+  }
+
+  const { toggleLinkDisabled } = await import("@/lib/advertising-campaigns");
+  return toggleLinkDisabled(linkId, isDisabled);
+}
