@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LegacyQuestionExperience } from "@/app/legacy-question/LegacyQuestionExperience";
 import { LegacyQuestionScrollScene } from "@/components/legacy-question/LegacyQuestionScrollScene";
 
 export const metadata: Metadata = {
@@ -21,7 +22,9 @@ export default async function LegacyQuestionPage({
 
   return (
     <main className="min-h-screen bg-[#11100e] text-[#f8f1e7]">
-      <LegacyQuestionScrollScene initialSource={source} initialCardBatch={cardBatch} />
+      <LegacyQuestionExperience>
+        <LegacyQuestionScrollScene initialSource={source} initialCardBatch={cardBatch} />
+      </LegacyQuestionExperience>
     </main>
   );
 }

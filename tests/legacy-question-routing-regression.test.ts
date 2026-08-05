@@ -5,42 +5,46 @@ import { getTrackableLinkBySlug, ensureSeedData } from "../lib/advertising-campa
 import { buildShortTrackableUrl } from "../lib/qr-generator";
 
 async function runRegressionTests() {
-  console.log("Starting Legacy Question Routing & Obsolete Player Removal Test Suite...");
+  console.log("Starting Legacy Question Routing & Intended Prologue Architecture Test Suite...");
 
-  // 1. Verify app/legacy-question/page.tsx renders LegacyQuestionScrollScene directly
+  // 1. Verify app/legacy-question/page.tsx renders LegacyQuestionExperience wrapping LegacyQuestionScrollScene
   const legacyQuestionPagePath = path.join(process.cwd(), "app/legacy-question/page.tsx");
   assert.equal(fs.existsSync(legacyQuestionPagePath), true, "app/legacy-question/page.tsx must exist");
 
   const pageContent = fs.readFileSync(legacyQuestionPagePath, "utf8");
   assert.ok(
-    pageContent.includes("LegacyQuestionScrollScene"),
-    "app/legacy-question/page.tsx must import and render LegacyQuestionScrollScene"
-  );
-  assert.equal(
     pageContent.includes("LegacyQuestionExperience"),
-    false,
-    "app/legacy-question/page.tsx MUST NOT import or render LegacyQuestionExperience"
+    "app/legacy-question/page.tsx must import and render LegacyQuestionExperience"
   );
-  assert.equal(
-    pageContent.includes("LegacyProloguePlayer"),
-    false,
-    "app/legacy-question/page.tsx MUST NOT import or render LegacyProloguePlayer"
+  assert.ok(
+    pageContent.includes("LegacyQuestionScrollScene"),
+    "app/legacy-question/page.tsx must import and render LegacyQuestionScrollScene inside LegacyQuestionExperience"
   );
 
-  // 2. Verify LegacyQuestionExperience component file was removed
+  // 2. Verify LegacyQuestionExperience component file exists and renders LegacyProloguePlayer
   const experiencePath = path.join(process.cwd(), "app/legacy-question/LegacyQuestionExperience.tsx");
   assert.equal(
     fs.existsSync(experiencePath),
-    false,
-    "app/legacy-question/LegacyQuestionExperience.tsx MUST be deleted"
+    true,
+    "app/legacy-question/LegacyQuestionExperience.tsx must exist"
   );
 
-  // 3. Verify LegacyProloguePlayer component file was removed
+  const experienceContent = fs.readFileSync(experiencePath, "utf8");
+  assert.ok(
+    experienceContent.includes("LegacyProloguePlayer"),
+    "LegacyQuestionExperience must import and render LegacyProloguePlayer on initial mount"
+  );
+  assert.ok(
+    experienceContent.includes("enterQuestion"),
+    "LegacyQuestionExperience must contain transition handler to reveal LegacyQuestionScrollScene on skip or completion"
+  );
+
+  // 3. Verify LegacyProloguePlayer component file exists
   const playerPath = path.join(process.cwd(), "app/(prototype)/legacy-prologue/_components/LegacyProloguePlayer.tsx");
   assert.equal(
     fs.existsSync(playerPath),
-    false,
-    "app/(prototype)/legacy-prologue/_components/LegacyProloguePlayer.tsx MUST be deleted"
+    true,
+    "app/(prototype)/legacy-prologue/_components/LegacyProloguePlayer.tsx must exist"
   );
 
   // 4. Verify app/(prototype)/legacy-prologue/page.tsx issues redirect to /legacy-question
@@ -70,7 +74,7 @@ async function runRegressionTests() {
   const shortUrl = buildShortTrackableUrl(link?.slug || "business-card-test", "https://www.thelifearchive.vip");
   assert.equal(shortUrl, "https://www.thelifearchive.vip/go/business-card-test");
 
-  console.log("Legacy Question Routing & Obsolete Player Removal Test Suite passed cleanly!");
+  console.log("Legacy Question Routing & Intended Prologue Architecture Test Suite passed cleanly!");
 }
 
 runRegressionTests().catch((err) => {
