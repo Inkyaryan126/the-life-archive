@@ -23,7 +23,7 @@ async function createCampaignAction(formData: FormData) {
   const name = formData.get("name")?.toString().trim();
   const slug = formData.get("slug")?.toString().trim();
   const platform = formData.get("platform")?.toString().trim();
-  const destinationUrl = formData.get("destinationUrl")?.toString().trim() || "/legacy-question";
+  const destinationUrl = formData.get("destinationUrl")?.toString().trim() || "/legacy-prologue";
   const budget = formData.get("budget") ? Number(formData.get("budget")) : null;
 
   if (!name || !slug || !platform) return;
@@ -44,7 +44,7 @@ async function createTrackableLinkAction(formData: FormData) {
   const linkName = formData.get("linkName")?.toString().trim();
   const slug = formData.get("slug")?.toString().trim();
   const campaignId = formData.get("campaignId")?.toString().trim() || null;
-  const destinationPath = formData.get("destinationPath")?.toString().trim() || "/legacy-question";
+  const destinationPath = formData.get("destinationPath")?.toString().trim() || "/legacy-prologue";
   const utmSource = formData.get("utmSource")?.toString().trim() || "direct";
   const utmMedium = formData.get("utmMedium")?.toString().trim() || "qr";
   const utmCampaign = formData.get("utmCampaign")?.toString().trim() || "general";
@@ -263,7 +263,7 @@ export default async function AdminAdvertisingPage({
                 </label>
                 <label className="grid gap-1">
                   <span className="text-archive-gold">Destination Path</span>
-                  <input name="destinationUrl" defaultValue="/legacy-question" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
+                  <input name="destinationUrl" defaultValue="/legacy-prologue" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
                 </label>
                 <label className="grid gap-1">
                   <span className="text-archive-gold">Budget ($)</span>
@@ -321,7 +321,7 @@ export default async function AdminAdvertisingPage({
 
                 <label className="grid gap-1">
                   <span className="text-archive-gold font-bold">Destination Path</span>
-                  <input name="destinationPath" defaultValue="/legacy-question" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2.5 text-archive-ivory outline-none focus:border-archive-gold" />
+                  <input name="destinationPath" defaultValue="/legacy-prologue" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2.5 text-archive-ivory outline-none focus:border-archive-gold" />
                 </label>
 
                 <div className="grid grid-cols-2 gap-2">

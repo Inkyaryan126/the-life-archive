@@ -76,6 +76,7 @@ export type AdvertisingLinkJoined = AdvertisingLink & {
   conversionCount: number;
   qrSvgPreview: string;
   qrDataUri: string;
+  isDeprecatedRoute: boolean;
 };
 
 export type AdvertisingQrCode = {
@@ -136,8 +137,14 @@ export type AnalyticsVisitorNote = {
   createdBy: string | null;
 };
 
-function getAdmin() {
-  return createAdminClient() as SupabaseClient<any, "public", any>;
+export const DEPRECATED_ROUTES = ["/legacy-question"];
+
+function getAdmin(): SupabaseClient<any, "public", any> | null {
+  try {
+    return createAdminClient() as SupabaseClient<any, "public", any>;
+  } catch (err) {
+    return null;
+  }
 }
 
 export function sanitizeCsvField(value: string | number | null | undefined): string {
@@ -147,7 +154,6 @@ export function sanitizeCsvField(value: string | number | null | undefined): str
 
   const str = String(value);
 
-  // Prevent CSV Formula Injection by prepending single quote if starts with dangerous characters
   if (/^[=+\-@\t\r]/.test(str)) {
     return `'${str.replace(/"/g, '""')}`;
   }
@@ -161,67 +167,103 @@ export function sanitizeCsvField(value: string | number | null | undefined): str
 
 export async function ensureSeedData(): Promise<void> {
   const supabase = getAdmin();
+  if (!supabase) return;
 
-  // 1. Ensure "Business Card Test" Campaign exists
-  const { data: campaign } = await supabase
+  // 1. Ensure "Business Card Test" Campaign exists without overwriting admin edits
+  const { data: existingCampaign } = await supabase
     .from("advertising_campaigns")
-    .upsert(
-      {
+    .select("id, destination_url")
+    .eq("slug", "business-card-test")
+    .maybeSingle();
+
+  let campaignId = existingCampaign?.id || null;
+
+  if (!existingCampaign) {
+    const { data: createdCampaign } = await supabase
+      .from("advertising_campaigns")
+      .insert({
         name: "Business Card Test",
         slug: "business-card-test",
         platform: "Business Card",
-        destination_url: "/legacy-question",
+        destination_url: "/legacy-prologue",
         is_physical: true,
         material: "Black Metal Business Card",
         status: "active",
         updated_at: new Date().toISOString()
-      },
-      { onConflict: "slug" }
-    )
-    .select("id")
-    .single();
+      })
+      .select("id")
+      .single();
 
-  const campaignId = campaign?.id || null;
+    campaignId = createdCampaign?.id || null;
+  } else if (existingCampaign.destination_url === "/legacy-question") {
+    // One-time migration for legacy seed
+    await supabase
+      .from("advertising_campaigns")
+      .update({ destination_url: "/legacy-prologue" })
+      .eq("id", existingCampaign.id);
+  }
 
-  // 2. Ensure "Business Card Test QR" Link exists & is linked to campaign
-  const { data: link } = await supabase
+  // 2. Ensure "Business Card Test QR" Link exists without overwriting admin edits
+  const { data: existingLink } = await supabase
     .from("advertising_links")
-    .upsert(
-      {
+    .select("id, destination_path")
+    .eq("slug", "business-card-test")
+    .maybeSingle();
+
+  let linkId = existingLink?.id || null;
+
+  if (!existingLink) {
+    const { data: createdLink } = await supabase
+      .from("advertising_links")
+      .insert({
         campaign_id: campaignId,
         link_name: "Business Card Test QR",
         slug: "business-card-test",
-        destination_path: "/legacy-question",
+        destination_path: "/legacy-prologue",
         utm_source: "business_card",
         utm_medium: "card_qr",
         utm_campaign: "business_card_test",
         tla_material: "Black Metal Business Card"
-      },
-      { onConflict: "slug" }
-    )
-    .select("id")
-    .single();
+      })
+      .select("id")
+      .single();
 
-  if (link?.id) {
+    linkId = createdLink?.id || null;
+  } else if (existingLink.destination_path === "/legacy-question") {
+    // One-time migration from deprecated destination to approved prologue
+    await supabase
+      .from("advertising_links")
+      .update({ destination_path: "/legacy-prologue" })
+      .eq("id", existingLink.id);
+  }
+
+  if (linkId) {
     // 3. Ensure corresponding QR code record exists
-    await supabase.from("advertising_qr_codes").upsert(
-      {
-        link_id: link.id,
+    const { data: existingQr } = await supabase
+      .from("advertising_qr_codes")
+      .select("id")
+      .eq("slug", "qr-business-card-test")
+      .maybeSingle();
+
+    if (!existingQr) {
+      await supabase.from("advertising_qr_codes").insert({
+        link_id: linkId,
         qr_name: "Business Card Test QR Code",
         slug: "qr-business-card-test",
         error_correction_level: "H",
         print_suitable: true,
         engraving_suitable: true,
         material_target: "Black Metal Business Card"
-      },
-      { onConflict: "slug" }
-    );
+      });
+    }
   }
 }
 
 export async function listCampaigns(): Promise<AdvertisingCampaign[]> {
   await ensureSeedData().catch(() => {});
   const supabase = getAdmin();
+  if (!supabase) return [];
+
   const { data, error } = await supabase
     .from("advertising_campaigns")
     .select("*")
@@ -268,6 +310,27 @@ export async function listCampaigns(): Promise<AdvertisingCampaign[]> {
 export async function listTrackableLinksJoined(): Promise<AdvertisingLinkJoined[]> {
   await ensureSeedData().catch(() => {});
   const supabase = getAdmin();
+  if (!supabase) {
+    const shortUrl = buildShortTrackableUrl(mockLinkStore.slug);
+    const qrAssets = await generateAdvertisingQrAssets(shortUrl);
+    return [
+      {
+        ...mockLinkStore,
+        campaignName: "Business Card Test",
+        campaignSlug: "business-card-test",
+        qrId: "mock_qr_business_card_test",
+        qrName: "Business Card Test QR Code",
+        qrSlug: "qr-business-card-test",
+        materialTarget: mockLinkStore.tlaMaterial,
+        scanCount: 0,
+        hasQrRecord: true,
+        conversionCount: 0,
+        qrSvgPreview: qrAssets.svg,
+        qrDataUri: qrAssets.pngDataUri,
+        isDeprecatedRoute: mockLinkStore.destinationPath.includes("/legacy-question")
+      }
+    ];
+  }
 
   const [linksResult, campaignsResult, qrsResult, conversionsResult] = await Promise.all([
     supabase.from("advertising_links").select("*").order("created_at", { ascending: false }),
@@ -305,6 +368,8 @@ export async function listTrackableLinksJoined(): Promise<AdvertisingLinkJoined[
     const qr = qrMap.get(row.id);
     const shortUrl = buildShortTrackableUrl(row.slug);
     const qrAssets = await generateAdvertisingQrAssets(shortUrl);
+    const destPath = (row.destination_path || "").trim();
+    const isDeprecatedRoute = DEPRECATED_ROUTES.some((d) => destPath.toLowerCase().startsWith(d));
 
     joinedLinks.push({
       id: row.id,
@@ -337,7 +402,8 @@ export async function listTrackableLinksJoined(): Promise<AdvertisingLinkJoined[
       hasQrRecord: Boolean(qr),
       conversionCount: conversionCountMap.get(row.id) ?? 0,
       qrSvgPreview: qrAssets.svg,
-      qrDataUri: qrAssets.pngDataUri
+      qrDataUri: qrAssets.pngDataUri,
+      isDeprecatedRoute
     });
   }
 
@@ -346,11 +412,13 @@ export async function listTrackableLinksJoined(): Promise<AdvertisingLinkJoined[
 
 export async function listTrackableLinks(): Promise<AdvertisingLink[]> {
   const joined = await listTrackableLinksJoined();
-  return joined.map(({ campaignName, campaignSlug, qrId, qrName, qrSlug, materialTarget, scanCount, hasQrRecord, conversionCount, qrSvgPreview, qrDataUri, ...base }) => base);
+  return joined.map(({ campaignName, campaignSlug, qrId, qrName, qrSlug, materialTarget, scanCount, hasQrRecord, conversionCount, qrSvgPreview, qrDataUri, isDeprecatedRoute, ...base }) => base);
 }
 
 export async function listQrCodes(): Promise<AdvertisingQrCode[]> {
   const supabase = getAdmin();
+  if (!supabase) return [];
+
   const { data, error } = await supabase
     .from("advertising_qr_codes")
     .select("*")
@@ -375,8 +443,38 @@ export async function listQrCodes(): Promise<AdvertisingQrCode[]> {
   }));
 }
 
+let mockLinkStore: AdvertisingLink = {
+  id: "mock_lnk_business_card_test",
+  createdAt: new Date().toISOString(),
+  campaignId: "mock_cmp_business_card_test",
+  linkName: "Business Card Test QR",
+  slug: "business-card-test",
+  destinationPath: "/legacy-prologue",
+  utmSource: "business_card",
+  utmMedium: "card_qr",
+  utmCampaign: "business_card_test",
+  utmContent: null,
+  utmTerm: null,
+  tlaChannel: null,
+  tlaPlacement: null,
+  tlaVariant: null,
+  tlaMaterial: "Black Metal Business Card",
+  tlaLocation: null,
+  tlaPartner: null,
+  isDisabled: false,
+  clickCount: 0,
+  uniqueVisitorCount: 0
+};
+
 export async function getTrackableLinkBySlug(slug: string): Promise<AdvertisingLink | null> {
   const supabase = getAdmin();
+  if (!supabase) {
+    if (slug.toLowerCase().trim() === mockLinkStore.slug) {
+      return { ...mockLinkStore };
+    }
+    return null;
+  }
+
   const { data, error } = await supabase
     .from("advertising_links")
     .select("*")
@@ -411,8 +509,58 @@ export async function getTrackableLinkBySlug(slug: string): Promise<AdvertisingL
   };
 }
 
+export async function updateTrackableLink(input: {
+  id: string;
+  linkName?: string;
+  destinationPath?: string;
+  campaignId?: string | null;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+  tlaMaterial?: string | null;
+}): Promise<void> {
+  const supabase = getAdmin();
+  if (!supabase) {
+    if (input.destinationPath !== undefined) mockLinkStore.destinationPath = input.destinationPath;
+    if (input.linkName !== undefined) mockLinkStore.linkName = input.linkName;
+    if (input.tlaMaterial !== undefined) mockLinkStore.tlaMaterial = input.tlaMaterial;
+    return;
+  }
+
+  const updateData: Record<string, any> = {};
+  if (input.linkName !== undefined) updateData.link_name = input.linkName.trim();
+  if (input.destinationPath !== undefined) {
+    let dest = input.destinationPath.trim();
+    if (!dest.startsWith("/")) dest = `/${dest}`;
+    updateData.destination_path = dest;
+  }
+  if (input.campaignId !== undefined) updateData.campaign_id = input.campaignId;
+  if (input.utmSource !== undefined) updateData.utm_source = input.utmSource;
+  if (input.utmMedium !== undefined) updateData.utm_medium = input.utmMedium;
+  if (input.utmCampaign !== undefined) updateData.utm_campaign = input.utmCampaign;
+  if (input.tlaMaterial !== undefined) updateData.tla_material = input.tlaMaterial;
+
+  const { error } = await supabase
+    .from("advertising_links")
+    .update(updateData)
+    .eq("id", input.id);
+
+  if (error) {
+    throw new Error(`Unable to update trackable link: ${error.message}`);
+  }
+
+  // Also update QR code material target if provided
+  if (input.tlaMaterial !== undefined) {
+    await supabase
+      .from("advertising_qr_codes")
+      .update({ material_target: input.tlaMaterial })
+      .eq("link_id", input.id);
+  }
+}
+
 export async function toggleLinkDisabled(linkId: string, isDisabled: boolean): Promise<void> {
   const supabase = getAdmin();
+  if (!supabase) return;
   await supabase
     .from("advertising_links")
     .update({ is_disabled: isDisabled })
@@ -421,13 +569,13 @@ export async function toggleLinkDisabled(linkId: string, isDisabled: boolean): P
 
 export async function recordLinkClick(linkId: string) {
   const supabase = getAdmin();
+  if (!supabase) return;
   try {
     const { error } = await supabase.rpc("increment_link_click_count", { target_link_id: linkId });
     if (error) {
       throw error;
     }
   } catch {
-    // Fallback direct update
     const { data } = await supabase.from("advertising_links").select("click_count").eq("id", linkId).single();
     if (data) {
       await supabase.from("advertising_links").update({ click_count: Number(data.click_count || 0) + 1 }).eq("id", linkId);
@@ -461,6 +609,7 @@ export async function createCampaign(input: {
   campaignOwner?: string | null;
 }): Promise<AdvertisingCampaign> {
   const supabase = getAdmin();
+  if (!supabase) throw new Error("Supabase is not configured.");
   const cleanSlug = input.slug.toLowerCase().trim().replace(/[^a-z0-9-]/g, "-");
 
   const rowData = {
@@ -551,6 +700,7 @@ export async function createTrackableLink(input: {
   tlaPartner?: string | null;
 }): Promise<{ link: AdvertisingLink; qr: AdvertisingQrCode }> {
   const supabase = getAdmin();
+  if (!supabase) throw new Error("Supabase is not configured.");
   const cleanSlug = input.slug.toLowerCase().trim().replace(/[^a-z0-9-]/g, "-");
 
   const linkRow = {
@@ -641,6 +791,7 @@ export async function createTrackableLink(input: {
 
 export async function listVisitorNotes(): Promise<Map<string, AnalyticsVisitorNote>> {
   const supabase = getAdmin();
+  if (!supabase) return new Map();
   const { data, error } = await supabase
     .from("analytics_visitor_notes")
     .select("*");
@@ -681,6 +832,7 @@ export async function upsertVisitorNote(input: {
   createdBy?: string | null;
 }): Promise<AnalyticsVisitorNote> {
   const supabase = getAdmin();
+  if (!supabase) throw new Error("Supabase is not configured.");
   const rowData = {
     visitor_id: input.visitorId,
     note: input.note ?? null,
@@ -730,6 +882,7 @@ export async function recordConversion(input: {
   details?: Record<string, any> | null;
 }) {
   const supabase = getAdmin();
+  if (!supabase) return;
   const { error } = await supabase.from("advertising_conversions").insert({
     visitor_id: input.visitorId,
     session_id: input.sessionId ?? null,
@@ -749,6 +902,7 @@ export async function recordConversion(input: {
 
 export async function listConversions(): Promise<AdvertisingConversion[]> {
   const supabase = getAdmin();
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("advertising_conversions")
     .select("*")

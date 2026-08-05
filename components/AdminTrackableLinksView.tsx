@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { AdvertisingLinkJoined, AdvertisingCampaign } from "@/lib/advertising-campaigns";
-import { toggleLinkDisabledAction } from "@/app/admin/visitors/actions";
+import { toggleLinkDisabledAction, updateTrackableLinkAction } from "@/app/admin/visitors/actions";
 
 type AdminTrackableLinksViewProps = {
   links: AdvertisingLinkJoined[];
@@ -16,8 +16,10 @@ export function AdminTrackableLinksView({
   siteUrl
 }: AdminTrackableLinksViewProps) {
   const [selectedLinkForModal, setSelectedLinkForModal] = useState<AdvertisingLinkJoined | null>(null);
+  const [editingLink, setEditingLink] = useState<AdvertisingLinkJoined | null>(null);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [searchFilter, setSearchFilter] = useState("");
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
 
   const filteredLinks = links.filter((l) => {
     if (!searchFilter.trim()) return true;
@@ -25,6 +27,7 @@ export function AdminTrackableLinksView({
     return (
       l.linkName.toLowerCase().includes(q) ||
       l.slug.toLowerCase().includes(q) ||
+      l.destinationPath.toLowerCase().includes(q) ||
       (l.campaignName || "").toLowerCase().includes(q) ||
       (l.materialTarget || "").toLowerCase().includes(q) ||
       (l.utmSource || "").toLowerCase().includes(q)
@@ -50,6 +53,39 @@ export function AdminTrackableLinksView({
     }
   };
 
+  const handleSaveEdit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingLink) return;
+
+    setIsSubmittingEdit(true);
+    const formData = new FormData(e.currentTarget);
+    const linkName = formData.get("linkName")?.toString().trim();
+    const destinationPath = formData.get("destinationPath")?.toString().trim();
+    const campaignId = formData.get("campaignId")?.toString().trim() || null;
+    const utmSource = formData.get("utmSource")?.toString().trim() || null;
+    const utmMedium = formData.get("utmMedium")?.toString().trim() || null;
+    const tlaMaterial = formData.get("tlaMaterial")?.toString().trim() || null;
+
+    try {
+      await updateTrackableLinkAction({
+        id: editingLink.id,
+        linkName,
+        destinationPath,
+        campaignId,
+        utmSource,
+        utmMedium,
+        tlaMaterial
+      });
+      setEditingLink(null);
+      window.location.reload();
+    } catch (err) {
+      console.error("Unable to update link:", err);
+      alert("Failed to update trackable link destination.");
+    } finally {
+      setIsSubmittingEdit(false);
+    }
+  };
+
   return (
     <div className="w-full space-y-6">
       {/* Search & Filter Header Bar */}
@@ -68,7 +104,7 @@ export function AdminTrackableLinksView({
             type="text"
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
-            placeholder="Search links, campaigns, materials..."
+            placeholder="Search links, destinations, campaigns..."
             className="w-full rounded-xl border border-archive-gold/25 bg-archive-obsidian px-4 py-2.5 text-xs text-archive-ivory outline-none placeholder-archive-ivory/40 focus:border-archive-gold transition"
           />
         </div>
@@ -121,6 +157,16 @@ export function AdminTrackableLinksView({
                     </span>
                   )}
 
+                  {/* Deprecated Route Warning Badge */}
+                  {link.isDeprecatedRoute ? (
+                    <span
+                      data-testid="deprecated-badge"
+                      className="rounded-md border border-amber-400/50 bg-amber-500/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-300 animate-pulse"
+                    >
+                      ⚠️ Deprecated Destination
+                    </span>
+                  ) : null}
+
                   {!link.hasQrRecord ? (
                     <span className="rounded-md border border-amber-400/40 bg-amber-400/15 px-3 py-1 text-[11px] font-bold uppercase text-amber-300">
                       Missing QR Record
@@ -146,7 +192,7 @@ export function AdminTrackableLinksView({
                 </div>
               </div>
 
-              {/* Row 2: Main Content (Desktop: 3-column horizontal grid: 180px fixed QR | minmax(0,1fr) details | 200px actions) */}
+              {/* Row 2: Main Content */}
               <div className="mt-5 grid grid-cols-1 gap-6 md:grid-cols-[180px_minmax(0,1fr)] lg:grid-cols-[180px_minmax(0,1fr)_200px] items-start">
                 {/* Column 1: QR Code Preview Box (Fixed 180px width) */}
                 <div className="flex flex-col items-center justify-center w-[180px] mx-auto md:mx-0">
@@ -186,8 +232,15 @@ export function AdminTrackableLinksView({
                   {/* Structured 2-Column Metadata Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 rounded-xl border border-archive-gold/12 bg-white/[0.02] p-4 text-xs">
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-archive-gold/80 block">Destination</span>
-                      <span className="font-mono text-archive-ivory truncate block mt-0.5">{link.destinationPath}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-archive-gold/80 block">Resolved Destination</span>
+                      <span
+                        data-testid={`destination-${link.slug}`}
+                        className={`font-mono truncate block mt-0.5 font-semibold ${
+                          link.isDeprecatedRoute ? "text-amber-300" : "text-emerald-300"
+                        }`}
+                      >
+                        {link.destinationPath}
+                      </span>
                     </div>
 
                     <div>
@@ -228,6 +281,15 @@ export function AdminTrackableLinksView({
                   >
                     Open Link
                   </a>
+
+                  <button
+                    type="button"
+                    data-testid={`edit-btn-${link.slug}`}
+                    onClick={() => setEditingLink(link)}
+                    className="w-full rounded-xl border border-archive-gold/40 bg-archive-gold/20 px-3.5 py-2 text-xs font-bold text-archive-gold hover:bg-archive-gold hover:text-archive-obsidian transition"
+                  >
+                    Edit Destination ✏️
+                  </button>
 
                   <button
                     type="button"
@@ -288,6 +350,117 @@ export function AdminTrackableLinksView({
         })}
       </div>
 
+      {/* Edit Link & Destination Modal */}
+      {editingLink ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-lg rounded-3xl border border-archive-gold/30 bg-[#14120e] p-6 shadow-luxury">
+            <div className="flex items-center justify-between border-b border-archive-gold/20 pb-4">
+              <h3 className="font-serif text-2xl font-semibold text-archive-ivory">Edit Destination Path &amp; Metadata</h3>
+              <button
+                type="button"
+                onClick={() => setEditingLink(null)}
+                className="rounded-full border border-archive-gold/30 px-3 py-1 text-xs text-archive-ivory/70 hover:text-archive-ivory"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="mt-5 grid gap-4 text-xs">
+              <div className="rounded-xl border border-archive-gold/15 bg-black/40 p-3 font-mono">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-archive-gold">Short Redirect URL (Preserved)</span>
+                <p className="mt-1 text-emerald-300 font-bold">{siteUrl}/go/{editingLink.slug}</p>
+                <p className="mt-1 text-[10px] text-archive-ivory/50 font-sans">Editing destination updates where visitors land without changing the short URL or physical QR code identity.</p>
+              </div>
+
+              <label className="grid gap-1">
+                <span className="text-archive-gold font-bold">Target Destination Path</span>
+                <input
+                  name="destinationPath"
+                  required
+                  defaultValue={editingLink.destinationPath}
+                  placeholder="/legacy-prologue"
+                  className="rounded-xl border border-archive-gold/30 bg-archive-obsidian px-3.5 py-2.5 text-archive-ivory outline-none focus:border-archive-gold font-mono text-sm"
+                />
+                <span className="text-[11px] text-archive-ivory/60">
+                  Approved prologue: <code className="text-emerald-300 font-bold">/legacy-prologue</code>
+                </span>
+              </label>
+
+              <label className="grid gap-1">
+                <span className="text-archive-gold font-bold">Link Name</span>
+                <input
+                  name="linkName"
+                  required
+                  defaultValue={editingLink.linkName}
+                  className="rounded-xl border border-archive-gold/30 bg-archive-obsidian px-3.5 py-2.5 text-archive-ivory outline-none focus:border-archive-gold"
+                />
+              </label>
+
+              <label className="grid gap-1">
+                <span className="text-archive-gold font-bold">Campaign Assignment</span>
+                <select
+                  name="campaignId"
+                  defaultValue={editingLink.campaignId || ""}
+                  className="rounded-xl border border-archive-gold/30 bg-archive-obsidian px-3.5 py-2.5 text-archive-ivory outline-none focus:border-archive-gold"
+                >
+                  <option value="">-- Select Campaign --</option>
+                  {campaigns.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.platform})
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="grid grid-cols-2 gap-3">
+                <label className="grid gap-1">
+                  <span className="text-archive-gold font-bold">UTM Source</span>
+                  <input
+                    name="utmSource"
+                    defaultValue={editingLink.utmSource || ""}
+                    className="rounded-xl border border-archive-gold/30 bg-archive-obsidian px-3.5 py-2.5 text-archive-ivory outline-none focus:border-archive-gold"
+                  />
+                </label>
+                <label className="grid gap-1">
+                  <span className="text-archive-gold font-bold">UTM Medium</span>
+                  <input
+                    name="utmMedium"
+                    defaultValue={editingLink.utmMedium || ""}
+                    className="rounded-xl border border-archive-gold/30 bg-archive-obsidian px-3.5 py-2.5 text-archive-ivory outline-none focus:border-archive-gold"
+                  />
+                </label>
+              </div>
+
+              <label className="grid gap-1">
+                <span className="text-archive-gold font-bold">Physical Material Target</span>
+                <input
+                  name="tlaMaterial"
+                  defaultValue={editingLink.materialTarget || ""}
+                  className="rounded-xl border border-archive-gold/30 bg-archive-obsidian px-3.5 py-2.5 text-archive-ivory outline-none focus:border-archive-gold"
+                />
+              </label>
+
+              <div className="mt-3 flex justify-end gap-3 border-t border-archive-gold/20 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setEditingLink(null)}
+                  className="rounded-xl border border-archive-gold/30 px-4 py-2.5 font-semibold text-archive-ivory/80 hover:bg-white/5"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingEdit}
+                  className="rounded-xl bg-archive-gold px-6 py-2.5 font-bold text-archive-obsidian hover:bg-archive-champagne transition shadow-luxury"
+                >
+                  {isSubmittingEdit ? "Saving..." : "Save Destination Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
       {/* Full-Size QR Inspector Modal */}
       {selectedLinkForModal ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
@@ -337,8 +510,11 @@ export function AdminTrackableLinksView({
                 </div>
 
                 <div className="rounded-xl border border-archive-gold/18 bg-black/50 p-3 font-mono">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-archive-gold">Destination Path</span>
-                  <p className="mt-1 text-archive-champagne">{selectedLinkForModal.destinationPath}</p>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-archive-gold">Resolved Destination Path</span>
+                  <p className={`mt-1 font-bold ${selectedLinkForModal.isDeprecatedRoute ? "text-amber-300" : "text-emerald-300"}`}>
+                    {selectedLinkForModal.destinationPath}
+                    {selectedLinkForModal.isDeprecatedRoute ? " ⚠️ (Deprecated Route)" : ""}
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
