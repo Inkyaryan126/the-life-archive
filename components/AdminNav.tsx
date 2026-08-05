@@ -29,6 +29,10 @@ export function AdminNav({
           : undefined
     },
     {
+      href: "/admin/advertising",
+      label: "Advertising & Attribution"
+    },
+    {
       href: "/admin/users",
       label: "Users & Archives"
     },

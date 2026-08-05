@@ -13,6 +13,7 @@ import {
   type SiteVisitStats
 } from "@/lib/site-visits";
 import {
+  buildGroupedVisitorProfiles,
   formatVisitorAnalyticsDateTime,
   formatVisitorAnalyticsRelativeTime,
   VISITOR_ANALYTICS_TIME_ZONE
@@ -314,7 +315,24 @@ export default async function AdminVisitorsPage() {
         {/* Interactive Visitor Stream & Movement Visualizer */}
         <div className="mt-10">
           <AdminVisitorStream
-            visits={stats.recentVisits}
+            profiles={buildGroupedVisitorProfiles({
+              rows: stats.recentVisits.map((v) => ({
+                id: v.id,
+                path: v.path,
+                referrer: v.referrerSource,
+                user_agent: `${v.deviceType} ${v.browser}`,
+                anonymous_visitor_id: v.visitorDisplayName.includes("Visitor") ? v.id : null,
+                is_admin: v.isCurrentUser,
+                visitor_city: v.location.split(",")[0] || null,
+                visitor_region: v.location.split(",")[1] || null,
+                visitor_country: v.location.split(",")[2] || null,
+                user_email: v.userEmail,
+                user_display_name: v.userDisplayName,
+                created_at: v.createdAt
+              })),
+              currentAdminEmail: account.user.email,
+              currentAdminName: account.user.displayName
+            })}
             currentAdminEmail={account.user.email}
             currentAdminName={account.user.displayName}
           />

@@ -23,7 +23,7 @@ const MAX_ANALYTICS_ROWS = 10_000;
 const BASE_SITE_VISIT_SELECT =
   "id,path,referrer,user_agent,anonymous_visitor_id,is_admin,created_at";
 const FULL_SITE_VISIT_SELECT =
-  "id,path,referrer,user_agent,anonymous_visitor_id,is_admin,visitor_city,visitor_region,visitor_country,user_email,user_display_name,created_at";
+  "id,path,referrer,user_agent,anonymous_visitor_id,is_admin,visitor_city,visitor_region,visitor_country,user_email,user_display_name,created_at,utm_source,utm_medium,utm_campaign,utm_content,utm_term,tla_campaign_id,tla_link_id,tla_qr_id,tla_channel,tla_placement,tla_variant,tla_material,tla_location,tla_partner,first_touch_utm_source,first_touch_utm_medium,first_touch_utm_campaign,first_touch_tla_campaign_id,bot_score,bot_classification,bot_reasons";
 const LOCATION_SITE_VISIT_SELECT =
   "id,path,referrer,user_agent,anonymous_visitor_id,is_admin,visitor_city,visitor_region,visitor_country,created_at";
 

@@ -130,6 +130,27 @@ export type SiteVisitRow = {
   user_email?: string | null;
   user_display_name?: string | null;
   created_at: string;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_content?: string | null;
+  utm_term?: string | null;
+  tla_campaign_id?: string | null;
+  tla_link_id?: string | null;
+  tla_qr_id?: string | null;
+  tla_channel?: string | null;
+  tla_placement?: string | null;
+  tla_variant?: string | null;
+  tla_material?: string | null;
+  tla_location?: string | null;
+  tla_partner?: string | null;
+  first_touch_utm_source?: string | null;
+  first_touch_utm_medium?: string | null;
+  first_touch_utm_campaign?: string | null;
+  first_touch_tla_campaign_id?: string | null;
+  bot_score?: number | null;
+  bot_classification?: string | null;
+  bot_reasons?: string[] | null;
 };
 
 type VisitorSummary = {
@@ -404,6 +425,23 @@ export function detectDeviceType(userAgent: string | null | undefined): DeviceTy
   return "desktop";
 }
 
+export function detectOperatingSystem(userAgent: string | null | undefined): string {
+  const value = getSafeHeaderValue(userAgent, 500) ?? "";
+
+  if (!value) {
+    return "Unknown OS";
+  }
+
+  if (/iPhone|iPad|iPod/i.test(value)) return "iOS";
+  if (/Android/i.test(value)) return "Android";
+  if (/Windows/i.test(value)) return "Windows";
+  if (/Mac OS X|Macintosh|Mac_PowerPC/i.test(value)) return "macOS";
+  if (/Linux/i.test(value)) return "Linux";
+  if (/CrOS/i.test(value)) return "ChromeOS";
+
+  return "Unknown OS";
+}
+
 export function detectBrowser(userAgent: string | null | undefined) {
   const value = getSafeHeaderValue(userAgent, 500) ?? "";
 
@@ -454,6 +492,137 @@ export function formatReferrerSource(referrer: string | null | undefined) {
   } catch {
     return value.slice(0, 160) || "Direct";
   }
+}
+
+export type BotEvaluationResult = {
+  score: number; // 0 (100% Human) to 100 (Definitely Bot/Scanner)
+  classification:
+    | "likely_human"
+    | "probably_human"
+    | "unknown"
+    | "probably_automated"
+    | "likely_bot"
+    | "search_crawler"
+    | "preview_bot"
+    | "uptime_monitor"
+    | "security_scanner"
+    | "admin";
+  reasons: string[];
+};
+
+export function evaluateBotConfidence(input: {
+  userAgent?: string | null;
+  path: string;
+  referrer?: string | null;
+  isAdmin?: boolean;
+}): BotEvaluationResult {
+  if (input.isAdmin) {
+    return {
+      score: 0,
+      classification: "admin",
+      reasons: ["Authenticated administrator session"]
+    };
+  }
+
+  const ua = (input.userAgent || "").toLowerCase();
+  const path = (input.path || "").toLowerCase();
+  const reasons: string[] = [];
+  let score = 10; // Default baseline
+
+  if (isProbePath(path)) {
+    score += 80;
+    reasons.push(`Targeted vulnerable probe path: ${path}`);
+  }
+
+  if (/\b(bot|crawler|spider|slurp|bingbot|googlebot|yandex|baiduspider)\b/i.test(ua)) {
+    score += 70;
+    reasons.push("Matches known search engine crawler signature");
+    return { score: Math.min(100, score), classification: "search_crawler", reasons };
+  }
+
+  if (/\b(facebookexternalhit|twitterbot|pinterest|linkedinbot|discordbot|slackbot|telegrambot)\b/i.test(ua)) {
+    score += 50;
+    reasons.push("Matches social media preview link bot signature");
+    return { score: Math.min(100, score), classification: "preview_bot", reasons };
+  }
+
+  if (/\b(pingdom|uptimerobot|statuspage|datadog|newrelic)\b/i.test(ua)) {
+    score += 70;
+    reasons.push("Matches uptime monitor signature");
+    return { score: Math.min(100, score), classification: "uptime_monitor", reasons };
+  }
+
+  if (/\b(zgrab|masscan|nmap|nikto|sqlmap|acunetix|nessus|openvas|wpscan|dirbuster|gobuster)\b/i.test(ua)) {
+    score += 95;
+    reasons.push("Matches automated security scanner or brute-force tool signature");
+    return { score: Math.min(100, score), classification: "security_scanner", reasons };
+  }
+
+  if (/\b(curl|wget|python-requests|axios|go-http-client|java\/|node-fetch|postmanruntime)\b/i.test(ua)) {
+    score += 40;
+    reasons.push("Non-browser HTTP client library signature");
+  }
+
+  if (!ua || ua.length < 15) {
+    score += 30;
+    reasons.push("Missing or abnormally short User-Agent header");
+  }
+
+  if (score >= 75) {
+    return { score, classification: "likely_bot", reasons };
+  }
+
+  if (score >= 45) {
+    return { score, classification: "probably_automated", reasons };
+  }
+
+  if (score >= 25) {
+    return { score, classification: "probably_human", reasons: reasons.length ? reasons : ["Standard browser indicators"] };
+  }
+
+  return {
+    score: Math.max(0, score),
+    classification: "likely_human",
+    reasons: ["Verified browser user agent", "Valid human landing navigation"]
+  };
+}
+
+export type VisitorAttributionParams = {
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
+  utm_content?: string | null;
+  utm_term?: string | null;
+  tla_campaign_id?: string | null;
+  tla_link_id?: string | null;
+  tla_qr_id?: string | null;
+  tla_channel?: string | null;
+  tla_placement?: string | null;
+  tla_variant?: string | null;
+  tla_material?: string | null;
+  tla_location?: string | null;
+  tla_partner?: string | null;
+};
+
+export function extractAttributionFromUrl(url: URL): VisitorAttributionParams {
+  const getParam = (k: string) => url.searchParams.get(k)?.trim().slice(0, 100) || null;
+
+  return {
+    utm_source: getParam("utm_source"),
+    utm_medium: getParam("utm_medium"),
+    utm_campaign: getParam("utm_campaign"),
+    utm_content: getParam("utm_content"),
+    utm_term: getParam("utm_term"),
+    tla_campaign_id: getParam("tla_campaign_id"),
+    tla_link_id: getParam("tla_link_id"),
+    tla_qr_id: getParam("tla_qr_id"),
+    tla_channel: getParam("tla_channel"),
+    tla_placement: getParam("tla_placement"),
+    tla_variant: getParam("tla_variant"),
+    tla_material: getParam("tla_material"),
+    tla_location: getParam("tla_location"),
+    tla_partner: getParam("tla_partner")
+  };
 }
 
 function getRowLocation(row: SiteVisitRow): VisitorLocation {
@@ -969,3 +1138,281 @@ export function getVisitorDisplayName(visitorId: string | null | undefined) {
 
   return suffix ? `Visitor ${suffix.toUpperCase()}` : "Visitor unknown";
 }
+
+export type VisitorSessionGroup = {
+  sessionId: string;
+  sessionNumber: number;
+  startTime: string;
+  endTime: string;
+  durationMs: number;
+  durationFormatted: string;
+  landingPage: string;
+  exitPage: string;
+  pageCount: number;
+  eventCount: number;
+  referrer: string;
+  campaignSource: string | null;
+  campaignMedium: string | null;
+  campaignName: string | null;
+  campaignContent: string | null;
+  campaignTerm: string | null;
+  campaignId: string | null;
+  qrCodeId: string | null;
+  device: DeviceType;
+  browser: string;
+  operatingSystem: string;
+  location: string;
+  humanBotClassification: string;
+  botScore: number;
+  botReasons: string[];
+  journeySteps: JourneyStep[];
+};
+
+export type VisitorProfileGroup = {
+  visitorId: string;
+  shortId: string;
+  displayName: string;
+  userEmail: string | null;
+  userDisplayName: string | null;
+  isCurrentUser: boolean;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  totalSessions: number;
+  totalPageViews: number;
+  totalActiveTimeMs: number;
+  totalActiveTimeFormatted: string;
+  averageSessionLengthMs: number;
+  averageSessionLengthFormatted: string;
+  mostVisitedPage: string;
+  firstLandingPage: string;
+  latestLandingPage: string;
+  firstAttributionSource: string;
+  latestAttributionSource: string;
+  knownCampaign: string | null;
+  knownAdPlatform: string | null;
+  knownQrCode: string | null;
+  knownPhysicalMaterial: string | null;
+  referrer: string;
+  deviceCategory: DeviceType;
+  browser: string;
+  operatingSystem: string;
+  location: string;
+  humanLikelihood: number;
+  botScore: number;
+  botClassification: string;
+  botReasons: string[];
+  isReturningVisitor: boolean;
+  conversionStatus: string;
+  notes: string | null;
+  tags: string[];
+  manualClassification: "human" | "bot" | "internal" | "ignored" | null;
+  isIgnored: boolean;
+  isInternal: boolean;
+  isBlocked: boolean;
+  sessions: VisitorSessionGroup[];
+};
+
+export function buildGroupedVisitorProfiles(input: {
+  rows: SiteVisitRow[];
+  currentAdminEmail?: string | null;
+  currentAdminName?: string | null;
+  visitorNotesMap?: Map<string, any>;
+}): VisitorProfileGroup[] {
+  const rowsByVisitorId = new Map<string, SiteVisitRow[]>();
+
+  for (const row of input.rows) {
+    const key = row.anonymous_visitor_id || row.user_email || `row-${row.id}`;
+    rowsByVisitorId.set(key, [...(rowsByVisitorId.get(key) ?? []), row]);
+  }
+
+  const profiles: VisitorProfileGroup[] = [];
+
+  for (const [visitorKey, visitorRows] of Array.from(rowsByVisitorId.entries())) {
+    // Sort chronologically ascending
+    const ascRows = [...visitorRows].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+
+    // Group rows into sessions based on 30-minute inactivity boundary
+    const sessions: VisitorSessionGroup[] = [];
+    let currentSessionRows: SiteVisitRow[] = [];
+
+    for (let i = 0; i < ascRows.length; i++) {
+      const row = ascRows[i];
+      if (currentSessionRows.length === 0) {
+        currentSessionRows.push(row);
+      } else {
+        const lastRow = currentSessionRows[currentSessionRows.length - 1];
+        const gapMs = new Date(row.created_at).getTime() - new Date(lastRow.created_at).getTime();
+
+        if (gapMs > 30 * 60 * 1000) {
+          sessions.push(createSessionGroup(currentSessionRows, sessions.length + 1, visitorKey));
+          currentSessionRows = [row];
+        } else {
+          currentSessionRows.push(row);
+        }
+      }
+    }
+
+    if (currentSessionRows.length > 0) {
+      sessions.push(createSessionGroup(currentSessionRows, sessions.length + 1, visitorKey));
+    }
+
+    const firstRow = ascRows[0];
+    const lastRow = ascRows[ascRows.length - 1];
+
+    const userEmail = ascRows.find((r) => r.user_email)?.user_email ?? null;
+    const userDisplayName = ascRows.find((r) => r.user_display_name)?.user_display_name ?? null;
+    const isAdminSession = ascRows.some((r) => r.is_admin);
+
+    const isCurrentUser = Boolean(
+      (input.currentAdminEmail && userEmail && userEmail.toLowerCase() === input.currentAdminEmail.toLowerCase()) ||
+      (isAdminSession && input.currentAdminName)
+    );
+
+    const displayName = isCurrentUser
+      ? `★ ${input.currentAdminName || userDisplayName || "Inky Aryan"} (You)`
+      : userDisplayName
+        ? `👤 ${userDisplayName}`
+        : userEmail
+          ? `👤 ${userEmail}`
+          : getVisitorDisplayName(visitorKey);
+
+    const totalPageViews = ascRows.length;
+    const totalActiveTimeMs = sessions.reduce((acc, s) => acc + s.durationMs, 0);
+    const avgSessionLengthMs = sessions.length > 0 ? Math.round(totalActiveTimeMs / sessions.length) : 0;
+
+    // Calculate most visited page
+    const pathCounts = new Map<string, number>();
+    for (const r of ascRows) {
+      pathCounts.set(r.path, (pathCounts.get(r.path) ?? 0) + 1);
+    }
+    const mostVisitedPage = Array.from(pathCounts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] || firstRow.path;
+
+    // Known attributions
+    const knownCampaign = ascRows.find((r) => r.utm_campaign || r.tla_campaign_id)?.utm_campaign || ascRows.find((r) => r.tla_campaign_id)?.tla_campaign_id || null;
+    const knownAdPlatform = ascRows.find((r) => r.utm_source)?.utm_source || null;
+    const knownQrCode = ascRows.find((r) => r.tla_qr_id)?.tla_qr_id || null;
+    const knownPhysicalMaterial = ascRows.find((r) => r.tla_material)?.tla_material || null;
+
+    // Bot confidence evaluation
+    const botEval = evaluateBotConfidence({
+      userAgent: lastRow.user_agent,
+      path: lastRow.path,
+      referrer: lastRow.referrer,
+      isAdmin: isAdminSession
+    });
+
+    const shortId = visitorKey.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase() || "VISITOR";
+
+    // Visitor note/tag metadata lookup
+    const noteData = input.visitorNotesMap?.get(visitorKey);
+
+    profiles.push({
+      visitorId: visitorKey,
+      shortId,
+      displayName,
+      userEmail,
+      userDisplayName,
+      isCurrentUser,
+      firstSeenAt: firstRow.created_at,
+      lastSeenAt: lastRow.created_at,
+      totalSessions: sessions.length,
+      totalPageViews,
+      totalActiveTimeMs,
+      totalActiveTimeFormatted: formatDurationMs(totalActiveTimeMs),
+      averageSessionLengthMs: avgSessionLengthMs,
+      averageSessionLengthFormatted: formatDurationMs(avgSessionLengthMs),
+      mostVisitedPage,
+      firstLandingPage: firstRow.path,
+      latestLandingPage: lastRow.path,
+      firstAttributionSource: firstRow.first_touch_utm_source || firstRow.utm_source || formatReferrerSource(firstRow.referrer),
+      latestAttributionSource: lastRow.utm_source || formatReferrerSource(lastRow.referrer),
+      knownCampaign,
+      knownAdPlatform,
+      knownQrCode,
+      knownPhysicalMaterial,
+      referrer: formatReferrerSource(lastRow.referrer),
+      deviceCategory: detectDeviceType(lastRow.user_agent),
+      browser: detectBrowser(lastRow.user_agent),
+      operatingSystem: detectOperatingSystem(lastRow.user_agent),
+      location: formatVisitorLocation(getRowLocation(lastRow)),
+      humanLikelihood: Math.max(0, 100 - (lastRow.bot_score ?? botEval.score)),
+      botScore: lastRow.bot_score ?? botEval.score,
+      botClassification: lastRow.bot_classification ?? botEval.classification,
+      botReasons: (lastRow.bot_reasons && lastRow.bot_reasons.length > 0) ? lastRow.bot_reasons : botEval.reasons,
+      isReturningVisitor: sessions.length > 1 || new Date(firstRow.created_at).getTime() < new Date(lastRow.created_at).getTime(),
+      conversionStatus: userEmail ? "Signed In Account" : ascRows.some(r => r.path.includes("claim") || r.path.includes("create")) ? "Intent / Claiming" : "Exploring",
+      notes: noteData?.note ?? null,
+      tags: noteData?.tags ?? [],
+      manualClassification: noteData?.manualClassification ?? null,
+      isIgnored: Boolean(noteData?.isIgnored),
+      isInternal: Boolean(noteData?.isInternal),
+      isBlocked: Boolean(noteData?.isBlocked),
+      sessions: sessions.reverse() // Most recent session first
+    });
+  }
+
+  // Sort profiles by last seen date descending
+  return profiles.sort((a, b) => new Date(b.lastSeenAt).getTime() - new Date(a.lastSeenAt).getTime());
+}
+
+function createSessionGroup(rows: SiteVisitRow[], sessionNumber: number, visitorKey: string): VisitorSessionGroup {
+  const ascRows = [...rows].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  const firstRow = ascRows[0];
+  const lastRow = ascRows[ascRows.length - 1];
+
+  const durationMs = Math.max(0, new Date(lastRow.created_at).getTime() - new Date(firstRow.created_at).getTime());
+
+  const journeySteps: JourneyStep[] = ascRows.map((row, idx) => {
+    let stepDuration: number | null = null;
+    if (idx < ascRows.length - 1) {
+      stepDuration = Math.max(0, new Date(ascRows[idx + 1].created_at).getTime() - new Date(row.created_at).getTime());
+    }
+
+    return {
+      id: row.id,
+      path: row.path,
+      createdAt: row.created_at,
+      durationMs: stepDuration,
+      durationFormatted: formatDurationMs(stepDuration)
+    };
+  });
+
+  const botEval = evaluateBotConfidence({
+    userAgent: lastRow.user_agent,
+    path: lastRow.path,
+    referrer: lastRow.referrer,
+    isAdmin: lastRow.is_admin
+  });
+
+  return {
+    sessionId: `sess_${visitorKey.slice(0, 8)}_${sessionNumber}`,
+    sessionNumber,
+    startTime: firstRow.created_at,
+    endTime: lastRow.created_at,
+    durationMs,
+    durationFormatted: durationMs > 0 ? formatDurationMs(durationMs) : "Single view",
+    landingPage: firstRow.path,
+    exitPage: lastRow.path,
+    pageCount: ascRows.length,
+    eventCount: ascRows.length,
+    referrer: formatReferrerSource(firstRow.referrer),
+    campaignSource: firstRow.utm_source ?? null,
+    campaignMedium: firstRow.utm_medium ?? null,
+    campaignName: firstRow.utm_campaign ?? firstRow.tla_campaign_id ?? null,
+    campaignContent: firstRow.utm_content ?? null,
+    campaignTerm: firstRow.utm_term ?? null,
+    campaignId: firstRow.tla_campaign_id ?? null,
+    qrCodeId: firstRow.tla_qr_id ?? null,
+    device: detectDeviceType(lastRow.user_agent),
+    browser: detectBrowser(lastRow.user_agent),
+    operatingSystem: detectOperatingSystem(lastRow.user_agent),
+    location: formatVisitorLocation(getRowLocation(lastRow)),
+    humanBotClassification: lastRow.bot_classification ?? botEval.classification,
+    botScore: lastRow.bot_score ?? botEval.score,
+    botReasons: (lastRow.bot_reasons && lastRow.bot_reasons.length > 0) ? lastRow.bot_reasons : botEval.reasons,
+    journeySteps
+  };
+}
+

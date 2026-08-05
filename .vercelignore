@@ -1,0 +1,6 @@
+site-design/
+future-architecture/
+tests/
+Advertising/
+*.mp4
+!public/videos/
