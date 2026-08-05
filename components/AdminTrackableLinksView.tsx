@@ -378,11 +378,11 @@ export function AdminTrackableLinksView({
                   name="destinationPath"
                   required
                   defaultValue={editingLink.destinationPath}
-                  placeholder="/legacy-prologue"
+                  placeholder="/legacy-question"
                   className="rounded-xl border border-archive-gold/30 bg-archive-obsidian px-3.5 py-2.5 text-archive-ivory outline-none focus:border-archive-gold font-mono text-sm"
                 />
                 <span className="text-[11px] text-archive-ivory/60">
-                  Approved prologue: <code className="text-emerald-300 font-bold">/legacy-prologue</code>
+                  Approved entry route: <code className="text-emerald-300 font-bold">/legacy-question</code>
                 </span>
               </label>
 

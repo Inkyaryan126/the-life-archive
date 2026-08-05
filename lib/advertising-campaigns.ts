@@ -137,7 +137,7 @@ export type AnalyticsVisitorNote = {
   createdBy: string | null;
 };
 
-export const DEPRECATED_ROUTES = ["/legacy-question"];
+export const DEPRECATED_ROUTES = ["/legacy-prologue"];
 
 function getAdmin(): SupabaseClient<any, "public", any> | null {
   try {
@@ -185,7 +185,7 @@ export async function ensureSeedData(): Promise<void> {
         name: "Business Card Test",
         slug: "business-card-test",
         platform: "Business Card",
-        destination_url: "/legacy-prologue",
+        destination_url: "/legacy-question",
         is_physical: true,
         material: "Black Metal Business Card",
         status: "active",
@@ -195,11 +195,11 @@ export async function ensureSeedData(): Promise<void> {
       .single();
 
     campaignId = createdCampaign?.id || null;
-  } else if (existingCampaign.destination_url === "/legacy-question") {
-    // One-time migration for legacy seed
+  } else if (existingCampaign.destination_url === "/legacy-prologue") {
+    // Re-point legacy-prologue back to canonical /legacy-question
     await supabase
       .from("advertising_campaigns")
-      .update({ destination_url: "/legacy-prologue" })
+      .update({ destination_url: "/legacy-question" })
       .eq("id", existingCampaign.id);
   }
 
@@ -219,7 +219,7 @@ export async function ensureSeedData(): Promise<void> {
         campaign_id: campaignId,
         link_name: "Business Card Test QR",
         slug: "business-card-test",
-        destination_path: "/legacy-prologue",
+        destination_path: "/legacy-question",
         utm_source: "business_card",
         utm_medium: "card_qr",
         utm_campaign: "business_card_test",
@@ -229,11 +229,11 @@ export async function ensureSeedData(): Promise<void> {
       .single();
 
     linkId = createdLink?.id || null;
-  } else if (existingLink.destination_path === "/legacy-question") {
-    // One-time migration from deprecated destination to approved prologue
+  } else if (existingLink.destination_path === "/legacy-prologue") {
+    // Re-point legacy-prologue back to canonical /legacy-question
     await supabase
       .from("advertising_links")
-      .update({ destination_path: "/legacy-prologue" })
+      .update({ destination_path: "/legacy-question" })
       .eq("id", existingLink.id);
   }
 
@@ -449,7 +449,7 @@ let mockLinkStore: AdvertisingLink = {
   campaignId: "mock_cmp_business_card_test",
   linkName: "Business Card Test QR",
   slug: "business-card-test",
-  destinationPath: "/legacy-prologue",
+  destinationPath: "/legacy-question",
   utmSource: "business_card",
   utmMedium: "card_qr",
   utmCampaign: "business_card_test",

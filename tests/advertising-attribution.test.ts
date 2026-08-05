@@ -117,7 +117,7 @@ async function runTests() {
   assert.equal(decoded?.data, "https://www.thelifearchive.vip/go/business-card-test");
 
   // 7. Seed Logic & Destination Routing Assertions
-  console.log("Verifying Seed Logic & Legacy Prologue Destination Routing...");
+  console.log("Verifying Seed Logic & Legacy Question Destination Routing...");
 
   // Mock DB seed check
   await ensureSeedData();
@@ -128,21 +128,15 @@ async function runTests() {
   if (link) {
     assert.equal(
       link.destinationPath,
-      "/legacy-prologue",
-      "Business Card Test link MUST resolve to newest approved prologue route (/legacy-prologue), NOT deprecated /legacy-question"
-    );
-
-    assert.equal(
-      link.destinationPath.includes("/legacy-question"),
-      false,
-      "Destination path must NOT contain deprecated route /legacy-question"
+      "/legacy-question",
+      "Business Card Test link MUST resolve to canonical entry route (/legacy-question)"
     );
 
     // Verify Deprecated Route helper
     assert.equal(
-      DEPRECATED_ROUTES.includes("/legacy-question"),
+      DEPRECATED_ROUTES.includes("/legacy-prologue"),
       true,
-      "/legacy-question must be registered in DEPRECATED_ROUTES list"
+      "/legacy-prologue must be registered in DEPRECATED_ROUTES list"
     );
 
     // 8. Test Destination Path Edit & Admin Protection
@@ -166,15 +160,15 @@ async function runTests() {
       "ensureSeedData() MUST NOT overwrite administrator-customized destination path"
     );
 
-    // Reset back to approved prologue for clean state
+    // Reset back to canonical destination for clean state
     await updateTrackableLink({
       id: link.id,
-      destinationPath: "/legacy-prologue",
+      destinationPath: "/legacy-question",
       linkName: "Business Card Test QR"
     });
   }
 
-  console.log("Trackable Links & Prologue Redirect Routing Test Suite passed cleanly!");
+  console.log("Trackable Links & Legacy Question Routing Test Suite passed cleanly!");
 }
 
 runTests().catch((err) => {
