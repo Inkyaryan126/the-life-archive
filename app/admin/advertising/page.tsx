@@ -279,8 +279,8 @@ export default async function AdminAdvertisingPage({
 
         {/* Links & QR Codes Tab */}
         {currentTab === "links" ? (
-          <div className="mt-8 grid gap-8 lg:grid-cols-3">
-            <section className="rounded-3xl border border-archive-gold/20 bg-[#171511]/90 p-6 shadow-luxury lg:col-span-2">
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px] items-start">
+            <section className="min-w-0">
               <AdminTrackableLinksView
                 links={linksJoined}
                 campaigns={campaigns}
@@ -289,8 +289,8 @@ export default async function AdminAdvertisingPage({
             </section>
 
             {/* Trackable Link & QR Builder Form */}
-            <section className="rounded-3xl border border-archive-gold/20 bg-[#171511]/90 p-6 shadow-luxury h-fit">
-              <h2 className="font-serif text-xl text-archive-ivory">Build Trackable Link &amp; QR</h2>
+            <section className="rounded-3xl border border-archive-gold/20 bg-[#14120e]/95 p-6 shadow-luxury h-fit sticky top-8">
+              <h2 className="font-serif text-xl font-semibold text-archive-ivory">Build Trackable Link &amp; QR</h2>
               <p className="mt-1 text-xs text-archive-ivory/60">Generate first-party short URLs (`/go/slug`) and crisp vector QR assets.</p>
 
               <form action={createTrackableLinkAction} className="mt-4 grid gap-4 text-xs">
@@ -298,7 +298,7 @@ export default async function AdminAdvertisingPage({
                   <span className="text-archive-gold font-bold">Assign to Campaign</span>
                   <select
                     name="campaignId"
-                    className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none focus:border-archive-gold"
+                    className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2.5 text-archive-ivory outline-none focus:border-archive-gold"
                   >
                     <option value="">-- Select Campaign (Optional) --</option>
                     {campaigns.map((c) => (
@@ -311,33 +311,33 @@ export default async function AdminAdvertisingPage({
 
                 <label className="grid gap-1">
                   <span className="text-archive-gold font-bold">Link Name</span>
-                  <input name="linkName" required placeholder="e.g. Canton Funeral Home Flyer QR" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
+                  <input name="linkName" required placeholder="e.g. Canton Funeral Home Flyer QR" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2.5 text-archive-ivory outline-none focus:border-archive-gold" />
                 </label>
 
                 <label className="grid gap-1">
                   <span className="text-archive-gold font-bold">Short URL Slug (/go/slug)</span>
-                  <input name="slug" required placeholder="e.g. canton-fh-flyer" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
+                  <input name="slug" required placeholder="e.g. canton-fh-flyer" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2.5 text-archive-ivory outline-none focus:border-archive-gold" />
                 </label>
 
                 <label className="grid gap-1">
                   <span className="text-archive-gold font-bold">Destination Path</span>
-                  <input name="destinationPath" defaultValue="/legacy-question" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
+                  <input name="destinationPath" defaultValue="/legacy-question" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2.5 text-archive-ivory outline-none focus:border-archive-gold" />
                 </label>
 
                 <div className="grid grid-cols-2 gap-2">
                   <label className="grid gap-1">
                     <span className="text-archive-gold font-bold">UTM Source</span>
-                    <input name="utmSource" defaultValue="business_card" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
+                    <input name="utmSource" defaultValue="business_card" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2.5 text-archive-ivory outline-none focus:border-archive-gold" />
                   </label>
                   <label className="grid gap-1">
                     <span className="text-archive-gold font-bold">UTM Medium</span>
-                    <input name="utmMedium" defaultValue="card_qr" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
+                    <input name="utmMedium" defaultValue="card_qr" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2.5 text-archive-ivory outline-none focus:border-archive-gold" />
                   </label>
                 </div>
 
                 <label className="grid gap-1">
                   <span className="text-archive-gold font-bold">Physical Material Target</span>
-                  <input name="tlaMaterial" placeholder="e.g. Black Metal Business Card, Paper Flyer, Acrylic Plaque" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2 text-archive-ivory outline-none" />
+                  <input name="tlaMaterial" placeholder="e.g. Black Metal Business Card, Paper Flyer" className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-3 py-2.5 text-archive-ivory outline-none focus:border-archive-gold" />
                 </label>
 
                 <button type="submit" className="mt-2 rounded-xl bg-archive-gold px-4 py-3 font-bold text-archive-obsidian hover:bg-archive-champagne transition shadow-luxury">
