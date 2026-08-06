@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { processArchiveConciergeStripeEvent } from "@/lib/archive-concierge-payments";
 import { upsertKeepsakeOrder } from "@/lib/keepsake-orders";
 import { verifyStripeSignature } from "@/lib/stripe-webhook-signature";
 
@@ -20,9 +21,12 @@ type StripeCheckoutSession = {
 };
 
 type StripeEvent = {
+  id?: string;
   type: string;
   data: {
-    object: StripeCheckoutSession;
+    object: StripeCheckoutSession & {
+      amount_refunded?: number | null;
+    };
   };
 };
 
@@ -89,6 +93,29 @@ export async function POST(request: Request) {
   }
 
   const event = JSON.parse(payload) as StripeEvent;
+
+  if (
+    event.data.object.metadata?.product_type === "archive_concierge" &&
+    [
+      "checkout.session.completed",
+      "checkout.session.async_payment_succeeded",
+      "checkout.session.async_payment_failed",
+      "payment_intent.payment_failed",
+      "charge.refunded"
+    ].includes(event.type)
+  ) {
+    try {
+      await processArchiveConciergeStripeEvent(event);
+      return NextResponse.json({ received: true });
+    } catch (error) {
+      console.error("Archive Concierge Stripe webhook failed", {
+        eventId: event.id,
+        eventType: event.type,
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+      return NextResponse.json({ error: "Webhook processing failed." }, { status: 400 });
+    }
+  }
 
   if (event.type !== "checkout.session.completed") {
     return NextResponse.json({ received: true });

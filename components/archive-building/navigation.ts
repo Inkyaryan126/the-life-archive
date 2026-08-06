@@ -12,6 +12,7 @@ export type ArchiveBuildingNavActive =
   | "storykeeper-products"
   | "qr"
   | "after-a-loss"
+  | "archive-concierge"
   | "help-for-families"
   | "build-your-legacy"
   | "preserve-their-voice"
@@ -119,6 +120,12 @@ export function getNavGroupedItems(
     {
       category: "GUIDANCE",
       items: [
+        {
+          kind: "link",
+          href: "/archive-concierge",
+          label: "Archive Concierge",
+          active: "archive-concierge"
+        },
         {
           kind: "link",
           href: "/after-a-loss",

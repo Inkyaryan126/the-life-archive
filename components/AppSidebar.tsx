@@ -8,6 +8,7 @@ type AppSidebarProps = {
     | "settings"
     | "member-card"
     | "keepsakes"
+    | "concierge"
     | "time-capsules"
     | "add-memory"
     | "edit"
@@ -86,6 +87,7 @@ export function AppSidebar({
           <SidebarLink href="/dashboard/final-wishes" label="Final Wishes" active={active === "final-wishes"} />
           <SidebarLink href="/dashboard/settings" label="Profile Settings" active={active === "settings"} />
           <SidebarLink href="/dashboard/time-capsules" label="Time Capsules" active={active === "time-capsules"} />
+          <SidebarLink href="/dashboard/concierge" label="Archive Concierge" active={active === "concierge"} />
           <SidebarLink href="/member-card" label="Member Card" active={active === "member-card"} />
           <SidebarLink href="/keepsakes" label="Keepsake Store" active={active === "keepsakes"} />
         </div>

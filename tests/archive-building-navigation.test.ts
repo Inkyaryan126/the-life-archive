@@ -17,6 +17,7 @@ assert.deepEqual(labels, [
   "Member Card",
   "---",
   "GUIDANCE",
+  "Archive Concierge",
   "After a Loss",
   "Help for Families",
   "Build Your Legacy",
@@ -32,12 +33,16 @@ assert.deepEqual(labels, [
 assert.equal(items.filter((item) => item.kind === "divider").length, 3);
 assert.equal(labels.filter((label) => label === "Time Capsules").length, 1);
 assert.equal(labels.filter((label) => label === "Keepsake Store").length, 1);
+assert.equal(labels.filter((label) => label === "Archive Concierge").length, 1);
 
 const addMemoryItem = items.find(
   (item) => item.kind === "link" && item.label === "Add a Memory"
 );
 const keepsakeItem = items.find(
   (item) => item.kind === "link" && item.label === "Keepsake Store"
+);
+const conciergeItem = items.find(
+  (item) => item.kind === "link" && item.label === "Archive Concierge"
 );
 
 assert.equal(
@@ -47,6 +52,10 @@ assert.equal(
 assert.equal(
   keepsakeItem?.kind === "link" ? keepsakeItem.href : "",
   "/keepsakes"
+);
+assert.equal(
+  conciergeItem?.kind === "link" ? conciergeItem.href : "",
+  "/archive-concierge"
 );
 
 const fallbackItems = getArchiveBuildingMenuItems(null);

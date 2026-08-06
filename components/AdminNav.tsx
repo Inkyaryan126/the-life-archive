@@ -33,6 +33,10 @@ export function AdminNav({
       label: "Advertising & Attribution"
     },
     {
+      href: "/admin/concierge",
+      label: "Archive Concierge"
+    },
+    {
       href: "/admin/users",
       label: "Users & Archives"
     },
