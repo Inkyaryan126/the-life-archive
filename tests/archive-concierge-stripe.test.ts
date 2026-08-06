@@ -9,7 +9,8 @@ import {
 import {
   getPackageCheckoutAvailability,
   isMemorialPriorityEligible,
-  isOrderPayable
+  isOrderPayable,
+  isValidStripeCheckoutUrl
 } from "../lib/archive-concierge-payment-rules";
 
 const root = process.cwd();
@@ -20,6 +21,10 @@ const webhookPath = path.join(root, "app/api/stripe/webhook/route.ts");
 const successPagePath = path.join(root, "app/archive-concierge/checkout/success/page.tsx");
 const cancelPagePath = path.join(root, "app/archive-concierge/checkout/cancel/page.tsx");
 const customerPagePath = path.join(root, "app/dashboard/concierge/[orderId]/page.tsx");
+const checkoutButtonPath = path.join(
+  root,
+  "app/dashboard/concierge/[orderId]/ConciergeCheckoutButton.tsx"
+);
 const adminPagePath = path.join(root, "app/admin/concierge/[orderId]/page.tsx");
 const paymentMigrationPath = path.join(
   root,
@@ -36,6 +41,7 @@ for (const file of [
   webhookPath,
   successPagePath,
   cancelPagePath,
+  checkoutButtonPath,
   paymentMigrationPath,
   phase1MigrationPath
 ]) {
@@ -55,6 +61,7 @@ const webhook = fs.readFileSync(webhookPath, "utf8");
 const successPage = fs.readFileSync(successPagePath, "utf8");
 const cancelPage = fs.readFileSync(cancelPagePath, "utf8");
 const customerPage = fs.readFileSync(customerPagePath, "utf8");
+const checkoutButton = fs.readFileSync(checkoutButtonPath, "utf8");
 const adminPage = fs.readFileSync(adminPagePath, "utf8");
 const migration = fs.readFileSync(paymentMigrationPath, "utf8");
 
@@ -90,6 +97,10 @@ assert.doesNotMatch(config, /price_[A-Za-z0-9]{8,}/);
 assert.match(checkoutRoute, /request\.formData\(\)/);
 assert.match(checkoutRoute, /orderId/);
 assert.doesNotMatch(checkoutRoute, /priceId|amountPaid|amount_total/);
+assert.match(checkoutRoute, /NextResponse\.json\(\{ url: result\.redirectUrl \}\)/);
+assert.match(checkoutRoute, /isValidStripeCheckoutUrl\(result\.redirectUrl\)/);
+assert.doesNotMatch(checkoutRoute, /NextResponse\.redirect\(result\.redirectUrl\)/);
+assert.doesNotMatch(checkoutRoute, /status:\s*30[78]/);
 assert.match(paymentLib, /order\.customerId !== account\.user\.id/);
 assert.match(paymentLib, /isOrderPayable\(order\)/);
 assert.match(paymentRules, /order\.status === "canceled" \|\| order\.status === "completed"/);
@@ -98,6 +109,11 @@ assert.match(paymentLib, /validateStripeModeAndSecretKey\(process\.env\)/);
 assert.match(paymentLib, /stripeCheckoutSessionId/);
 assert.match(paymentLib, /payment_status: "checkout_pending"/);
 assert.match(paymentLib, /client_reference_id: order\.id/);
+assert.equal(isValidStripeCheckoutUrl("https://checkout.stripe.com/c/pay/cs_live_123"), true);
+assert.equal(isValidStripeCheckoutUrl("https://checkout.stripe.com/c/pay/cs_test_123"), true);
+assert.equal(isValidStripeCheckoutUrl("http://checkout.stripe.com/c/pay/cs_test_123"), false);
+assert.equal(isValidStripeCheckoutUrl("https://example.com/c/pay/cs_test_123"), false);
+assert.equal(isValidStripeCheckoutUrl(""), false);
 for (const metadataKey of [
   "product_type",
   "concierge_order_id",
@@ -180,11 +196,21 @@ assert.match(paymentLib, /catch \(error\)[\s\S]*payment confirmation email faile
 
 // Customer/admin UI states and field exposure.
 assert.match(customerPage, /Project Deposit/);
-assert.match(customerPage, /Continue to Secure Checkout/);
-assert.match(customerPage, /Memorial Priority Service/);
-assert.match(customerPage, /does not publish the\s+archive automatically/);
+assert.match(customerPage, /ConciergeCheckoutButton/);
 assert.match(customerPage, /paymentStatus/);
 assert.doesNotMatch(customerPage, /stripeCheckoutSessionId|stripePaymentIntentId|stripeCustomerId|lastPaymentEventId/);
+assert.match(checkoutButton, /"use client"/);
+assert.match(checkoutButton, /Continue to Secure Checkout/);
+assert.match(checkoutButton, /fetch\("\/api\/stripe\/archive-concierge\/checkout"/);
+assert.match(checkoutButton, /method: "POST"/);
+assert.match(checkoutButton, /window\.location\.assign\(checkoutUrl as string\)/);
+assert.match(checkoutButton, /isValidStripeCheckoutUrl\(checkoutUrl\)/);
+assert.match(checkoutButton, /if \(pending\)[\s\S]*return/);
+assert.match(checkoutButton, /disabled=\{pending\}/);
+assert.match(checkoutButton, /Checkout could not open safely/);
+assert.match(checkoutButton, /Memorial Priority Service/);
+assert.match(checkoutButton, /does not publish the archive automatically/);
+assert.doesNotMatch(checkoutButton, /action="https:\/\/checkout\.stripe\.com|formAction|NextResponse\.redirect/);
 assert.match(adminPage, /Payment status/);
 assert.match(adminPage, /Checkout configured/);
 assert.match(adminPage, /Raw Stripe IDs are intentionally omitted/);

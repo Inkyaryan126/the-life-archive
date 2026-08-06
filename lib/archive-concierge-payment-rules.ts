@@ -66,3 +66,16 @@ export function isOrderPayable(order: {
 
   return order.paymentStatus !== "paid" && order.paymentStatus !== "deposit_paid";
 }
+
+export function isValidStripeCheckoutUrl(value: string | null | undefined) {
+  if (!value) {
+    return false;
+  }
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname === "checkout.stripe.com";
+  } catch {
+    return false;
+  }
+}

@@ -19,6 +19,10 @@ const migrationPath = path.join(
   process.cwd(),
   "supabase/migrations/20260805200000_create_archive_concierge.sql"
 );
+const customerGrantFixMigrationPath = path.join(
+  process.cwd(),
+  "supabase/migrations/20260805220000_fix_archive_concierge_customer_select_grants.sql"
+);
 const publicPagePath = path.join(process.cwd(), "app/archive-concierge/page.tsx");
 const intakePagePath = path.join(process.cwd(), "app/archive-concierge/start/page.tsx");
 const intakeActionsPath = path.join(process.cwd(), "app/archive-concierge/start/actions.ts");
@@ -31,12 +35,18 @@ const domainPath = path.join(process.cwd(), "lib/archive-concierge.ts");
 const navPath = path.join(process.cwd(), "components/archive-building/navigation.ts");
 
 assert.equal(fs.existsSync(migrationPath), true, "Archive Concierge migration must exist");
+assert.equal(
+  fs.existsSync(customerGrantFixMigrationPath),
+  true,
+  "Archive Concierge customer SELECT grant fix migration must exist"
+);
 assert.equal(fs.existsSync(publicPagePath), true, "Public Archive Concierge page must exist");
 assert.equal(fs.existsSync(intakePagePath), true, "Archive Concierge intake page must exist");
 assert.equal(fs.existsSync(customerDashboardPath), true, "Customer Concierge dashboard page must exist");
 assert.equal(fs.existsSync(adminPagePath), true, "Admin Concierge page must exist");
 
 const migration = fs.readFileSync(migrationPath, "utf8");
+const customerGrantFixMigration = fs.readFileSync(customerGrantFixMigrationPath, "utf8");
 const publicPage = fs.readFileSync(publicPagePath, "utf8");
 const intakePage = fs.readFileSync(intakePagePath, "utf8");
 const intakeActions = fs.readFileSync(intakeActionsPath, "utf8");
@@ -138,6 +148,44 @@ assert.doesNotMatch(
   migration.match(/grant select \([\s\S]*?\) on public\.concierge_order_materials to authenticated/)?.[0] ?? "",
   /storage_path|intake_condition|internal_notes/
 );
+assert.match(
+  customerGrantFixMigration,
+  /revoke select on public\.concierge_orders from authenticated/
+);
+const fixedOrderGrant =
+  customerGrantFixMigration.match(/grant select \([\s\S]*?\) on public\.concierge_orders to authenticated/)?.[0] ?? "";
+assert.match(fixedOrderGrant, /customer_id/);
+assert.match(fixedOrderGrant, /payment_status/);
+assert.match(fixedOrderGrant, /payment_model/);
+assert.match(fixedOrderGrant, /amount_paid/);
+assert.doesNotMatch(
+  fixedOrderGrant,
+  /internal_notes|assigned_admin_id|archive_id|stripe_checkout_session_id|stripe_payment_intent_id|stripe_customer_id|last_payment_event_id|stripe_checkout_expires_at/
+);
+
+const fixedHistoryGrant =
+  customerGrantFixMigration.match(/grant select \([\s\S]*?\) on public\.concierge_order_status_history to authenticated/)?.[0] ?? "";
+assert.match(fixedHistoryGrant, /concierge_order_id/);
+assert.match(fixedHistoryGrant, /customer_visible/);
+assert.doesNotMatch(fixedHistoryGrant, /changed_by/);
+
+const fixedMaterialsGrant =
+  customerGrantFixMigration.match(/grant select \([\s\S]*?\) on public\.concierge_order_materials to authenticated/)?.[0] ?? "";
+assert.match(fixedMaterialsGrant, /concierge_order_id/);
+assert.doesNotMatch(
+  fixedMaterialsGrant,
+  /storage_path|external_url|intake_condition|internal_notes|updated_at/
+);
+
+const fixedRevisionsGrant =
+  customerGrantFixMigration.match(/grant select \([\s\S]*?\) on public\.concierge_order_revisions to authenticated/)?.[0] ?? "";
+assert.match(fixedRevisionsGrant, /concierge_order_id/);
+assert.doesNotMatch(fixedRevisionsGrant, /requested_by|resolved_by/);
+
+const fixedKeepsakesGrant =
+  customerGrantFixMigration.match(/grant select \([\s\S]*?\) on public\.concierge_order_keepsakes to authenticated/)?.[0] ?? "";
+assert.match(fixedKeepsakesGrant, /concierge_order_id/);
+assert.doesNotMatch(fixedKeepsakesGrant, /internal_notes|updated_at/);
 
 assert.equal(
   assertNoInternalCustomerFields({
@@ -189,6 +237,20 @@ assert.doesNotMatch(intakeActions, /amountPaid|stripe|assignedAdminId|status:/);
 assert.match(customerDashboard, /listCustomerConciergeOrders/);
 assert.match(customerDetail, /getCustomerConciergeOrder/);
 assert.doesNotMatch(customerDetail, /internalNotes|stripeCheckoutSessionId|storagePath|intakeCondition/);
+assert.match(domain, /\.select\(customerConciergeOrderColumns\)/);
+assert.match(domain, /\.eq\("customer_id", account\.user\.id\)/);
+assert.doesNotMatch(
+  domain.match(/export async function getCustomerConciergeOrder[\s\S]*?return order;/)?.[0] ?? "",
+  /\.select\("\*"\)|internal_notes|assigned_admin_id|stripe_checkout_session_id|stripe_payment_intent_id|stripe_customer_id|last_payment_event_id|storage_path|intake_condition/
+);
+assert.match(
+  migration,
+  /create policy "Customers can read own concierge orders"[\s\S]*using \(customer_id = auth\.uid\(\)\)/
+);
+assert.match(
+  migration,
+  /create policy "Customers can read own concierge materials"[\s\S]*concierge_orders\.customer_id = auth\.uid\(\)/
+);
 
 // Admin authorization and status transition validation
 assert.match(adminPage, /getAdminAccess/);

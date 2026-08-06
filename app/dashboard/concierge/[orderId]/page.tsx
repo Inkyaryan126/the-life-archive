@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { AppSidebar } from "@/components/AppSidebar";
-import { FormButton } from "@/components/auth/FormButton";
 import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 import { DesignBackdrop } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
@@ -13,6 +12,7 @@ import {
   isOrderPayable
 } from "@/lib/archive-concierge-payment-rules";
 import { archiveConciergePackages } from "@/lib/archive-concierge-config";
+import { ConciergeCheckoutButton } from "./ConciergeCheckoutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -241,36 +241,6 @@ export default async function ConciergeOrderDetailPage({
                     </p>
                   ) : null}
 
-                  {memorialPriorityEligible && payable ? (
-                    <div className="rounded-xl border border-archive-gold/18 bg-black/24 p-4">
-                      <label className="flex items-start gap-3">
-                        <input
-                          form="archive-concierge-checkout-form"
-                          name="memorialPriority"
-                          type="checkbox"
-                          disabled={!memorialPriorityCheckout.configured}
-                          className="mt-1"
-                        />
-                        <span>
-                          <strong className="block text-archive-ivory">
-                            Memorial Priority Service
-                          </strong>
-                          <span>
-                            Requests expedited handling. The deadline is reviewed after
-                            payment and material intake. Purchasing it does not publish the
-                            archive automatically and does not override missing materials or
-                            family approval requirements.
-                          </span>
-                          {!memorialPriorityCheckout.configured ? (
-                            <span className="mt-2 block text-archive-gold">
-                              {memorialPriorityCheckout.message}
-                            </span>
-                          ) : null}
-                        </span>
-                      </label>
-                    </div>
-                  ) : null}
-
                   {!packageCheckout.configured ? (
                     <p className="rounded-xl border border-archive-gold/18 bg-archive-gold/10 p-4">
                       {packageCheckout.message} Your intake is still saved. We will contact you
@@ -280,19 +250,12 @@ export default async function ConciergeOrderDetailPage({
                   ) : null}
 
                   {payable && packageCheckout.configured ? (
-                    <form
-                      id="archive-concierge-checkout-form"
-                      action="/api/stripe/archive-concierge/checkout"
-                      method="post"
-                    >
-                      <input type="hidden" name="orderId" value={order.id} />
-                      <FormButton
-                        pendingText="Opening checkout..."
-                        className="w-full rounded-full bg-archive-gold px-5 py-3 text-sm font-bold text-archive-obsidian"
-                      >
-                        Continue to Secure Checkout
-                      </FormButton>
-                    </form>
+                    <ConciergeCheckoutButton
+                      orderId={order.id}
+                      memorialPriorityEligible={memorialPriorityEligible}
+                      memorialPriorityConfigured={memorialPriorityCheckout.configured}
+                      memorialPriorityMessage={memorialPriorityCheckout.message}
+                    />
                   ) : null}
                   {!payable ? (
                     <p className="rounded-xl bg-black/24 p-4">
