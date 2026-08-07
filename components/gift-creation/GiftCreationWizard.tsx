@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { RecipientHub } from "@/components/keepsakes/RecipientHub";
 import type { PersonRelationshipType } from "@/lib/types";
 import {
@@ -41,6 +42,7 @@ type DraftResponse = {
 };
 
 export function GiftCreationWizard({ signedIn }: { signedIn: boolean }) {
+  const router = useRouter();
   const [step, setStep] = useState<number>(1);
   const [personName, setPersonName] = useState<string>("");
   const [nameError, setNameError] = useState<string>("");
@@ -129,7 +131,10 @@ export function GiftCreationWizard({ signedIn }: { signedIn: boolean }) {
   };
 
   const handlePublishAndPair = async () => {
-    if (!saveSuccessResult) return;
+    if (!saveSuccessResult) {
+      router.push("/keepsakes");
+      return;
+    }
     setIsPublishing(true);
     try {
       await publishGiftConnectionAction(saveSuccessResult.connectionId);
@@ -137,6 +142,7 @@ export function GiftCreationWizard({ signedIn }: { signedIn: boolean }) {
       // Non-blocking
     } finally {
       setIsPublishing(false);
+      router.push(`/keepsakes?connectionId=${saveSuccessResult.connectionId}&name=${encodeURIComponent(personName)}`);
     }
   };
 
@@ -461,13 +467,13 @@ export function GiftCreationWizard({ signedIn }: { signedIn: boolean }) {
           </div>
 
           <div className="flex flex-col gap-3 pt-4">
-            <Link
-              href="/keepsakes"
+            <button
               onClick={handlePublishAndPair}
-              className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#c5a059] px-6 text-sm font-bold text-[#0a0806] shadow-luxury transition hover:bg-[#d4af37]"
+              disabled={isPublishing}
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-[#c5a059] px-6 text-sm font-bold text-[#0a0806] shadow-luxury transition hover:bg-[#d4af37] disabled:opacity-50"
             >
               {isPublishing ? "Publishing..." : "Publish & Choose a Keepsake →"}
-            </Link>
+            </button>
 
             <Link
               href="/dashboard/time-capsules/new"
