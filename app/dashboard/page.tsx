@@ -220,6 +220,7 @@ type DashboardPageProps = {
     error?: string;
     welcome?: string;
     success?: string;
+    archive?: string;
   }>;
 };
 
@@ -235,8 +236,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const hasBlankDisplayName = !account.profile?.displayName?.trim();
   const showStarterWelcome = resolvedSearchParams?.welcome === "starter";
   const showStarterProfilePrompt = showStarterWelcome && hasBlankDisplayName;
+  const requestedSlug = resolvedSearchParams?.archive?.trim();
   const archiveOverviews = archives.length > 0 ? await loadArchiveOverviews(archives) : [];
-  const selectedOverview = archiveOverviews.find((item) => item.archive.slug === defaultArchive?.slug) ?? null;
+  const selectedOverview =
+    (requestedSlug ? archiveOverviews.find((item) => item.archive.slug === requestedSlug) : null) ??
+    archiveOverviews.find((item) => item.archive.slug === defaultArchive?.slug) ??
+    archiveOverviews[0] ??
+    null;
   const selectedArchive = selectedOverview?.archiveDetails ?? null;
   const archiveLoadFailed = archiveOverviews.some((item) => item.loadFailed);
   const legacyInstruction = defaultArchive
@@ -264,7 +270,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const hasPersonalArchive = Boolean(defaultArchive);
   const livingDefaultArchive = defaultArchive && !defaultArchive.memorialMode ? defaultArchive : null;
 
-  const sidebarArchive = archiveOverviews.find((overview) => overview.archive.personName.includes("Dustin Sigley") && overview.archiveDetails) ??
+  const sidebarArchive = selectedOverview ??
+    archiveOverviews.find((overview) => overview.archive.personName.includes("Dustin Sigley") && overview.archiveDetails) ??
     archiveOverviews.find((overview) => overview.archive.slug === defaultArchive?.slug) ??
     archiveOverviews[0] ??
     null;
@@ -460,9 +467,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         {shelfBookRegions.map((region, index) => {
           const overview = shelfArchives[index];
           const isCreateBook = index === 4;
-          const href = isCreateBook || !overview ? "/create" : `/archive/${overview.archive.slug}`;
+          const isActive = Boolean(overview && activeArchiveId && overview.archive.slug === activeArchiveId);
+          const href = isCreateBook || !overview
+            ? "/create"
+            : `/dashboard?archive=${encodeURIComponent(overview.archive.slug)}`;
           const label = isCreateBook || !overview ? "Create Archive" : overview.archive.archiveName;
-          const ariaLabel = isCreateBook || !overview ? "Create a new archive" : `Open ${overview.archive.archiveName}`;
+          const ariaLabel = isCreateBook || !overview ? "Create a new archive" : `Select ${overview.archive.archiveName}`;
 
           return (
             <ArchiveOverlayRegion key={`${label}-${index}`} region={region} ariaLabel={ariaLabel}>
@@ -473,11 +483,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               >
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_center,rgba(232,207,136,0.5),rgba(232,207,136,0.22)_44%,transparent_78%)] opacity-0 blur-[4px] brightness-125 mix-blend-screen transition group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+                  className={`pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_center,rgba(232,207,136,0.65),rgba(232,207,136,0.3)_44%,transparent_78%)] blur-[4px] brightness-125 mix-blend-screen transition ${
+                    isActive
+                      ? "opacity-100 ring-2 ring-archive-gold/80"
+                      : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
+                  } motion-reduce:transition-none`}
                 />
                 <span
                   title={label}
-                  className="relative line-clamp-3 max-h-full px-0.5 font-serif text-[clamp(0.68rem,0.84vw,0.95rem)] leading-tight text-archive-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
+                  className={`relative line-clamp-3 max-h-full px-0.5 font-serif text-[clamp(0.68rem,0.84vw,0.95rem)] leading-tight ${
+                    isActive
+                      ? "text-archive-gold font-bold drop-shadow-[0_2px_12px_rgba(198,161,91,0.8)]"
+                      : "text-archive-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
+                  }`}
                 >
                   {label}
                 </span>

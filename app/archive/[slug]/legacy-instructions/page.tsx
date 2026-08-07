@@ -210,11 +210,16 @@ export default async function LegacyInstructionsPage({
     getLegacyInstructionByArchiveSlug(slug, isOwner)
   ]);
 
-  if (!isOwner && !legacyInstruction) {
+  const ownedArchive = account.archives.find((item) => item.slug === slug);
+  const isSelfArchive = ownedArchive?.relationshipToOwner === "self" && !ownedArchive.memorialMode;
+
+  if (isOwner && !isSelfArchive) {
     notFound();
   }
 
-  const ownedArchive = account.archives.find((item) => item.slug === slug);
+  if (!isOwner && !legacyInstruction) {
+    notFound();
+  }
   const displayArchiveName =
     archive?.archiveName ?? legacyInstruction?.archiveName ?? ownedArchive?.archiveName;
   const displayPersonName =
