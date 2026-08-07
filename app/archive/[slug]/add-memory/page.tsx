@@ -347,17 +347,20 @@ export default async function AddMemoryPage({
             <ArchiveOverlayRegion
               region={photoVideoLeftRegion}
               ariaLabel="Photo upload fields"
-              className="p-[clamp(1rem,1.4vw,1.5rem)] text-[#2a1c10]"
+              className="p-[clamp(0.75rem,1.2vw,1.35rem)] text-[#2a1c10]"
             >
-              <AddMemoryForm action={saveMemory} className="grid h-full grid-rows-[auto_auto_minmax(0,1fr)_auto_auto_auto] gap-[clamp(0.55rem,0.8vw,0.9rem)]">
+              <AddMemoryForm
+                action={saveMemory}
+                className="flex h-full flex-col justify-between gap-[clamp(0.35rem,0.55vw,0.65rem)] w-full min-w-0"
+              >
                 <input type="hidden" name="mode" value="photo-video" />
                 <input type="hidden" name="type" value="photo" />
                 <DesktopError message={resolvedSearchParams?.error} />
-                <div>
-                  <p className="text-[clamp(0.72rem,0.88vw,0.98rem)] font-bold uppercase tracking-[0.14em] text-[#5c3b19]">
+                <div className="shrink-0">
+                  <p className="text-[clamp(0.72rem,0.84vw,0.95rem)] font-bold uppercase tracking-[0.14em] text-[#5c3b19]">
                     Photo Upload
                   </p>
-                  <p className="mt-1 line-clamp-2 text-[clamp(0.64rem,0.76vw,0.84rem)] leading-snug text-[#5c4326]/78">
+                  <p className="mt-0.5 text-[clamp(0.62rem,0.72vw,0.8rem)] leading-snug text-[#5c4326]/78">
                     Add the image and the story that belongs with it.
                   </p>
                 </div>
@@ -367,32 +370,33 @@ export default async function AddMemoryPage({
                   defaultValue={defaultType === "photo" ? resolvedSearchParams?.title ?? "" : ""}
                   placeholder="Title"
                   aria-label="Photo title"
-                  className={compactInputClass}
+                  className={`${compactInputClass} shrink-0`}
                 />
                 <textarea
                   name="content"
-                  rows={7}
                   defaultValue={defaultType === "photo" ? resolvedSearchParams?.content ?? "" : ""}
                   placeholder="Caption or story"
                   aria-label="Photo caption or story"
-                  className={`${compactInputClass} min-h-0 resize-none leading-[1.5]`}
+                  className={`${compactInputClass} flex-1 min-h-[5.5rem] max-h-[14rem] resize-none leading-[1.45] text-[#24190d]`}
                 />
-                <input
-                  name="mediaFile"
-                  type="file"
-                  accept="image/*"
-                  aria-label="Upload photo file"
-                  className={compactFileInputClass}
-                />
-                <input
-                  name="mediaUrl"
-                  type="url"
-                  defaultValue={defaultType === "photo" ? resolvedSearchParams?.mediaUrl ?? "" : ""}
-                  placeholder="Unsplash photo link"
-                  aria-label="Unsplash photo link"
-                  className={compactInputClass}
-                />
-                <button type="submit" className={compactButtonClass}>
+                <div className="shrink-0 grid gap-1.5 w-full min-w-0">
+                  <input
+                    name="mediaFile"
+                    type="file"
+                    accept="image/*"
+                    aria-label="Upload photo file"
+                    className={compactFileInputClass}
+                  />
+                  <input
+                    name="mediaUrl"
+                    type="url"
+                    defaultValue={defaultType === "photo" ? resolvedSearchParams?.mediaUrl ?? "" : ""}
+                    placeholder="Unsplash photo link"
+                    aria-label="Unsplash photo link"
+                    className={compactInputClass}
+                  />
+                </div>
+                <button type="submit" className={`${compactButtonClass} shrink-0 w-full`}>
                   Preserve Photo
                 </button>
               </AddMemoryForm>
@@ -400,7 +404,7 @@ export default async function AddMemoryPage({
             <ArchiveOverlayRegion
               region={photoVideoRightRegion}
               ariaLabel="Video chapter fields"
-              className="p-[clamp(1rem,1.4vw,1.5rem)] text-[#2a1c10]"
+              className="p-[clamp(0.75rem,1.2vw,1.35rem)] text-[#2a1c10]"
             >
               <VideoForm
                 action={saveMemory}

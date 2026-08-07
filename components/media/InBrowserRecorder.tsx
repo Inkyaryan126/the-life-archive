@@ -59,13 +59,13 @@ export function InBrowserRecorder({
   }
 
   const bgContainerClass = darkTheme
-    ? "w-full max-w-full min-w-0 box-border overflow-hidden rounded-xl border border-archive-gold/25 bg-black/40 p-4 text-archive-ivory"
-    : "w-full max-w-full min-w-0 box-border overflow-hidden rounded-xl border border-[#8a6427]/35 bg-[#f4dfb7]/30 p-4 text-[#24190d]";
+    ? "w-full max-w-full min-w-0 box-border overflow-hidden rounded-xl border border-archive-gold/25 bg-black/40 p-2.5 sm:p-3 text-archive-ivory"
+    : "w-full max-w-full min-w-0 box-border overflow-hidden rounded-xl border border-[#8a6427]/35 bg-[#f4dfb7]/30 p-2.5 sm:p-3 text-[#24190d]";
 
   return (
     <div className={`${bgContainerClass} ${className}`}>
       {error ? (
-        <div className="grid gap-3">
+        <div className="grid gap-2">
           <p className="text-xs font-semibold leading-relaxed text-red-300">
             {error}
           </p>
@@ -80,8 +80,8 @@ export function InBrowserRecorder({
           ) : null}
         </div>
       ) : state === "idle" ? (
-        <div className="flex flex-col items-center justify-center gap-3 py-2 text-center">
-          <p className="text-xs font-medium opacity-80">
+        <div className="flex flex-col items-center justify-center gap-1.5 py-1 text-center min-w-0 w-full">
+          <p className="text-[clamp(0.62rem,0.72vw,0.78rem)] font-medium opacity-80 leading-snug">
             {mode === "video"
               ? "Record up to 60s of video directly in your browser."
               : "Record up to 60s of voice audio directly in your browser."}
@@ -89,9 +89,9 @@ export function InBrowserRecorder({
           <button
             type="button"
             onClick={startRecording}
-            className="inline-flex items-center gap-2 rounded-full bg-archive-gold px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
+            className="inline-flex items-center gap-1.5 rounded-full bg-archive-gold px-3.5 py-1.5 text-[clamp(0.6rem,0.72vw,0.78rem)] font-bold uppercase tracking-[0.1em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
           >
-            <span className="h-2.5 w-2.5 rounded-full bg-red-600 animate-pulse" />
+            <span className="h-2 w-2 rounded-full bg-red-600 animate-pulse shrink-0" />
             Start {mode === "video" ? "Video" : "Voice"} Recording
           </button>
         </div>

@@ -37,12 +37,12 @@ export function InteractiveMediaInput({
     : "bg-white/50 text-[#3c2a17] hover:bg-white/70 font-semibold";
 
   return (
-    <div className="grid gap-2 w-full max-w-full min-w-0 overflow-hidden box-border">
-      <div className="flex flex-wrap items-center gap-2 text-[0.62rem] uppercase tracking-wider w-full min-w-0">
+    <div className="grid gap-1.5 w-full max-w-full min-w-0 overflow-hidden box-border">
+      <div className="flex flex-wrap items-center gap-1.5 text-[clamp(0.58rem,0.68vw,0.75rem)] uppercase tracking-wider w-full min-w-0">
         <button
           type="button"
           onClick={() => handleSourceChange("record")}
-          className={`rounded-md px-2.5 py-1 transition ${
+          className={`rounded-md px-2 py-0.5 transition ${
             inputSource === "record" ? tabActive : tabInactive
           }`}
         >
@@ -51,7 +51,7 @@ export function InteractiveMediaInput({
         <button
           type="button"
           onClick={() => handleSourceChange("upload")}
-          className={`rounded-md px-2.5 py-1 transition ${
+          className={`rounded-md px-2 py-0.5 transition ${
             inputSource === "upload" ? tabActive : tabInactive
           }`}
         >
