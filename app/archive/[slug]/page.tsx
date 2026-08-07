@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
@@ -6,7 +5,6 @@ import { SuccessMessage } from "@/components/SuccessMessage";
 import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 import {
   DesignBackdrop,
-  DesignImageButtonLink,
   SiteLogo
 } from "@/components/SiteDesign";
 import { getAccountContext } from "@/lib/account";
@@ -16,8 +14,6 @@ import {
   getVisitorMessages
 } from "@/lib/archive-data";
 import { Guestbook } from "@/components/Guestbook";
-import { ArchiveMobileScene } from "@/components/archive-building/ArchiveBuildingShell";
-import { archiveBuildingMobileScenes } from "@/lib/archive-building-scenes";
 import {
   generateQrSvg,
   getRandomMemoryUrl,
@@ -25,47 +21,9 @@ import {
   svgToDataUri
 } from "@/lib/qr";
 import { ShareArchiveDialog } from "@/components/archive/ShareArchiveDialog";
+import { ArchiveCinematicScene } from "@/components/archive/ArchiveCinematicScene";
 
 export const dynamic = "force-dynamic";
-
-const archiveChapterButtons = [
-  {
-    label: "All Chapters",
-    href: "memories",
-    image: "/images/site-design/journals-button.jpg",
-    desc: "Browse every preserved story and chapter"
-  },
-  {
-    label: "Photos",
-    href: "memories?type=photo",
-    image: "/images/site-design/photos-button.jpg",
-    desc: "Visual moments and family photographs"
-  },
-  {
-    label: "Voice Notes",
-    href: "memories?type=voice",
-    image: "/images/site-design/voicenotes-button.jpg",
-    desc: "Audio recordings and spoken reflections"
-  },
-  {
-    label: "Life Lessons",
-    href: "memories?type=lesson",
-    image: "/images/site-design/lifelessons-button.jpg",
-    desc: "Wisdom, principles, and personal guidelines"
-  },
-  {
-    label: "Songs",
-    href: "memories?type=song",
-    image: "/images/site-design/songs-button.jpg",
-    desc: "Music, playlists, and auditory memories"
-  },
-  {
-    label: "Random Chapter",
-    href: "random",
-    image: "/images/site-design/videos-button.jpg",
-    desc: "Discover a random chapter from this archive"
-  }
-] as const;
 
 type ArchivePageProps = {
   params: Promise<{
@@ -116,19 +74,6 @@ export default async function ArchivePage({
 
   return (
     <main className="relative min-h-screen overflow-hidden px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
-      <ArchiveMobileScene
-        image={{
-          ...(archive.memorialMode
-            ? archiveBuildingMobileScenes.memorial
-            : archiveBuildingMobileScenes.library),
-          priority: true
-        }}
-        sceneLabel="Archive home mobile room"
-        title={archive.archiveName}
-        subtitle="Every preserved story becomes part of what remains."
-        backgroundOnly
-      />
-
       <DesignBackdrop />
 
       <div className="relative z-10 mx-auto w-full max-w-[96rem]">
@@ -156,6 +101,14 @@ export default async function ArchivePage({
                 ) : null}
               </>
             ) : null}
+            {isOwner ? (
+              <Link
+                href={`/archive/${archive.slug}/edit`}
+                className="text-sm font-semibold text-archive-gold transition hover:text-archive-champagne sm:text-base"
+              >
+                Edit Archive
+              </Link>
+            ) : null}
             <ShareArchiveDialog
               archiveSlug={archive.slug}
               personName={archive.personName}
@@ -167,48 +120,6 @@ export default async function ArchivePage({
           </div>
         </nav>
 
-        {/* Owner Custody Admin Control Bar */}
-        {isOwner ? (
-          <div className="relative z-20 mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-archive-gold/25 bg-archive-gold/5 p-4 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-archive-gold animate-pulse" />
-              <span className="font-semibold uppercase tracking-[0.18em] text-archive-gold">
-                {isMemorialArchive ? "Memorial Archive Active" : "Archive Custody Active"}
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href={`/archive/${archive.slug}/memories`}
-                className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2 font-semibold text-archive-ivory transition hover:bg-white/10"
-              >
-                Browse Chapters
-              </Link>
-              {isLivingArchive ? (
-                <>
-                  <Link
-                    href={`/archive/${archive.slug}/add-memory`}
-                    className="rounded-full bg-archive-gold px-4 py-2 font-bold text-archive-obsidian transition hover:bg-archive-champagne"
-                  >
-                    + Add a Chapter
-                  </Link>
-                  <Link
-                    href={`/archive/${archive.slug}/edit`}
-                    className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2 font-semibold text-archive-ivory transition hover:bg-white/10"
-                  >
-                    Edit Archive
-                  </Link>
-                </>
-              ) : null}
-              <Link
-                href={`/archive/${archive.slug}/legacy-instructions`}
-                className="rounded-full border border-archive-gold/30 bg-white/5 px-4 py-2 font-semibold text-archive-ivory transition hover:bg-white/10"
-              >
-                Legacy Notes
-              </Link>
-            </div>
-          </div>
-        ) : null}
-
         {resolvedSearchParams?.created === "1" ? (
           <div className="mb-6">
             <SuccessMessage
@@ -218,149 +129,25 @@ export default async function ArchivePage({
           </div>
         ) : null}
 
-        {/* 1. CINEMATIC HERO SECTION */}
-        <section className="relative overflow-hidden rounded-[2.5rem] border border-archive-gold/20 bg-archive-obsidian shadow-luxury group">
-          <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-[21/9]">
-            <Image
-              src={archive.profilePhotoUrl}
-              alt={archive.personName}
-              fill
-              priority
-              className="object-cover object-[center_25%] transition-transform duration-700 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
-              sizes="(min-width: 1280px) 1440px, 100vw"
+        <ArchiveCinematicScene
+          archive={archive}
+          chapters={memories}
+          isOwner={isOwner}
+          isLivingArchive={isLivingArchive}
+          archiveStatusLabel={archiveStatusLabel}
+          shareAction={
+            <ShareArchiveDialog
+              archiveSlug={archive.slug}
+              personName={archive.personName}
+              qrDataUri={qrDataUri}
+              targetUrl={randomMemoryUrl}
+              triggerLabel="Share Archive"
+              triggerClassName="rounded-full border border-archive-gold/35 bg-black/22 px-5 py-2.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:text-archive-gold"
             />
-            {/* Dark bottom gradient overlay for readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#11100e] via-[#11100e]/65 to-transparent" />
+          }
+        />
 
-            {/* Hero Text & Primary Action Overlay */}
-            <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-6 sm:p-10 lg:p-14">
-              <div className="flex flex-wrap gap-2.5">
-                <span className="rounded-full border border-white/20 bg-black/40 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-archive-gold backdrop-blur-md">
-                  {archiveStatusLabel}
-                </span>
-                <span className="rounded-full border border-white/20 bg-black/40 px-3.5 py-1 text-xs font-semibold uppercase tracking-widest text-archive-ivory/80 backdrop-blur-md">
-                  {archive.visibility === "public"
-                    ? "Public Sanctuary"
-                    : "Private Sanctuary"}
-                </span>
-              </div>
-
-              {/* Constrained Responsive Person Name */}
-              <h1 className="mt-4 max-w-[18ch] font-serif text-[clamp(2.25rem,5vw,4.5rem)] leading-[1.08] tracking-tight text-archive-ivory break-words">
-                {archive.personName}
-              </h1>
-
-              <p className="mt-2 font-serif text-lg italic text-archive-champagne/90 sm:text-xl">
-                {archive.archiveName}
-              </p>
-
-              {/* Small Elegant Preserved Statistic */}
-              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold/90">
-                {memories.length} {memories.length === 1 ? "preserved chapter" : "preserved chapters"}
-              </p>
-
-              {/* Primary Hero Actions */}
-              <div className="mt-8 flex flex-wrap items-center gap-3.5">
-                <Link
-                  href={`/archive/${archive.slug}/memories`}
-                  className="rounded-full bg-archive-gold px-7 py-3.5 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne"
-                >
-                  Explore Memories
-                </Link>
-
-                <Link
-                  href={`/archive/${archive.slug}/random`}
-                  className="rounded-full border border-archive-gold/35 bg-white/[0.04] px-7 py-3.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
-                >
-                  Random Chapter
-                </Link>
-
-                {isLivingArchive && isOwner ? (
-                  <Link
-                    href={`/archive/${archive.slug}/add-memory`}
-                    className="rounded-full border border-archive-gold/35 bg-white/[0.04] px-7 py-3.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
-                  >
-                    + Add a Memory
-                  </Link>
-                ) : null}
-
-                <ShareArchiveDialog
-                  archiveSlug={archive.slug}
-                  personName={archive.personName}
-                  qrDataUri={qrDataUri}
-                  targetUrl={randomMemoryUrl}
-                  triggerLabel="Share Archive"
-                  triggerClassName="rounded-full border border-archive-gold/35 bg-white/[0.04] px-7 py-3.5 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08]"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 2. BIOGRAPHY / TRIBUTE SECTION */}
-        <section className="mt-12 border-t border-archive-gold/15 pt-12">
-          <div className="mx-auto max-w-4xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-              {isMemorialArchive ? "In Loving Memory" : "Living Legacy"}
-            </p>
-            <h2 className="mt-3 font-serif text-3xl text-archive-ivory sm:text-4xl">
-              {isMemorialArchive ? "A Life Remembered" : "The Living Story"}
-            </h2>
-            <p className="mt-6 font-serif text-lg leading-relaxed text-archive-ivory/85 whitespace-pre-line sm:text-xl sm:leading-loose">
-              {archive.bio}
-            </p>
-          </div>
-        </section>
-
-        {/* 3. EXPLORE THIS ARCHIVE SECTION */}
-        <section className="mt-16 border-t border-archive-gold/15 pt-16">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">
-                Exhibition Chapters
-              </p>
-              <h2 className="mt-2 font-serif text-3xl text-archive-ivory sm:text-4xl">
-                Explore This Archive
-              </h2>
-            </div>
-            <p className="max-w-md text-sm leading-6 text-archive-ivory/60">
-              Browse stories, photographs, voice recordings, and life lessons.
-            </p>
-          </div>
-
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {archiveChapterButtons.map((button) => (
-              <Link
-                key={button.label}
-                href={`/archive/${archive.slug}/${button.href}`}
-                className="group relative overflow-hidden rounded-[1.8rem] border border-archive-gold/18 bg-white/[0.025] p-6 shadow-luxury transition-all duration-300 hover:-translate-y-1 hover:border-archive-gold/45 hover:bg-white/[0.05] motion-reduce:transform-none"
-              >
-                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl">
-                  <Image
-                    src={button.image}
-                    alt={button.label}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                </div>
-                <div className="mt-4">
-                  <h3 className="font-serif text-xl text-archive-ivory transition-colors group-hover:text-archive-gold">
-                    {button.label}
-                  </h3>
-                  <p className="mt-1 text-xs leading-5 text-archive-ivory/62">
-                    {button.desc}
-                  </p>
-                  <span className="mt-4 inline-flex items-center text-xs font-bold uppercase tracking-[0.16em] text-archive-gold">
-                    Open Chapter →
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* 4. FEATURED MEMORY SECTION */}
+        {/* Featured memory */}
         <section className="mt-16 border-t border-archive-gold/15 pt-16">
           <div className="mx-auto max-w-4xl">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-archive-gold">

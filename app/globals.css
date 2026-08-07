@@ -214,6 +214,31 @@ select {
   }
 }
 
+@keyframes archiveCandleGlow {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: scale(0.96);
+  }
+
+  45% {
+    opacity: 0.38;
+    transform: scale(1.03);
+  }
+
+  70% {
+    opacity: 0.28;
+    transform: scale(0.99);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-cinematic-flipbook,
+  [class*="archiveCandleGlow"] {
+    animation: none !important;
+  }
+}
+
 /* Shared finishing pass for mobile Archive Building rooms */
 @media (max-width: 1023px) {
   .mobile-scene-content {
@@ -745,4 +770,3 @@ select {
   box-shadow: 0 0 0 1000px rgba(10, 9, 8, 0.96) inset;
   transition: background-color 9999s ease-out 0s;
 }
-

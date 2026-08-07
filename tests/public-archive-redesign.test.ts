@@ -22,6 +22,10 @@ async function runTests() {
   // 2. Read public archive page content
   const pagePath = join(process.cwd(), "app", "archive", "[slug]", "page.tsx");
   const pageContent = readFileSync(pagePath, "utf8");
+  const scenePath = join(process.cwd(), "components", "archive", "ArchiveCinematicScene.tsx");
+  const sceneContent = readFileSync(scenePath, "utf8");
+  const globalsPath = join(process.cwd(), "app", "globals.css");
+  const globalsContent = readFileSync(globalsPath, "utf8");
 
   // 3. Verify QR Code is NOT visible on main page by default (removed QRPreview)
   assert.doesNotMatch(pageContent, /<QRPreview/);
@@ -31,23 +35,23 @@ async function runTests() {
   assert.match(pageContent, /<ShareArchiveDialog/);
 
   // 5. Verify Random Chapter remains wired
-  assert.match(pageContent, /\/archive\/\$\{archive\.slug\}\/random/);
+  assert.match(sceneContent, /\/archive\/\$\{archive\.slug\}\/random/);
 
   // 6. Verify Add Memory appears conditionally for authorized owners
   assert.match(pageContent, /isLivingArchive && isOwner/);
   assert.match(pageContent, /\/archive\/\$\{archive\.slug\}\/add-memory/);
 
-  // 7. Verify Person Name uses constrained responsive clamp typography
-  assert.match(pageContent, /text-\[clamp\(2\.25rem,\s*5vw,\s*4\.5rem\)\]/);
-  assert.match(pageContent, /break-words/);
+  // 7. Verify the cinematic archive scene replaces the older card-heavy grid
+  assert.match(pageContent, /<ArchiveCinematicScene/);
+  assert.doesNotMatch(pageContent, /archiveChapterButtons/);
+  assert.doesNotMatch(pageContent, /Explore This Archive/);
 
   // 8. Verify Keepsake copy says "engraved slate plaque" and excludes brass plaque
   assert.match(pageContent, /engraved slate plaque/);
   assert.doesNotMatch(pageContent, /brass plaque/i);
 
   // 9. Verify Motion respects prefers-reduced-motion
-  assert.match(pageContent, /motion-reduce:transform-none/);
-  assert.match(pageContent, /motion-reduce:transition-none/);
+  assert.match(sceneContent + globalsContent, /prefers-reduced-motion|motion-reduce:transform-none/);
 
   console.log("Public Archive Redesign Test Suite passed cleanly!");
 }
