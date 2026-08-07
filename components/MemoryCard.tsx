@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { formatMemoryDate, prettifyType } from "@/lib/format";
 import type { Memory } from "@/lib/types";
+import { MemoryPhotoImage } from "@/components/media/MemoryPhotoImage";
 
 type MemoryCardProps = {
   memory: Memory;
@@ -18,12 +18,10 @@ export function MemoryCard({ memory }: MemoryCardProps) {
       className="scroll-mt-24 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury"
     >
       {photoUrl ? (
-        <div className="relative mb-4 aspect-[5/3] overflow-hidden rounded-2xl">
-          <Image
+        <div className="mb-4">
+          <MemoryPhotoImage
             src={photoUrl}
             alt={memory.title}
-            fill
-            className="object-cover"
             sizes="(min-width: 768px) 420px, 100vw"
           />
         </div>

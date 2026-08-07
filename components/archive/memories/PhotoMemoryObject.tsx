@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import type { Memory } from "@/lib/types";
 import {
@@ -13,6 +15,7 @@ type PhotoMemoryObjectProps = {
 };
 
 export function PhotoMemoryObject({ memory }: PhotoMemoryObjectProps) {
+  const [isPortrait, setIsPortrait] = useState<boolean>(false);
   const frameType = getDeterministicPhotoFrame(memory.id);
   const tiltClass = getDeterministicTilt(memory.id);
   const config = photoFrameConfigs[frameType];
@@ -22,7 +25,7 @@ export function PhotoMemoryObject({ memory }: PhotoMemoryObjectProps) {
     <div className={`group relative flex flex-col items-center transition-all duration-300 hover:-translate-y-1.5 motion-reduce:transform-none ${tiltClass}`}>
       {/* Framed Photo Housing */}
       <div className={`relative w-full max-w-[340px] ${config.aspectRatio} overflow-hidden drop-shadow-[0_12px_28px_rgba(0,0,0,0.7)] transition-shadow duration-300 group-hover:drop-shadow-[0_18px_36px_rgba(202,164,92,0.35)]`}>
-        {/* Photo Image Layer (Positioned precisely in the transparent inner window) */}
+        {/* Photo Image Layer (Positioned in transparent inner window with top focal anchoring) */}
         <div
           className="absolute overflow-hidden bg-archive-obsidian"
           style={config.windowStyle}
@@ -31,7 +34,13 @@ export function PhotoMemoryObject({ memory }: PhotoMemoryObjectProps) {
             src={photoUrl}
             alt={memory.title}
             fill
+            onLoadingComplete={({ naturalWidth, naturalHeight }) => {
+              if (naturalHeight > naturalWidth) {
+                setIsPortrait(true);
+              }
+            }}
             className="object-cover transition-transform duration-500 group-hover:scale-105"
+            style={{ objectPosition: isPortrait ? "center 15%" : "center 18%" }}
             sizes="(min-width: 1024px) 340px, 100vw"
           />
         </div>

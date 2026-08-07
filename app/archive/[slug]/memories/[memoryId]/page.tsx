@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DeleteMemoryAction } from "@/components/DeleteMemoryAction";
 import { DesignBackdrop } from "@/components/SiteDesign";
+import { MemoryPhotoImage } from "@/components/media/MemoryPhotoImage";
 import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 import { formatMemoryDate, prettifyType } from "@/lib/format";
@@ -99,12 +100,11 @@ export default async function MemoryPage({ params, searchParams }: MemoryPagePro
           ) : null}
 
           {photoUrl ? (
-            <div className="relative aspect-[5/3] overflow-hidden rounded-2xl border border-archive-gold/10">
-              <Image
+            <div className="mb-2">
+              <MemoryPhotoImage
                 src={photoUrl}
                 alt={memory.title}
-                fill
-                className="object-cover"
+                priority
                 sizes="(min-width: 768px) 720px, 100vw"
               />
             </div>
