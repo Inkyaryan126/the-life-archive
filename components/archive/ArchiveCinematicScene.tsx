@@ -2,8 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { LifeArchive, Memory } from "@/lib/types";
-import mainArchiveImage from "@/site-design/archive-building-design/main-archive.png";
-import mobileArchiveImage from "@/site-design/mobile/mobile-main-archive.png";
 import { ArchiveFlipBook } from "./ArchiveFlipBook";
 import { ArchivePortrait } from "./ArchivePortrait";
 import {
@@ -13,6 +11,9 @@ import {
   getSceneZoneStyle
 } from "./archiveSceneLayout";
 import { trimArchiveText } from "./archiveBookModel";
+
+const mainArchiveImage = "/images/archive/main-archive.png";
+const mobileArchiveImage = "/images/archive/mobile-main-archive.png";
 
 type ArchiveCinematicSceneProps = {
   archive: LifeArchive;
