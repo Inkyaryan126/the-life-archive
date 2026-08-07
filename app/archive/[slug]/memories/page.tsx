@@ -47,7 +47,13 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
   const isOwner = account.archives.some((item) => item.slug === archive.slug);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#110e0b] px-5 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
+    <main
+      className="relative min-h-screen overflow-hidden bg-[#0d0a08] bg-cover bg-top bg-no-repeat px-5 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8"
+      style={{
+        backgroundImage: "url('/images/archive-assets/background.png')",
+        backgroundColor: "#0d0a08"
+      }}
+    >
       <ArchiveMobileScene
         image={{ ...archiveBuildingMobileScenes.library, priority: true }}
         sceneLabel="Preserved memories mobile library"
