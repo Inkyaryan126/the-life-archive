@@ -1,16 +1,13 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MemoryCard } from "@/components/MemoryCard";
-import { SuccessMessage } from "@/components/SuccessMessage";
 import { DesignBackdrop } from "@/components/SiteDesign";
 import { HashScroller } from "./HashScroller";
 import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 import { getAccountContext } from "@/lib/account";
 import { getArchiveBySlug, getMemoriesByArchiveSlug } from "@/lib/archive-data";
 import type { MemoryType } from "@/lib/types";
-import { prettifyType } from "@/lib/format";
 import { ArchiveMobileScene } from "@/components/archive-building/ArchiveBuildingShell";
 import { archiveBuildingMobileScenes } from "@/lib/archive-building-scenes";
+import { MemoryGallery } from "@/components/archive/memories/MemoryGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -26,19 +23,8 @@ type MemoriesPageProps = {
   }>;
 };
 
-const memoryTypeLabels: Record<MemoryType, string> = {
-  photo: "Photos",
-  video: "Videos",
-  voice: "Voice Notes",
-  journal: "Journals",
-  lesson: "Life Lessons",
-  song: "Songs"
-};
-
 function isMemoryType(value: string): value is MemoryType {
-  return ["photo", "video", "voice", "journal", "lesson", "song"].includes(
-    value
-  );
+  return ["photo", "video", "voice", "journal", "lesson", "song"].includes(value);
 }
 
 export default async function MemoriesPage({ params, searchParams }: MemoriesPageProps) {
@@ -57,107 +43,35 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
   const selectedType =
     resolvedSearchParams?.type && isMemoryType(resolvedSearchParams.type)
       ? resolvedSearchParams.type
-    : null;
-  const filteredMemories = selectedType
-    ? memories.filter((memory) => memory.type === selectedType)
-    : memories;
+      : null;
   const isOwner = account.archives.some((item) => item.slug === archive.slug);
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-5 py-6 text-archive-ivory sm:px-8">
-        <ArchiveMobileScene
-          image={{ ...archiveBuildingMobileScenes.library, priority: true }}
-          sceneLabel="Preserved memories mobile library"
-          title={"PRESERVED MEMORIES"}
-          subtitle="Return to the moments that built a life."
-          backgroundOnly
-        />
+    <main className="relative min-h-screen overflow-hidden bg-[#110e0b] px-5 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
+      <ArchiveMobileScene
+        image={{ ...archiveBuildingMobileScenes.library, priority: true }}
+        sceneLabel="Preserved memories mobile library"
+        title="PRESERVED MEMORIES"
+        subtitle="Return to the moments that built a life."
+        backgroundOnly
+      />
 
       <DesignBackdrop />
       <HashScroller />
 
-      <div className="relative z-10 mx-auto max-w-5xl">
-        <nav className="flex items-center justify-between pb-8">
-          <Link
-            href={`/archive/${archive.slug}`}
-            className="text-sm font-semibold text-archive-ivory/80 underline-offset-4 hover:underline hover:text-archive-gold"
-          >
-            Back to archive
-          </Link>
-          {isOwner ? (
-            <Link
-              href={`/dashboard?archive=${encodeURIComponent(archive.slug)}`}
-              className="rounded-full border border-archive-gold/35 bg-white/5 px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/10"
-            >
-              Add Memory
-            </Link>
-          ) : null}
-        </nav>
-
-        <header className="py-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
-            Browse memories
-          </p>
-          <h1 className="mt-3 font-serif text-4xl text-archive-ivory sm:text-5xl">
-            {archive.personName}
-          </h1>
-          {selectedType ? (
-            <p className="mt-3 inline-flex rounded-full border border-archive-gold/20 bg-archive-gold/10 px-4 py-2 text-sm font-semibold text-archive-champagne">
-              {memoryTypeLabels[selectedType]}
-            </p>
-          ) : null}
-        </header>
-
-        {resolvedSearchParams?.created === "1" ? (
-          <SuccessMessage
-            eyebrow="Another chapter has been preserved"
-            message="This memory is now part of the story and ready to be revisited."
-          />
-        ) : null}
-
-        {resolvedSearchParams?.deleted === "1" ? (
-          <SuccessMessage
-            eyebrow="Memory deleted"
-            message="Memory deleted."
-          />
-        ) : null}
-
-        {resolvedSearchParams?.deleteError === "1" ? (
-          <div className="mb-8 rounded-[2rem] border border-red-900/35 bg-red-950/15 p-6 shadow-luxury">
-            <p className="text-sm font-semibold text-red-100">
-              We could not delete this memory. Nothing else was changed. Please
-              try again.
-            </p>
-          </div>
-        ) : null}
-
-        {filteredMemories.length > 0 ? (
-          <section className="grid gap-5 md:grid-cols-2">
-            {filteredMemories.map((memory) => (
-              <MemoryCard key={memory.id} memory={memory} />
-            ))}
-          </section>
-        ) : (
-          <section className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury">
-            <h2 className="font-serif text-3xl text-archive-ivory">
-              {selectedType ? `No ${prettifyType(selectedType)} memories yet` : "No memories yet"}
-            </h2>
-            <p className="mt-3 leading-7 text-archive-ivory/72">
-              {selectedType
-                ? `This chapter does not have any ${memoryTypeLabels[selectedType].toLowerCase()} yet.`
-                : "Start with one story, photo, song, voice note, or lesson. The archive will grow from there."}
-            </p>
-            {isOwner ? (
-              <Link
-                href={`/dashboard?archive=${encodeURIComponent(archive.slug)}`}
-                className="mt-5 inline-flex rounded-full bg-archive-gold px-5 py-3 text-sm font-semibold text-archive-obsidian transition hover:bg-archive-champagne"
-              >
-                Add Memory
-              </Link>
-            ) : null}
-          </section>
-        )}
+      <div className="relative z-10 mx-auto w-full max-w-[96rem]">
+        <MemoryGallery
+          archiveSlug={archive.slug}
+          personName={archive.personName}
+          memories={memories}
+          isOwner={isOwner}
+          initialTypeFilter={selectedType}
+          createdSuccess={resolvedSearchParams?.created === "1"}
+          deletedSuccess={resolvedSearchParams?.deleted === "1"}
+          deleteError={resolvedSearchParams?.deleteError === "1"}
+        />
       </div>
+
       {account.user ? (
         <AuthenticatedMobileBottomNavigation activeArchiveSlug={slug} />
       ) : null}
