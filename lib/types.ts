@@ -211,6 +211,7 @@ export type PeopleConnection = {
   relationshipType: PersonRelationshipType;
   subjectStatus: SubjectStatus;
   avatarUrl?: string | null;
+  creationKey?: string | null;
   bioNotes?: string | null;
   isDemo: boolean;
   isShared: boolean;
