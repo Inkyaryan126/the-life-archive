@@ -189,3 +189,101 @@ export type GuestPassMemory = {
   memoryDate: string | null;
   tags: string[];
 };
+
+export type PersonRelationshipType =
+  | "partner"
+  | "child"
+  | "parent"
+  | "grandparent"
+  | "grandchild"
+  | "friend"
+  | "sibling"
+  | "self"
+  | "other";
+
+export type SubjectStatus = "living" | "memorial";
+
+export type PeopleConnection = {
+  id: string;
+  creatorUserId: string | null;
+  archiveId: string;
+  personName: string;
+  relationshipType: PersonRelationshipType;
+  subjectStatus: SubjectStatus;
+  avatarUrl?: string | null;
+  bioNotes?: string | null;
+  isDemo: boolean;
+  isShared: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ConnectionMemoryAccessStatus = "released" | "restricted" | "archived";
+
+export type ConnectionMemory = {
+  connectionId: string;
+  memoryId: string;
+  accessStatus: ConnectionMemoryAccessStatus;
+  createdAt: string;
+};
+
+export type ExperienceCategory = {
+  id: string;
+  slug: string;
+  label: string;
+  description?: string | null;
+  iconName?: string | null;
+  sortOrder: number;
+  createdAt: string;
+};
+
+export type KeepsakeMappingExperienceMode =
+  | "interactive_hub"
+  | "time_capsule_locked"
+  | "curated_pass"
+  | "memorial_view";
+
+export type KeepsakeMappingStatus = "active" | "disabled" | "revoked";
+
+export type KeepsakeMapping = {
+  id: string;
+  keepsakeId: string;
+  connectionId?: string | null;
+  archiveId: string;
+  experienceMode: KeepsakeMappingExperienceMode;
+  status: KeepsakeMappingStatus;
+  activeSharePassId?: string | null;
+  activatedAt: string;
+  disabledAt?: string | null;
+  revokedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type PromptSet = {
+  id: string;
+  slug: string;
+  title: string;
+  description?: string | null;
+  relationshipType: PersonRelationshipType;
+  occasion?: string | null;
+  sortOrder: number;
+  isEnabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GuidedPrompt = {
+  id: string;
+  promptSetId: string;
+  promptText: string;
+  helperText?: string | null;
+  suggestedMemoryType: MemoryType;
+  defaultCategorySlugs: string[];
+  sortOrder: number;
+  isEnabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type PreUnlockVisibility = "hidden" | "teaser" | "countdown";
