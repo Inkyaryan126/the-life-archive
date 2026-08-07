@@ -1,9 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useState, useRef } from "react";
 import type { LifeArchive } from "@/lib/types";
 import { updateArchiveDetailsAction } from "@/app/archive/[slug]/actions";
-import Link from "next/link";
+import {
+  getArchiveHeroImageStyle,
+  normalizeHeroCropValues,
+  type AspectRatioMode
+} from "@/lib/archive-hero-image";
 
 type EditArchiveFormProps = {
   archive: LifeArchive;
@@ -16,10 +21,80 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
   const [archiveName, setArchiveName] = useState(archive.archiveName);
   const [bio, setBio] = useState(archive.bio);
   const [visibility, setVisibility] = useState(archive.visibility);
+
+  // Crop & Focal position state
+  const initialCrop = normalizeHeroCropValues({
+    positionX: archive.heroImagePositionX,
+    positionY: archive.heroImagePositionY,
+    zoom: archive.heroImageZoom
+  });
+
+  const [positionX, setPositionX] = useState<number>(initialCrop.x);
+  const [positionY, setPositionY] = useState<number>(initialCrop.y);
+  const [zoom, setZoom] = useState<number>(initialCrop.zoom);
+  const [previewAspect, setPreviewAspect] = useState<AspectRatioMode>("16/9");
+
+  // File upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string>(archive.profilePhotoUrl);
+
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const previewBoxRef = useRef<HTMLDivElement | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 15 * 1024 * 1024) {
+        setError("Hero photo must be smaller than 15 MB.");
+        return;
+      }
+      setSelectedFile(file);
+      setPreviewPhotoUrl(URL.createObjectURL(file));
+      setError(null);
+    }
+  };
+
+  const handlePointerUpdate = (clientX: number, clientY: number) => {
+    if (!previewBoxRef.current) return;
+    const rect = previewBoxRef.current.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const rawX = ((clientX - rect.left) / rect.width) * 100;
+    const rawY = ((clientY - rect.top) / rect.height) * 100;
+
+    const clampedX = Math.round(Math.min(100, Math.max(0, rawX)));
+    const clampedY = Math.round(Math.min(100, Math.max(0, rawY)));
+
+    setPositionX(clampedX);
+    setPositionY(clampedY);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    handlePointerUpdate(e.clientX, e.clientY);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging) {
+      handlePointerUpdate(e.clientX, e.clientY);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length > 0) {
+      const touch = e.touches[0];
+      handlePointerUpdate(touch.clientX, touch.clientY);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,11 +112,18 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
     formData.append("archiveName", archiveName);
     formData.append("bio", bio);
     formData.append("visibility", visibility);
+    formData.append("heroImagePositionX", positionX.toString());
+    formData.append("heroImagePositionY", positionY.toString());
+    formData.append("heroImageZoom", zoom.toString());
+
+    if (selectedFile) {
+      formData.append("heroPhoto", selectedFile);
+    }
 
     try {
       const result = await updateArchiveDetailsAction(archive.slug, formData);
       if (result.success) {
-        setSuccess("Your archive has been successfully updated and preserved.");
+        setSuccess("Your archive details and hero photo crop have been successfully preserved.");
       }
     } catch (err: any) {
       setError(err.message || "Failed to update archive.");
@@ -56,33 +138,178 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const heroStyle = getArchiveHeroImageStyle(positionX, positionY, zoom);
+
   return (
-    <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-      {/* Edit Form */}
-      <form onSubmit={handleSubmit} className="grid gap-5 rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 shadow-luxury sm:p-8">
+    <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+      {/* Main Edit Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="grid gap-6 rounded-[2rem] border border-archive-gold/20 bg-white/[0.035] p-6 shadow-luxury sm:p-8"
+      >
         <div>
           <h2 className="font-serif text-2xl text-archive-ivory sm:text-3xl">
-            Edit Archive Details
+            Edit Archive &amp; Hero Photo Position
           </h2>
-          <p className="mt-1 text-sm leading-6 text-archive-ivory/55">
-            Update the public archive text, names, and visibility settings.
+          <p className="mt-1 text-sm leading-6 text-archive-ivory/60">
+            Reposition the portrait focal point, adjust zoom, upload a replacement hero photo, and update visibility.
           </p>
         </div>
 
         {error && (
-          <p className="rounded-lg border border-archive-clay/20 bg-archive-clay/10 p-3 text-sm text-archive-clay">
+          <p className="rounded-xl border border-archive-clay/30 bg-archive-clay/10 p-4 text-sm text-archive-clay font-medium">
             {error}
           </p>
         )}
 
         {success && (
-          <p className="rounded-lg border border-archive-gold/20 bg-archive-gold/10 p-3 text-sm text-archive-gold">
+          <p className="rounded-xl border border-archive-gold/30 bg-archive-gold/10 p-4 text-sm text-archive-gold font-medium">
             {success}
           </p>
         )}
 
+        {/* Hidden crop form inputs for server action submission */}
+        <input type="hidden" name="heroImagePositionX" value={positionX} />
+        <input type="hidden" name="heroImagePositionY" value={positionY} />
+        <input type="hidden" name="heroImageZoom" value={zoom} />
+
+        {/* 1. HERO PHOTO INTERACTIVE CROP EDITOR */}
+        <div className="grid gap-4 rounded-2xl border border-archive-gold/20 bg-archive-obsidian/80 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-archive-gold">
+                Hero Photo Positioning &amp; Zoom
+              </span>
+              <p className="text-xs text-archive-ivory/60">
+                Click or drag on the image preview below to set the face focal point.
+              </p>
+            </div>
+
+            {/* Aspect Ratio Preview Selector */}
+            <div className="flex items-center gap-1 rounded-full border border-archive-gold/25 bg-black/40 p-1 text-xs">
+              {(["4/3", "16/9", "21/9"] as const).map((ratio) => (
+                <button
+                  key={ratio}
+                  type="button"
+                  onClick={() => setPreviewAspect(ratio)}
+                  className={`rounded-full px-3 py-1 font-semibold transition ${
+                    previewAspect === ratio
+                      ? "bg-archive-gold text-archive-obsidian shadow-sm"
+                      : "text-archive-ivory/70 hover:text-archive-ivory"
+                  }`}
+                >
+                  {ratio === "4/3" ? "Mobile (4:3)" : ratio === "16/9" ? "Tablet (16:9)" : "Desktop (21:9)"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Interactive Drag Box */}
+          <div
+            ref={previewBoxRef}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchMove={handleTouchMove}
+            className={`relative cursor-crosshair overflow-hidden rounded-xl border border-archive-gold/30 bg-black transition-all ${
+              previewAspect === "4/3"
+                ? "aspect-[4/3]"
+                : previewAspect === "16/9"
+                  ? "aspect-[16/9]"
+                  : "aspect-[21/9]"
+            }`}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewPhotoUrl}
+              alt="Hero crop preview"
+              className="h-full w-full pointer-events-none select-none"
+              style={heroStyle}
+            />
+
+            {/* Focal Point Indicator Crosshair */}
+            <div
+              className="pointer-events-none absolute h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-archive-gold bg-black/40 shadow-luxury flex items-center justify-center backdrop-blur-xs"
+              style={{ left: `${positionX}%`, top: `${positionY}%` }}
+            >
+              <div className="h-1.5 w-1.5 rounded-full bg-archive-gold" />
+            </div>
+
+            <div className="pointer-events-none absolute bottom-2 left-2 rounded-md bg-black/70 px-2.5 py-1 text-[11px] font-mono text-archive-gold backdrop-blur-md">
+              Focal: {positionX}% X / {positionY}% Y | Zoom: {zoom.toFixed(1)}x
+            </div>
+          </div>
+
+          {/* Focal & Zoom Fine Controls */}
+          <div className="grid gap-3 pt-2 sm:grid-cols-3">
+            <label className="grid gap-1">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-archive-ivory/70">
+                Focal X: {positionX}%
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={positionX}
+                onChange={(e) => setPositionX(Number(e.target.value))}
+                className="accent-archive-gold cursor-pointer"
+              />
+            </label>
+
+            <label className="grid gap-1">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-archive-ivory/70">
+                Focal Y: {positionY}%
+              </span>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={positionY}
+                onChange={(e) => setPositionY(Number(e.target.value))}
+                className="accent-archive-gold cursor-pointer"
+              />
+            </label>
+
+            <label className="grid gap-1">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-archive-ivory/70">
+                Zoom: {zoom.toFixed(1)}x
+              </span>
+              <input
+                type="range"
+                min="1.0"
+                max="3.0"
+                step="0.1"
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="accent-archive-gold cursor-pointer"
+              />
+            </label>
+          </div>
+
+          {/* Upload New Photo Input */}
+          <div className="mt-2 border-t border-archive-gold/15 pt-3">
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-archive-gold">
+                Upload New Hero Photo (Optional)
+              </span>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                onChange={handleFileChange}
+                disabled={loading}
+                className="block w-full text-xs text-archive-ivory/80 file:mr-4 file:rounded-full file:border file:border-archive-gold/30 file:bg-archive-gold/10 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-archive-gold file:transition hover:file:bg-archive-gold/20"
+              />
+              <span className="text-[11px] text-archive-ivory/50">
+                Leaves current image unchanged if left empty. Supported formats: JPG, PNG, WebP, AVIF (Max 15 MB).
+              </span>
+            </label>
+          </div>
+        </div>
+
+        {/* 2. TEXT & METADATA INPUTS */}
         <label className="grid gap-2">
-          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-archive-gold">
             Person&apos;s Name
           </span>
           <input
@@ -90,12 +317,13 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
             value={personName}
             onChange={(e) => setPersonName(e.target.value)}
             disabled={loading}
-            className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-sm text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
+            required
+            className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4 focus:border-archive-gold"
           />
         </label>
 
         <label className="grid gap-2">
-          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-archive-gold">
             Archive Page Title
           </span>
           <input
@@ -103,111 +331,76 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
             value={archiveName}
             onChange={(e) => setArchiveName(e.target.value)}
             disabled={loading}
-            className="rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-sm text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
+            required
+            className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4 focus:border-archive-gold"
           />
         </label>
 
         <label className="grid gap-2">
-          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
-            Tribute / Biography
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-archive-gold">
+            Short Biography / Legacy Summary
           </span>
           <textarea
+            rows={4}
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             disabled={loading}
-            rows={6}
-            className="resize-none rounded-lg border border-archive-gold/20 bg-white/[0.04] px-4 py-3 text-sm leading-7 text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4"
+            required
+            className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4 focus:border-archive-gold"
           />
         </label>
 
-        <div className="grid gap-2">
-          <span className="text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
-            Visibility Setting
+        <label className="grid gap-2">
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-archive-gold">
+            Archive Visibility
           </span>
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => setVisibility("public")}
-              className={`flex-1 rounded-lg border p-3 text-sm font-semibold transition ${
-                visibility === "public"
-                  ? "border-archive-gold bg-archive-gold/10 text-archive-gold"
-                  : "border-white/10 bg-white/[0.02] text-archive-ivory/60"
-              }`}
-            >
-              Public (Anyone can view)
-            </button>
-            <button
-              type="button"
-              onClick={() => setVisibility("private")}
-              className={`flex-1 rounded-lg border p-3 text-sm font-semibold transition ${
-                visibility === "private"
-                  ? "border-archive-gold bg-archive-gold/10 text-archive-gold"
-                  : "border-white/10 bg-white/[0.02] text-archive-ivory/60"
-              }`}
-            >
-              Private (Owner only)
-            </button>
-          </div>
-        </div>
+          <select
+            value={visibility}
+            onChange={(e) => setVisibility(e.target.value as any)}
+            disabled={loading}
+            className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4 focus:border-archive-gold"
+          >
+            <option value="public">Public Sanctuary (Discoverable by family &amp; visitors)</option>
+            <option value="private">Private Sanctuary (Only accessible via direct link / pass)</option>
+          </select>
+        </label>
 
-        <div className="mt-4 flex gap-3">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-archive-gold/15">
+          <Link
+            href={`/archive/${archive.slug}`}
+            className="rounded-full border border-archive-gold/35 bg-white/5 px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-archive-ivory transition hover:bg-white/10"
+          >
+            Cancel &amp; Return
+          </Link>
+
           <button
             type="submit"
             disabled={loading}
-            className="rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne disabled:opacity-50"
+            className="rounded-full bg-archive-gold px-8 py-3.5 text-xs font-bold uppercase tracking-[0.16em] text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne disabled:opacity-50"
           >
-            {loading ? "Preserving..." : "Save Archive Changes"}
+            {loading ? "Preserving Changes..." : "Save Archive &amp; Hero Crop"}
           </button>
-          <Link
-            href={`/archive/${archive.slug}/contributors`}
-            className="flex items-center rounded-full border border-archive-gold/30 bg-black/40 px-6 py-3 text-sm font-semibold text-archive-champagne transition hover:border-archive-gold hover:bg-white/[0.06]"
-          >
-            Manage Contributors
-          </Link>
-          <Link
-            href={`/archive/${archive.slug}`}
-            className="flex items-center rounded-full border border-white/10 bg-white/[0.02] px-6 py-3 text-sm font-semibold text-archive-ivory transition hover:bg-white/[0.06]"
-          >
-            View Live Archive
-          </Link>
         </div>
       </form>
 
-      {/* QR Code and Share Links */}
-      <aside className="rounded-[2rem] border border-archive-gold/18 bg-white/[0.035] p-6 text-center shadow-luxury">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-archive-gold">
-          QR CODE
-        </p>
-        <h3 className="mb-2 font-serif text-2xl text-archive-ivory">
-          {archive.memorialMode ? "Memorial QR Code" : "Life Archive QR Code"}
-        </h3>
-        <p className="mb-6 text-sm leading-6 text-archive-ivory/62">
-          {archive.memorialMode
-            ? "This QR code connects cards, plaques, programs, and keepsakes back to this memorial archive."
-            : "This QR code connects a Life Archive card or keepsake back to this living archive."}
-        </p>
-
-        {/* QR Code Element */}
-        <div className="mx-auto inline-block rounded-2xl border border-archive-gold/15 bg-archive-obsidian/80 p-4 shadow-luxury">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={qrSrc}
-            alt={archive.memorialMode ? "Memorial archive QR code" : "Life archive QR code"}
-            className="mx-auto h-48 w-48"
-          />
-        </div>
-
-        <div className="mt-8 grid gap-3">
+      {/* Sidebar Info & QR Card */}
+      <aside className="grid gap-6">
+        <div className="rounded-[2rem] border border-archive-gold/20 bg-archive-obsidian/90 p-6 text-center shadow-luxury">
+          <h3 className="font-serif text-lg text-archive-ivory">Archive QR Code</h3>
+          <p className="mt-1 text-xs text-archive-ivory/60">
+            Scan to open this archive directly on mobile devices.
+          </p>
+          <div className="my-4 flex justify-center p-3 bg-white rounded-2xl border border-archive-gold/30 max-w-[200px] mx-auto">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={qrSrc} alt="Archive QR Code" className="h-40 w-40 shrink-0" />
+          </div>
           <button
             type="button"
             onClick={handleCopyLink}
-            className="w-full rounded-full bg-archive-gold px-5 py-3 text-sm font-bold text-archive-obsidian shadow-soft transition hover:bg-archive-champagne"
+            className="w-full rounded-full border border-archive-gold/30 bg-white/5 py-2 text-xs font-semibold text-archive-gold transition hover:bg-white/10"
           >
-            {copied ? "Copied to Clipboard!" : "Copy Shareable Link"}
+            {copied ? "Link Copied!" : "Copy Archive Link"}
           </button>
-          <p className="mx-auto mt-2 max-w-[280px] break-all text-sm leading-relaxed text-archive-ivory/45 select-all">
-            {archiveUrl}
-          </p>
         </div>
       </aside>
     </div>

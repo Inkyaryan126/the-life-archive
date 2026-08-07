@@ -38,6 +38,9 @@ export type LifeArchive = {
   memorialActivatedAt?: string | null;
   memorialActivatedBy?: string | null;
   relationshipToOwner: ArchiveRelationshipToOwner;
+  heroImagePositionX?: number | null;
+  heroImagePositionY?: number | null;
+  heroImageZoom?: number | null;
   createdAt: string;
 };
 

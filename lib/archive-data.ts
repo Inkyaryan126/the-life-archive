@@ -94,6 +94,9 @@ type ArchiveRow = {
   memorial_activated_at: string | null;
   memorial_activated_by: string | null;
   relationship_to_owner: ArchiveRelationshipToOwner;
+  hero_image_position_x?: number | null;
+  hero_image_position_y?: number | null;
+  hero_image_zoom?: number | null;
   created_at: string;
 };
 
@@ -224,6 +227,9 @@ function mapArchiveRow(row: ArchiveRow): LifeArchive {
     relationshipToOwner: normalizeArchiveRelationshipToOwner(
       row.relationship_to_owner
     ),
+    heroImagePositionX: typeof row.hero_image_position_x === "number" && !Number.isNaN(row.hero_image_position_x) ? row.hero_image_position_x : 50,
+    heroImagePositionY: typeof row.hero_image_position_y === "number" && !Number.isNaN(row.hero_image_position_y) ? row.hero_image_position_y : 50,
+    heroImageZoom: typeof row.hero_image_zoom === "number" && !Number.isNaN(row.hero_image_zoom) ? row.hero_image_zoom : 1.0,
     createdAt: row.created_at.slice(0, 10)
   };
 }
@@ -1403,20 +1409,39 @@ export async function deleteVisitorMessage(messageId: string): Promise<boolean> 
   return true;
 }
 
+export type ArchiveUpdateInput = {
+  personName?: string;
+  archiveName?: string;
+  bio?: string;
+  visibility?: ArchiveVisibility;
+  profilePhotoUrl?: string | null;
+  profilePhotoPath?: string | null;
+  heroImagePositionX?: number | null;
+  heroImagePositionY?: number | null;
+  heroImageZoom?: number | null;
+};
+
 export async function updateArchive(
   slug: string,
-  updates: { personName: string; archiveName: string; bio: string; visibility: ArchiveVisibility }
+  updates: ArchiveUpdateInput
 ) {
   if (useSupabase) {
     const supabase = await createClient();
+    const payload: Record<string, unknown> = {};
+
+    if (typeof updates.personName === "string") payload.person_name = updates.personName;
+    if (typeof updates.archiveName === "string") payload.archive_name = updates.archiveName;
+    if (typeof updates.bio === "string") payload.bio = updates.bio;
+    if (typeof updates.visibility === "string") payload.visibility = updates.visibility;
+    if (updates.profilePhotoUrl !== undefined) payload.profile_photo_url = updates.profilePhotoUrl;
+    if (updates.profilePhotoPath !== undefined) payload.profile_photo_path = updates.profilePhotoPath;
+    if (typeof updates.heroImagePositionX === "number") payload.hero_image_position_x = updates.heroImagePositionX;
+    if (typeof updates.heroImagePositionY === "number") payload.hero_image_position_y = updates.heroImagePositionY;
+    if (typeof updates.heroImageZoom === "number") payload.hero_image_zoom = updates.heroImageZoom;
+
     const { data, error } = await supabase
       .from("archives")
-      .update({
-        person_name: updates.personName,
-        archive_name: updates.archiveName,
-        bio: updates.bio,
-        visibility: updates.visibility
-      })
+      .update(payload)
       .eq("slug", slug)
       .select()
       .single();
@@ -1431,12 +1456,18 @@ export async function updateArchive(
     throw new Error("Archive not found.");
   }
 
+  const existing = store.archives[archiveIndex];
   store.archives[archiveIndex] = {
-    ...store.archives[archiveIndex],
-    personName: updates.personName,
-    archiveName: updates.archiveName,
-    bio: updates.bio,
-    visibility: updates.visibility
+    ...existing,
+    ...(typeof updates.personName === "string" ? { personName: updates.personName } : {}),
+    ...(typeof updates.archiveName === "string" ? { archiveName: updates.archiveName } : {}),
+    ...(typeof updates.bio === "string" ? { bio: updates.bio } : {}),
+    ...(typeof updates.visibility === "string" ? { visibility: updates.visibility } : {}),
+    ...(updates.profilePhotoUrl !== undefined ? { profilePhotoUrl: updates.profilePhotoUrl || defaultProfilePhotoUrl } : {}),
+    ...(updates.profilePhotoPath !== undefined ? { profilePhotoPath: updates.profilePhotoPath } : {}),
+    ...(typeof updates.heroImagePositionX === "number" ? { heroImagePositionX: updates.heroImagePositionX } : {}),
+    ...(typeof updates.heroImagePositionY === "number" ? { heroImagePositionY: updates.heroImagePositionY } : {}),
+    ...(typeof updates.heroImageZoom === "number" ? { heroImageZoom: updates.heroImageZoom } : {})
   };
 
   await writeStore(store);
