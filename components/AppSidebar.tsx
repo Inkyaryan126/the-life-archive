@@ -83,6 +83,7 @@ export function AppSidebar({
           <p className="px-3 text-[0.68rem] font-semibold uppercase tracking-[0.26em] text-archive-gold/72">
             Main
           </p>
+          <SidebarLink href="/people" label="Your People" active={(active as string) === "people"} />
           <SidebarLink href="/dashboard" label="My Archives" active={active === "dashboard"} />
           <SidebarLink href="/dashboard/final-wishes" label="Final Wishes" active={active === "final-wishes"} />
           <SidebarLink href="/dashboard/settings" label="Profile Settings" active={active === "settings"} />

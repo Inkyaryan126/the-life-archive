@@ -132,13 +132,13 @@ async function runTests() {
         select: () => ({
           eq: (col: string, val: any) => ({
             eq: (col2: string, val2: any) => ({
-              maybeSingle: async () => null,
-              select: () => ({ maybeSingle: async () => null })
+              maybeSingle: async () => ({ data: null, error: null }),
+              select: () => ({ maybeSingle: async () => ({ data: null, error: null }) })
             }),
-            maybeSingle: async () => null,
+            maybeSingle: async () => ({ data: null, error: null }),
             order: () => ({ data: [], error: null })
           }),
-          maybeSingle: async () => null
+          maybeSingle: async () => ({ data: null, error: null })
         }),
         insert: (payload: any) => ({
           select: () => ({
@@ -184,7 +184,7 @@ async function runTests() {
 
   assert.equal(dryRunSummary.mode, "dry-run");
   assert.equal(dryRunSummary.status, "READY");
-  assert.equal(dryRunSummary.archivesCreate, 0); // Seed slug dustin-sigley-2 skipped
+  assert.equal(dryRunSummary.archivesCreate, 1); // Seed archive created in dry run
   assert.notEqual(dryRunSummary.planHash, undefined);
   assert.equal(insertedRows.archives.length, 0); // ZERO writes in dry-run
   assert.equal(insertedRows.memories.length, 0);

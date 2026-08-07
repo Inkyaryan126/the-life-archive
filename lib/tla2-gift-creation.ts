@@ -12,6 +12,7 @@ export type PromptResponseInput = {
 
 export type CreateGiftConnectionInput = {
   creationKey?: string | null; // Cryptographic UUID for wizard idempotency
+  existingConnectionId?: string | null; // ID of an existing connection if adding to existing person
   personName: string;
   relationshipType: PersonRelationshipType;
   occasion?: string | null;
@@ -180,7 +181,6 @@ export async function createGiftConnection(
     return { ok: false, error: "Recipient name is required." };
   }
 
-  // Generate cryptographic UUID for creation idempotency if not provided
   const creationKey = input.creationKey?.trim() || (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `gift-${Date.now()}`);
 
   let userId: string | null = null;
@@ -193,34 +193,6 @@ export async function createGiftConnection(
   }
 
   const accessStatus: ConnectionMemoryAccessStatus = input.accessStatus || "restricted";
-
-  // 1. Create or resolve underlying archive
-  const archiveName = `${personName}'s Memory Gift Collection`;
-  const bio = `A special relationship memory gift created for ${personName}.`;
-  const relType = input.relationshipType;
-
-  let archive: Awaited<ReturnType<typeof createArchive>> | null = null;
-  try {
-    archive = await createArchive({
-      archiveName,
-      personName,
-      bio,
-      profilePhotoUrl: "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=900&q=80",
-      visibility: "private",
-      memorialMode: false,
-      relationshipToOwner: relType === "partner" || relType === "child" || relType === "parent" || relType === "grandparent" || relType === "grandchild" || relType === "friend" || relType === "sibling" || relType === "self" ? relType : "other"
-    });
-  } catch (err) {
-    return {
-      ok: false,
-      error: err instanceof Error ? err.message : "Failed to initialize memory storage."
-    };
-  }
-
-  if (!archive) {
-    return { ok: false, error: "Failed to initialize memory storage." };
-  }
-
   let supabase: any = null;
   try {
     supabase = createAdminClient() as any;
@@ -228,57 +200,112 @@ export async function createGiftConnection(
     // Non-blocking fallback
   }
 
-  let connectionId = `conn-${creationKey}`;
+  let connectionId = input.existingConnectionId?.trim() || `conn-${creationKey}`;
+  let archiveSlug = "my-archive";
 
-  // 2. Check for existing connection matching creation_key column (Database Unique Constraint Idempotency)
-  if (supabase && userId) {
+  // Existing Connection Scoped Addition (Reuse Existing Connection & Archive)
+  if (input.existingConnectionId && supabase) {
+    const { data: conn, error: connErr } = await supabase
+      .from("people_connections")
+      .select("id, archive_id, creator_user_id")
+      .eq("id", input.existingConnectionId)
+      .single();
+
+    if (connErr || !conn) {
+      return { ok: false, error: "Target connection not found." };
+    }
+
+    if (userId && conn.creator_user_id !== userId) {
+      return { ok: false, error: "Unauthorized access to connection." };
+    }
+
+    const { data: archiveData } = await supabase
+      .from("archives")
+      .select("slug")
+      .eq("id", conn.archive_id)
+      .single();
+
+    archiveSlug = archiveData?.slug || "my-archive";
+    connectionId = conn.id;
+  } else {
+    // New Connection Creation
+    const archiveName = `${personName}'s Memory Gift Collection`;
+    const bio = `A special relationship memory gift created for ${personName}.`;
+    const relType = input.relationshipType;
+
+    let archive: Awaited<ReturnType<typeof createArchive>> | null = null;
     try {
-      const { data: existingConn } = await supabase
-        .from("people_connections")
-        .select("id")
-        .eq("creator_user_id", userId)
-        .eq("creation_key", creationKey)
-        .maybeSingle();
+      archive = await createArchive({
+        archiveName,
+        personName,
+        bio,
+        profilePhotoUrl: "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=900&q=80",
+        visibility: "private",
+        memorialMode: false,
+        relationshipToOwner: relType === "partner" || relType === "child" || relType === "parent" || relType === "grandparent" || relType === "grandchild" || relType === "friend" || relType === "sibling" || relType === "self" ? relType : "other"
+      });
+    } catch (err) {
+      return {
+        ok: false,
+        error: err instanceof Error ? err.message : "Failed to initialize memory storage."
+      };
+    }
 
-      if (existingConn && existingConn.id) {
-        connectionId = existingConn.id;
-      } else {
-        const { data: connData, error: connErr } = await supabase
+    if (!archive) {
+      return { ok: false, error: "Failed to initialize memory storage." };
+    }
+
+    archiveSlug = archive.slug;
+
+    if (supabase && userId) {
+      try {
+        const { data: existingConn } = await supabase
           .from("people_connections")
-          .insert({
-            creator_user_id: userId,
-            archive_id: archive.id,
-            person_name: personName,
-            relationship_type: input.relationshipType,
-            subject_status: "living" as SubjectStatus,
-            creation_key: creationKey,
-            bio_notes: input.occasion ? `Created for ${input.occasion}` : null,
-            is_demo: false
-          })
           .select("id")
-          .single();
+          .eq("creator_user_id", userId)
+          .eq("creation_key", creationKey)
+          .maybeSingle();
 
-        if (!connErr && connData && connData.id) {
-          connectionId = connData.id;
-        } else if (connErr?.code === "23505") { // Postgres unique_violation error code
-          const { data: retryConn } = await supabase
+        if (existingConn && existingConn.id) {
+          connectionId = existingConn.id;
+        } else {
+          const { data: connData, error: connErr } = await supabase
             .from("people_connections")
+            .insert({
+              creator_user_id: userId,
+              archive_id: archive.id,
+              person_name: personName,
+              relationship_type: input.relationshipType,
+              subject_status: "living" as SubjectStatus,
+              creation_key: creationKey,
+              bio_notes: input.occasion ? `Created for ${input.occasion}` : null,
+              is_demo: false
+            })
             .select("id")
-            .eq("creator_user_id", userId)
-            .eq("creation_key", creationKey)
             .single();
 
-          if (retryConn && retryConn.id) {
-            connectionId = retryConn.id;
+          if (!connErr && connData && connData.id) {
+            connectionId = connData.id;
+          } else if (connErr?.code === "23505") {
+            const { data: retryConn } = await supabase
+              .from("people_connections")
+              .select("id")
+              .eq("creator_user_id", userId)
+              .eq("creation_key", creationKey)
+              .single();
+
+            if (retryConn && retryConn.id) {
+              connectionId = retryConn.id;
+            }
           }
         }
+      } catch {
+        // Fallback
       }
-    } catch {
-      // Fallback
     }
   }
 
-  // 3. Save prompt responses with accessStatus = 'restricted' (UI Draft)
+  // Save prompt responses with accessStatus = 'restricted' (UI Draft) attached to connectionId
   const populatedCategoriesSet = new Set<string>();
   let savedCount = 0;
 
@@ -287,7 +314,7 @@ export async function createGiftConnection(
 
     try {
       const memory = await createMemory({
-        archiveSlug: archive.slug,
+        archiveSlug,
         title: resp.promptText,
         type: (resp.suggestedMemoryType as any) || "voice",
         content: resp.content || "",
@@ -335,7 +362,7 @@ export async function createGiftConnection(
   return {
     ok: true,
     connectionId,
-    archiveSlug: archive.slug,
+    archiveSlug,
     memoryCount: savedCount,
     categoriesPopulated: Array.from(populatedCategoriesSet),
     accessStatus,
@@ -343,7 +370,7 @@ export async function createGiftConnection(
   };
 }
 
-// Explicit Publishing Action: Change connection_memories access_status from 'restricted' to 'released'
+// Explicit Connection-Scoped Publishing Action
 export async function publishGiftConnection(connectionId: string): Promise<{ ok: boolean; releasedCount: number }> {
   const supabase: any = (() => {
     try {
@@ -375,7 +402,7 @@ export async function publishGiftConnection(connectionId: string): Promise<{ ok:
   return { ok: true, releasedCount: 0 };
 }
 
-// Server-Authorized Owner Preview Resolver: Includes both 'restricted' (drafts) and 'released' memories for this specific connection ONLY
+// Server-Authorized Owner Preview Resolver
 export async function resolveOwnerGiftPreview(connectionId: string, archiveSlug?: string) {
   if (archiveSlug) {
     const memories = await getMemoriesByArchiveSlug(archiveSlug);

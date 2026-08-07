@@ -41,14 +41,34 @@ type DraftResponse = {
   defaultCategorySlugs: string[];
 };
 
-export function GiftCreationWizard({ signedIn }: { signedIn: boolean }) {
+type GiftCreationWizardProps = {
+  signedIn: boolean;
+  initialConnectionId?: string;
+  initialName?: string;
+  initialRel?: string;
+  initialOcc?: string;
+  initialKey?: string;
+};
+
+export function GiftCreationWizard({
+  signedIn,
+  initialConnectionId,
+  initialName,
+  initialRel,
+  initialOcc,
+  initialKey
+}: GiftCreationWizardProps) {
   const router = useRouter();
-  const [step, setStep] = useState<number>(1);
-  const [personName, setPersonName] = useState<string>("");
+  const [step, setStep] = useState<number>(initialName ? 4 : 1);
+  const [personName, setPersonName] = useState<string>(initialName || "");
   const [nameError, setNameError] = useState<string>("");
-  const [relationship, setRelationship] = useState<PersonRelationshipType>("partner");
-  const [occasion, setOccasion] = useState<string>("just-because");
-  const [creationKey] = useState<string>(() => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "00000000-0000-4000-8000-000000000000"));
+  const [relationship, setRelationship] = useState<PersonRelationshipType>(
+    (initialRel as PersonRelationshipType) || "partner"
+  );
+  const [occasion, setOccasion] = useState<string>(initialOcc || "just-because");
+  const [creationKey] = useState<string>(
+    () => initialKey || (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "00000000-0000-4000-8000-000000000000")
+  );
 
   // Prompts and responses state
   const [prompts, setPrompts] = useState<GuidedPromptDefinition[]>([]);
@@ -110,6 +130,7 @@ export function GiftCreationWizard({ signedIn }: { signedIn: boolean }) {
     try {
       const result = await createGiftConnectionAction({
         creationKey,
+        existingConnectionId: initialConnectionId,
         personName,
         relationshipType: relationship,
         occasion,

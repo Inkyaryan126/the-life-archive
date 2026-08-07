@@ -15,11 +15,12 @@ export async function createGiftConnectionAction(input: CreateGiftConnectionInpu
 
   return await createGiftConnection({
     creationKey: input.creationKey,
+    existingConnectionId: input.existingConnectionId,
     personName: input.personName,
     relationshipType: input.relationshipType,
     occasion: input.occasion,
     responses: input.responses,
-    accessStatus: input.accessStatus || "restricted" // Creator draft in DB
+    accessStatus: input.accessStatus || "restricted"
   });
 }
 
