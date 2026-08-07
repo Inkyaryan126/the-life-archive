@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import "@fontsource/great-vibes/400.css";
 import "./globals.css";
 
 const siteUrl =

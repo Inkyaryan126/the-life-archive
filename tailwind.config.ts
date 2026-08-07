@@ -20,6 +20,13 @@ const config: Config = {
           "Cambria",
           "Times New Roman",
           "serif"
+        ],
+        signature: [
+          "\"Great Vibes\"",
+          "\"Snell Roundhand\"",
+          "\"Brush Script MT\"",
+          "\"Segoe Script\"",
+          "cursive"
         ]
       },
       colors: {

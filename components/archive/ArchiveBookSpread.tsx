@@ -35,9 +35,8 @@ function PageWriting({
   className?: string;
 }) {
   return (
-    <div className={`relative h-full w-full overflow-hidden px-[8%] py-[8%] text-[#211509] ${className}`}>
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_34%_18%,rgba(255,246,210,0.13),transparent_38%),linear-gradient(90deg,rgba(28,16,6,0.08),transparent_9%,transparent_91%,rgba(28,16,6,0.08))]" />
-      <div className="relative z-10 h-full">{children}</div>
+    <div className={`relative h-full w-full overflow-hidden bg-transparent text-[#211509] ${className}`}>
+      <div className="relative z-10 h-full bg-transparent">{children}</div>
     </div>
   );
 }
@@ -62,43 +61,51 @@ export function ArchiveBookSpread({
   const storyEyebrow = isLivingArchive ? "The Living Story" : "In Memory";
 
   const leftPage = (
-    <PageWriting>
-      <div className="relative flex h-full flex-col">
-        <div className="pointer-events-none absolute bottom-[-8%] right-[-10%] h-[48%] w-[58%] opacity-[0.08] mix-blend-multiply">
+    <PageWriting className="px-[7%] pb-[8%] pt-[7.5%] text-center">
+      <div className="relative flex h-full flex-col items-center text-center">
+        <div
+          className="pointer-events-none absolute bottom-[7%] left-1/2 h-[39%] w-[60%] -translate-x-1/2 opacity-[0.045] mix-blend-multiply"
+          style={{
+            WebkitMaskImage:
+              "radial-gradient(circle at 50% 50%, black 0%, black 38%, transparent 76%)",
+            maskImage:
+              "radial-gradient(circle at 50% 50%, black 0%, black 38%, transparent 76%)"
+          }}
+        >
           <Image
             src={portraitUrl}
             alt=""
             fill
             sizes="18vw"
-            className="object-cover sepia"
+            className="object-cover grayscale sepia"
             aria-hidden="true"
           />
         </div>
-        <p className="font-serif text-[clamp(0.68rem,0.9vw,0.88rem)] uppercase tracking-[0.18em] text-[#6f4a19]">
+        <p className="font-serif text-[clamp(0.56rem,0.72vw,0.72rem)] uppercase tracking-[0.2em] text-[#6f4a19]">
           {storyEyebrow}
         </p>
-        <h2 className="mt-[4%] font-serif text-[clamp(1.16rem,1.75vw,1.68rem)] leading-tight text-[#1e1308]">
+        <h2 className="mt-[3%] max-w-full font-serif text-[clamp(1rem,1.44vw,1.42rem)] leading-tight text-[#1e1308]">
           {personName}
         </h2>
-        <p
-          className="mt-[7%] flex-1 whitespace-pre-line font-serif text-[clamp(0.74rem,1.02vw,0.98rem)] leading-[1.56] text-[#2c1b0b]"
-          style={{
-            display: "-webkit-box",
-            WebkitBoxOrient: "vertical",
-            WebkitLineClamp: layout === "mobile" ? 10 : 12,
-            overflow: "hidden"
-          }}
-        >
-          {trimArchiveText(biography, layout === "mobile" ? 720 : 900)}
-        </p>
+        <div className="relative z-10 mt-[4%] min-h-0 flex-1 overflow-hidden">
+          <p className="mx-auto max-w-full whitespace-pre-line font-serif text-[clamp(0.62rem,0.78vw,0.84rem)] leading-[1.48] text-[#2c1b0b]">
+            {trimArchiveText(biography, layout === "mobile" ? 1050 : 1350)}
+          </p>
+        </div>
+        <div className="relative z-10 mt-[4%] shrink-0 text-center">
+          <p className="font-signature text-[clamp(1.55rem,2.05vw,2.3rem)] leading-none text-[#2a1809]">
+            {personName}
+          </p>
+          <span className="mx-auto mt-2 block h-px w-20 bg-gradient-to-r from-transparent via-[#7d571f]/42 to-transparent" />
+        </div>
       </div>
     </PageWriting>
   );
 
   const rightPage = (
-    <PageWriting className="pl-[7%] pr-[9%]">
+    <PageWriting className="pb-[8%] pl-[8%] pr-[9%] pt-[8%]">
       <div className="flex h-full flex-col">
-        <p className="font-serif text-[clamp(0.68rem,0.9vw,0.88rem)] uppercase tracking-[0.18em] text-[#6f4a19]">
+        <p className="font-serif text-[clamp(0.62rem,0.82vw,0.8rem)] uppercase tracking-[0.18em] text-[#6f4a19]">
           Table of Contents
         </p>
         <div className="mt-[6%] min-h-0 flex-1 space-y-[4%] overflow-hidden">
@@ -132,7 +139,7 @@ export function ArchiveBookSpread({
               </Link>
             ))
           ) : (
-            <div className="mt-[14%] text-[clamp(0.76rem,0.96vw,0.92rem)] leading-relaxed text-[#2c1b0b]">
+            <div className="mt-[14%] bg-transparent text-[clamp(0.76rem,0.96vw,0.92rem)] leading-relaxed text-[#2c1b0b]">
               <p>This archive does not have public chapters yet.</p>
               {isOwner && isLivingArchive ? (
                 <Link
@@ -176,8 +183,8 @@ export function ArchiveBookSpread({
   if (layout === "mobile") {
     return (
       <div className="grid gap-4">
-        <div className="min-h-[24rem] overflow-hidden rounded-sm bg-[#d8bd83]/10">{leftPage}</div>
-        <div className="min-h-[28rem] overflow-hidden rounded-sm bg-[#d8bd83]/10">{rightPage}</div>
+        <div className="min-h-[24rem] overflow-hidden bg-transparent">{leftPage}</div>
+        <div className="min-h-[28rem] overflow-hidden bg-transparent">{rightPage}</div>
       </div>
     );
   }

@@ -82,8 +82,10 @@ async function runTests() {
 
   assert.match(pageContent, /getMemoriesByArchiveSlug\(slug\)/);
   assert.match(pageContent, /getRandomMemoryUrl\(archive\.slug, siteUrl\)/);
+  assert.match(pageContent, /getArchiveVisitorCount\(slug\)/);
   assert.match(pageContent, /isLivingArchive && isOwner/);
   assert.match(pageContent, /archiveStatusLabel=\{archiveStatusLabel\}/);
+  assert.match(pageContent, /visitorCount=\{archiveVisitorCount\}/);
 
   assert.match(sceneContent, /main-archive\.png/);
   assert.match(sceneContent, /mobile-main-archive\.png/);
@@ -95,8 +97,11 @@ async function runTests() {
   assert.match(sceneContent, /-translate-x-1\/2/);
   assert.doesNotMatch(sceneContent, /max-w-\[96rem\]/);
   assert.match(sceneContent, /chapters\.length/);
+  assert.match(sceneContent, /Visitors/);
+  assert.match(sceneContent, /formatArchiveStat\(normalizedVisitorCount\)/);
   assert.match(sceneContent, /\/archive\/\$\{archive\.slug\}\/random/);
   assert.match(sceneContent, /isOwner \?/);
+  assert.doesNotMatch(sceneContent, /anonymous_visitor_id|visitor_city|visitor_region|visitor_country|user_agent|referrer/);
 
   assert.match(portraitContent, /getArchiveHeroImageStyle\(positionX, positionY, zoom\)/);
   assert.match(sceneContent, /heroImagePositionX/);
@@ -104,6 +109,7 @@ async function runTests() {
   assert.match(sceneContent, /heroImageZoom/);
 
   assert.match(bookSpreadContent, /personName/);
+  assert.match(bookSpreadContent, /font-signature/);
   assert.match(bookSpreadContent, /biography/);
   assert.match(bookSpreadContent, /chapter\.title/);
   assert.match(bookSpreadContent, /chapter\.content/);
@@ -111,9 +117,21 @@ async function runTests() {
   assert.match(bookSpreadContent, /This archive does not have public chapters yet/);
   assert.match(bookSpreadContent, /getArchiveTocPageItems/);
   assert.match(bookSpreadContent, /setTocPageIndex/);
+  assert.match(bookSpreadContent, /bg-transparent/);
+  assert.doesNotMatch(bookSpreadContent, /bg-\[#d8bd83\]|radial-gradient\(circle_at_34%_18%|WebkitLineClamp|line-clamp/);
   assert.doesNotMatch(bookSpreadContent, /HTMLFlipBook|pageFlip|flipNext|flipPrev/);
   assert.doesNotMatch(packageContent, /react-pageflip/);
   assert.doesNotMatch(globalsContent, /stf__/);
+
+  const siteVisitsContent = read("lib/site-visits.ts");
+  const archiveVisitorHelper = siteVisitsContent.slice(
+    siteVisitsContent.indexOf("export async function getArchiveVisitorCount"),
+    siteVisitsContent.indexOf("export async function getSiteVisitStats")
+  );
+  assert.match(siteVisitsContent, /getArchiveVisitorCount/);
+  assert.match(archiveVisitorHelper, /\.select\("id", \{ count: "exact", head: true \}\)/);
+  assert.match(archiveVisitorHelper, /\.eq\("is_admin", false\)/);
+  assert.doesNotMatch(archiveVisitorHelper, /visitor_city|visitor_region|visitor_country|user_agent|referrer|anonymous_visitor_id|user_email/);
 
   console.log("Archive Cinematic Scene Test Suite passed cleanly!");
 }

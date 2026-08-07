@@ -22,6 +22,7 @@ import {
 } from "@/lib/qr";
 import { ShareArchiveDialog } from "@/components/archive/ShareArchiveDialog";
 import { ArchiveCinematicScene } from "@/components/archive/ArchiveCinematicScene";
+import { getArchiveVisitorCount } from "@/lib/site-visits";
 
 export const dynamic = "force-dynamic";
 
@@ -49,9 +50,10 @@ export default async function ArchivePage({
     notFound();
   }
 
-  const [memories, visitorMessages, requestHeaders] = await Promise.all([
+  const [memories, visitorMessages, archiveVisitorCount, requestHeaders] = await Promise.all([
     getMemoriesByArchiveSlug(slug),
     getVisitorMessages(slug),
+    getArchiveVisitorCount(slug),
     headers()
   ]);
 
@@ -135,6 +137,7 @@ export default async function ArchivePage({
           isOwner={isOwner}
           isLivingArchive={isLivingArchive}
           archiveStatusLabel={archiveStatusLabel}
+          visitorCount={archiveVisitorCount}
           shareAction={
             <ShareArchiveDialog
               archiveSlug={archive.slug}

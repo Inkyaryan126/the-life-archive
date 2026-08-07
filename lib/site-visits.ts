@@ -42,6 +42,42 @@ function getSiteVisitClient() {
   return createAdminClient() as SupabaseClient<any, "public", any>;
 }
 
+export async function getArchiveVisitorCount(archiveSlug: string): Promise<number> {
+  const normalizedSlug = archiveSlug.trim();
+
+  if (!normalizedSlug) {
+    return 0;
+  }
+
+  if (!/^[a-z0-9][a-z0-9-]*$/i.test(normalizedSlug)) {
+    return 0;
+  }
+
+  try {
+    const supabase = getSiteVisitClient();
+    const archivePath = `/archive/${normalizedSlug}`;
+    const nestedArchivePath = `${archivePath}/%`;
+    const { count, error } = await supabase
+      .from("site_visits")
+      .select("id", { count: "exact", head: true })
+      .eq("is_admin", false)
+      .or(`path.eq.${archivePath},path.like.${nestedArchivePath}`);
+
+    if (error) {
+      console.error("Unable to load archive visitor count:", error.message);
+      return 0;
+    }
+
+    return count ?? 0;
+  } catch (error) {
+    console.error(
+      "Unable to initialize archive visitor count query:",
+      error instanceof Error ? error.message : error
+    );
+    return 0;
+  }
+}
+
 export async function getSiteVisitStats(options?: {
   currentAdminEmail?: string | null;
   currentAdminName?: string | null;

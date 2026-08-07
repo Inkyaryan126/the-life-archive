@@ -20,8 +20,17 @@ type ArchiveCinematicSceneProps = {
   isOwner: boolean;
   isLivingArchive: boolean;
   archiveStatusLabel: string;
+  visitorCount?: number | null;
   shareAction: ReactNode;
 };
+
+function formatArchiveStat(value: number) {
+  if (value >= 10_000) {
+    return `${(value / 1_000).toFixed(value >= 100_000 ? 0 : 1)}K`;
+  }
+
+  return value.toLocaleString("en-US");
+}
 
 export function ArchiveCinematicScene({
   archive,
@@ -29,9 +38,11 @@ export function ArchiveCinematicScene({
   isOwner,
   isLivingArchive,
   archiveStatusLabel,
+  visitorCount,
   shareAction
 }: ArchiveCinematicSceneProps) {
   const shortDescription = trimArchiveText(archive.bio, 190);
+  const normalizedVisitorCount = Math.max(0, visitorCount ?? 0);
 
   return (
     <section aria-labelledby="archive-cinematic-title" className="relative">
@@ -127,6 +138,12 @@ export function ArchiveCinematicScene({
                   <dt className="text-archive-gold">Memories</dt>
                   <dd>{chapters.length}</dd>
                 </div>
+                <div className="border-l border-archive-gold/45 pl-3">
+                  <dt className="text-archive-gold">Visitors</dt>
+                  <dd title={`${normalizedVisitorCount.toLocaleString("en-US")} visitors`}>
+                    {formatArchiveStat(normalizedVisitorCount)}
+                  </dd>
+                </div>
               </dl>
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Link
@@ -201,6 +218,10 @@ export function ArchiveCinematicScene({
                 <span>{chapters.length} Chapters</span>
                 <span aria-hidden="true">|</span>
                 <span>{chapters.length} Memories</span>
+                <span aria-hidden="true">|</span>
+                <span title={`${normalizedVisitorCount.toLocaleString("en-US")} visitors`}>
+                  {formatArchiveStat(normalizedVisitorCount)} Visitors
+                </span>
               </div>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <Link
