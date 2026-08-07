@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef } from "react";
-import type { LifeArchive } from "@/lib/types";
+import type { ArchiveVisibility, LifeArchive } from "@/lib/types";
 import { updateArchiveDetailsAction } from "@/app/archive/[slug]/actions";
 import {
   getArchiveHeroImageStyle,
@@ -122,11 +122,14 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
 
     try {
       const result = await updateArchiveDetailsAction(archive.slug, formData);
-      if (result.success) {
+      const actionError = "error" in result ? result.error : null;
+      if (actionError) {
+        setError(actionError);
+      } else {
         setSuccess("Your archive details and hero photo crop have been successfully preserved.");
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to update archive.");
+    } catch {
+      setError("Failed to update archive.");
     } finally {
       setLoading(false);
     }
@@ -141,11 +144,11 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
   const heroStyle = getArchiveHeroImageStyle(positionX, positionY, zoom);
 
   return (
-    <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+    <div className="mt-8 grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
       {/* Main Edit Form */}
       <form
         onSubmit={handleSubmit}
-        className="grid gap-6 rounded-[2rem] border border-archive-gold/20 bg-white/[0.035] p-6 shadow-luxury sm:p-8"
+        className="min-w-0 grid gap-6 rounded-[2rem] border border-archive-gold/20 bg-white/[0.035] p-6 shadow-luxury sm:p-8"
       >
         <div>
           <h2 className="font-serif text-2xl text-archive-ivory sm:text-3xl">
@@ -356,7 +359,7 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
           </span>
           <select
             value={visibility}
-            onChange={(e) => setVisibility(e.target.value as any)}
+            onChange={(e) => setVisibility(e.target.value as ArchiveVisibility)}
             disabled={loading}
             className="rounded-xl border border-archive-gold/25 bg-archive-obsidian px-4 py-3 text-sm text-archive-ivory outline-none ring-archive-gold/30 transition focus:ring-4 focus:border-archive-gold"
           >
@@ -384,7 +387,7 @@ export function EditArchiveForm({ archive, qrSrc, archiveUrl }: EditArchiveFormP
       </form>
 
       {/* Sidebar Info & QR Card */}
-      <aside className="grid gap-6">
+      <aside className="min-w-0 self-start grid gap-6">
         <div className="rounded-[2rem] border border-archive-gold/20 bg-archive-obsidian/90 p-6 text-center shadow-luxury">
           <h3 className="font-serif text-lg text-archive-ivory">Archive QR Code</h3>
           <p className="mt-1 text-xs text-archive-ivory/60">

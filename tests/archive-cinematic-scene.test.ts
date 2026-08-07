@@ -86,6 +86,7 @@ async function runTests() {
   assert.match(pageContent, /isLivingArchive && isOwner/);
   assert.match(pageContent, /archiveStatusLabel=\{archiveStatusLabel\}/);
   assert.match(pageContent, /visitorCount=\{archiveVisitorCount\}/);
+  assert.equal((pageContent.match(/Edit Archive/g) || []).length, 1);
 
   assert.match(sceneContent, /main-archive\.png/);
   assert.match(sceneContent, /mobile-main-archive\.png/);
@@ -101,6 +102,7 @@ async function runTests() {
   assert.match(sceneContent, /formatArchiveStat\(normalizedVisitorCount\)/);
   assert.match(sceneContent, /\/archive\/\$\{archive\.slug\}\/random/);
   assert.match(sceneContent, /isOwner \?/);
+  assert.doesNotMatch(sceneContent, /Edit Archive/);
   assert.doesNotMatch(sceneContent, /anonymous_visitor_id|visitor_city|visitor_region|visitor_country|user_agent|referrer/);
 
   assert.match(portraitContent, /getArchiveHeroImageStyle\(positionX, positionY, zoom\)/);
@@ -122,6 +124,20 @@ async function runTests() {
   assert.doesNotMatch(bookSpreadContent, /HTMLFlipBook|pageFlip|flipNext|flipPrev/);
   assert.doesNotMatch(packageContent, /react-pageflip/);
   assert.doesNotMatch(globalsContent, /stf__/);
+
+  const editPageContent = read("app/archive/[slug]/edit/page.tsx");
+  const editFormContent = read("components/EditArchiveForm.tsx");
+  const editActionContent = read("app/archive/[slug]/actions.ts");
+
+  assert.match(editPageContent, /min-w-0/);
+  assert.match(editFormContent, /xl:grid-cols-\[minmax\(0,1fr\)_320px\]/);
+  assert.match(editFormContent, /min-w-0 grid gap-6/);
+  assert.match(editFormContent, /min-w-0 self-start grid gap-6/);
+  assert.doesNotMatch(editFormContent, /as any/);
+  assert.match(editActionContent, /normalizeHeroCropValues/);
+  assert.match(editActionContent, /await updateArchive\(slug, updates\)/);
+  assert.match(editActionContent, /return \{ error: "We couldn't save those changes right now\. Please try again\." \}/);
+  assert.doesNotMatch(editActionContent, /throw new Error\(error\.message \|\| "Failed to update archive\."\)/);
 
   const siteVisitsContent = read("lib/site-visits.ts");
   const archiveVisitorHelper = siteVisitsContent.slice(

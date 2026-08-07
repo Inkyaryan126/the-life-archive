@@ -78,7 +78,7 @@ export default async function ArchivePage({
     <main className="relative min-h-screen overflow-hidden bg-[#030201] px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
       <DesignBackdrop />
 
-      <div className="relative z-10 mx-auto w-full max-w-[96rem]">
+      <div className="relative z-10 mx-auto w-full max-w-[96rem] min-w-0">
         {/* Navigation Bar */}
         <nav className="flex flex-col gap-4 pb-8 sm:flex-row sm:items-center sm:justify-between">
           <Link href="/">

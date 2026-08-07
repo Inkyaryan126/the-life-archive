@@ -57,12 +57,6 @@ export function ArchiveCinematicScene({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href={`/archive/${archive.slug}/edit`}
-              className="rounded-full border border-archive-gold/25 px-4 py-2 font-semibold text-archive-ivory transition hover:border-archive-gold hover:text-archive-gold"
-            >
-              Edit Archive
-            </Link>
             {isLivingArchive ? (
               <Link
                 href={`/archive/${archive.slug}/add-memory`}
