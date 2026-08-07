@@ -68,7 +68,7 @@ export default async function MemoryPage({ params, searchParams }: MemoryPagePro
           </Link>
           {canEdit ? (
             <Link
-              href={`/archive/${archive.slug}/add-memory`}
+              href={`/dashboard?archive=${encodeURIComponent(archive.slug)}`}
               className="rounded-full border border-archive-gold/35 bg-white/5 px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/10"
             >
               Add Memory

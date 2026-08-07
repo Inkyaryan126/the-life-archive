@@ -86,7 +86,7 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
           </Link>
           {isOwner ? (
             <Link
-              href={`/archive/${archive.slug}/add-memory`}
+              href={`/dashboard?archive=${encodeURIComponent(archive.slug)}`}
               className="rounded-full border border-archive-gold/35 bg-white/5 px-4 py-2 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/10"
             >
               Add Memory
@@ -149,7 +149,7 @@ export default async function MemoriesPage({ params, searchParams }: MemoriesPag
             </p>
             {isOwner ? (
               <Link
-                href={`/archive/${archive.slug}/add-memory`}
+                href={`/dashboard?archive=${encodeURIComponent(archive.slug)}`}
                 className="mt-5 inline-flex rounded-full bg-archive-gold px-5 py-3 text-sm font-semibold text-archive-obsidian transition hover:bg-archive-champagne"
               >
                 Add Memory
