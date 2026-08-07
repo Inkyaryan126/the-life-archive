@@ -130,9 +130,9 @@ async function runArchiveContributorsTestSuite() {
     invited_by: inviterId,
     invite_token_hash: tokenHash,
     expires_at: new Date(Date.now() + 7 * 86400000).toISOString(),
-    accepted_at: null,
-    declined_at: null,
-    revoked_at: null
+    accepted_at: null as string | null,
+    declined_at: null as string | null,
+    revoked_at: null as string | null
   };
   dbState.contributors.push(inviteRecord);
 
