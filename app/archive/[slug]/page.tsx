@@ -73,7 +73,7 @@ export default async function ArchivePage({
   const featuredMemory = memories.length > 0 ? memories[0] : null;
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
+    <main className="relative min-h-screen overflow-hidden bg-[#030201] px-6 py-6 text-archive-ivory lg:px-12 xl:px-16 sm:py-8">
       <DesignBackdrop />
 
       <div className="relative z-10 mx-auto w-full max-w-[96rem]">

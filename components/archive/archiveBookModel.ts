@@ -1,14 +1,6 @@
 import type { Memory, MemoryType } from "@/lib/types";
 
-export const archiveBookStructuralPageCount = 2;
-
-export function getArchiveChapterPageIndex(chapterIndex: number) {
-  return archiveBookStructuralPageCount + chapterIndex;
-}
-
-export function getArchiveBookPageCount(chapters: Pick<Memory, "id">[]) {
-  return archiveBookStructuralPageCount + chapters.length;
-}
+export const archiveTocEntriesPerPage = 5;
 
 export function getMemoryTypeLabel(type: MemoryType) {
   const labels: Record<MemoryType, string> = {
@@ -31,4 +23,21 @@ export function trimArchiveText(value: string | null | undefined, maxLength = 36
   }
 
   return `${normalized.slice(0, maxLength).replace(/\s+\S*$/, "")}...`;
+}
+
+export function getArchiveTocPageCount(
+  chapters: unknown[],
+  entriesPerPage = archiveTocEntriesPerPage
+) {
+  return Math.max(1, Math.ceil(chapters.length / entriesPerPage));
+}
+
+export function getArchiveTocPageItems<T>(
+  chapters: T[],
+  pageIndex: number,
+  entriesPerPage = archiveTocEntriesPerPage
+) {
+  const safePageIndex = Math.max(0, Math.min(pageIndex, getArchiveTocPageCount(chapters, entriesPerPage) - 1));
+  const start = safePageIndex * entriesPerPage;
+  return chapters.slice(start, start + entriesPerPage);
 }

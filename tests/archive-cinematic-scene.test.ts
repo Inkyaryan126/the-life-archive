@@ -7,8 +7,9 @@ import {
   archiveSceneZones
 } from "../components/archive/archiveSceneLayout";
 import {
-  getArchiveBookPageCount,
-  getArchiveChapterPageIndex,
+  archiveTocEntriesPerPage,
+  getArchiveTocPageCount,
+  getArchiveTocPageItems,
   getMemoryTypeLabel,
   trimArchiveText
 } from "../components/archive/archiveBookModel";
@@ -58,10 +59,16 @@ async function runTests() {
     mockMemory("chapter-c", "Third real chapter")
   ];
 
-  assert.equal(getArchiveBookPageCount([]), 2);
-  assert.equal(getArchiveBookPageCount(chapters), 5);
-  assert.equal(getArchiveChapterPageIndex(0), 2);
-  assert.equal(getArchiveChapterPageIndex(2), 4);
+  assert.equal(archiveTocEntriesPerPage, 5);
+  assert.equal(getArchiveTocPageCount([]), 1);
+  assert.equal(getArchiveTocPageCount(chapters), 1);
+  assert.equal(getArchiveTocPageCount([...chapters, ...chapters]), 2);
+  assert.deepEqual(getArchiveTocPageItems(chapters, 0).map((chapter) => chapter.id), [
+    "chapter-a",
+    "chapter-b",
+    "chapter-c"
+  ]);
+  assert.equal(getArchiveTocPageItems([...chapters, ...chapters], 1).length, 1);
   assert.equal(getMemoryTypeLabel("voice"), "Voice Note");
   assert.equal(trimArchiveText("Short biography", 40), "Short biography");
   assert.match(trimArchiveText("A ".repeat(100), 30), /\.\.\.$/);
@@ -69,9 +76,9 @@ async function runTests() {
   const pageContent = read("app/archive/[slug]/page.tsx");
   const sceneContent = read("components/archive/ArchiveCinematicScene.tsx");
   const portraitContent = read("components/archive/ArchivePortrait.tsx");
-  const flipBookContent = read("components/archive/ArchiveFlipBook.tsx");
-  const tocContent = read("components/archive/ArchiveTableOfContents.tsx");
-  const chapterPageContent = read("components/archive/ArchiveChapterBookPage.tsx");
+  const bookSpreadContent = read("components/archive/ArchiveBookSpread.tsx");
+  const packageContent = read("package.json");
+  const globalsContent = read("app/globals.css");
 
   assert.match(pageContent, /getMemoriesByArchiveSlug\(slug\)/);
   assert.match(pageContent, /getRandomMemoryUrl\(archive\.slug, siteUrl\)/);
@@ -82,7 +89,11 @@ async function runTests() {
   assert.match(sceneContent, /mobile-main-archive\.png/);
   assert.match(sceneContent, /archiveSceneZones\.portrait/);
   assert.match(sceneContent, /archiveSceneZones\.identity/);
-  assert.match(sceneContent, /archiveBookZone/);
+  assert.match(bookSpreadContent, /archiveSceneZones\.leftBookPage/);
+  assert.match(bookSpreadContent, /archiveSceneZones\.rightBookPage/);
+  assert.match(sceneContent, /w-screen/);
+  assert.match(sceneContent, /-translate-x-1\/2/);
+  assert.doesNotMatch(sceneContent, /max-w-\[96rem\]/);
   assert.match(sceneContent, /chapters\.length/);
   assert.match(sceneContent, /\/archive\/\$\{archive\.slug\}\/random/);
   assert.match(sceneContent, /isOwner \?/);
@@ -92,21 +103,17 @@ async function runTests() {
   assert.match(sceneContent, /heroImagePositionY/);
   assert.match(sceneContent, /heroImageZoom/);
 
-  assert.match(flipBookContent, /HTMLFlipBook/);
-  assert.match(flipBookContent, /drawShadow/);
-  assert.match(flipBookContent, /flippingTime=\{1020\}/);
-  assert.match(flipBookContent, /maxShadowOpacity=\{0\.52\}/);
-  assert.match(flipBookContent, /mobileScrollSupport/);
-  assert.match(flipBookContent, /chapters\.map/);
-
-  assert.match(tocContent, /getArchiveChapterPageIndex\(index\)/);
-  assert.match(tocContent, /chapter\.title/);
-  assert.match(tocContent, /onSelectChapter/);
-  assert.match(tocContent, /This archive does not have public chapters yet/);
-
-  assert.match(chapterPageContent, /chapter\.title/);
-  assert.match(chapterPageContent, /chapter\.content/);
-  assert.match(chapterPageContent, /\/archive\/\$\{archiveSlug\}\/memories\/\$\{chapter\.id\}/);
+  assert.match(bookSpreadContent, /personName/);
+  assert.match(bookSpreadContent, /biography/);
+  assert.match(bookSpreadContent, /chapter\.title/);
+  assert.match(bookSpreadContent, /chapter\.content/);
+  assert.match(bookSpreadContent, /\/archive\/\$\{archiveSlug\}\/memories\/\$\{chapter\.id\}/);
+  assert.match(bookSpreadContent, /This archive does not have public chapters yet/);
+  assert.match(bookSpreadContent, /getArchiveTocPageItems/);
+  assert.match(bookSpreadContent, /setTocPageIndex/);
+  assert.doesNotMatch(bookSpreadContent, /HTMLFlipBook|pageFlip|flipNext|flipPrev/);
+  assert.doesNotMatch(packageContent, /react-pageflip/);
+  assert.doesNotMatch(globalsContent, /stf__/);
 
   console.log("Archive Cinematic Scene Test Suite passed cleanly!");
 }

@@ -2,10 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { LifeArchive, Memory } from "@/lib/types";
-import { ArchiveFlipBook } from "./ArchiveFlipBook";
+import { ArchiveBookSpread } from "./ArchiveBookSpread";
 import { ArchivePortrait } from "./ArchivePortrait";
 import {
-  archiveBookZone,
   archiveSceneImageSize,
   archiveSceneZones,
   getSceneZoneStyle
@@ -71,9 +70,9 @@ export function ArchiveCinematicScene({
         </div>
       ) : null}
 
-      <div className="hidden lg:block">
+      <div className="relative left-1/2 hidden w-screen -translate-x-1/2 bg-[#030201] lg:block">
         <div
-          className="relative mx-auto w-full max-w-[96rem] overflow-hidden rounded-[1.35rem] border border-archive-gold/20 bg-[#070604] shadow-[0_42px_120px_rgba(0,0,0,0.55)]"
+          className="relative w-full overflow-hidden bg-[#030201] shadow-[0_42px_120px_rgba(0,0,0,0.55)]"
           style={{ aspectRatio: archiveSceneImageSize.aspectRatio }}
         >
           <Image
@@ -82,7 +81,7 @@ export function ArchiveCinematicScene({
             fill
             priority
             sizes="(min-width: 1536px) 1536px, 100vw"
-            className="object-cover"
+            className="object-fill"
             aria-hidden="true"
           />
 
@@ -147,19 +146,15 @@ export function ArchiveCinematicScene({
             </div>
           </div>
 
-          <div
-            className="absolute"
-            style={getSceneZoneStyle(archiveBookZone)}
-          >
-            <ArchiveFlipBook
-              archiveSlug={archive.slug}
-              personName={archive.personName}
-              biography={archive.bio}
-              isLivingArchive={isLivingArchive}
-              isOwner={isOwner}
-              chapters={chapters}
-            />
-          </div>
+          <ArchiveBookSpread
+            archiveSlug={archive.slug}
+            personName={archive.personName}
+            biography={archive.bio}
+            portraitUrl={archive.profilePhotoUrl}
+            isLivingArchive={isLivingArchive}
+            isOwner={isOwner}
+            chapters={chapters}
+          />
 
           <div className="pointer-events-none absolute left-[26%] top-[20%] h-[17%] w-[10%] rounded-full bg-archive-gold/10 blur-2xl animate-[archiveCandleGlow_3.8s_ease-in-out_infinite]" />
           <div className="pointer-events-none absolute right-[19%] top-[32%] h-[12%] w-[7%] rounded-full bg-archive-gold/10 blur-xl animate-[archiveCandleGlow_4.6s_ease-in-out_infinite]" />
@@ -223,14 +218,16 @@ export function ArchiveCinematicScene({
                 {shareAction}
               </div>
             </div>
-            <div className="mt-8 h-[34rem] overflow-hidden">
-              <ArchiveFlipBook
+            <div className="mt-8">
+              <ArchiveBookSpread
                 archiveSlug={archive.slug}
                 personName={archive.personName}
                 biography={archive.bio}
+                portraitUrl={archive.profilePhotoUrl}
                 isLivingArchive={isLivingArchive}
                 isOwner={isOwner}
                 chapters={chapters}
+                layout="mobile"
               />
             </div>
           </div>
