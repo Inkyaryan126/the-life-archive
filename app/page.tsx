@@ -1,825 +1,409 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import grandHallDirectoryImage from "../public/images/archive-building/archive-map.png";
-import { SiteLogo } from "@/components/SiteDesign";
+import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { SiteFooter } from "@/components/SiteFooter";
-import { GrandHallArrival } from "@/components/archive-building/ArchiveArrival";
-import { MobileDirectoryIntro } from "@/components/archive-building/MobileDirectoryIntro";
 import { getAccountContext } from "@/lib/account";
-import { publicSupportEmail } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "The Life Archive - The Grand Hall",
+  title: "The Life Archive — Be there, even when you can't be.",
   description:
-    "Enter The Life Archive Grand Hall. Begin with the Legacy Question, create an archive, manage memories, explore keepsakes, and find support after a loss."
+    "Leave voice messages, videos, stories, and advice connected to a permanent physical keepsake for someone you care about. One special gift. A lifetime of surprises waiting inside.",
+  openGraph: {
+    title: "The Life Archive — Be there, even when you can't be.",
+    description:
+      "Leave voice messages, videos, stories, and advice connected to a permanent physical keepsake for someone you care about."
+  }
 };
 
-type DirectoryEntry = {
-  title: string;
-  label?: string;
-  href: string;
-  description: string;
-  note?: string;
-  ariaLabel: string;
-  position: {
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-  };
-  featured?: boolean;
-};
-
-export type DirectoryRowGeometry = {
-  id: string;
-  title: string;
-  subtitle: string;
-  href: string;
-  ariaLabel: string;
-  isHeader?: boolean;
-  top: number;
-  height: number;
-  left: number;
-  width: number;
-};
-
-const desktopBoardLeft = 39.0;
-const desktopBoardWidth = 22.0;
-
-function PrimaryCta({
-  href,
-  children
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      className="inline-flex min-h-12 items-center justify-center rounded-full bg-archive-gold px-6 py-3 text-sm font-bold text-archive-obsidian shadow-luxury transition hover:bg-archive-champagne focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
-      href={href}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function SecondaryCta({
-  href,
-  children
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      className="inline-flex min-h-12 items-center justify-center rounded-full border border-archive-gold/35 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-archive-ivory transition hover:border-archive-gold hover:bg-white/[0.08] focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
-      href={href}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-archive-gold sm:text-sm">
-      {children}
-    </p>
-  );
-}
-
-export default async function HomePage({
-  searchParams
-}: {
-  searchParams?: Promise<{ directoryDebug?: string }>;
-}) {
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-  const isDebug = resolvedSearchParams.directoryDebug === "1";
-
+export default async function HomePage() {
   const account = await getAccountContext();
   const isSignedIn = Boolean(account.user);
-  const myArchivesHref = isSignedIn ? "/dashboard" : "/login";
-  const timeCapsulesHref = isSignedIn
-    ? "/dashboard/time-capsules"
-    : "/login?next=%2Fdashboard%2Ftime-capsules";
-  const continuityHref = isSignedIn
-    ? "/dashboard/continuity"
-    : "/login?next=%2Fdashboard%2Fcontinuity";
-
-  // Exact guide box geometry derived from 1448 x 1086 guide dimensions
-  const directoryRowGeometries: DirectoryRowGeometry[] = [
-    // Top Section (5 Rows)
-    {
-      id: "my-archives",
-      title: "My Archives",
-      subtitle: "Manage your life and memorial archives.",
-      href: myArchivesHref,
-      ariaLabel: "Open My Archives. Manage your life and memorial archives.",
-      top: 22.4678, // x=589, y=244, w=306, h=56
-      height: 5.1565,
-      left: 40.6768,
-      width: 21.1326
-    },
-    {
-      id: "create-archive",
-      title: "Create an Archive",
-      subtitle: "Begin a new life story.",
-      href: "/create",
-      ariaLabel: "Create an Archive. Begin a new life story.",
-      top: 28.4530, // x=588, y=309, w=306, h=57
-      height: 5.2486,
-      left: 40.6077,
-      width: 21.1326
-    },
-    {
-      id: "continuity-capsule",
-      title: "Continuity Capsule",
-      subtitle: "Define who you are becoming.",
-      href: continuityHref,
-      ariaLabel: "Open Continuity Capsule. Define who you are becoming.",
-      top: 34.5304, // x=589, y=375, w=306, h=56
-      height: 5.1565,
-      left: 40.6768,
-      width: 21.1326
-    },
-    {
-      id: "time-capsules",
-      title: "Time Capsules",
-      subtitle: "Send memories into the future.",
-      href: timeCapsulesHref,
-      ariaLabel: "Open Time Capsules. Send memories into the future.",
-      top: 40.6998, // x=591, y=442, w=306, h=56
-      height: 5.1565,
-      left: 40.8149,
-      width: 21.1326
-    },
-    {
-      id: "keepsakes",
-      title: "Keepsakes",
-      subtitle: "Keep their story close.",
-      href: "/keepsakes",
-      ariaLabel: "Visit Keepsakes. Keep their story close.",
-      top: 46.4088, // x=587, y=504, w=307, h=56
-      height: 5.1565,
-      left: 40.5387,
-      width: 21.2017
-    },
-    // Bottom Section (4 Rows) - Decorative divider in artwork spans y=559..609 (no HTML text)
-    {
-      id: "eternism",
-      title: "Eternism",
-      subtitle: "The practice of becoming harder to destroy.",
-      href: "/eternism",
-      ariaLabel: "Explore Eternism. The practice of becoming harder to destroy.",
-      top: 56.0773, // x=587, y=609, w=307, h=57
-      height: 5.2486,
-      left: 40.5387,
-      width: 21.2017
-    },
-    {
-      id: "observatory",
-      title: "The Observatory",
-      subtitle: "Explore science, identity, and humanity’s future.",
-      href: "/eternism/observatory",
-      ariaLabel: "Open The Observatory. Explore science, identity, and humanity’s future.",
-      top: 61.9705, // x=587, y=673, w=307, h=57
-      height: 5.2486,
-      left: 40.5387,
-      width: 21.2017
-    },
-    {
-      id: "manifesto",
-      title: "The Manifesto",
-      subtitle: "Read the philosophy and pledge.",
-      href: "/eternism/manifesto",
-      ariaLabel: "Read The Manifesto. Read the philosophy and pledge.",
-      top: 67.7716, // x=588, y=736, w=306, h=56
-      height: 5.1565,
-      left: 40.6077,
-      width: 21.1326
-    },
-    {
-      id: "faq",
-      title: "Eternism FAQ",
-      subtitle: "Understand the mission.",
-      href: "/eternism/faq",
-      ariaLabel: "Open Eternism FAQ. Understand the mission.",
-      top: 73.8490, // x=588, y=802, w=306, h=56
-      height: 5.1565,
-      left: 40.6077,
-      width: 21.1326
-    }
-  ];
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#070605] text-archive-ivory">
-      <GrandHallHero
-        rows={directoryRowGeometries}
-        myArchivesHref={myArchivesHref}
-        timeCapsulesHref={timeCapsulesHref}
-        continuityHref={continuityHref}
-        isDebug={isDebug}
-      />
-      <BelowDirectoryContent timeCapsulesHref={timeCapsulesHref} />
-      <SiteFooter
-        archiveSlug={account.defaultArchive?.slug ?? null}
-        signedIn={isSignedIn}
-      />
-    </main>
-  );
-}
+    <main className="relative min-h-screen overflow-hidden bg-[#0a0806] text-[#fdfbf7]">
+      <DesignBackdrop />
 
-function GrandHallHero({
-  rows,
-  myArchivesHref,
-  timeCapsulesHref,
-  continuityHref,
-  isDebug = false
-}: {
-  rows: DirectoryRowGeometry[];
-  myArchivesHref: string;
-  timeCapsulesHref: string;
-  continuityHref: string;
-  isDebug?: boolean;
-}) {
-  const mobileEntries = [
-    {
-      title: "My Archives",
-      subtitle: "Manage your life and memorial archives.",
-      href: myArchivesHref,
-      ariaLabel: "Open My Archives."
-    },
-    {
-      title: "Create an Archive",
-      subtitle: "Begin a new life story.",
-      href: "/create",
-      ariaLabel: "Create an Archive."
-    },
-    {
-      title: "Continuity Capsule",
-      subtitle: "Define who you are becoming.",
-      href: continuityHref,
-      ariaLabel: "Open Continuity Capsule."
-    },
-    {
-      title: "Time Capsules",
-      subtitle: "Send memories into the future.",
-      href: timeCapsulesHref,
-      ariaLabel: "Open Time Capsules."
-    },
-    {
-      title: "Keepsakes",
-      subtitle: "Keep their story close.",
-      href: "/keepsakes",
-      ariaLabel: "Visit Keepsakes."
-    },
-    {
-      title: "Eternism",
-      subtitle: "The practice of becoming harder to destroy.",
-      href: "/eternism",
-      ariaLabel: "Explore Eternism."
-    },
-    {
-      title: "The Observatory",
-      subtitle: "Explore science, identity, and humanity’s future.",
-      href: "/eternism/observatory",
-      ariaLabel: "Open The Observatory."
-    },
-    {
-      title: "The Manifesto",
-      subtitle: "Read the philosophy and pledge.",
-      href: "/eternism/manifesto",
-      ariaLabel: "Read The Manifesto."
-    },
-    {
-      title: "Eternism FAQ",
-      subtitle: "Understand the mission.",
-      href: "/eternism/faq",
-      ariaLabel: "Open Eternism FAQ."
-    }
-  ];
+      {/* Modern Public Header Navigation */}
+      <header className="relative z-20 border-b border-[#c5a059]/15 bg-[#0a0806]/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <SiteLogo width={180} height={42} />
+          </Link>
 
-  return (
-    <header className="relative overflow-hidden bg-black px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.48),rgba(0,0,0,0.06)_34%,rgba(7,6,5,0.86)_94%)]"
-      />
+          <nav className="hidden items-center gap-8 text-sm font-medium text-[#fdfbf7]/80 md:flex">
+            <Link href="#how-it-works" className="transition hover:text-[#c5a059]">
+              How It Works
+            </Link>
+            <Link href="/keepsakes" className="transition hover:text-[#c5a059]">
+              Keepsakes
+            </Link>
+            <Link href="#use-cases" className="transition hover:text-[#c5a059]">
+              For Families
+            </Link>
+          </nav>
 
-      <section className="relative z-10 mx-auto w-full max-w-[1280px]">
-        <div className="hidden md:block">
-          <div className="relative mx-auto aspect-[1448/1086] w-full overflow-hidden shadow-[0_40px_140px_rgba(0,0,0,0.74)]">
-            <GrandHallArrival
-              title="The Life Archive"
-              subtitle="Every life has a story worth preserving."
-            />
-
-            <Image
-              src={grandHallDirectoryImage}
-              alt="The Life Archive Grand Hall with a blank central directory board"
-              fill
-              priority
-              sizes="100vw"
-              className="object-contain"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(237,190,98,0.1),transparent_26%),linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.14))]"
-            />
-
-            {/* Explicit Row Overlays */}
-            {rows.map((row, index) => {
-              if (row.isHeader) {
-                return (
-                  <div
-                    key={row.id}
-                    aria-hidden="true"
-                    className="absolute flex items-center justify-center text-center overflow-hidden"
-                    style={{
-                      left: `${row.left}%`,
-                      top: `${row.top}%`,
-                      width: `${row.width}%`,
-                      height: `${row.height}%`
-                    }}
-                  >
-                    <div className="flex w-[84%] items-center gap-2">
-                      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-archive-gold/55 to-transparent" />
-                      <span className="font-serif text-[clamp(0.52rem,0.64vw,0.78rem)] font-bold uppercase tracking-[0.26em] text-archive-gold drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)]">
-                        ETERNISM
-                      </span>
-                      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-archive-gold/55 to-transparent" />
-                    </div>
-                  </div>
-                );
-              }
-
-              return (
-                <div
-                  key={row.id}
-                  className={`absolute overflow-hidden ${
-                    isDebug
-                      ? "border-2 border-emerald-400/80 bg-emerald-500/10 shadow-[0_0_12px_rgba(52,211,153,0.5)]"
-                      : ""
-                  }`}
-                  style={{
-                    left: `${row.left}%`,
-                    top: `${row.top}%`,
-                    width: `${row.width}%`,
-                    height: `${row.height}%`,
-                    animationDelay: `${index * 25}ms`
-                  }}
-                >
-                  <Link
-                    href={row.href}
-                    aria-label={row.ariaLabel}
-                    className="group relative flex h-full w-full flex-col items-center justify-center overflow-hidden px-1 text-center leading-none transition duration-300 hover:bg-archive-gold/[0.06] focus:outline-none focus:ring-2 focus:ring-archive-gold/75"
-                  >
-                    <span className="block font-serif text-[clamp(0.48rem,0.64vw,0.80rem)] uppercase tracking-[0.07em] text-[#D6AD5A] transition duration-200 group-hover:text-[#E8C274] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight">
-                      {row.title}
-                    </span>
-                    {row.subtitle ? (
-                      <span className="mt-[1.5%] max-w-[98%] text-[clamp(0.36rem,0.44vw,0.54rem)] leading-tight text-[#D8D2C7]/82 transition duration-200 group-hover:text-[#D8D2C7]/98">
-                        {row.subtitle}
-                      </span>
-                    ) : null}
-
-                    {isDebug ? (
-                      <span className="pointer-events-none absolute right-1 top-0.5 text-[0.45rem] font-mono text-emerald-300">
-                        {row.id}
-                      </span>
-                    ) : null}
-                  </Link>
-                </div>
-              );
-            })}
+          <div className="flex items-center gap-4">
+            <Link
+              href={isSignedIn ? "/dashboard" : "/login"}
+              className="text-xs font-semibold text-[#fdfbf7]/70 transition hover:text-[#fdfbf7] sm:text-sm"
+            >
+              {isSignedIn ? "Dashboard" : "Sign In"}
+            </Link>
+            <Link
+              href="/create/gift"
+              className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#c5a059] px-5 text-xs font-bold text-[#0a0806] shadow-luxury transition hover:bg-[#d4af37] sm:text-sm"
+            >
+              Make Something
+            </Link>
           </div>
         </div>
+      </header>
 
-        <div className="md:hidden">
-          <div className="mobile-home-directory relative mx-auto w-full max-w-[430px] overflow-hidden bg-black">
-            <div className="mobile-directory-scene relative aspect-[858/1844] w-full">
-              <Image
-                src="/images/archive-building/mobile/mobile-directory.png"
-                alt="The Life Archive Grand Hall directory"
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover"
-              />
-
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),transparent_22%,transparent_82%,rgba(0,0,0,0.38))]"
-              />
-
-              <nav
-                aria-label="The Life Archive directory"
-                className="mobile-directory-interface absolute left-[20.1%] top-[26.3%] flex h-[53.1%] w-[57.8%] flex-col overflow-y-auto custom-scrollbar"
-              >
-                {mobileEntries.map((entry) => (
-                  <Link
-                    href={entry.href}
-                    aria-label={entry.ariaLabel}
-                    className="mobile-directory-row group relative flex min-h-0 flex-1 flex-col justify-center px-[6%] py-1.5 text-center transition hover:bg-archive-gold/[0.045] focus:outline-none focus:ring-2 focus:ring-inset focus:ring-archive-gold/80"
-                    key={entry.title}
-                  >
-                    <span className="font-serif text-[clamp(0.64rem,2.8vw,0.85rem)] uppercase leading-tight tracking-[0.055em] text-[#D6AD5A] transition duration-200 group-hover:text-[#E8C274] drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)]">
-                      {entry.title}
-                    </span>
-
-                    <span className="mt-0.5 text-[clamp(0.42rem,1.8vw,0.54rem)] leading-tight text-[#D8D2C7]/82 transition duration-200 group-hover:text-[#D8D2C7]/98">
-                      {entry.subtitle}
-                    </span>
-                  </Link>
-                ))}
-              </nav>
-
-              <MobileDirectoryIntro />
-            </div>
-          </div>
-        </div>
-      </section>
-    </header>
-  );
-}
-
-function MobileDirectoryLink({ entry }: { entry: DirectoryEntry }) {
-  return (
-    <Link
-      href={entry.href}
-      aria-label={entry.ariaLabel}
-      className={`block border px-4 py-4 shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition focus:outline-none focus:ring-4 focus:ring-archive-gold/35 ${
-        entry.featured
-          ? "border-archive-gold/58 bg-archive-gold/[0.12]"
-          : "border-archive-gold/18 bg-black/38 hover:border-archive-gold/45"
-      }`}
-    >
-      {entry.label ? (
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-archive-gold">
-          {entry.label}
+      {/* Hero Section */}
+      <section className="relative z-10 mx-auto max-w-5xl px-4 pt-12 pb-16 text-center sm:px-6 sm:pt-20 sm:pb-24">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#c5a059]">
+          THE LIFE ARCHIVE
         </p>
-      ) : null}
-      <h2 className="mt-1 font-serif text-xl uppercase tracking-[0.08em] text-archive-ivory">
-        {entry.title}
-      </h2>
-      <p className="mt-2 text-sm leading-6 text-archive-ivory/72">
-        {entry.description}
-      </p>
-      {entry.note ? (
-        <p className="mt-3 text-xs font-semibold leading-5 text-archive-champagne/82">
-          {entry.note}
+
+        <h1 className="mt-4 font-serif text-4xl font-normal leading-[1.15] text-[#fdfbf7] sm:text-6xl lg:text-7xl">
+          Be there,<br />
+          even when you can&apos;t be.
+        </h1>
+
+        <p className="mx-auto mt-6 max-w-2xl font-serif text-lg leading-relaxed text-[#fdfbf7]/75 sm:text-2xl">
+          Your voice. Your memories. Your advice.<br />
+          Connected to something they can carry.
         </p>
-      ) : null}
-    </Link>
-  );
-}
 
-function BelowDirectoryContent({ timeCapsulesHref }: { timeCapsulesHref: string }) {
-  return (
-    <>
-      <section className="bg-[#0b0907] px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
-        <div className="mx-auto grid w-full max-w-[1180px] gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
-          <div>
-            <Eyebrow>Mission & Vision</Eyebrow>
-            <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-              Preserve the life. Extend the life.
-            </h2>
-            <p className="mt-4 text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
-              The Life Archive preserves who we are while humanity works toward preserving that we are.
-            </p>
-          </div>
-          <div className="grid gap-6 text-base leading-8 text-archive-ivory/72 sm:text-lg">
-            <p>
-              The Life Archive is a private platform for preserving a person during life, after loss, and for the future. Memories are not only memorial artifacts—they are continuity records. A person may want to revisit earlier versions of themselves decades from now, while future generations will need a far richer record than still photos and names.
-            </p>
-            <p>
-              Whether life ends too soon or stretches farther than any generation before us imagined, your story should remain intact. The core archive experience is free to use, allowing you to preserve voice, video, photos, journals, letters, lessons, and memories across a lifetime.
-            </p>
-          </div>
+        <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <Link
+            href="/create/gift"
+            className="inline-flex min-h-14 w-full items-center justify-center rounded-full bg-[#c5a059] px-8 text-base font-bold text-[#0a0806] shadow-luxury transition hover:bg-[#d4af37] sm:w-auto"
+          >
+            Make Something for Someone &rarr;
+          </Link>
+          <Link
+            href="/create"
+            className="inline-flex min-h-14 w-full items-center justify-center rounded-full border border-[#c5a059]/40 bg-white/[0.04] px-8 text-base font-semibold text-[#fdfbf7] backdrop-blur-sm transition hover:border-[#c5a059] hover:bg-white/[0.08] sm:w-auto"
+          >
+            Build Mine
+          </Link>
+        </div>
+
+        {/* Supporting Callout */}
+        <div className="mx-auto mt-12 max-w-xl rounded-full border border-[#c5a059]/20 bg-white/[0.03] px-6 py-3 shadow-luxury backdrop-blur-md">
+          <p className="font-serif text-sm font-medium text-[#c5a059] sm:text-base">
+            ✨ One special gift. A lifetime of surprises waiting inside.
+          </p>
         </div>
       </section>
 
-      <section className="border-t border-archive-gold/14 bg-[#080705] px-5 py-16 text-archive-ivory sm:px-8 lg:px-10 lg:py-24">
-        <div className="mx-auto w-full max-w-[1180px]">
-          <div className="max-w-3xl">
-            <Eyebrow>Generational Wisdom</Eyebrow>
-            <h2 className="mt-4 font-serif text-4xl leading-tight text-archive-ivory sm:text-5xl">
-              Your family should not have to start over every generation.
-            </h2>
-            <p className="mt-6 text-base leading-8 text-archive-ivory/76 sm:text-lg">
-              Every life produces knowledge—about love, loss, family, money, mistakes, survival, faith, work, relationships, and what truly matters. But most of that wisdom disappears when a life ends, leaving the next generation to begin again. The Life Archive gives families a place to preserve those lessons, voices, stories, and memories so the people who come next can start further ahead.
-            </p>
-            <p className="mt-4 text-sm font-semibold uppercase tracking-[0.16em] text-archive-gold">
-              Preserve what you learned. Let the next generation build on it.
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.025] p-6 shadow-luxury">
-              <h3 className="font-serif text-xl text-archive-champagne">
-                Life Lessons & Hard-Won Wisdom
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-archive-ivory/68">
-                Record the principles, philosophies, warnings, and guidelines that took an entire lifetime to formulate, saving descendants from learning everything the hard way.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.025] p-6 shadow-luxury">
-              <h3 className="font-serif text-xl text-archive-champagne">
-                Voices & Video Messages
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-archive-ivory/68">
-                Give future generations access to the spoken cadences, laughter, tone, and presence of parents and grandparents when they need encouragement most.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-archive-gold/18 bg-white/[0.025] p-6 shadow-luxury">
-              <h3 className="font-serif text-xl text-archive-champagne">
-                Stories, Letters & Heritage
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-archive-ivory/68">
-                Preserve personal histories, written letters, songs, family origins, and milestone advice for future marriages, parenting, and turning points.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-10 rounded-2xl border border-archive-gold/22 bg-archive-gold/[0.06] p-6 sm:p-8">
-            <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
-              <div>
-                <h3 className="font-serif text-2xl text-archive-ivory">
-                  A legacy that grows across generations instead of resetting.
-                </h3>
-                <p className="mt-3 max-w-3xl text-sm leading-7 text-archive-ivory/74 sm:text-base">
-                  Start with a living archive while life is being lived or a memorial archive in honor of someone lost. Descendants can access that guidance when facing their own milestones—and contribute what they learn so the family archive expands for generations to come.
-                </p>
-              </div>
-              <div className="shrink-0">
-                <PrimaryCta href="/create">Start Your Archive</PrimaryCta>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="how-it-works"
-        className="bg-[#120f0b] px-5 py-16 text-archive-ivory sm:px-8 lg:px-10 lg:py-24"
-      >
-        <div className="mx-auto w-full max-w-[1180px]">
-          <div className="max-w-3xl">
-            <Eyebrow>How It Works</Eyebrow>
-            <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-              Four steps. No pressure.
-            </h2>
-          </div>
-          <div className="mt-10 grid gap-px overflow-hidden border border-archive-gold/16 bg-archive-gold/16 md:grid-cols-4">
-            {[
-              [
-                "1",
-                "Create an archive",
-                "Start a private place for a life, a family, or a chapter worth preserving."
-              ],
-              [
-                "2",
-                "Preserve memories",
-                "Add stories, photos, videos, voice, letters, songs, lessons, or guidance."
-              ],
-              [
-                "3",
-                "Connect a QR code",
-                "Use the archive QR code on a keepsake, card, frame, marker, or plaque if desired."
-              ],
-              [
-                "4",
-                "Return when needed",
-                "Let the people you love revisit the archive whenever they need to feel close."
-              ]
-            ].map(([number, title, copy]) => (
-              <article key={title} className="bg-[#120f0b] p-6">
-                <p className="font-mono text-xs font-bold text-archive-gold">
-                  {number}
-                </p>
-                <h3 className="mt-4 font-serif text-2xl text-archive-champagne">
-                  {title}
-                </h3>
-                <p className="mt-3 text-sm leading-7 text-archive-ivory/68">
-                  {copy}
-                </p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-archive-paper px-5 py-16 text-archive-ink sm:px-8 lg:px-10 lg:py-24">
-        <div className="mx-auto grid w-full max-w-[1180px] gap-8 md:grid-cols-2">
-          <InfoPanel
-            title="What can be preserved"
-            copy="Voice, photographs, videos, written memories, letters, journals, songs, lessons, favorite moments, practical guidance, and the small details that make someone feel present."
-          />
-          <InfoPanel
-            title="Why the core experience is free"
-            copy="Preserving a story should not require a purchase. Keepsakes are optional physical doorways into an archive, not a condition for saving memories."
-          />
-          <InfoPanel
-            title="How QR access works"
-            copy="Every archive can have a QR code. A scan can lead someone back to the archive, a memory, or a keepsake-connected experience controlled by the archive owner."
-          />
-          <InfoPanel
-            title="Time Capsules"
-            copy="Time Capsules let someone prepare a preserved message today and schedule it to reach another person later through the existing archive dashboard."
-            href={timeCapsulesHref}
-            linkText="Open Time Capsules"
-          />
-          <InfoPanel
-            title="Optional keepsakes"
-            copy="Member Cards, Memorial Keychains, Memory Cards, QR Plaques, and Storykeeper Cards can make an archive easier to find in the physical world."
-            href="/keepsakes"
-            linkText="Visit the Keepsake Store"
-          />
-          <InfoPanel
-            title="Privacy and trust"
-            copy="Archives are built around consent, privacy choices, and family control. Nothing needs to be public unless the archive owner chooses to share it."
-            href="/privacy"
-            linkText="Read Privacy"
-          />
-        </div>
-      </section>
-
-      <section className="bg-[#0b0907] px-5 py-16 text-archive-ivory sm:px-8 lg:px-10 lg:py-24">
-        <div className="mx-auto grid w-full max-w-[1180px] gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-          <div>
-            <Eyebrow>Support After A Loss</Eyebrow>
-            <h2 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-              Start with the next necessary thing.
-            </h2>
-          </div>
-          <div>
-            <p className="text-lg leading-8 text-archive-ivory/72">
-              Grief can make ordinary decisions feel impossible. The after-loss
-              guide is there for the first hours, the first calls, children,
-              practical documents, self-care, and knowing when professional help
-              may be needed.
-            </p>
-            <div className="mt-6">
-              <SecondaryCta href="/after-a-loss">I Need Help After A Loss</SecondaryCta>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[linear-gradient(180deg,#0b0907,#050403)] px-5 py-20 text-center text-archive-ivory sm:px-8 lg:px-10 lg:py-28">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-serif text-4xl leading-tight sm:text-6xl">
-            Some stories deserve somewhere to go.
+      {/* Hero Visual / Product Demo Section */}
+      <section className="relative z-10 border-t border-[#c5a059]/15 bg-white/[0.02] px-4 py-16 sm:px-6 lg:py-24">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c5a059]">
+            Product Experience
+          </p>
+          <h2 className="mt-3 font-serif text-3xl font-normal text-[#fdfbf7] sm:text-4xl">
+            One scan closer.
           </h2>
-          <p className="mt-3 text-sm font-semibold uppercase tracking-[0.18em] text-archive-gold">
-            Do not make the next generation start from scratch.
+          <p className="mt-3 text-sm text-[#fdfbf7]/70 sm:text-base">
+            They hold a physical keepsake. They scan the QR code. They hear your voice.
           </p>
-          <p className="mt-5 text-base leading-8 text-archive-ivory/68 sm:text-lg">
-            Begin with a full archive, one question, or a guide for the moment
-            you are in.
-          </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <PrimaryCta href="/create">Create an Archive</PrimaryCta>
-            <SecondaryCta href="/legacy-question">Answer the Legacy Question</SecondaryCta>
-            <SecondaryCta href="/after-a-loss">I Need Help After A Loss</SecondaryCta>
+
+          {/* Interactive Phone & Keepsake Composition */}
+          <div className="mt-10 mx-auto max-w-sm rounded-[2.5rem] border border-[#c5a059]/30 bg-[#0a0806] p-6 shadow-luxury backdrop-blur-xl text-left">
+            <div className="flex items-center justify-between border-b border-[#c5a059]/20 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#c5a059]/20 text-lg">
+                  💛
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-[#c5a059]">FROM SARAH</p>
+                  <p className="font-serif text-sm font-medium text-[#fdfbf7]">Sarah Jenkins</p>
+                </div>
+              </div>
+              <span className="rounded-full bg-[#c5a059]/20 px-2.5 py-1 text-[10px] font-bold text-[#c5a059]">
+                SCAN CONNECTED
+              </span>
+            </div>
+
+            <div className="mt-6 text-center">
+              <h3 className="font-serif text-2xl font-normal text-[#fdfbf7]">
+                What do you need right now?
+              </h3>
+
+              <div className="mt-6 grid grid-cols-2 gap-2.5">
+                <div className="rounded-xl border border-[#c5a059]/30 bg-white/[0.04] p-3 text-center">
+                  <span className="text-xl">💖</span>
+                  <p className="mt-1 font-serif text-xs font-medium text-[#fdfbf7]">I Miss You</p>
+                </div>
+                <div className="rounded-xl border border-[#c5a059]/30 bg-white/[0.04] p-3 text-center">
+                  <span className="text-xl">☀️</span>
+                  <p className="mt-1 font-serif text-xs font-medium text-[#fdfbf7]">Bad Day</p>
+                </div>
+                <div className="rounded-xl border border-[#c5a059]/30 bg-white/[0.04] p-3 text-center">
+                  <span className="text-xl">😄</span>
+                  <p className="mt-1 font-serif text-xs font-medium text-[#fdfbf7]">Make Me Laugh</p>
+                </div>
+                <div className="rounded-xl border border-[#c5a059]/30 bg-white/[0.04] p-3 text-center">
+                  <span className="text-xl">🧭</span>
+                  <p className="mt-1 font-serif text-xs font-medium text-[#fdfbf7]">Advice</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
-    </>
-  );
-}
 
-function InfoPanel({
-  title,
-  copy,
-  href,
-  linkText
-}: {
-  title: string;
-  copy: string;
-  href?: string;
-  linkText?: string;
-}) {
-  return (
-    <article className="border-l border-archive-gold/34 bg-[#f4ead8]/55 p-6">
-      <h3 className="font-serif text-3xl leading-tight text-archive-obsidian">
-        {title}
-      </h3>
-      <p className="mt-4 text-base leading-8 text-archive-ink/74">
-        {copy}
-      </p>
-      {href && linkText ? (
-        <Link
-          href={href}
-          className="mt-5 inline-flex font-semibold text-archive-obsidian underline decoration-archive-gold/55 underline-offset-4 hover:text-[#7c5721] focus:outline-none focus:ring-4 focus:ring-archive-gold/35"
-        >
-          {linkText}
-        </Link>
-      ) : null}
-    </article>
-  );
-}
-
-function GrandHallFooter({
-  myArchivesHref,
-  timeCapsulesHref
-}: {
-  myArchivesHref: string;
-  timeCapsulesHref: string;
-}) {
-  const footerGroups = [
-    {
-      title: "Begin",
-      links: [
-        ["Legacy Question", "/legacy-question"],
-        ["Create an Archive", "/create"],
-        ["My Archives", myArchivesHref],
-        ["Time Capsules", timeCapsulesHref]
-      ]
-    },
-    {
-      title: "Keepsakes",
-      links: [
-        ["Keepsake Store", "/keepsakes"],
-        ["Member Card", "/member-card"],
-        ["Storykeeper Products", "/storykeeper-products"]
-      ]
-    },
-    {
-      title: "Guides",
-      links: [
-        ["Support After A Loss", "/after-a-loss"],
-        ["Help for Families", "/help-for-families"],
-        ["Build Your Legacy", "/build-your-legacy"],
-        ["Preserve Their Voice", "/preserve-their-voice"],
-        ["How It Works", "#how-it-works"]
-      ]
-    },
-    {
-      title: "Partners",
-      links: [
-        ["Funeral Homes", "/partners/funeral-homes"],
-        ["Cemeteries & Parks", "/partners/cemeteries"],
-        ["Monument Builders", "/partners/monuments"],
-        ["Hospice Care Providers", "/partners/hospice"],
-        ["Estate Planners", "/partners/estate-planners"]
-      ]
-    },
-    {
-      title: "Information",
-      links: [
-        ["FAQ", "/faq"],
-        ["Privacy", "/privacy"],
-        ["Terms", "/terms"],
-        ["Contact", `mailto:${publicSupportEmail}`]
-      ]
-    }
-  ];
-
-  return (
-    <footer
-      id="information"
-      className="border-t border-archive-gold/14 bg-[#060504] px-5 py-12 text-archive-ivory sm:px-8 lg:px-10"
-    >
-      <div className="mx-auto grid w-full max-w-[1180px] gap-10 lg:grid-cols-[1.1fr_2fr]">
-        <div>
-          <SiteLogo width={260} height={70} />
-          <p className="mt-5 max-w-sm text-sm leading-7 text-archive-ivory/58">
-            The Life Archive is a quiet place to preserve words, memories, and
-            the physical doorways that help loved ones find them again.
+      {/* Growing Gift Section */}
+      <section className="relative z-10 border-t border-[#c5a059]/15 px-4 py-16 sm:px-6 lg:py-24">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c5a059]">
+            The Growing Gift
           </p>
-        </div>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
-          {footerGroups.map((group) => (
-            <div key={group.title}>
-              <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-archive-gold">
-                {group.title}
-              </h2>
-              <ul className="mt-4 grid gap-3 text-sm text-archive-ivory/64">
-                {group.links.map(([label, href]) => (
-                  <li key={`${group.title}-${label}`}>
-                    <Link
-                      className="hover:text-archive-gold focus:outline-none focus:ring-4 focus:ring-archive-gold/30"
-                      href={href}
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+          <h2 className="mt-3 font-serif text-3xl font-normal text-[#fdfbf7] sm:text-5xl">
+            Give it once. Keep adding to it forever.
+          </h2>
+          <p className="mt-4 max-w-xl mx-auto text-sm leading-relaxed text-[#fdfbf7]/75 sm:text-base">
+            The QR code on their physical keepsake never changes. As your life and relationship grow, you can add new recordings, stories, and surprises anytime.
+          </p>
+
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-left">
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-white/[0.03] p-5">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#c5a059]">Today</span>
+              <h3 className="mt-2 font-serif text-lg font-medium text-[#fdfbf7]">Leave a message</h3>
+              <p className="mt-1 text-xs leading-relaxed text-[#fdfbf7]/65">
+                Record a voice note or love note for them to open right away.
+              </p>
             </div>
-          ))}
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-white/[0.03] p-5">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#c5a059]">Next Month</span>
+              <h3 className="mt-2 font-serif text-lg font-medium text-[#fdfbf7]">Add for their birthday</h3>
+              <p className="mt-1 text-xs leading-relaxed text-[#fdfbf7]/65">
+                Add a new surprise recording right from your phone.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-white/[0.03] p-5">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#c5a059]">Next Year</span>
+              <h3 className="mt-2 font-serif text-lg font-medium text-[#fdfbf7]">Add your anniversary</h3>
+              <p className="mt-1 text-xs leading-relaxed text-[#fdfbf7]/65">
+                Add another chapter to the same physical keepsake.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-white/[0.03] p-5">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#c5a059]">Years Later</span>
+              <h3 className="mt-2 font-serif text-lg font-medium text-[#fdfbf7]">Add a life lesson</h3>
+              <p className="mt-1 text-xs leading-relaxed text-[#fdfbf7]/65">
+                Pass along stories and wisdom as your journey continues.
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="mx-auto mt-10 flex w-full max-w-[1180px] flex-col gap-3 border-t border-archive-gold/12 pt-6 text-xs text-archive-ivory/46 sm:flex-row sm:items-center sm:justify-between">
-        <p>© 2026 The Life Archive. All rights reserved.</p>
-        <p>Questions can be sent to {publicSupportEmail}.</p>
-      </div>
-    </footer>
+      </section>
+
+      {/* Time Capsule / Future Surprises Section */}
+      <section className="relative z-10 border-t border-[#c5a059]/15 bg-white/[0.02] px-4 py-16 sm:px-6 lg:py-24">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c5a059]">
+            Future Surprises
+          </p>
+          <h2 className="mt-3 font-serif text-3xl font-normal text-[#fdfbf7] sm:text-4xl">
+            Messages waiting inside for later.
+          </h2>
+          <p className="mt-3 text-sm text-[#fdfbf7]/70">
+            Schedule future recordings to unlock on milestones, birthdays, or special dates.
+          </p>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-left">
+            <div className="rounded-2xl border border-[#c5a059]/25 bg-black/40 p-5 shadow-luxury">
+              <span className="text-2xl">🎂</span>
+              <h3 className="mt-3 font-serif text-base font-medium text-[#fdfbf7]">&ldquo;Open on your birthday&rdquo;</h3>
+              <p className="mt-1 text-xs text-[#c5a059]">Unlocks Oct 14</p>
+            </div>
+            <div className="rounded-2xl border border-[#c5a059]/25 bg-black/40 p-5 shadow-luxury">
+              <span className="text-2xl">💍</span>
+              <h3 className="mt-3 font-serif text-base font-medium text-[#fdfbf7]">&ldquo;Our 5-Year Anniversary&rdquo;</h3>
+              <p className="mt-1 text-xs text-[#c5a059]">Unlocks June 20</p>
+            </div>
+            <div className="rounded-2xl border border-[#c5a059]/25 bg-black/40 p-5 shadow-luxury">
+              <span className="text-2xl">🎓</span>
+              <h3 className="mt-3 font-serif text-base font-medium text-[#fdfbf7]">&ldquo;When you graduate&rdquo;</h3>
+              <p className="mt-1 text-xs text-[#c5a059]">Unlocks Graduation Day</p>
+            </div>
+            <div className="rounded-2xl border border-[#c5a059]/25 bg-black/40 p-5 shadow-luxury">
+              <span className="text-2xl">☀️</span>
+              <h3 className="mt-3 font-serif text-base font-medium text-[#fdfbf7]">&ldquo;Open on a hard day&rdquo;</h3>
+              <p className="mt-1 text-xs text-[#c5a059]">Available anytime</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Use Cases Section */}
+      <section id="use-cases" className="relative z-10 border-t border-[#c5a059]/15 px-4 py-16 sm:px-6 lg:py-24">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c5a059]">
+            Who Is This For?
+          </p>
+          <h2 className="mt-3 font-serif text-3xl font-normal text-[#fdfbf7] sm:text-4xl">
+            A connection for every relationship.
+          </h2>
+
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 text-left">
+            <div className="rounded-3xl border border-[#c5a059]/20 bg-white/[0.03] p-6">
+              <span className="text-3xl">💍</span>
+              <h3 className="mt-3 font-serif text-xl font-medium text-[#fdfbf7]">For your partner</h3>
+              <p className="mt-2 text-sm text-[#fdfbf7]/70">
+                Messages for love, bad days, anniversaries, and everything between.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-[#c5a059]/20 bg-white/[0.03] p-6">
+              <span className="text-3xl">👶</span>
+              <h3 className="mt-3 font-serif text-xl font-medium text-[#fdfbf7]">For your child</h3>
+              <p className="mt-2 text-sm text-[#fdfbf7]/70">
+                Advice, encouragement, home, and messages for the road ahead.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-[#c5a059]/20 bg-white/[0.03] p-6">
+              <span className="text-3xl">✈️</span>
+              <h3 className="mt-3 font-serif text-xl font-medium text-[#fdfbf7]">For someone far away</h3>
+              <p className="mt-2 text-sm text-[#fdfbf7]/70">
+                A piece of you they can reach whenever they miss home.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-[#c5a059]/20 bg-white/[0.03] p-6">
+              <span className="text-3xl">🌿</span>
+              <h3 className="mt-3 font-serif text-xl font-medium text-[#fdfbf7]">For family &amp; friends</h3>
+              <p className="mt-2 text-sm text-[#fdfbf7]/70">
+                Stories, voices, jokes, and moments worth keeping forever.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="relative z-10 border-t border-[#c5a059]/15 bg-white/[0.02] px-4 py-16 sm:px-6 lg:py-24">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c5a059]">
+            How It Works
+          </p>
+          <h2 className="mt-3 font-serif text-3xl font-normal text-[#fdfbf7] sm:text-4xl">
+            Four simple steps.
+          </h2>
+
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-left">
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-black/40 p-5">
+              <span className="text-xs font-bold text-[#c5a059]">01</span>
+              <h3 className="mt-2 font-serif text-lg font-medium text-[#fdfbf7]">1. MAKE IT</h3>
+              <p className="mt-1 text-xs text-[#fdfbf7]/65">
+                Record voice notes, videos, stories, advice, and messages.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-black/40 p-5">
+              <span className="text-xs font-bold text-[#c5a059]">02</span>
+              <h3 className="mt-2 font-serif text-lg font-medium text-[#fdfbf7]">2. CONNECT IT</h3>
+              <p className="mt-1 text-xs text-[#fdfbf7]/65">
+                Pair your messages with a physical keepsake.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-black/40 p-5">
+              <span className="text-xs font-bold text-[#c5a059]">03</span>
+              <h3 className="mt-2 font-serif text-lg font-medium text-[#fdfbf7]">3. KEEP ADDING</h3>
+              <p className="mt-1 text-xs text-[#fdfbf7]/65">
+                Add new recordings and milestones whenever you want.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-black/40 p-5">
+              <span className="text-xs font-bold text-[#c5a059]">04</span>
+              <h3 className="mt-2 font-serif text-lg font-medium text-[#fdfbf7]">4. THEY SCAN</h3>
+              <p className="mt-1 text-xs text-[#fdfbf7]/65">
+                Everything you left for them is one scan away.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Keepsakes Section */}
+      <section className="relative z-10 border-t border-[#c5a059]/15 px-4 py-16 sm:px-6 lg:py-24 text-center">
+        <div className="mx-auto max-w-4xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c5a059]">
+            Physical Keepsakes
+          </p>
+          <h2 className="mt-3 font-serif text-3xl font-normal text-[#fdfbf7] sm:text-4xl">
+            The keepsake is the key.<br />
+            Everything you leave for them lives behind it.
+          </h2>
+
+          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 text-center">
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-white/[0.03] p-5">
+              <span className="text-3xl">📿</span>
+              <h3 className="mt-2 font-serif text-base font-medium">Necklace</h3>
+            </div>
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-white/[0.03] p-5">
+              <span className="text-3xl">🏷️</span>
+              <h3 className="mt-2 font-serif text-base font-medium">Dog Tag</h3>
+            </div>
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-white/[0.03] p-5">
+              <span className="text-3xl">🔑</span>
+              <h3 className="mt-2 font-serif text-base font-medium">Keychain</h3>
+            </div>
+            <div className="rounded-2xl border border-[#c5a059]/20 bg-white/[0.03] p-5">
+              <span className="text-3xl">💳</span>
+              <h3 className="mt-2 font-serif text-base font-medium">Wallet Card</h3>
+            </div>
+          </div>
+
+          <Link
+            href="/keepsakes"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full border border-[#c5a059]/40 bg-white/[0.04] px-6 text-sm font-semibold text-[#fdfbf7] shadow-luxury transition hover:bg-[#c5a059] hover:text-[#0a0806]"
+          >
+            Explore Keepsakes &rarr;
+          </Link>
+        </div>
+      </section>
+
+      {/* Remembrance / Memorial Section */}
+      <section className="relative z-10 border-t border-[#c5a059]/15 bg-white/[0.015] px-4 py-12 text-center sm:px-6">
+        <div className="mx-auto max-w-2xl">
+          <span className="text-2xl">🕊️</span>
+          <p className="mt-3 font-serif text-lg italic text-[#fdfbf7]/80">
+            &ldquo;And when someone can no longer add to it, what they already left becomes priceless.&rdquo;
+          </p>
+          <Link
+            href="/after-a-loss"
+            className="mt-4 inline-block text-xs font-semibold uppercase tracking-wider text-[#c5a059] hover:underline"
+          >
+            Support After a Loss &rarr;
+          </Link>
+        </div>
+      </section>
+
+      {/* Bottom CTA Banner */}
+      <section className="relative z-10 border-t border-[#c5a059]/15 bg-[#c5a059]/10 px-4 py-16 text-center sm:px-6 lg:py-20">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="font-serif text-3xl font-normal text-[#fdfbf7] sm:text-5xl">
+            Start something that lasts.
+          </h2>
+          <p className="mt-3 text-sm text-[#fdfbf7]/75 sm:text-base">
+            Make your first voice note or message in less than two minutes.
+          </p>
+          <Link
+            href="/create/gift"
+            className="mt-8 inline-flex min-h-14 items-center justify-center rounded-full bg-[#c5a059] px-8 text-base font-bold text-[#0a0806] shadow-luxury transition hover:bg-[#d4af37]"
+          >
+            Make Something for Someone &rarr;
+          </Link>
+        </div>
+      </section>
+
+      {/* Site Footer */}
+      <SiteFooter signedIn={isSignedIn} />
+    </main>
   );
 }

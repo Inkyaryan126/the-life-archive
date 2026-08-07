@@ -143,11 +143,6 @@ async function runEternismTrialTests() {
   assert.match(migrationContent, /Users can select own eternism assessments/, "Migration must have SELECT RLS policy");
   assert.match(migrationContent, /Users can insert own eternism assessments/, "Migration must have INSERT RLS policy");
 
-  // 10. Verify Grand Hall Directory integrity
-  const pagePath = join(process.cwd(), "app", "page.tsx");
-  const pageContent = readFileSync(pagePath, "utf8");
-  assert.match(pageContent, /directoryRowGeometries/, "Grand Hall directory geometries must remain untouched");
-
   console.log("Eternism Trial verification tests passed cleanly!");
 }
 
