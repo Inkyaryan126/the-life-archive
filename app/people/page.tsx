@@ -5,6 +5,7 @@ import { getAccountContext } from "@/lib/account";
 import { getPeopleSummaryForUser } from "@/lib/tla2-people-dashboard";
 import { SiteLogo, DesignBackdrop } from "@/components/SiteDesign";
 import { SiteFooter } from "@/components/SiteFooter";
+import { AuthenticatedMobileBottomNavigation } from "@/components/navigation/AuthenticatedMobileBottomNavigation";
 
 export const dynamic = "force-dynamic";
 
@@ -186,6 +187,7 @@ export default async function PeopleHubPage() {
       </div>
 
       <SiteFooter signedIn={true} />
+      <AuthenticatedMobileBottomNavigation />
     </main>
   );
 }

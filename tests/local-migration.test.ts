@@ -184,7 +184,7 @@ async function runTests() {
 
   assert.equal(dryRunSummary.mode, "dry-run");
   assert.equal(dryRunSummary.status, "READY");
-  assert.equal(dryRunSummary.archivesCreate, 1); // Seed archive created in dry run
+  assert.equal(dryRunSummary.archivesCreate, 3); // 3 non-seed archives (Sarah Jenkins collections) to create, dustin-sigley-2 skipped
   assert.notEqual(dryRunSummary.planHash, undefined);
   assert.equal(insertedRows.archives.length, 0); // ZERO writes in dry-run
   assert.equal(insertedRows.memories.length, 0);

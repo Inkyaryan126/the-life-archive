@@ -25,10 +25,7 @@ export function ArchivePortrait({
         priority
         sizes="(min-width: 1024px) 18vw, 78vw"
         className="object-cover"
-        style={{
-          ...getArchiveHeroImageStyle(positionX, positionY, zoom),
-          filter: "contrast(1.04) saturate(0.96) sepia(0.08)"
-        }}
+        style={getArchiveHeroImageStyle(positionX, positionY, zoom)}
       />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,transparent_42%,rgba(30,18,8,0.22)_100%)]" />
       <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_32px_rgba(0,0,0,0.45)]" />

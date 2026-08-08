@@ -11,7 +11,7 @@ import {
 import type { MobileDashboardArchive } from "@/components/dashboard/MobileActiveArchiveCard";
 
 type MobileDashboardActionsProps = {
-  activeArchive: MobileDashboardArchive;
+  activeArchive: MobileDashboardArchive | null;
   totalMemoriesCount: number;
   totalArchivesCount: number;
 };
@@ -21,10 +21,10 @@ export function MobileDashboardActions({
   totalMemoriesCount,
   totalArchivesCount
 }: MobileDashboardActionsProps) {
-  const preserveHref = `/archive/${activeArchive.slug}/add-memory`;
+  const preserveHref = activeArchive ? `/archive/${activeArchive.slug}/add-memory` : "/create";
   const continuityHref = `/dashboard/time-capsules`;
-  const recentMemoriesHref = `/archive/${activeArchive.slug}/memories`;
-  const switchArchiveHref = `/create`; // Or archive management route
+  const recentMemoriesHref = activeArchive ? `/archive/${activeArchive.slug}/memories` : "/create";
+  const switchArchiveHref = `/create`;
 
   const actions = [
     {

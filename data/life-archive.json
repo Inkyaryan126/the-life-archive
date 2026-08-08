@@ -1,6 +1,57 @@
 {
   "archives": [
     {
+      "id": "eb06c710-6f2e-4ea1-bb14-5d53a5504355",
+      "slug": "sarah-jenkins-3",
+      "archiveName": "Sarah Jenkins's Memory Gift Collection",
+      "personName": "Sarah Jenkins",
+      "bio": "A special relationship memory gift created for Sarah Jenkins.",
+      "profilePhotoUrl": "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=900&q=80",
+      "profilePhotoPath": null,
+      "visibility": "private",
+      "memorialMode": false,
+      "legacyActivationCode": "LAC-MTGX-G46R-5EBY",
+      "legacyCodeUsedAt": null,
+      "legacyActivatedBy": null,
+      "memorialActivatedAt": null,
+      "relationshipToOwner": "partner",
+      "createdAt": "2026-08-08"
+    },
+    {
+      "id": "945e374d-51d5-42da-8dfe-facca4481d42",
+      "slug": "sarah-jenkins-2",
+      "archiveName": "Sarah Jenkins's Memory Gift Collection",
+      "personName": "Sarah Jenkins",
+      "bio": "A special relationship memory gift created for Sarah Jenkins.",
+      "profilePhotoUrl": "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=900&q=80",
+      "profilePhotoPath": null,
+      "visibility": "private",
+      "memorialMode": false,
+      "legacyActivationCode": "TLA-B9JH-5TPA-LNSA",
+      "legacyCodeUsedAt": null,
+      "legacyActivatedBy": null,
+      "memorialActivatedAt": null,
+      "relationshipToOwner": "partner",
+      "createdAt": "2026-08-08"
+    },
+    {
+      "id": "a40c9c62-f64c-421b-972b-edc3ef5b83c6",
+      "slug": "sarah-jenkins",
+      "archiveName": "Sarah Jenkins's Memory Gift Collection",
+      "personName": "Sarah Jenkins",
+      "bio": "A special relationship memory gift created for Sarah Jenkins.",
+      "profilePhotoUrl": "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=900&q=80",
+      "profilePhotoPath": null,
+      "visibility": "private",
+      "memorialMode": false,
+      "legacyActivationCode": "TLA-F7A5-L85A-HEGH",
+      "legacyCodeUsedAt": null,
+      "legacyActivatedBy": null,
+      "memorialActivatedAt": null,
+      "relationshipToOwner": "partner",
+      "createdAt": "2026-08-08"
+    },
+    {
       "id": "f7d2eb3c-2c6c-4c11-b7f2-90c2d6c1c5be",
       "slug": "dustin-sigley-2",
       "archiveName": "Dustin Sigley's Life Archive",
@@ -14,6 +65,19 @@
     }
   ],
   "memories": [
+    {
+      "id": "2059020e-1594-4d2c-979b-8c3b391ce5c7",
+      "archiveSlug": "sarah-jenkins",
+      "title": "Tell them something you love about them",
+      "type": "voice",
+      "content": "I love your smile and your kindness.",
+      "photoPath": null,
+      "date": "2026-08-08",
+      "tags": [
+        "love",
+        "miss_you"
+      ]
+    },
     {
       "id": "dustin-001",
       "archiveSlug": "dustin-sigley-2",
@@ -68,30 +132,30 @@
       "finalMessage": "Peace and love.",
       "songs": [
         {
-          "id": "song-0-1785969986263",
+          "id": "song-0-1786218786003",
           "archiveId": "f7d2eb3c-2c6c-4c11-b7f2-90c2d6c1c5be",
           "title": "Amazing Grace",
           "artist": "Judy Collins",
           "url": null,
           "notes": null,
           "sortOrder": 0,
-          "createdAt": "2026-08-05T22:46:26.260Z",
-          "updatedAt": "2026-08-05T22:46:26.260Z"
+          "createdAt": "2026-08-08T19:53:06.001Z",
+          "updatedAt": "2026-08-08T19:53:06.001Z"
         },
         {
-          "id": "song-1-1785969986263",
+          "id": "song-1-1786218786003",
           "archiveId": "f7d2eb3c-2c6c-4c11-b7f2-90c2d6c1c5be",
           "title": "In My Life",
           "artist": "The Beatles",
           "url": null,
           "notes": null,
           "sortOrder": 1,
-          "createdAt": "2026-08-05T22:46:26.260Z",
-          "updatedAt": "2026-08-05T22:46:26.260Z"
+          "createdAt": "2026-08-08T19:53:06.001Z",
+          "updatedAt": "2026-08-08T19:53:06.001Z"
         }
       ],
       "createdAt": "2026-08-01T17:58:57.549Z",
-      "updatedAt": "2026-08-05T22:46:26.260Z"
+      "updatedAt": "2026-08-08T19:53:06.001Z"
     }
   ]
 }

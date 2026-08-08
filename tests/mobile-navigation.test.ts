@@ -33,6 +33,7 @@ export function isRouteAuthenticatedMobileNavIncluded(
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/") ||
     pathname.startsWith("/archive/") ||
+    pathname.startsWith("/people") ||
     pathname === "/member-card" ||
     pathname === "/keepsakes"
   ) {
@@ -48,6 +49,9 @@ export function getActiveItemLabel(pathname: string): string {
     pathname.startsWith("/dashboard/settings")
   ) {
     return "DASHBOARD";
+  }
+  if (pathname.startsWith("/people")) {
+    return "PEOPLE";
   }
   if (pathname.includes("/add-memory")) {
     return "ADD MEMORY";
@@ -115,6 +119,16 @@ assert.strictEqual(
   isRouteAuthenticatedMobileNavIncluded("/keepsakes", true),
   true,
   "/keepsakes should include nav when signed in"
+);
+assert.strictEqual(
+  isRouteAuthenticatedMobileNavIncluded("/people", true),
+  true,
+  "/people should include nav when signed in"
+);
+assert.strictEqual(
+  getActiveItemLabel("/people"),
+  "PEOPLE",
+  "/people should activate PEOPLE"
 );
 
 // 2. Exclusion tests

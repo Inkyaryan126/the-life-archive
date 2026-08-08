@@ -11,7 +11,7 @@ import { MobileBottomNavigation } from "@/components/dashboard/MobileBottomNavig
 
 type MobileDashboardProps = {
   displayName: string;
-  activeArchive: MobileDashboardArchive;
+  activeArchive: MobileDashboardArchive | null;
   memories: Memory[];
   totalArchivesCount: number;
 };
@@ -44,7 +44,7 @@ export function MobileDashboard({
         {/* Mobile Header */}
         <MobileDashboardHeader
           active="dashboard"
-          archiveSlug={activeArchive.slug}
+          archiveSlug={activeArchive?.slug ?? null}
           signedIn={true}
         />
 
@@ -83,7 +83,7 @@ export function MobileDashboard({
       </div>
 
       {/* 3. Fixed Bottom Navigation */}
-      <MobileBottomNavigation activeArchiveSlug={activeArchive.slug} />
+      <MobileBottomNavigation activeArchiveSlug={activeArchive?.slug ?? null} />
     </div>
   );
 }

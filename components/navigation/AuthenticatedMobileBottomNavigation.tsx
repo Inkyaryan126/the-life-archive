@@ -7,7 +7,8 @@ import {
   BookOpenIcon,
   PlusIcon,
   Clock3Icon,
-  IdCardIcon
+  IdCardIcon,
+  UsersIcon
 } from "@/components/dashboard/MobileDashboardIcons";
 
 export type AuthenticatedMobileBottomNavigationProps = {
@@ -34,6 +35,7 @@ export function AuthenticatedMobileBottomNavigation({
 
   const isDashboardActive =
     pathname === "/dashboard" || pathname.startsWith("/dashboard/settings");
+  const isPeopleActive = pathname.startsWith("/people");
   const isMemoriesActive =
     pathname.startsWith("/archive/") && pathname.includes("/memories");
   const isAddMemoryActive = pathname.includes("/add-memory");
@@ -50,12 +52,12 @@ export function AuthenticatedMobileBottomNavigation({
       disabled: false
     },
     {
-      label: "MEMORIES",
-      href: memoriesHref,
-      icon: BookOpenIcon,
+      label: "PEOPLE",
+      href: "/people",
+      icon: UsersIcon,
       isCenter: false,
-      isActive: isMemoriesActive,
-      disabled: !activeArchiveSlug
+      isActive: isPeopleActive,
+      disabled: false
     },
     {
       label: "ADD MEMORY",
@@ -66,19 +68,19 @@ export function AuthenticatedMobileBottomNavigation({
       disabled: !activeArchiveSlug
     },
     {
+      label: "MEMORIES",
+      href: memoriesHref,
+      icon: BookOpenIcon,
+      isCenter: false,
+      isActive: isMemoriesActive,
+      disabled: !activeArchiveSlug
+    },
+    {
       label: "TIME CAPSULES",
       href: "/dashboard/time-capsules",
       icon: Clock3Icon,
       isCenter: false,
       isActive: isTimeCapsulesActive,
-      disabled: false
-    },
-    {
-      label: "MEMBER CARD",
-      href: "/member-card",
-      icon: IdCardIcon,
-      isCenter: false,
-      isActive: isMemberCardActive,
       disabled: false
     }
   ];

@@ -13,6 +13,7 @@ type RecipientHubProps = {
   subjectStatus: string;
   memories: ResolvedGuestMemory[];
   timeCapsules: ResolvedTimeCapsuleTeaser[];
+  isModalPreview?: boolean;
 };
 
 type CategoryOption = {
@@ -66,7 +67,8 @@ export function RecipientHub({
   relationshipType,
   subjectStatus,
   memories,
-  timeCapsules
+  timeCapsules,
+  isModalPreview = false
 }: RecipientHubProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [activeMemoryIndex, setActiveMemoryIndex] = useState<number>(0);
@@ -102,7 +104,7 @@ export function RecipientHub({
   const currentCategoryObj = CATEGORIES.find((c) => c.slug === selectedCategory);
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 py-8 text-[#fdfbf7]">
+    <div className={isModalPreview ? "w-full text-[#fdfbf7] py-4" : "mx-auto w-full max-w-lg px-4 py-8 text-[#fdfbf7]"}>
       {/* Recipient Header */}
       <header className="flex flex-col items-center text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-full border border-[#c5a059]/40 bg-white/[0.04] text-3xl shadow-luxury backdrop-blur-md">

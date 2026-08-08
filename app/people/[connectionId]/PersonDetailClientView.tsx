@@ -257,12 +257,12 @@ export function PersonDetailClientView({ detail }: { detail: PersonDetailView })
 
       {/* Owner Preview Modal */}
       {showPreviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-lg">
-          <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-[#c5a059]/30 bg-[#0a0806] p-6 shadow-luxury">
-            <div className="flex items-center justify-between border-b border-[#c5a059]/20 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 sm:p-6 backdrop-blur-lg">
+          <div className="relative max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-[#c5a059]/30 bg-[#0a0806] p-5 sm:p-7 shadow-luxury">
+            <div className="flex items-center justify-between border-b border-[#c5a059]/20 pb-4">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-[#c5a059]">
-                  Preview &mdash; What {connection.personName} sees
+                  Preview &mdash; What {connection.personName} Sees
                 </span>
                 <p className="text-[10px] text-[#fdfbf7]/60">
                   Your unpublished draft messages are included in this preview.
@@ -280,6 +280,7 @@ export function PersonDetailClientView({ detail }: { detail: PersonDetailView })
               personName={connection.personName}
               relationshipType={connection.relationshipType}
               subjectStatus={connection.subjectStatus}
+              isModalPreview={true}
               memories={memories.map((m) => ({
                 id: m.id,
                 title: m.title,

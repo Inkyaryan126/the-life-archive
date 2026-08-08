@@ -77,7 +77,7 @@ export function ArchiveBookSpread({
             alt=""
             fill
             sizes="18vw"
-            className="object-cover grayscale sepia"
+            className="object-cover"
             aria-hidden="true"
           />
         </div>
@@ -120,7 +120,7 @@ export function ArchiveBookSpread({
                   {String(firstChapterNumber + index).padStart(2, "0")}
                 </span>
                 <span>
-                  <span className="block font-serif text-[clamp(0.76rem,1.02vw,0.98rem)] leading-tight text-[#211509] transition duration-200 group-hover:translate-x-1 group-hover:text-archive-gold group-hover:[text-shadow:0_0_12px_rgba(135,104,31,0.18)] motion-reduce:transform-none">
+                  <span className="block font-serif text-[clamp(0.76rem,1.02vw,0.98rem)] leading-tight text-[#211509] transition duration-200 group-hover:translate-x-1 group-hover:text-[#7c5215] group-hover:[text-shadow:0_0_12px_rgba(124,82,21,0.18)] motion-reduce:transform-none">
                     {chapter.title}
                   </span>
                   <span className="mt-1 block text-[clamp(0.55rem,0.72vw,0.68rem)] uppercase tracking-[0.13em] text-[#604316]">
@@ -159,7 +159,7 @@ export function ArchiveBookSpread({
               type="button"
               onClick={() => setTocPageIndex((value) => Math.max(0, value - 1))}
               disabled={tocPageIndex === 0}
-              className="px-2 transition hover:text-archive-gold disabled:opacity-35"
+              className="px-2 transition hover:text-[#7c5215] disabled:opacity-35"
               aria-label="Show previous table of contents page"
             >
               ‹
@@ -169,7 +169,7 @@ export function ArchiveBookSpread({
               type="button"
               onClick={() => setTocPageIndex((value) => Math.min(pageCount - 1, value + 1))}
               disabled={tocPageIndex >= pageCount - 1}
-              className="px-2 transition hover:text-archive-gold disabled:opacity-35"
+              className="px-2 transition hover:text-[#7c5215] disabled:opacity-35"
               aria-label="Show next table of contents page"
             >
               ›

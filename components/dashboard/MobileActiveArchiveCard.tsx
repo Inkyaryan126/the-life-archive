@@ -20,9 +20,28 @@ export function MobileActiveArchiveCard({
   activeArchive,
   memories
 }: {
-  activeArchive: MobileDashboardArchive;
+  activeArchive: MobileDashboardArchive | null;
   memories: Memory[];
 }) {
+  if (!activeArchive) {
+    return (
+      <section className="relative w-full max-w-full overflow-hidden rounded-3xl border border-[#c9a45c]/35 bg-[#0a0908]/85 p-5 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.85)] backdrop-blur-2xl box-border text-center">
+        <h2 className="font-serif text-xl sm:text-2xl text-[#f7f1e5]">
+          Create Your Archive
+        </h2>
+        <p className="mt-2 text-xs text-[#c9a45c]/80">
+          Begin preserving the stories, voice, and memories that matter.
+        </p>
+        <Link
+          href="/create"
+          className="mt-4 inline-flex min-h-[46px] items-center justify-center rounded-full bg-gradient-to-r from-[#c9a45c] via-[#e8cf88] to-[#c9a45c] px-6 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[#0a0908]"
+        >
+          Create Archive
+        </Link>
+      </section>
+    );
+  }
+
   const isMemorial = Boolean(activeArchive.memorialMode);
   const archiveTypeLabel = isMemorial ? "Memorial Archive" : "Living Archive";
   const archiveSubtitle = `${activeArchive.personName} · ${archiveTypeLabel}`;
