@@ -14,6 +14,7 @@ import {
   archiveBuildingMobileScenes,
   archiveBuildingScenes
 } from "@/lib/archive-building-scenes";
+import { KeepsakesPageTracker } from "@/components/analytics/KeepsakesPageTracker";
 
 export const dynamic = "force-dynamic";
 
@@ -522,18 +523,20 @@ function DetailList({ title, items }: { title: string; items: string[] }) {
 
 function ProductShowcase({
   archiveSlug,
+  connectionId,
   product,
   badge,
   isComingSoon = false,
   reverse = false
 }: {
   archiveSlug?: string | null;
+  connectionId?: string | null;
   product: Keepsake;
   badge?: string;
   isComingSoon?: boolean;
   reverse?: boolean;
 }) {
-  const checkoutUrl = getCheckoutUrl(product, archiveSlug);
+  const checkoutUrl = getCheckoutUrl(product, archiveSlug, connectionId);
   const ctaLabel = product.ctaLabel || "Order Now";
 
   return (
@@ -607,18 +610,20 @@ function ProductShowcase({
 
 function ProductCard({
   archiveSlug,
+  connectionId,
   product,
   badge,
   isComingSoon = false
 }: {
   archiveSlug?: string | null;
+  connectionId?: string | null;
   product: Keepsake;
   badge?: string;
   isComingSoon?: boolean;
 }) {
   const checkoutUrl = isComingSoon
     ? undefined
-    : getCheckoutUrl(product, archiveSlug);
+    : getCheckoutUrl(product, archiveSlug, connectionId);
   const ctaLabel = product.ctaLabel || "Order Now";
   const cardContent = (
     <>
@@ -687,17 +692,20 @@ function TrustPillar({ title, copy }: { title: string; copy: string }) {
 export default async function KeepsakesPage({
   searchParams
 }: {
-  searchParams?: Promise<{ checkout_error?: string }>;
+  searchParams?: Promise<{ checkout_error?: string; connectionId?: string; name?: string; archive?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const account = await getAccountContext();
   const isSignedIn = Boolean(account.user);
   const dashboardHref = isSignedIn ? "/dashboard" : "/login";
   const dashboardLabel = isSignedIn ? "Dashboard" : "Sign In";
-  const checkoutArchiveSlug = account.defaultArchive?.slug || null;
+  const checkoutArchiveSlug = resolvedSearchParams?.archive || account.defaultArchive?.slug || null;
+  const connectionId = resolvedSearchParams?.connectionId || null;
+  const connectionName = resolvedSearchParams?.name || null;
 
   return (
     <>
+      <KeepsakesPageTracker connectionId={connectionId} name={connectionName} />
       <ArchiveBuildingShell
         image={{ ...archiveBuildingScenes.keepsakes, priority: true }}
         active="keepsakes"
@@ -709,7 +717,7 @@ export default async function KeepsakesPage({
         sceneLabel="Keepsake Store archive-building scene"
       >
         {activeKeepsakes.map((product, index) => {
-            const checkoutUrl = getCheckoutUrl(product, checkoutArchiveSlug);
+            const checkoutUrl = getCheckoutUrl(product, checkoutArchiveSlug, connectionId);
             const region = keepsakeSceneRegions[index];
             if (!region) {
               return null;
@@ -772,10 +780,28 @@ export default async function KeepsakesPage({
             <p className="mt-7 max-w-2xl text-base leading-8 text-archive-ivory/72 sm:text-lg">
               Carry a living legacy now, or create something the family can hold onto later. Choose the form that belongs with the archive, complete checkout, and we help align the QR, name, message, and material direction before a personalized item goes into production.
             </p>
+            {connectionName ? (
+              <div className="mt-6 max-w-2xl rounded-2xl border border-archive-gold/30 bg-archive-gold/10 px-6 py-4 text-center backdrop-blur-md">
+                <p className="text-xs font-bold uppercase tracking-wider text-archive-gold">
+                  💛 Connected to your gift for {connectionName}
+                </p>
+                <p className="mt-1 text-sm text-archive-ivory/90">
+                  Select a physical keepsake below to carry the voice notes and stories you prepared.
+                </p>
+              </div>
+            ) : null}
             {resolvedSearchParams?.checkout_error ? (
-              <p className="mt-5 max-w-2xl rounded-2xl border border-red-300/25 bg-red-400/10 px-5 py-4 text-sm leading-6 text-red-100">
-                {resolvedSearchParams.checkout_error}
-              </p>
+              <div className="mt-5 max-w-2xl rounded-2xl border border-red-300/25 bg-red-400/10 px-5 py-4 text-sm leading-6 text-red-100">
+                <p>{resolvedSearchParams.checkout_error}</p>
+                {!isSignedIn ? (
+                  <Link
+                    href={`/login?next=${encodeURIComponent(`/keepsakes?${connectionId ? `connectionId=${encodeURIComponent(connectionId)}&` : ""}${connectionName ? `name=${encodeURIComponent(connectionName)}` : ""}`)}`}
+                    className="mt-3 inline-flex rounded-full bg-archive-gold px-5 py-2 text-xs font-bold text-archive-obsidian transition hover:bg-archive-champagne"
+                  >
+                    Sign In to Finish Ordering Keepsake &rarr;
+                  </Link>
+                ) : null}
+              </div>
             ) : null}
             <p className="mt-3 text-sm font-semibold text-archive-gold sm:text-base">
               Secure checkout opens in a new tab.
@@ -862,6 +888,7 @@ export default async function KeepsakesPage({
               <ProductCard
                 key={product.name}
                 archiveSlug={checkoutArchiveSlug}
+                connectionId={connectionId}
                 product={product}
                 badge={index === 0 ? "Featured / Best Seller" : undefined}
               />
@@ -873,6 +900,7 @@ export default async function KeepsakesPage({
           <ProductShowcase
             key={product.name}
             archiveSlug={checkoutArchiveSlug}
+            connectionId={connectionId}
             product={product}
             badge={index === 0 ? "Featured / Best Seller" : undefined}
             reverse={index % 2 === 1}

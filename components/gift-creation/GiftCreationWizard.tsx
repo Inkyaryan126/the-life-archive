@@ -11,6 +11,7 @@ import {
   getGuidedPromptsAction
 } from "@/app/create/gift/actions";
 import type { GuidedPromptDefinition } from "@/lib/tla2-gift-creation";
+import { trackEvent } from "@/lib/analytics";
 
 const RELATIONSHIPS: Array<{ type: PersonRelationshipType; label: string; icon: string }> = [
   { type: "partner", label: "Partner / Spouse", icon: "💍" },
@@ -80,6 +81,11 @@ export function GiftCreationWizard({
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
   const [saveSuccessResult, setSaveSuccessResult] = useState<{ connectionId: string; archiveSlug: string } | null>(null);
 
+  // Track gift_flow_started on initial mount
+  useEffect(() => {
+    trackEvent("gift_flow_started", { path: "/create/gift" });
+  }, []);
+
   // Load prompts dynamically via Server Action when relationship or occasion changes
   useEffect(() => {
     getGuidedPromptsAction(relationship, occasion).then((p) => {
@@ -115,6 +121,12 @@ export function GiftCreationWizard({
       defaultCategorySlugs: activePrompt.defaultCategorySlugs
     };
 
+    if (savedResponses.length === 0) {
+      trackEvent("first_memory_captured", {
+        suggested_type: activePrompt.suggestedMemoryType
+      });
+    }
+
     setSavedResponses((prev) => [...prev.filter((r) => r.promptText !== activePrompt.promptText), newResp]);
     setCurrentTextResponse("");
 
@@ -140,6 +152,7 @@ export function GiftCreationWizard({
 
       if ("connectionId" in result && result.ok) {
         setSaveSuccessResult({ connectionId: result.connectionId, archiveSlug: result.archiveSlug });
+        trackEvent("keepsake_catalog_viewed", { from_wizard: true });
         setStep(6); // Move to publication & keepsake handoff step
       } else {
         alert("error" in result ? result.error : "Failed to save progress");
@@ -319,7 +332,13 @@ export function GiftCreationWizard({
               &larr; Back
             </button>
             <button
-              onClick={() => setStep(4)}
+              onClick={() => {
+                trackEvent("person_selected_onboarding", {
+                  relationship_type: relationship,
+                  occasion
+                });
+                setStep(4);
+              }}
               className="inline-flex min-h-12 w-2/3 items-center justify-center rounded-full bg-[#c5a059] text-sm font-bold text-[#0a0806] shadow-luxury transition hover:bg-[#d4af37]"
             >
               Start Prompts &rarr;

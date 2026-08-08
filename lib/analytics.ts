@@ -17,14 +17,37 @@ export type TLAEventName =
 
 export type EventProperties = Record<string, string | number | boolean | null | undefined>;
 
-const PII_KEYS = ["email", "userEmail", "recipientEmail", "name", "personName", "rawText", "content", "bio"];
+const PII_KEYS = [
+  "email",
+  "userEmail",
+  "recipientEmail",
+  "name",
+  "personName",
+  "person_name",
+  "fullName",
+  "rawText",
+  "content",
+  "bio",
+  "promptText",
+  "prompt_text",
+  "token",
+  "authToken",
+  "creationKey",
+  "creation_key",
+  "secret",
+  "password",
+  "address",
+  "phone",
+  "phoneNumber"
+];
 
 function sanitizeProperties(props?: EventProperties): EventProperties {
   if (!props) return {};
   const cleaned: EventProperties = {};
 
   for (const [key, value] of Object.entries(props)) {
-    if (PII_KEYS.includes(key)) {
+    const lowerKey = key.toLowerCase();
+    if (PII_KEYS.some((p) => lowerKey.includes(p.toLowerCase()))) {
       continue;
     }
     if (typeof value === "string") {

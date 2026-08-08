@@ -5,6 +5,7 @@ import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { SiteFooter } from "@/components/SiteFooter";
 import { getAccountContext } from "@/lib/account";
 import { HomePageTracker } from "@/components/analytics/HomePageTracker";
+import { TrackedLink } from "@/components/analytics/TrackedLink";
 
 export const dynamic = "force-dynamic";
 
@@ -54,12 +55,14 @@ export default async function HomePage() {
             >
               {isSignedIn ? "Dashboard" : "Sign In"}
             </Link>
-            <Link
+            <TrackedLink
               href="/create/gift"
+              eventName="primary_cta_clicked"
+              eventProperties={{ cta_location: "header", destination: "/create/gift" }}
               className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#c5a059] px-5 text-xs font-bold text-[#0a0806] shadow-luxury transition hover:bg-[#d4af37] sm:text-sm"
             >
               Make Something
-            </Link>
+            </TrackedLink>
           </div>
         </div>
       </header>
@@ -81,18 +84,22 @@ export default async function HomePage() {
         </p>
 
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link
+          <TrackedLink
             href="/create/gift"
+            eventName="primary_cta_clicked"
+            eventProperties={{ cta_location: "hero", destination: "/create/gift" }}
             className="inline-flex min-h-14 w-full items-center justify-center rounded-full bg-[#c5a059] px-8 text-base font-bold text-[#0a0806] shadow-luxury transition hover:bg-[#d4af37] sm:w-auto"
           >
             Make Something for Someone &rarr;
-          </Link>
-          <Link
+          </TrackedLink>
+          <TrackedLink
             href="/create"
+            eventName="secondary_cta_clicked"
+            eventProperties={{ cta_location: "hero", destination: "/create" }}
             className="inline-flex min-h-14 w-full items-center justify-center rounded-full border border-[#c5a059]/40 bg-white/[0.04] px-8 text-base font-semibold text-[#fdfbf7] backdrop-blur-sm transition hover:border-[#c5a059] hover:bg-white/[0.08] sm:w-auto"
           >
             Build Mine
-          </Link>
+          </TrackedLink>
         </div>
 
         {/* Supporting Callout */}
@@ -395,12 +402,14 @@ export default async function HomePage() {
           <p className="mt-3 text-sm text-[#fdfbf7]/75 sm:text-base">
             Make your first voice note or message in less than two minutes.
           </p>
-          <Link
+          <TrackedLink
             href="/create/gift"
+            eventName="primary_cta_clicked"
+            eventProperties={{ cta_location: "bottom_banner", destination: "/create/gift" }}
             className="mt-8 inline-flex min-h-14 items-center justify-center rounded-full bg-[#c5a059] px-8 text-base font-bold text-[#0a0806] shadow-luxury transition hover:bg-[#d4af37]"
           >
             Make Something for Someone &rarr;
-          </Link>
+          </TrackedLink>
         </div>
       </section>
 
