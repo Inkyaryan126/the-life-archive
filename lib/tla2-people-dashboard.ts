@@ -80,26 +80,38 @@ export async function getPeopleSummaryForUser(userId: string): Promise<PersonCar
 
       const archiveSlug = archiveData?.slug || "my-archive";
 
-      // 2. Count connection memories
+      // 2. Count connection memories for THIS connection
       const { count: memCount } = await supabase
         .from("connection_memories")
         .select("id", { count: "exact", head: true })
         .eq("connection_id", conn.id);
 
-      // 3. Count keepsake mappings
+      // 3. Count active keepsake mappings for THIS connection
       const { count: keepsakeCount } = await supabase
         .from("keepsake_mappings")
         .select("id", { count: "exact", head: true })
         .eq("connection_id", conn.id)
         .eq("status", "active");
 
-      // 4. Count future time capsule deliveries
-      const { count: tcCount } = await supabase
-        .from("scheduled_memory_deliveries")
-        .select("id", { count: "exact", head: true })
-        .eq("archive_id", conn.archive_id);
+      // 4. Count future time capsule deliveries specifically for THIS connection's authorized memories
+      const { data: connMems } = await supabase
+        .from("connection_memories")
+        .select("memory_id")
+        .eq("connection_id", conn.id);
 
-      const isSelf = conn.relationship_type === "self" || conn.personName?.toLowerCase() === "me";
+      const memoryIds = connMems ? connMems.map((cm: any) => cm.memory_id).filter(Boolean) : [];
+
+      let tcCount = 0;
+      if (memoryIds.length > 0) {
+        const { count } = await supabase
+          .from("scheduled_memory_deliveries")
+          .select("id", { count: "exact", head: true })
+          .in("memory_id", memoryIds)
+          .eq("status", "scheduled");
+        tcCount = count || 0;
+      }
+
+      const isSelf = conn.relationship_type === "self" || conn.person_name?.toLowerCase() === "me";
       const isMemorial = conn.subject_status === "memorial";
 
       summaries.push({
@@ -112,7 +124,7 @@ export async function getPeopleSummaryForUser(userId: string): Promise<PersonCar
         avatarUrl: conn.avatar_url,
         creationKey: conn.creation_key,
         messageCount: memCount || 0,
-        futureSurprisesCount: tcCount || 0,
+        futureSurprisesCount: tcCount,
         keepsakeStatus: keepsakeCount && keepsakeCount > 0 ? `${keepsakeCount} keepsake${keepsakeCount > 1 ? "s" : ""} connected` : "No keepsake connected yet",
         lastUpdated: conn.updated_at || conn.created_at || new Date().toISOString(),
         isSelf,
@@ -167,7 +179,7 @@ export async function getPersonDetailForUser(
 
     const archiveSlug = archiveData?.slug || "my-archive";
 
-    // Load connection memories
+    // Load connection memories strictly for THIS connection
     const { data: connMemories } = await supabase
       .from("connection_memories")
       .select("memory_id, access_status")
@@ -178,19 +190,22 @@ export async function getPersonDetailForUser(
       connMemories.forEach((cm: any) => memoryMap.set(cm.memory_id, cm.access_status));
     }
 
+    const memoryIds = Array.from(memoryMap.keys());
     const allMemories = await getMemoriesByArchiveSlug(archiveSlug);
-    const connectionMemories = allMemories.map((m) => ({
-      id: m.id,
-      title: m.title,
-      type: m.type,
-      content: m.content,
-      mediaUrl: m.mediaUrl ?? null,
-      date: m.date ?? null,
-      accessStatus: memoryMap.get(m.id) || "restricted",
-      categories: m.tags || ["love"]
-    }));
+    const connectionMemories = allMemories
+      .filter((m) => memoryMap.has(m.id))
+      .map((m) => ({
+        id: m.id,
+        title: m.title,
+        type: m.type,
+        content: m.content,
+        mediaUrl: m.mediaUrl ?? null,
+        date: m.date ?? null,
+        accessStatus: memoryMap.get(m.id) || "restricted",
+        categories: m.tags || ["love"]
+      }));
 
-    // Fetch linked keepsakes
+    // Fetch active keepsakes mapped strictly to THIS connection
     const { data: keepsakeRows } = await supabase
       .from("keepsake_mappings")
       .select("id, keepsake_code, title")
@@ -203,18 +218,22 @@ export async function getPersonDetailForUser(
       title: k.title || "Physical Keepsake"
     }));
 
-    // Fetch future time capsules
-    const { data: tcRows } = await supabase
-      .from("scheduled_memory_deliveries")
-      .select("id, recipient_email, deliver_at, status")
-      .eq("archive_id", conn.archive_id);
+    // Fetch future time capsules strictly for memories authorized for THIS connection
+    let timeCapsules: Array<{ id: string; title: string; deliverAt: string; status: string }> = [];
+    if (memoryIds.length > 0) {
+      const { data: tcRows } = await supabase
+        .from("scheduled_memory_deliveries")
+        .select("id, recipient_email, deliver_at, status")
+        .in("memory_id", memoryIds)
+        .eq("status", "scheduled");
 
-    const timeCapsules = (tcRows || []).map((tc: any) => ({
-      id: tc.id,
-      title: tc.recipient_email ? `Surprise for ${tc.recipient_email}` : "Future Surprise",
-      deliverAt: tc.deliver_at,
-      status: tc.status
-    }));
+      timeCapsules = (tcRows || []).map((tc: any) => ({
+        id: tc.id,
+        title: tc.recipient_email ? `Surprise for ${tc.recipient_email}` : "Future Surprise",
+        deliverAt: tc.deliver_at,
+        status: tc.status
+      }));
+    }
 
     const isSelf = conn.relationship_type === "self" || conn.person_name?.toLowerCase() === "me";
     const isMemorial = conn.subject_status === "memorial";

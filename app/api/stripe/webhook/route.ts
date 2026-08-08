@@ -135,6 +135,7 @@ export async function POST(request: Request) {
     currency: session.currency ?? "usd",
     paymentStatus: session.payment_status ?? "paid",
     archiveSlug: session.metadata?.archive_slug || null,
+    connectionId: session.metadata?.connection_id || null,
     stripeSessionUrl: getStripeDashboardUrl(session)
   });
 

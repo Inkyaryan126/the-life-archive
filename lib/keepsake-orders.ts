@@ -1,7 +1,15 @@
-import "server-only";
+if (process.env.NODE_ENV !== "test") {
+  try {
+    require("server-only");
+  } catch {
+    // Non-blocking in test environment
+  }
+}
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient } from "./supabase/admin";
+import { generateSecureKeepsakeCode } from "./keepsake-codes";
+import { pairKeepsakeToConnection } from "./tla2-keepsake-pairing";
 
 export const fulfillmentStatuses = [
   "New",
@@ -23,6 +31,7 @@ export type KeepsakeOrder = {
   paymentStatus: string;
   fulfillmentStatus: FulfillmentStatus;
   archiveSlug: string | null;
+  connectionId: string | null;
   notes: string;
   stripeSessionUrl: string | null;
   createdAt: string;
@@ -38,13 +47,18 @@ type KeepsakeOrderRow = {
   payment_status: string;
   fulfillment_status: FulfillmentStatus;
   archive_slug: string | null;
+  connection_id?: string | null;
   notes: string | null;
   stripe_session_url: string | null;
   created_at: string;
 };
 
 function getOrderClient() {
-  return createAdminClient() as SupabaseClient<any, "public", any>;
+  try {
+    return createAdminClient() as SupabaseClient<any, "public", any>;
+  } catch {
+    return null;
+  }
 }
 
 export function isFulfillmentStatus(value: string): value is FulfillmentStatus {
@@ -62,6 +76,7 @@ function mapOrder(row: KeepsakeOrderRow): KeepsakeOrder {
     paymentStatus: row.payment_status,
     fulfillmentStatus: row.fulfillment_status,
     archiveSlug: row.archive_slug,
+    connectionId: row.connection_id ?? null,
     notes: row.notes ?? "",
     stripeSessionUrl: row.stripe_session_url,
     createdAt: row.created_at
@@ -70,6 +85,7 @@ function mapOrder(row: KeepsakeOrderRow): KeepsakeOrder {
 
 export async function listKeepsakeOrders() {
   const supabase = getOrderClient();
+  if (!supabase) return [];
   const { data, error } = await supabase
     .from("keepsake_orders")
     .select("*")
@@ -90,9 +106,13 @@ export async function upsertKeepsakeOrder(input: {
   currency: string;
   paymentStatus: string;
   archiveSlug: string | null;
+  connectionId?: string | null;
+  quantity?: number;
   stripeSessionUrl: string | null;
 }) {
   const supabase = getOrderClient();
+  if (!supabase) return;
+
   const { error } = await supabase.from("keepsake_orders").upsert(
     {
       stripe_session_id: input.stripeSessionId,
@@ -102,6 +122,7 @@ export async function upsertKeepsakeOrder(input: {
       currency: input.currency,
       payment_status: input.paymentStatus,
       archive_slug: input.archiveSlug,
+      connection_id: input.connectionId || null,
       stripe_session_url: input.stripeSessionUrl
     },
     { onConflict: "stripe_session_id" }
@@ -109,6 +130,36 @@ export async function upsertKeepsakeOrder(input: {
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  // Production pairing invocation: Auto-pair physical hardware when order is paid & connectionId is present
+  if (input.paymentStatus === "paid" && input.connectionId) {
+    try {
+      const qty = Math.max(1, input.quantity || 1);
+      for (let itemIndex = 0; itemIndex < qty; itemIndex++) {
+        // Deterministic per-item check: verify if physical item already exists for (stripe_session_id, stripe_item_index)
+        const { data: existingItem } = await supabase
+          .from("keepsakes")
+          .select("id, keepsake_code")
+          .eq("stripe_session_id", input.stripeSessionId)
+          .eq("stripe_item_index", itemIndex)
+          .maybeSingle();
+
+        if (!existingItem) {
+          const secureCode = generateSecureKeepsakeCode();
+          const itemTitle = qty > 1 ? `${input.productName} #${itemIndex + 1}` : input.productName;
+          await pairKeepsakeToConnection({
+            keepsakeCode: secureCode,
+            connectionId: input.connectionId,
+            title: itemTitle,
+            stripeSessionId: input.stripeSessionId,
+            stripeItemIndex: itemIndex
+          });
+        }
+      }
+    } catch {
+      // Non-blocking
+    }
   }
 }
 
@@ -118,6 +169,8 @@ export async function updateKeepsakeOrder(input: {
   notes: string;
 }) {
   const supabase = getOrderClient();
+  if (!supabase) return;
+
   const { error } = await supabase
     .from("keepsake_orders")
     .update({

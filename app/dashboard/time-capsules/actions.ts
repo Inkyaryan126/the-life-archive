@@ -99,7 +99,8 @@ export async function createTimeCapsuleAction(
   _state: TimeCapsuleActionState,
   formData: FormData
 ) {
-  const archiveId = readString(formData, "archiveId");
+  const connectionId = readString(formData, "connectionId");
+  let archiveId = readString(formData, "archiveId");
   const memoryId = readString(formData, "memoryId");
   const recipientName = readString(formData, "recipientName");
   const recipientEmail = readString(formData, "recipientEmail");
@@ -107,6 +108,28 @@ export async function createTimeCapsuleAction(
   const timezone = readString(formData, "timezone");
   const localDate = readString(formData, "localDate");
   const localTime = readString(formData, "localTime");
+
+  if (connectionId) {
+    try {
+      const { createAdminClient } = await import("@/lib/supabase/admin");
+      const { getAccountContext } = await import("@/lib/account");
+      const account = await getAccountContext();
+      if (account.user) {
+        const supabase: any = createAdminClient();
+        const { data: conn } = await supabase
+          .from("people_connections")
+          .select("id, archive_id, creator_user_id")
+          .eq("id", connectionId)
+          .single();
+
+        if (conn && conn.creator_user_id === account.user.id) {
+          archiveId = conn.archive_id;
+        }
+      }
+    } catch {
+      // Non-blocking
+    }
+  }
 
   let deliveryId: string | null = null;
 
@@ -122,6 +145,20 @@ export async function createTimeCapsuleAction(
       localTime
     });
     deliveryId = delivery.id;
+
+    if (connectionId && memoryId) {
+      try {
+        const { createAdminClient } = await import("@/lib/supabase/admin");
+        const supabase: any = createAdminClient();
+        await supabase.from("connection_memories").upsert({
+          connection_id: connectionId,
+          memory_id: memoryId,
+          access_status: "restricted"
+        });
+      } catch {
+        // Non-blocking
+      }
+    }
   } catch (error) {
     if (error instanceof TimeCapsuleDomainError && error.code === "authentication_required") {
       redirect(getLoginRedirectPath("/dashboard/time-capsules/new"));

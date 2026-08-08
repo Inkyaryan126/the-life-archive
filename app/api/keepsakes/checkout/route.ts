@@ -159,6 +159,20 @@ export async function GET(request: Request) {
     body.set("metadata[archive_slug]", archiveSlug);
   }
 
+  const connectionId = searchParams.get("connectionId")?.trim() || null;
+  if (connectionId && account.user) {
+    try {
+      const { getPersonDetailForUser } = await import("@/lib/tla2-people-dashboard");
+      const connRes = await getPersonDetailForUser(connectionId, account.user.id);
+      if (connRes.ok) {
+        body.set("metadata[connection_id]", connectionId);
+        body.set("metadata[person_name]", connRes.detail.connection.personName);
+      }
+    } catch {
+      // Non-blocking
+    }
+  }
+
   if (account.user?.email && account.user.email !== "Email unavailable") {
     body.set("customer_email", account.user.email);
   }

@@ -44,15 +44,21 @@ type CheckoutType = "member-card" | "card" | "keychain" | "dogtag" | "plaque";
 
 function getCheckoutUrl(
   product: Pick<Keepsake, "checkoutType">,
-  archiveSlug?: string | null
+  archiveSlug?: string | null,
+  connectionId?: string | null
 ) {
   if (!product.checkoutType) {
     return undefined;
   }
 
-  return `/api/keepsakes/checkout?type=${product.checkoutType}${
-    archiveSlug ? `&archive=${encodeURIComponent(archiveSlug)}` : ""
-  }`;
+  let url = `/api/keepsakes/checkout?type=${product.checkoutType}`;
+  if (connectionId) {
+    url += `&connectionId=${encodeURIComponent(connectionId)}`;
+  }
+  if (archiveSlug) {
+    url += `&archive=${encodeURIComponent(archiveSlug)}`;
+  }
+  return url;
 }
 
 function CheckoutLink({
