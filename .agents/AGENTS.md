@@ -32,11 +32,23 @@ Invoke the appropriate skill when performing specific tasks:
 - **`tla-copy-positioning`**: Craft, refine, and audit user-facing copy, onboarding narratives, value propositions, and emotional positioning for TLA 2.0.
 - **`tla-ui-review`**: Review visual experience, responsive behavior, and accessibility across desktop and mobile.
 
-### Quality, Memory & Growth
-- **`tla-agent-memory`**: Record and inspect durable technical and operational lessons to prevent repeating past failures.
-- **`tla-regression-check`**: Verify existing user flows and guard against regressions during updates.
+### Funnel, Onboarding & Growth Operations
+- **`tla-funnel-audit`**: Audit visitor-to-keepsake conversion pathways, identifying friction, dead ends, competing CTAs, emotional drop-off, and missing instrumentation.
+- **`tla-onboarding-flow`**: Audit and optimize first-time user onboarding for creating People, establishing Connections, and capturing initial Memories.
+- **`tla-retention-design`**: Design and audit recurring engagement, milestone celebrations, memory anniversaries, time capsule surprises, and family contributor loops.
+- **`tla-partner-channel`**: Audit and specify B2B2C distribution flows for funeral homes, hospices, estate planners, monument builders, and memory care partners.
 - **`tla-conversion-analysis`**: Analyze funnel metrics, user behavior, activation, retention, and monetization.
 - **`tla-growth-experiment`**: Design and run growth/conversion experiments safely.
+
+### Security, Performance & Telemetry
+- **`tla-analytics-instrumentation`**: Specify and audit event tracking, user journeys, attribution models, and conversion metrics across Next.js and Supabase without inventing metrics.
+- **`tla-security-audit`**: Perform practical security, authorization, RLS, secret management, and Stripe integration audits across Next.js and Supabase.
+- **`tla-performance-audit`**: Audit Next.js rendering, Supabase queries, image/media assets, and web vitals for optimal performance.
+
+### Quality, Release & Governance
+- **`tla-agent-memory`**: Record and inspect durable technical and operational lessons to prevent repeating past failures.
+- **`tla-regression-check`**: Verify existing user flows and guard against regressions during updates.
+- **`tla-launch-readiness`**: Coordinate pre-launch validation across product architecture, experience design, security, performance, keepsake commerce, and regression readiness.
 - **`tla-release`**: Verify, check, commit, and prepare changes for production release.
 
 ## Required completion checks for code changes
