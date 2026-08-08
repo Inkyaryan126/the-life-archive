@@ -23,7 +23,13 @@ console.log("========================\n");
 
 const child = spawn(
   "agy",
-  ["--dangerously-skip-permissions", "-p", fullPrompt],
+  [
+  "--dangerously-skip-permissions",
+  "--print-timeout",
+  "30m",
+  "-p",
+  fullPrompt,
+],
   {
     cwd: process.cwd(),
     stdio: ["ignore", "pipe", "pipe"],
