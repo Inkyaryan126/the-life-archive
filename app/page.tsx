@@ -4,6 +4,7 @@ import Link from "next/link";
 import { DesignBackdrop, SiteLogo } from "@/components/SiteDesign";
 import { SiteFooter } from "@/components/SiteFooter";
 import { getAccountContext } from "@/lib/account";
+import { HomePageTracker } from "@/components/analytics/HomePageTracker";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ export default async function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#0a0806] text-[#fdfbf7]">
       <DesignBackdrop />
+      <HomePageTracker />
 
       {/* Modern Public Header Navigation */}
       <header className="relative z-20 border-b border-[#c5a059]/15 bg-[#0a0806]/80 backdrop-blur-md">
