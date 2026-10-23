@@ -18,9 +18,14 @@ function getSiteOrigin(request: Request) {
 function redirectWithError(request: Request, message: string) {
   const origin = getSiteOrigin(request);
 
-  return NextResponse.redirect(
-    `${origin}/keepsakes?checkout_error=${encodeURIComponent(message)}`
-  );
+  const destination = new URL("/keepsakes", origin);
+  destination.searchParams.set("checkout_error", message);
+  const source = new URL(request.url).searchParams;
+  for (const key of ["type", "archive", "connectionId"]) {
+    const value = source.get(key);
+    if (value) destination.searchParams.set(key, value);
+  }
+  return NextResponse.redirect(destination);
 }
 
 async function resolveAuthorizedArchiveSlug(input: {

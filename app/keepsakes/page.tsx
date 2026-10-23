@@ -692,7 +692,7 @@ function TrustPillar({ title, copy }: { title: string; copy: string }) {
 export default async function KeepsakesPage({
   searchParams
 }: {
-  searchParams?: Promise<{ checkout_error?: string; connectionId?: string; name?: string; archive?: string }>;
+  searchParams?: Promise<{ checkout_error?: string; connectionId?: string; name?: string; archive?: string; type?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const account = await getAccountContext();
@@ -702,6 +702,16 @@ export default async function KeepsakesPage({
   const checkoutArchiveSlug = resolvedSearchParams?.archive || account.defaultArchive?.slug || null;
   const connectionId = resolvedSearchParams?.connectionId || null;
   const connectionName = resolvedSearchParams?.name || null;
+  const selectedType = resolvedSearchParams?.type;
+  const selectedProduct = activeKeepsakes.find((product) => product.checkoutType === selectedType);
+  const checkoutAfterLogin = selectedProduct
+    ? getCheckoutUrl(selectedProduct, checkoutArchiveSlug, connectionId)
+    : null;
+  const keepsakesAfterLogin = new URLSearchParams();
+  if (checkoutArchiveSlug) keepsakesAfterLogin.set("archive", checkoutArchiveSlug);
+  if (connectionId) keepsakesAfterLogin.set("connectionId", connectionId);
+  if (connectionName) keepsakesAfterLogin.set("name", connectionName);
+  const fallbackAfterLogin = `/keepsakes${keepsakesAfterLogin.size ? `?${keepsakesAfterLogin}` : ""}`;
 
   return (
     <>
@@ -795,7 +805,7 @@ export default async function KeepsakesPage({
                 <p>{resolvedSearchParams.checkout_error}</p>
                 {!isSignedIn ? (
                   <Link
-                    href={`/login?next=${encodeURIComponent(`/keepsakes?${connectionId ? `connectionId=${encodeURIComponent(connectionId)}&` : ""}${connectionName ? `name=${encodeURIComponent(connectionName)}` : ""}`)}`}
+                    href={`/login?next=${encodeURIComponent(checkoutAfterLogin || fallbackAfterLogin)}`}
                     className="mt-3 inline-flex rounded-full bg-archive-gold px-5 py-2 text-xs font-bold text-archive-obsidian transition hover:bg-archive-champagne"
                   >
                     Sign In to Finish Ordering Keepsake &rarr;

@@ -10,6 +10,7 @@ import {
   ArchiveMobileScene
 } from "@/components/archive-building/ArchiveBuildingShell";
 import { getAccountContext } from "@/lib/account";
+import { getSafeKeepsakeLoginNext } from "@/lib/keepsake-login-next";
 import {
   archiveBuildingMobileScenes,
   archiveBuildingScenes
@@ -30,7 +31,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const account = await getAccountContext();
 
   if (account.user) {
-    redirect("/dashboard");
+    redirect(getSafeKeepsakeLoginNext(resolvedSearchParams?.next, "/dashboard"));
   }
 
   const renderLoginForm = (className: string) => (
