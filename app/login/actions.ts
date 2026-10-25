@@ -1,11 +1,11 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { getSafeInternalPath } from "@/lib/safe-path";
+import { getSafeKeepsakeLoginNext } from "@/lib/keepsake-login-next";
 import { redirect } from "next/navigation";
 
 function getSafeNextPath(value: FormDataEntryValue | null, fallback: string) {
-  return getSafeInternalPath(typeof value === "string" ? value : null, fallback);
+  return getSafeKeepsakeLoginNext(typeof value === "string" ? value : null, fallback);
 }
 
 function getLoginErrorPath(message: string, nextPath: string) {
