@@ -82,6 +82,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <input
           name="email"
           type="email"
+          autoComplete="username"
           placeholder="Email"
           required
           className="w-full rounded-2xl border border-archive-gold/20 bg-archive-obsidian py-3 pl-11 pr-4 text-base text-archive-ivory outline-none transition placeholder:text-archive-ivory/46 focus:border-archive-gold"
