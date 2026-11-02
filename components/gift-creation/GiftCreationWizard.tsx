@@ -267,7 +267,7 @@ export function GiftCreationWizard({
                   <span className="font-serif text-lg font-medium">{rel.label}</span>
                 </div>
                 {relationship === rel.type ? (
-                  <span className="font-bold text-[#c5a059]">&check;</span>
+                  <span className="font-bold text-[#c5a059]" aria-label="Selected">✓</span>
                 ) : null}
               </button>
             ))}
