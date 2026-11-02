@@ -124,10 +124,26 @@ export default async function ClaimPage({
               <input name="claimToken" type="hidden" value={resolvedParams.token} />
               <label className="grid gap-2">
                 <span className="text-sm font-semibold text-[#efe3d1]">
+                  Your sign-in email
+                </span>
+                <input
+                  name="email"
+                  type="email"
+                  value={claim.email}
+                  readOnly
+                  autoComplete="username"
+                  aria-readonly="true"
+                  className="rounded-2xl border border-[#c9a45c]/20 bg-[#171410] px-4 py-3 text-base text-[#f8f1e7] outline-none"
+                />
+                <span className="text-xs text-[#efe3d1]/60">Your browser should save this email as your login, not your display name.</span>
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-[#efe3d1]">
                   What should we call you?
                 </span>
                 <input
                   name="displayName"
+                  autoComplete="nickname"
                   defaultValue={submission?.firstName ?? ""}
                   maxLength={60}
                   placeholder="Your display name"
