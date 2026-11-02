@@ -56,9 +56,9 @@ export default async function HomePage() {
               {isSignedIn ? "Dashboard" : "Sign In"}
             </Link>
             <TrackedLink
-              href="/create/gift"
+              href="/legacy-question?source=homepage_header"
               eventName="primary_cta_clicked"
-              eventProperties={{ cta_location: "header", destination: "/create/gift" }}
+              eventProperties={{ cta_location: "header", destination: "/legacy-question" }}
               className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#c5a059] px-5 text-xs font-bold text-[#0a0806] shadow-luxury transition hover:bg-[#d4af37] sm:text-sm"
             >
               Make Something
@@ -93,9 +93,9 @@ export default async function HomePage() {
             Make Something for Someone &rarr;
           </TrackedLink>
           <TrackedLink
-            href="/create"
+            href="/legacy-question?source=homepage_hero"
             eventName="secondary_cta_clicked"
-            eventProperties={{ cta_location: "hero", destination: "/create" }}
+            eventProperties={{ cta_location: "hero", destination: "/legacy-question" }}
             className="inline-flex min-h-14 w-full items-center justify-center rounded-full border border-[#c5a059]/40 bg-white/[0.04] px-8 text-base font-semibold text-[#fdfbf7] backdrop-blur-sm transition hover:border-[#c5a059] hover:bg-white/[0.08] sm:w-auto"
           >
             Build Mine
