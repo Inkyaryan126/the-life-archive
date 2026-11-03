@@ -129,7 +129,7 @@ export default async function ClaimPage({
                 <input
                   name="email"
                   type="email"
-                  value={claim.email}
+                  value={claim?.email ?? ""}
                   readOnly
                   autoComplete="username"
                   aria-readonly="true"
